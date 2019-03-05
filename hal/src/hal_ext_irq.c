@@ -33,7 +33,7 @@
 
 #include "hal_ext_irq.h"
 
-#define EXT_IRQ_AMOUNT 4
+#define EXT_IRQ_AMOUNT 16
 
 /**
  * \brief Driver version
@@ -46,6 +46,7 @@
 struct ext_irq {
 	ext_irq_cb_t cb;
 	uint32_t     pin;
+	void* user_data;
 };
 
 /* Remove KEIL compiling error in case no IRQ line selected */
@@ -71,6 +72,7 @@ int32_t ext_irq_init(void)
 	for (i = 0; i < EXT_IRQ_AMOUNT; i++) {
 		ext_irqs[i].pin = 0xFFFFFFFF;
 		ext_irqs[i].cb  = NULL;
+		ext_irqs[i].user_data = NULL;
 	}
 
 	return _ext_irq_init(process_ext_irq);
@@ -87,7 +89,7 @@ int32_t ext_irq_deinit(void)
 /**
  * \brief Register callback for the given external interrupt
  */
-int32_t ext_irq_register(const uint32_t pin, ext_irq_cb_t cb)
+int32_t ext_irq_register(uint32_t pin, ext_irq_cb_t cb, void* user_data)
 {
 	uint8_t i = 0, j = 0;
 	bool    found = false;
@@ -95,6 +97,7 @@ int32_t ext_irq_register(const uint32_t pin, ext_irq_cb_t cb)
 	for (; i < EXT_IRQ_AMOUNT; i++) {
 		if (ext_irqs[i].pin == pin) {
 			ext_irqs[i].cb = cb;
+			ext_irqs[i].user_data = user_data;
 			found          = true;
 			break;
 		}
@@ -112,6 +115,7 @@ int32_t ext_irq_register(const uint32_t pin, ext_irq_cb_t cb)
 			if (NULL == ext_irqs[i].cb) {
 				ext_irqs[i].cb  = cb;
 				ext_irqs[i].pin = pin;
+				ext_irqs[i].user_data = user_data;
 				found           = true;
 				break;
 			}
@@ -174,7 +178,7 @@ static void process_ext_irq(const uint32_t pin)
 
 		if (ext_irqs[middle].pin == pin) {
 			if (ext_irqs[middle].cb) {
-				ext_irqs[middle].cb();
+				ext_irqs[middle].cb(ext_irqs[middle].user_data);
 			}
 			return;
 		}

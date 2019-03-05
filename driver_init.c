@@ -15,32 +15,33 @@
 #include <hpl_adc_base.h>
 #include <hpl_rtc_base.h>
 
-struct timer_descriptor TIMER_0;
-struct timer_descriptor TIMER_1;
-struct timer_descriptor TIMER_2;
-struct timer_descriptor TIMER_3;
-struct timer_descriptor TIMER_4;
-struct timer_descriptor TIMER_5;
-struct timer_descriptor TIMER_6;
+struct timer_descriptor TIMER_RTC;
+struct timer_descriptor TIMER_TC0;
+struct timer_descriptor TIMER_TC1;
+struct timer_descriptor TIMER_TC2;
+struct timer_descriptor TIMER_TC3;
+struct timer_descriptor TIMER_TC4;
+struct timer_descriptor TIMER_TC5;
+struct timer_descriptor TIMER_TC6;
+struct timer_descriptor TIMER_TC7;
+
+struct timer_descriptor TIMER_TCC0;
+struct timer_descriptor TIMER_TCC1;
+struct timer_descriptor TIMER_TCC2;
+struct timer_descriptor TIMER_TCC3;
+struct timer_descriptor TIMER_TCC4;
+
 
 struct adc_sync_descriptor ADC_0;
-
 struct adc_sync_descriptor ADC_1;
 
-struct i2c_m_async_desc I2C_4;
-
-struct i2c_m_async_desc I2C_1;
 
 struct i2c_s_async_descriptor I2C_0;
 uint8_t                       SERCOM2_i2c_s_buffer[SERCOM2_I2CS_BUFFER_SIZE];
-
-struct i2c_m_async_desc I2C_3;
-
+struct i2c_m_async_desc I2C_1;
 struct i2c_m_async_desc I2C_2;
-
-struct timer_descriptor TIMER_7;
-
-struct timer_descriptor TIMER_8;
+struct i2c_m_async_desc I2C_3;
+struct i2c_m_async_desc I2C_4;
 
 struct wdt_descriptor WDT_0;
 
@@ -178,10 +179,10 @@ void EXTERNAL_IRQ_0_init(void)
  *
  * Enables Timer peripheral, clocks and initializes Timer driver
  */
-static void TIMER_0_init(void)
+static void TIMER_RTC_init(void)
 {
 	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
-	timer_init(&TIMER_0, RTC, _rtc_get_timer());
+	timer_init(&TIMER_RTC, RTC, _rtc_get_timer());
 }
 
 void I2C_4_PORT_init(void)
@@ -384,106 +385,109 @@ void delay_driver_init(void)
 	delay_init(SysTick);
 }
 
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-static void TIMER_1_init(void)
+
+static void TIMER_TC0_init(void)
 {
 	hri_mclk_set_APBAMASK_TC0_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_1, TC0, _tc_get_timer());
+	timer_init(&TIMER_TC0, TC0, _tc_get_timer());
 }
 
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-static void TIMER_2_init(void)
+static void TIMER_TC1_init(void)
 {
 	hri_mclk_set_APBAMASK_TC1_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC1_GCLK_ID, CONF_GCLK_TC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_2, TC1, _tc_get_timer());
+	timer_init(&TIMER_TC1, TC1, _tc_get_timer());
 }
 
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-static void TIMER_3_init(void)
+static void TIMER_TC2_init(void)
 {
 	hri_mclk_set_APBBMASK_TC2_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, CONF_GCLK_TC2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_3, TC2, _tc_get_timer());
+	timer_init(&TIMER_TC2, TC2, _tc_get_timer());
 }
 
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-static void TIMER_4_init(void)
+static void TIMER_TC3_init(void)
 {
 	hri_mclk_set_APBBMASK_TC3_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, CONF_GCLK_TC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_4, TC3, _tc_get_timer());
+	timer_init(&TIMER_TC3, TC3, _tc_get_timer());
 }
 
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-static void TIMER_5_init(void)
+static void TIMER_TC4_init(void)
 {
 	hri_mclk_set_APBCMASK_TC4_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_5, TC4, _tc_get_timer());
+	timer_init(&TIMER_TC4, TC4, _tc_get_timer());
 }
 
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-static void TIMER_6_init(void)
+static void TIMER_TC5_init(void)
 {
 	hri_mclk_set_APBCMASK_TC5_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC5_GCLK_ID, CONF_GCLK_TC5_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_6, TC5, _tc_get_timer());
+	timer_init(&TIMER_TC5, TC5, _tc_get_timer());
 }
 
-void TIMER_7_CLOCK_init(void)
+static void TIMER_TC6_init(void)
+{
+	hri_mclk_set_APBDMASK_TC6_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TC6_GCLK_ID, CONF_GCLK_TC6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	timer_init(&TIMER_TC6, TC6, _tc_get_timer());
+}
+
+static void TIMER_TC7_init(void)
+{
+	hri_mclk_set_APBDMASK_TC7_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TC7_GCLK_ID, CONF_GCLK_TC6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	timer_init(&TIMER_TC7, TC7, _tc_get_timer());
+}
+
+static void TIMER_TCC0_init(void)
 {
 	hri_mclk_set_APBBMASK_TCC0_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TCC0_GCLK_ID, CONF_GCLK_TCC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	
+	timer_init(&TIMER_TCC0, TCC0, _tcc_get_timer());
 }
 
-void TIMER_7_init(void)
-{
-	TIMER_7_CLOCK_init();
-	timer_init(&TIMER_7, TCC0, _tcc_get_timer());
-}
-
-void TIMER_8_CLOCK_init(void)
+static void TIMER_TCC1_init(void)
 {
 	hri_mclk_set_APBBMASK_TCC1_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TCC1_GCLK_ID, CONF_GCLK_TCC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	
+	timer_init(&TIMER_TCC1, TCC1, _tcc_get_timer());
 }
 
-void TIMER_8_init(void)
+static void TIMER_TCC2_init(void)
 {
-	TIMER_8_CLOCK_init();
-	timer_init(&TIMER_8, TCC1, _tcc_get_timer());
+	hri_mclk_set_APBCMASK_TCC2_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TCC2_GCLK_ID, CONF_GCLK_TCC2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	
+	timer_init(&TIMER_TCC2, TCC2, _tcc_get_timer());
+}
+
+static void TIMER_TCC3_init(void)
+{
+	hri_mclk_set_APBCMASK_TCC3_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TCC3_GCLK_ID, CONF_GCLK_TCC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	
+	timer_init(&TIMER_TCC3, TCC3, _tcc_get_timer());
+}
+
+static void TIMER_TCC4_init(void)
+{
+	hri_mclk_set_APBDMASK_TCC4_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TCC4_GCLK_ID, CONF_GCLK_TCC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	
+	timer_init(&TIMER_TCC4, TCC4, _tcc_get_timer());
 }
 
 void USB_0_PORT_init(void)
@@ -622,7 +626,7 @@ void system_init(void)
 
 	EXTERNAL_IRQ_0_init();
 
-	TIMER_0_init();
+	TIMER_RTC_init();
 
 	I2C_4_init();
 
@@ -636,17 +640,16 @@ void system_init(void)
 
 	delay_driver_init();
 
-	TIMER_1_init();
-	TIMER_2_init();
-	TIMER_3_init();
-	TIMER_4_init();
-	TIMER_5_init();
-	TIMER_6_init();
-	TIMER_7_init();
+	TIMER_TC0_init();
+	TIMER_TC1_init();
+	TIMER_TC2_init();
+	TIMER_TC3_init();
+	TIMER_TCC0_init();
+	TIMER_TCC1_init();
+	TIMER_TCC2_init();
 
-	TIMER_8_init();
 
-	USB_0_init();
+	//USB_0_init();
 
 	WDT_0_init();
 }

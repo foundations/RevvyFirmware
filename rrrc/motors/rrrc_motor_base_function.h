@@ -9,6 +9,12 @@
 #ifndef RRRC_MOTOR_BASE_FUNCTION_H_
 #define RRRC_MOTOR_BASE_FUNCTION_H_
 
+#include <stdint.h>
+#include <stddef.h>
+#include "rrrc_motor_interface.h"
+#include "rrrc_hal.h"
+#include "hal_gpio.h"
+#include "hal_timer.h"
 
 static void MotorPort_dir_stop(const void* port)
 {

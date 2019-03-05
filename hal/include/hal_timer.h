@@ -74,6 +74,7 @@ struct timer_task {
 	uint32_t             interval; /*! Number of timer ticks before calling the task. */
 	timer_cb_t           cb;       /*! Function pointer to the task. */
 	enum timer_task_mode mode;     /*! Task mode: one shot or repeat. */
+	void*	user_data;
 };
 
 /**

@@ -22,9 +22,6 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 
 }*/
 
-#include "driver_init.h"
-#include "pwm_lite.h"
-
 #include "rrrc_hal.h"
 #include "rrrc_sensors.h"
 #include "rrrc_motors.h"
@@ -253,15 +250,15 @@ void RRRC_remove_task(struct timer_task* task)
 
 int RRRC_Init(void)
 {
-    adc_async_enable_channel(&ADC_0, 0);
-    adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
-	adc_async_set_inputs(&ADC_0, adc0_ch, 0, 0);
-    adc_async_start_conversion(&ADC_0);
-
-	adc_async_enable_channel(&ADC_1, 0);
-    adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
-	adc_async_set_inputs(&ADC_1, adc1_ch, 0, 0);
-    adc_async_start_conversion(&ADC_1);
+//     adc_async_enable_channel(&ADC_0, 0);
+//     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
+// 	adc_async_set_inputs(&ADC_0, adc0_ch, 0, 0);
+//     adc_async_start_conversion(&ADC_0);
+// 
+// 	adc_async_enable_channel(&ADC_1, 0);
+//     adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
+// 	adc_async_set_inputs(&ADC_1, adc1_ch, 0, 0);
+//     adc_async_start_conversion(&ADC_1);
 
 
 	i2c_s_async_enable(&I2C_0);

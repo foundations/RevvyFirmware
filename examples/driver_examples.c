@@ -57,39 +57,46 @@ static void button_on_PB13_pressed(void)
 /**
  * Example of using EXTERNAL_IRQ_0
  */
+static struct user_data
+{
+	int data;	
+}user_data;
 void EXTERNAL_IRQ_0_example(void)
 {
 
-	ext_irq_register(PIN_PB10, button_on_PB10_pressed);
-	ext_irq_register(PIN_PB11, button_on_PB11_pressed);
-	ext_irq_register(PIN_PB12, button_on_PB12_pressed);
-	ext_irq_register(PIN_PB13, button_on_PB13_pressed);
+	
+	ext_irq_register(PIN_PB10, button_on_PB10_pressed, &user_data);
+	ext_irq_register(PIN_PB11, button_on_PB11_pressed, NULL);
+	ext_irq_register(PIN_PB12, button_on_PB12_pressed, NULL);
+	ext_irq_register(PIN_PB13, button_on_PB13_pressed, NULL);
 }
 
-static struct timer_task TIMER_0_task1, TIMER_0_task2;
+static struct timer_task TIMER_RTC_task1, TIMER_RTC_task2;
 /**
  * Example of using TIMER_0.
  */
-static void TIMER_0_task1_cb(const struct timer_task *const timer_task)
+static void TIMER_RTC_task1_cb(const struct timer_task *const timer_task)
 {
 }
 
-static void TIMER_0_task2_cb(const struct timer_task *const timer_task)
+static void TIMER_RTC_task2_cb(const struct timer_task *const timer_task)
 {
 }
 
-void TIMER_0_example(void)
+void TIMER_RTC_example(void)
 {
-	TIMER_0_task1.interval = 100;
-	TIMER_0_task1.cb       = TIMER_0_task1_cb;
-	TIMER_0_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_0_task2.interval = 200;
-	TIMER_0_task2.cb       = TIMER_0_task2_cb;
-	TIMER_0_task2.mode     = TIMER_TASK_REPEAT;
+	TIMER_RTC_task1.interval = 100;
+	TIMER_RTC_task1.cb       = TIMER_RTC_task1_cb;
+	TIMER_RTC_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_RTC_task1.user_data = NULL;
+	TIMER_RTC_task2.interval = 200;
+	TIMER_RTC_task2.cb       = TIMER_RTC_task2_cb;
+	TIMER_RTC_task2.mode     = TIMER_TASK_REPEAT;
+	TIMER_RTC_task2.user_data = NULL;
 
-	timer_add_task(&TIMER_0, &TIMER_0_task1);
-	timer_add_task(&TIMER_0, &TIMER_0_task2);
-	timer_start(&TIMER_0);
+	timer_add_task(&TIMER_RTC, &TIMER_RTC_task1);
+	timer_add_task(&TIMER_RTC, &TIMER_RTC_task2);
+	timer_start(&TIMER_RTC);
 }
 
 static uint8_t I2C_4_example_str[12] = "Hello World!";
@@ -207,199 +214,11 @@ void TIMER_1_example(void)
 	TIMER_1_task2.cb       = TIMER_1_task2_cb;
 	TIMER_1_task2.mode     = TIMER_TASK_REPEAT;
 
-	timer_add_task(&TIMER_1, &TIMER_1_task1);
-	timer_add_task(&TIMER_1, &TIMER_1_task2);
-	timer_start(&TIMER_1);
+	timer_add_task(&TIMER_TC0, &TIMER_1_task1);
+	timer_add_task(&TIMER_TC0, &TIMER_1_task2);
+	timer_start(&TIMER_TC0);
 }
 
-static struct timer_task TIMER_2_task1, TIMER_2_task2;
-
-/**
- * Example of using TIMER_2.
- */
-static void TIMER_2_task1_cb(const struct timer_task *const timer_task)
-{
-}
-
-static void TIMER_2_task2_cb(const struct timer_task *const timer_task)
-{
-}
-
-void TIMER_2_example(void)
-{
-	TIMER_2_task1.interval = 100;
-	TIMER_2_task1.cb       = TIMER_2_task1_cb;
-	TIMER_2_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_2_task2.interval = 200;
-	TIMER_2_task2.cb       = TIMER_2_task2_cb;
-	TIMER_2_task2.mode     = TIMER_TASK_REPEAT;
-
-	timer_add_task(&TIMER_2, &TIMER_2_task1);
-	timer_add_task(&TIMER_2, &TIMER_2_task2);
-	timer_start(&TIMER_2);
-}
-
-static struct timer_task TIMER_3_task1, TIMER_3_task2;
-
-/**
- * Example of using TIMER_3.
- */
-static void TIMER_3_task1_cb(const struct timer_task *const timer_task)
-{
-}
-
-static void TIMER_3_task2_cb(const struct timer_task *const timer_task)
-{
-}
-
-void TIMER_3_example(void)
-{
-	TIMER_3_task1.interval = 100;
-	TIMER_3_task1.cb       = TIMER_3_task1_cb;
-	TIMER_3_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_3_task2.interval = 200;
-	TIMER_3_task2.cb       = TIMER_3_task2_cb;
-	TIMER_3_task2.mode     = TIMER_TASK_REPEAT;
-
-	timer_add_task(&TIMER_3, &TIMER_3_task1);
-	timer_add_task(&TIMER_3, &TIMER_3_task2);
-	timer_start(&TIMER_3);
-}
-
-static struct timer_task TIMER_4_task1, TIMER_4_task2;
-
-/**
- * Example of using TIMER_4.
- */
-static void TIMER_4_task1_cb(const struct timer_task *const timer_task)
-{
-}
-
-static void TIMER_4_task2_cb(const struct timer_task *const timer_task)
-{
-}
-
-void TIMER_4_example(void)
-{
-	TIMER_4_task1.interval = 100;
-	TIMER_4_task1.cb       = TIMER_4_task1_cb;
-	TIMER_4_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_4_task2.interval = 200;
-	TIMER_4_task2.cb       = TIMER_4_task2_cb;
-	TIMER_4_task2.mode     = TIMER_TASK_REPEAT;
-
-	timer_add_task(&TIMER_4, &TIMER_4_task1);
-	timer_add_task(&TIMER_4, &TIMER_4_task2);
-	timer_start(&TIMER_4);
-}
-
-static struct timer_task TIMER_5_task1, TIMER_5_task2;
-
-/**
- * Example of using TIMER_5.
- */
-static void TIMER_5_task1_cb(const struct timer_task *const timer_task)
-{
-}
-
-static void TIMER_5_task2_cb(const struct timer_task *const timer_task)
-{
-}
-
-void TIMER_5_example(void)
-{
-	TIMER_5_task1.interval = 100;
-	TIMER_5_task1.cb       = TIMER_5_task1_cb;
-	TIMER_5_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_5_task2.interval = 200;
-	TIMER_5_task2.cb       = TIMER_5_task2_cb;
-	TIMER_5_task2.mode     = TIMER_TASK_REPEAT;
-
-	timer_add_task(&TIMER_5, &TIMER_5_task1);
-	timer_add_task(&TIMER_5, &TIMER_5_task2);
-	timer_start(&TIMER_5);
-}
-
-static struct timer_task TIMER_6_task1, TIMER_6_task2;
-
-/**
- * Example of using TIMER_6.
- */
-static void TIMER_6_task1_cb(const struct timer_task *const timer_task)
-{
-}
-
-static void TIMER_6_task2_cb(const struct timer_task *const timer_task)
-{
-}
-
-void TIMER_6_example(void)
-{
-	TIMER_6_task1.interval = 100;
-	TIMER_6_task1.cb       = TIMER_6_task1_cb;
-	TIMER_6_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_6_task2.interval = 200;
-	TIMER_6_task2.cb       = TIMER_6_task2_cb;
-	TIMER_6_task2.mode     = TIMER_TASK_REPEAT;
-
-	timer_add_task(&TIMER_6, &TIMER_6_task1);
-	timer_add_task(&TIMER_6, &TIMER_6_task2);
-	timer_start(&TIMER_6);
-}
-
-/**
- * Example of using TIMER_7.
- */
-struct timer_task TIMER_7_task1, TIMER_7_task2;
-
-static void TIMER_7_task1_cb(const struct timer_task *const timer_task)
-{
-}
-
-static void TIMER_7_task2_cb(const struct timer_task *const timer_task)
-{
-}
-
-void TIMER_7_example(void)
-{
-	TIMER_7_task1.interval = 100;
-	TIMER_7_task1.cb       = TIMER_7_task1_cb;
-	TIMER_7_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_7_task2.interval = 200;
-	TIMER_7_task2.cb       = TIMER_7_task2_cb;
-	TIMER_7_task2.mode     = TIMER_TASK_REPEAT;
-
-	timer_add_task(&TIMER_7, &TIMER_7_task1);
-	timer_add_task(&TIMER_7, &TIMER_7_task2);
-	timer_start(&TIMER_7);
-}
-
-/**
- * Example of using TIMER_8.
- */
-struct timer_task TIMER_8_task1, TIMER_8_task2;
-
-static void TIMER_8_task1_cb(const struct timer_task *const timer_task)
-{
-}
-
-static void TIMER_8_task2_cb(const struct timer_task *const timer_task)
-{
-}
-
-void TIMER_8_example(void)
-{
-	TIMER_8_task1.interval = 100;
-	TIMER_8_task1.cb       = TIMER_8_task1_cb;
-	TIMER_8_task1.mode     = TIMER_TASK_REPEAT;
-	TIMER_8_task2.interval = 200;
-	TIMER_8_task2.cb       = TIMER_8_task2_cb;
-	TIMER_8_task2.mode     = TIMER_TASK_REPEAT;
-
-	timer_add_task(&TIMER_8, &TIMER_8_task1);
-	timer_add_task(&TIMER_8, &TIMER_8_task2);
-	timer_start(&TIMER_8);
-}
 
 /**
  * Example of using WDT_0.

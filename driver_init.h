@@ -64,74 +64,33 @@ extern "C" {
 #define SERCOM2_I2CS_BUFFER_SIZE 128
 
 extern struct adc_sync_descriptor ADC_0;
-
 extern struct adc_sync_descriptor ADC_1;
-extern struct timer_descriptor    TIMER_0;
-
-extern struct i2c_m_async_desc I2C_4;
-
-extern struct i2c_m_async_desc I2C_1;
 
 extern struct i2c_s_async_descriptor I2C_0;
-
-extern struct i2c_m_async_desc I2C_3;
-
+extern struct i2c_m_async_desc I2C_1;
 extern struct i2c_m_async_desc I2C_2;
+extern struct i2c_m_async_desc I2C_3;
+extern struct i2c_m_async_desc I2C_4;
 
-extern struct timer_descriptor TIMER_1;
-extern struct timer_descriptor TIMER_2;
-extern struct timer_descriptor TIMER_3;
-extern struct timer_descriptor TIMER_4;
-extern struct timer_descriptor TIMER_5;
-extern struct timer_descriptor TIMER_6;
+extern struct timer_descriptor TIMER_RTC;
 
-extern struct timer_descriptor TIMER_7;
+extern struct timer_descriptor TIMER_TC0;
+extern struct timer_descriptor TIMER_TC1;
+extern struct timer_descriptor TIMER_TC2;
+extern struct timer_descriptor TIMER_TC3;
+extern struct timer_descriptor TIMER_TC4;
+extern struct timer_descriptor TIMER_TC5;
+extern struct timer_descriptor TIMER_TC6;
+extern struct timer_descriptor TIMER_TC7;
 
-extern struct timer_descriptor TIMER_8;
+extern struct timer_descriptor TIMER_TCC0;
+extern struct timer_descriptor TIMER_TCC1;
+extern struct timer_descriptor TIMER_TCC2;
+extern struct timer_descriptor TIMER_TCC3;
+extern struct timer_descriptor TIMER_TCC4;
 
 extern struct wdt_descriptor WDT_0;
 
-void ADC_0_PORT_init(void);
-void ADC_0_CLOCK_init(void);
-void ADC_0_init(void);
-
-void ADC_1_PORT_init(void);
-void ADC_1_CLOCK_init(void);
-void ADC_1_init(void);
-
-void I2C_4_PORT_init(void);
-void I2C_4_CLOCK_init(void);
-void I2C_4_init(void);
-
-void I2C_1_PORT_init(void);
-void I2C_1_CLOCK_init(void);
-void I2C_1_init(void);
-
-void I2C_0_PORT_init(void);
-void I2C_0_CLOCK_init(void);
-void I2C_0_init(void);
-
-void I2C_3_PORT_init(void);
-void I2C_3_CLOCK_init(void);
-void I2C_3_init(void);
-
-void I2C_2_PORT_init(void);
-void I2C_2_CLOCK_init(void);
-void I2C_2_init(void);
-
-void delay_driver_init(void);
-
-void TIMER_7_CLOCK_init(void);
-void TIMER_7_init(void);
-
-void TIMER_8_CLOCK_init(void);
-void TIMER_8_init(void);
-
-void USB_0_CLOCK_init(void);
-void USB_0_init(void);
-
-void WDT_0_CLOCK_init(void);
-void WDT_0_init(void);
 
 /**
  * \brief Perform system initialization, initialize pins and clocks for

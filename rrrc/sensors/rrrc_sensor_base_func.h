@@ -11,7 +11,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "sensors/rrrc_sensor_interface.h"
+#include "rrrc_sensor_interface.h"
 #include "hal_gpio.h"
 #include "hal_timer.h"
 

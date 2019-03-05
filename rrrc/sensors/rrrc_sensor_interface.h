@@ -60,7 +60,7 @@ typedef struct _sensor_lib_entry_t
 
 
 
-typedef int32_t gpio_num;
+typedef uint8_t gpio_num;
 
 typedef struct _hw_sensor_port_t
 {

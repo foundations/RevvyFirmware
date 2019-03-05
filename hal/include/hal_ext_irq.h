@@ -49,7 +49,7 @@ extern "C" {
 /**
  * \brief External IRQ callback type
  */
-typedef void (*ext_irq_cb_t)(void);
+typedef void (*ext_irq_cb_t)(void* user_data);
 
 /**
  * \brief Initialize external IRQ component, if any
@@ -79,7 +79,7 @@ int32_t ext_irq_deinit(void);
  * \retval -1 Passed parameters were invalid
  * \retval 0 The callback registration is completed successfully
  */
-int32_t ext_irq_register(const uint32_t pin, ext_irq_cb_t cb);
+int32_t ext_irq_register(uint32_t pin, ext_irq_cb_t cb, void* user_data);
 
 /**
  * \brief Enable external IRQ

@@ -46,7 +46,7 @@ typedef struct _motor_lib_entry_t
 
 
 
-typedef int32_t gpio_num;
+typedef uint8_t gpio_num;
 
 typedef struct _hw_motor_port_t
 {
