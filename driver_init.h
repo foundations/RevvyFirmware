@@ -21,50 +21,26 @@ extern "C" {
 #include <hal_io.h>
 #include <hal_sleep.h>
 
-#include <hal_adc_sync.h>
-
-#include <hal_adc_sync.h>
-
+#include <hal_adc_async.h>
 #include <hal_ext_irq.h>
-
 #include <hal_timer.h>
+#include <hpl_tc_base.h>
+#include <hpl_tcc.h>
+#include <hal_delay.h>
+#include <hal_wdt.h>
 
+//#include <hal_i2c_m_sync.h>
 #include <hal_i2c_m_async.h>
-
-#include <hal_i2c_m_async.h>
-
 #include <hal_i2c_s_async.h>
 
-#include <hal_i2c_m_async.h>
+//#include "hal_usb_device.h"
 
-#include <hal_i2c_m_async.h>
 
-#include <hal_delay.h>
-#include <hal_timer.h>
-#include <hpl_tc_base.h>
-#include <hal_timer.h>
-#include <hpl_tc_base.h>
-#include <hal_timer.h>
-#include <hpl_tc_base.h>
-#include <hal_timer.h>
-#include <hpl_tc_base.h>
-#include <hal_timer.h>
-#include <hpl_tc_base.h>
-#include <hal_timer.h>
-#include <hpl_tc_base.h>
-#include <hal_timer.h>
-#include <hpl_tcc.h>
-#include <hal_timer.h>
-#include <hpl_tcc.h>
-
-#include "hal_usb_device.h"
-
-#include <hal_wdt.h>
 
 #define SERCOM2_I2CS_BUFFER_SIZE 128
 
-extern struct adc_sync_descriptor ADC_0;
-extern struct adc_sync_descriptor ADC_1;
+extern struct adc_async_descriptor ADC_0;
+extern struct adc_async_descriptor ADC_1;
 
 extern struct i2c_s_async_descriptor I2C_0;
 extern struct i2c_m_async_desc I2C_1;

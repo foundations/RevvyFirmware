@@ -586,6 +586,9 @@
     <Compile Include="examples\driver_examples.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\include\hal_adc_async.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\include\hal_adc_sync.h">
       <SubType>compile</SubType>
     </Compile>
@@ -740,6 +743,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_wdt.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\src\hal_adc_async.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_adc_sync.c">
