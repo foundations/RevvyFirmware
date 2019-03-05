@@ -1048,6 +1048,84 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\motors\motor_dc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_dc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_dummy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_servo.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_servo.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\rrrc_motor_base_function.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\rrrc_motor_interface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_hal.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_hal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_i2c_protocol.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_i2c_protocol.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_motors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_motors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_sensors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_sensors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_worklogic.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_worklogic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\rrrc_sensor_base_func.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\rrrc_sensor_interface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_button.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_button.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_dummy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_HC_SR05.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_HC_SR05.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Config\" />
@@ -1080,6 +1158,9 @@
     <Folder Include="hpl\usb\" />
     <Folder Include="hpl\wdt\" />
     <Folder Include="hri\" />
+    <Folder Include="rrrc" />
+    <Folder Include="rrrc\motors" />
+    <Folder Include="rrrc\sensors" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\samd51p19a_flash.ld">
