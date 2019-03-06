@@ -13,8 +13,8 @@ int32_t HC_SR05_Init(void* hw_port)
 
 	memset(sensport->lib_data, 0, SENSOR_PORT_LIBDATA);
 
-	SensorPort_gpio1_set_dir(sensport, GPIO_DIRECTION_OUT);
-	SensorPort_gpio1_set_state(sensport, 0);	
+// 	SensorPort_gpio1_set_dir(sensport, GPIO_DIRECTION_OUT);
+// 	SensorPort_gpio1_set_state(sensport, 0);	
 
 	return result;
 }
@@ -39,9 +39,9 @@ void HC_SR05_Thread(void* hw_port)
 		return;
 	
 // 	static uint32_t run = 0;
-	SensorPort_gpio1_set_state(sensport, 1);
-	delay_us(10);
-	SensorPort_gpio1_set_state(sensport, 0);
+// 	SensorPort_gpio1_set_state(sensport, 1);
+// 	delay_us(10);
+// 	SensorPort_gpio1_set_state(sensport, 0);
 	start=1;
 
 	return;

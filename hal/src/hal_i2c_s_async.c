@@ -43,23 +43,28 @@
 static int32_t i2c_s_async_write(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length);
 static int32_t i2c_s_async_read(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length);
 
-static void i2c_s_async_tx(struct _i2c_s_async_device *const device);
-static void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data);
-static void i2c_s_async_error(struct _i2c_s_async_device *const device);
+// static void i2c_s_async_tx(struct _i2c_s_async_device *const device);
+// static void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data);
+// static void i2c_s_async_error(struct _i2c_s_async_device *const device);
+
+extern void i2c_s_async_tx(struct _i2c_s_async_device *const device);
+extern void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data);
+extern void i2c_s_async_error(struct _i2c_s_async_device *const device);
+extern void i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir);
+extern void i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir);
 
 /**
  * \brief Initialize asynchronous i2c slave interface
  */
-int32_t i2c_s_async_init(struct i2c_s_async_descriptor *const descr, void *const hw, uint8_t *const rx_buffer,
-                         const uint16_t rx_buffer_length)
+int32_t i2c_s_async_init(struct i2c_s_async_descriptor *const descr, void *const hw)
 {
 	int32_t init_status;
 
-	ASSERT(descr && hw && rx_buffer && rx_buffer_length);
+	ASSERT(descr && hw );
 
-	if (ERR_NONE != ringbuffer_init(&descr->rx, rx_buffer, rx_buffer_length)) {
-		return ERR_INVALID_ARG;
-	}
+// 	if (ERR_NONE != ringbuffer_init(&descr->rx, rx_buffer, rx_buffer_length)) {
+// 		return ERR_INVALID_ARG;
+// 	}
 
 	init_status = _i2c_s_async_init(&descr->device, hw);
 	if (init_status) {
@@ -72,9 +77,11 @@ int32_t i2c_s_async_init(struct i2c_s_async_descriptor *const descr, void *const
 	descr->device.cb.error   = i2c_s_async_error;
 	descr->device.cb.tx      = i2c_s_async_tx;
 	descr->device.cb.rx_done = i2c_s_async_byte_received;
+	descr->device.cb.stop	 = i2c_s_async_stop;
+	descr->device.cb.addrm   = i2c_s_async_addr_match;
 
-	descr->tx_por           = 0;
-	descr->tx_buffer_length = 0;
+// 	descr->tx_por           = 0;
+// 	descr->tx_buffer_length = 0;
 
 	return ERR_NONE;
 }
@@ -100,9 +107,13 @@ int32_t i2c_s_async_enable(struct i2c_s_async_descriptor *const descr)
 
 	rc = _i2c_s_async_enable(&descr->device);
 	if (rc == ERR_NONE) {
-		_i2c_s_async_set_irq_state(&descr->device, I2C_S_DEVICE_TX, true);
-		_i2c_s_async_set_irq_state(&descr->device, I2C_S_DEVICE_RX_COMPLETE, true);
-		_i2c_s_async_set_irq_state(&descr->device, I2C_S_DEVICE_ERROR, true);
+// 		_i2c_s_async_set_irq_state(&descr->device, I2C_S_DEVICE_TX, true);
+// 		_i2c_s_async_set_irq_state(&descr->device, I2C_S_DEVICE_RX_COMPLETE, true);
+// 		_i2c_s_async_set_irq_state(&descr->device, I2C_S_DEVICE_ERROR, true);
+		hri_sercomi2cs_set_INTEN_ERROR_bit(descr->device.hw);
+		hri_sercomi2cs_set_INTEN_AMATCH_bit(descr->device.hw);
+		hri_sercomi2cs_set_INTEN_PREC_bit(descr->device.hw);
+		hri_sercomi2cs_set_INTEN_DRDY_bit(descr->device.hw);
 	}
 	return rc;
 }
@@ -243,54 +254,54 @@ uint32_t i2c_s_async_get_version(void)
  *
  * \param[in] device The pointer to i2c slave device
  */
-static void i2c_s_async_tx(struct _i2c_s_async_device *const device)
-{
-	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
-
-	if (!descr->tx_buffer_length) {
-		if (descr->cbs.tx_pending) {
-			descr->cbs.tx_pending(descr);
-		}
-	} else if (++descr->tx_por != descr->tx_buffer_length) {
-		_i2c_s_async_write_byte(&descr->device, descr->tx_buffer[descr->tx_por]);
-	} else {
-		descr->tx_por           = 0;
-		descr->tx_buffer_length = 0;
-		if (descr->cbs.tx) {
-			descr->cbs.tx(descr);
-		}
-	}
-}
+// static void i2c_s_async_tx(struct _i2c_s_async_device *const device)
+// {
+// 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
+// 
+// 	if (!descr->tx_buffer_length) {
+// 		if (descr->cbs.tx_pending) {
+// 			descr->cbs.tx_pending(descr);
+// 		}
+// 	} else if (++descr->tx_por != descr->tx_buffer_length) {
+// 		_i2c_s_async_write_byte(&descr->device, descr->tx_buffer[descr->tx_por]);
+// 	} else {
+// 		descr->tx_por           = 0;
+// 		descr->tx_buffer_length = 0;
+// 		if (descr->cbs.tx) {
+// 			descr->cbs.tx(descr);
+// 		}
+// 	}
+// }
 
 /**
  * \internal Callback function for data receipt
  *
  * \param[in] device The pointer to i2c slave device
  */
-static void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
-{
-	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
-
-	ringbuffer_put(&descr->rx, data);
-
-	if (descr->cbs.rx) {
-		descr->cbs.rx(descr);
-	}
-}
+// static void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
+// {
+// 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
+// 
+// 	ringbuffer_put(&descr->rx, data);
+// 
+// 	if (descr->cbs.rx) {
+// 		descr->cbs.rx(descr);
+// 	}
+// }
 
 /**
  * \internal Callback function for error
  *
  * \param[in] device The pointer to i2c slave device
  */
-static void i2c_s_async_error(struct _i2c_s_async_device *const device)
-{
-	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
-
-	if (descr->cbs.error) {
-		descr->cbs.error(descr);
-	}
-}
+// static void i2c_s_async_error(struct _i2c_s_async_device *const device)
+// {
+// 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
+// 
+// 	if (descr->cbs.error) {
+// 		descr->cbs.error(descr);
+// 	}
+// }
 
 /*
  * \internal Read data from i2c slave interface

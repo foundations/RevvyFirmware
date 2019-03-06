@@ -18,7 +18,7 @@
 // <i>  Defines the bit resolution for the ADC sample values (RESSEL)
 // <id> adc_resolution
 #ifndef CONF_ADC_0_RESSEL
-#define CONF_ADC_0_RESSEL 0x0
+#define CONF_ADC_0_RESSEL 0x03
 #endif
 
 // <o> Reference Selection
@@ -31,7 +31,7 @@
 // <i> Select the reference for the ADC (REFSEL)
 // <id> adc_reference
 #ifndef CONF_ADC_0_REFSEL
-#define CONF_ADC_0_REFSEL 0x3
+#define CONF_ADC_0_REFSEL 0x00
 #endif
 
 // <o> Prescaler configuration
@@ -46,14 +46,14 @@
 // <i> These bits define the ADC clock relative to the peripheral clock (PRESCALER)
 // <id> adc_prescaler
 #ifndef CONF_ADC_0_PRESCALER
-#define CONF_ADC_0_PRESCALER 0x0
+#define CONF_ADC_0_PRESCALER 0x07
 #endif
 
 // <q> Free Running Mode
 // <i> When enabled, the ADC is in free running mode and a new conversion will be initiated when a previous conversion completes. (FREERUN)
 // <id> adc_freerunning_mode
 #ifndef CONF_ADC_0_FREERUN
-#define CONF_ADC_0_FREERUN 0
+#define CONF_ADC_0_FREERUN 1
 #endif
 
 // <q> Differential Mode
@@ -90,7 +90,7 @@
 // <i> These bits define the Mux selection for the positive ADC input. (MUXPOS)
 // <id> adc_pinmux_positive
 #ifndef CONF_ADC_0_MUXPOS
-#define CONF_ADC_0_MUXPOS 0x0
+#define CONF_ADC_0_MUXPOS 0x6
 #endif
 
 // <o> Negative Mux Input Selection
@@ -106,7 +106,7 @@
 // <i> These bits define the Mux selection for the negative ADC input. (MUXNEG)
 // <id> adc_pinmux_negative
 #ifndef CONF_ADC_0_MUXNEG
-#define CONF_ADC_0_MUXNEG 0x0
+#define CONF_ADC_0_MUXNEG 0x7
 #endif
 
 // </h>
@@ -202,7 +202,7 @@
 // <i> Define how many samples should be added together.The result will be available in the Result register (SAMPLENUM)
 // <id> adc_arch_samplenum
 #ifndef CONF_ADC_0_SAMPLENUM
-#define CONF_ADC_0_SAMPLENUM 0x0
+#define CONF_ADC_0_SAMPLENUM 0xA
 #endif
 
 // <o> Sampling Time Length <0-63>
@@ -250,7 +250,7 @@
 // <e> Event Control
 // <id> adc_arch_event_settings
 #ifndef CONF_ADC_0_EVENT_CONTROL
-#define CONF_ADC_0_EVENT_CONTROL 0
+#define CONF_ADC_0_EVENT_CONTROL 1
 #endif
 
 // <q> Window Monitor Event Out
@@ -264,7 +264,7 @@
 // <i> Enables event output on result ready event (RESRDEO)
 // <id> adc_arch_resrdyeo
 #ifndef CONF_ADC_0_RESRDYEO
-#define CONF_ADC_0_RESRDYEO 0
+#define CONF_ADC_0_RESRDYEO 1
 #endif
 
 // <q> Invert flush Event Signal

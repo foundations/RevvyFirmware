@@ -17,6 +17,7 @@ typedef enum _sensor_type_t
 	SENSOR_NOT_SET,
 	SENSOR_HC_SR05,
 	SENSOR_SWITCH,
+	SENSOR_ANALOG_SWITCH,
 	SENSOR_SJMCU34725,
 	SENSOR_EKPSMD3528,
 	SENSOR_KXTJ3_1507,
@@ -72,8 +73,8 @@ typedef struct _hw_sensor_port_t
 	struct timer_task* sensor_thread;
 
 	struct i2c_m_sync_desc		*I2C;
-	gpio_num i2c_gpio0;
-	gpio_num i2c_gpio1;
+	gpio_num i2c_sda;
+	gpio_num i2c_scl;
 	
 	struct adc_async_descriptor *ADC;
 	uint32_t adc_chan_idx;

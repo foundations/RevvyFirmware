@@ -9,8 +9,10 @@
 #include "rrrc_hal.h"
 #include "rrrc_sensors.h"
 
+#include "sensors/rrrc_sensor_base_func.h"
 #include "sensors/sensor_dummy.h"
 #include "sensors/sensor_button.h"
+#include "sensors/sensor_analog_button.h"
 #include "sensors/sensor_HC_SR05.h"
 
 
@@ -21,6 +23,7 @@ p_sensor_lib_entry_t sensor_libs[] =
 	&sensor_dummy,
 	&sensor_hc_sr_05,
 	&sensor_button,
+	&sensor_analog_button,
 };
 
 hw_sensor_port_t sensor_ports[] = 
@@ -31,11 +34,15 @@ hw_sensor_port_t sensor_ports[] =
 		.lib_data = {0},
 
 		.I2C = &I2C_1,
+		.i2c_sda = S0I2Csda,
+		.i2c_scl = S0I2Cscl,
 
 		.ADC = &ADC_0,
 		.adc_chan_idx = 0,
-		.gpio0_num = S0GPIO0, //as input and ext_int
-		.gpio1_num = S0GPIO1, //as output
+		.adc_gpio = S0ADC,
+
+		.gpio0_num = S0GPIO0, //
+		.gpio1_num = S0GPIO1, //
 
 		.led0_gpio = S0LED0,
 		.led1_gpio = S0LED1,
@@ -48,12 +55,15 @@ hw_sensor_port_t sensor_ports[] =
 		.lib_data = {0},
 
 		.I2C = &I2C_2,
+		.i2c_sda = S1I2Csda,
+		.i2c_scl = S1I2Cscl,
 
 		.ADC = &ADC_0,
 		.adc_chan_idx = 1,
+		.adc_gpio = S1ADC,
 
-		.gpio0_num = S1GPIO0, //as input and ext_int
-		.gpio1_num = S1GPIO1, //as output
+		.gpio0_num = S1GPIO0, //
+		.gpio1_num = S1GPIO1, //
 
 		.led0_gpio = S1LED0,
 		.led1_gpio = S1LED1,
@@ -66,9 +76,12 @@ hw_sensor_port_t sensor_ports[] =
 		.lib_data = {0},
 
 		.I2C = &I2C_3,
+		.i2c_sda = S2I2Csda,
+		.i2c_scl = S2I2Cscl,
 
-		.ADC = &ADC_1,
+		.ADC = &ADC_0,
 		.adc_chan_idx = 10,
+		.adc_gpio = S2ADC,
 
 		.gpio0_num = S2GPIO0, //as input and ext_int
 		.gpio1_num = S2GPIO1, //as output
@@ -85,9 +98,12 @@ hw_sensor_port_t sensor_ports[] =
 
 		.sensor_thread = NULL,
 		.I2C = &I2C_4,
+		.i2c_sda = S3I2Csda,
+		.i2c_scl = S3I2Cscl,
 
-		.ADC = &ADC_1,
+		.ADC = &ADC_0,
 		.adc_chan_idx = 11,
+		.adc_gpio = S3ADC,
 		
 		.gpio0_num = S3GPIO0, //as input and ext_int
 		.gpio1_num = S3GPIO1, //as output
@@ -146,36 +162,39 @@ uint32_t SensorPortGetTypes(uint8_t *data, uint32_t max_size)
 	return size;
 }
 
-int32_t SensorPortSetType(uint32_t sens_port, sensor_type_t sens_type)
+int32_t SensorPortSetType(uint32_t port_idx, sensor_type_t sens_type)
 {
 	uint32_t result = ERR_INVALID_DATA;
 
-	if (sens_port<ARRAY_SIZE(sensor_ports) && sens_type<ARRAY_SIZE(sensor_libs))
+	if (port_idx<ARRAY_SIZE(sensor_ports) && sens_type<ARRAY_SIZE(sensor_libs))
 	{
-		sensor_ports[sens_port].sensor_lib = sensor_libs[sens_type];
-		result = sensor_ports[sens_port].sensor_lib->SensorInit(&sensor_ports[sens_port]);
-		result = ERR_NONE;
+		sensor_ports[port_idx].sensor_lib = sensor_libs[sens_type];
+		result = sensor_ports[port_idx].sensor_lib->SensorInit(&sensor_ports[port_idx]);
+		if ((result == ERR_NONE) && (sens_type != SENSOR_NOT_SET))
+			SensorPort_led0_on(&sensor_ports[port_idx]);
+		else
+			SensorPort_led0_off(&sensor_ports[port_idx]);
 	}
 
 	return result;
 }
 
-int32_t SensorPortGetType(uint32_t sens_port)
+int32_t SensorPortGetType(uint32_t port_idx)
 {
 	uint32_t result = 0;
-	if (sens_port<ARRAY_SIZE(sensor_ports) && sensor_ports[sens_port].sensor_lib)
+	if (port_idx<ARRAY_SIZE(sensor_ports) && sensor_ports[port_idx].sensor_lib)
 	{
-		result = sensor_ports[sens_port].sensor_lib->type_id;
+		result = sensor_ports[port_idx].sensor_lib->type_id;
 	}
 	return result;
 }
 
-int32_t SensorPortGetValues(uint32_t port, uint32_t* data)
+int32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
 {
 	uint32_t result = 0;
-	if (port < ARRAY_SIZE(sensor_ports) && sensor_ports[port].sensor_lib && sensor_ports[port].sensor_lib->sensor_get_values)
+	if (port_idx < ARRAY_SIZE(sensor_ports) && sensor_ports[port_idx].sensor_lib && sensor_ports[port_idx].sensor_lib->sensor_get_values)
 	{
-		result = sensor_ports[port].sensor_lib->sensor_get_values(&sensor_ports[port], data, 12);
+		result = sensor_ports[port_idx].sensor_lib->sensor_get_values(&sensor_ports[port_idx], data, 12);
 	}
 
 	return result;
@@ -255,7 +274,6 @@ int32_t SensorPortInit(uint32_t port)
 	if (sensor_ports[port].gpio1_num >= 0)
 		ext_irq_register(sensor_ports[port].gpio1_num, SensorPort_gpio1_ext_cb, &sensor_ports[port]);
 
-		//timer_
 
 	//timer_stop(&TIMER_RTC);	timer_add_task(&TIMER_RTC, task);	timer_start(&TIMER_RTC);
 

@@ -618,6 +618,9 @@
     <Compile Include="hal\include\hal_i2c_m_async.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\include\hal_i2c_m_sync.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\include\hal_i2c_s_async.h">
       <SubType>compile</SubType>
     </Compile>
@@ -775,6 +778,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_i2c_m_async.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\src\hal_i2c_m_sync.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_i2c_s_async.c">
@@ -1120,6 +1126,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\sensors\rrrc_sensor_interface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_analog_button.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\sensors\sensor_analog_button.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\sensors\sensor_button.c">

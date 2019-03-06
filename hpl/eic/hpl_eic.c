@@ -70,7 +70,7 @@ static int ffs(int v)
 	}
 #endif
 
-#define EXT_IRQ_AMOUNT 4
+#define EXT_IRQ_AMOUNT 16
 
 /**
  * \brief EXTINTx and pin number map
@@ -95,6 +95,17 @@ static void _ext_irq_handler(void);
 /**
  * \brief Initialize external interrupt module
  */
+static void NVIC_SetStateIRQ(IRQn_Type IRQnum, bool enable)
+{
+	NVIC_DisableIRQ(IRQnum);
+	
+	if (enable)
+	{
+		NVIC_ClearPendingIRQ(IRQnum);
+		NVIC_EnableIRQ(IRQnum);
+	}
+}
+
 int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
 {
 	if (!hri_eic_is_syncing(EIC, EIC_SYNCBUSY_SWRST)) {
@@ -167,18 +178,28 @@ int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
 	                             | 0);
 
 	hri_eic_set_CTRLA_ENABLE_bit(EIC);
-	NVIC_DisableIRQ(EIC_10_IRQn);
-	NVIC_ClearPendingIRQ(EIC_10_IRQn);
-	NVIC_EnableIRQ(EIC_10_IRQn);
-	NVIC_DisableIRQ(EIC_11_IRQn);
-	NVIC_ClearPendingIRQ(EIC_11_IRQn);
-	NVIC_EnableIRQ(EIC_11_IRQn);
-	NVIC_DisableIRQ(EIC_12_IRQn);
-	NVIC_ClearPendingIRQ(EIC_12_IRQn);
-	NVIC_EnableIRQ(EIC_12_IRQn);
-	NVIC_DisableIRQ(EIC_13_IRQn);
-	NVIC_ClearPendingIRQ(EIC_13_IRQn);
-	NVIC_EnableIRQ(EIC_13_IRQn);
+
+	NVIC_SetStateIRQ(EIC_0_IRQn, true);
+	NVIC_SetStateIRQ(EIC_1_IRQn, true);
+	NVIC_SetStateIRQ(EIC_2_IRQn, true);
+	NVIC_SetStateIRQ(EIC_3_IRQn, true);
+	NVIC_SetStateIRQ(EIC_4_IRQn, true);
+	NVIC_SetStateIRQ(EIC_5_IRQn, true);
+	NVIC_SetStateIRQ(EIC_6_IRQn, true);
+	NVIC_SetStateIRQ(EIC_7_IRQn, true);
+	NVIC_SetStateIRQ(EIC_8_IRQn, true);
+	NVIC_SetStateIRQ(EIC_9_IRQn, true);
+	NVIC_SetStateIRQ(EIC_10_IRQn, true);
+	NVIC_SetStateIRQ(EIC_11_IRQn, true);
+	NVIC_SetStateIRQ(EIC_12_IRQn, true);
+	NVIC_SetStateIRQ(EIC_13_IRQn, true);
+	NVIC_SetStateIRQ(EIC_14_IRQn, true);
+	NVIC_SetStateIRQ(EIC_15_IRQn, true);
+
+// 	NVIC_DisableIRQ(EIC_0_IRQn);
+// 	NVIC_ClearPendingIRQ(EIC_0_IRQn);
+// 	NVIC_EnableIRQ(EIC_0_IRQn);
+
 
 	callback = cb;
 
@@ -190,10 +211,25 @@ int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
  */
 int32_t _ext_irq_deinit(void)
 {
-	NVIC_DisableIRQ(EIC_10_IRQn);
-	NVIC_DisableIRQ(EIC_11_IRQn);
-	NVIC_DisableIRQ(EIC_12_IRQn);
-	NVIC_DisableIRQ(EIC_13_IRQn);
+//	NVIC_DisableIRQ(EIC_10_IRQn);
+
+	NVIC_SetStateIRQ(EIC_0_IRQn, false);
+	NVIC_SetStateIRQ(EIC_1_IRQn, false);
+	NVIC_SetStateIRQ(EIC_2_IRQn, false);
+	NVIC_SetStateIRQ(EIC_3_IRQn, false);
+	NVIC_SetStateIRQ(EIC_4_IRQn, false);
+	NVIC_SetStateIRQ(EIC_5_IRQn, false);
+	NVIC_SetStateIRQ(EIC_6_IRQn, false);
+	NVIC_SetStateIRQ(EIC_7_IRQn, false);
+	NVIC_SetStateIRQ(EIC_8_IRQn, false);
+	NVIC_SetStateIRQ(EIC_9_IRQn, false);
+	NVIC_SetStateIRQ(EIC_10_IRQn, false);
+	NVIC_SetStateIRQ(EIC_11_IRQn, false);
+	NVIC_SetStateIRQ(EIC_12_IRQn, false);
+	NVIC_SetStateIRQ(EIC_13_IRQn, false);
+	NVIC_SetStateIRQ(EIC_14_IRQn, false);
+	NVIC_SetStateIRQ(EIC_15_IRQn, false);
+
 	callback = NULL;
 
 	hri_eic_clear_CTRLA_ENABLE_bit(EIC);
@@ -272,28 +308,68 @@ static void _ext_irq_handler(void)
 	}
 }
 
-/**
- * \brief EIC interrupt handler
- */
+void EIC_0_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_1_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_2_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_3_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_4_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_5_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_6_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_7_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_8_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_9_Handler(void)
+{
+	_ext_irq_handler();
+}
 void EIC_10_Handler(void)
 {
 	_ext_irq_handler();
-} /**
-   * \brief EIC interrupt handler
-   */
+}
 void EIC_11_Handler(void)
 {
 	_ext_irq_handler();
-} /**
-   * \brief EIC interrupt handler
-   */
+}
 void EIC_12_Handler(void)
 {
 	_ext_irq_handler();
-} /**
-   * \brief EIC interrupt handler
-   */
+}
 void EIC_13_Handler(void)
 {
 	_ext_irq_handler();
 }
+void EIC_14_Handler(void)
+{
+	_ext_irq_handler();
+}
+void EIC_15_Handler(void)
+{
+	_ext_irq_handler();
+}
+

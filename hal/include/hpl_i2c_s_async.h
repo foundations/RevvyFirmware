@@ -61,8 +61,10 @@ typedef void (*_i2c_s_async_cb_t)(struct _i2c_s_async_device *device);
  */
 struct _i2c_s_async_callback {
 	void (*error)(struct _i2c_s_async_device *const device);
+	void (*addrm)(struct _i2c_s_async_device *const device, const uint8_t dir);
 	void (*tx)(struct _i2c_s_async_device *const device);
 	void (*rx_done)(struct _i2c_s_async_device *const device, const uint8_t data);
+	void (*stop)(struct _i2c_s_async_device *const device, const uint8_t dir);
 };
 
 /**

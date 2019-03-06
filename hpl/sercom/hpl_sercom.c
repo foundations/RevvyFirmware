@@ -1105,6 +1105,45 @@ static void _sercom_i2c_m_irq_handler(struct _i2c_m_async_device *i2c_dev)
 	}
 }
 
+
+/**
+ * \internal Sercom i2c slave interrupt handler
+ *
+ * \param[in] p The pointer to i2c slave device
+ */
+static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
+{
+	void *   hw    = device->hw;
+	uint32_t flags = hri_sercomi2cm_read_INTFLAG_reg(hw);
+
+	if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
+		if (device->cb.error);
+			device->cb.error(device);
+	} else if (flags & SERCOM_I2CS_INTFLAG_PREC) {
+        if (device->cb.stop)
+            device->cb.stop(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
+		hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
+	} else if (flags & SERCOM_I2CS_INTFLAG_AMATCH) {
+        if (device->cb.addrm)
+            device->cb.addrm(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
+        hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
+	} else if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
+		if (!hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
+			if (device->cb.rx_done);
+				device->cb.rx_done(device, hri_sercomi2cs_read_DATA_reg(hw));
+		} else {
+			if (device->cb.tx);
+				device->cb.tx(device);
+		}
+#if (CONF_MCLK_LPDIV) != (CONF_MCLK_CPUDIV)
+		/* Adding grace time while waiting for SCL line to be released */
+		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
+		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
+		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
+#endif
+	}
+}
+
 /**
  * \brief Enable the i2c master module
  *
@@ -1991,30 +2030,30 @@ int32_t _i2c_s_async_set_irq_state(struct _i2c_s_async_device *const device, con
  *
  * \param[in] p The pointer to i2c slave device
  */
-static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
-{
-	void *   hw    = device->hw;
-	uint32_t flags = hri_sercomi2cm_read_INTFLAG_reg(hw);
-
-	if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
-		ASSERT(device->cb.error);
-		device->cb.error(device);
-	} else if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
-		if (!hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
-			ASSERT(device->cb.rx_done);
-			device->cb.rx_done(device, hri_sercomi2cs_read_DATA_reg(hw));
-		} else {
-			ASSERT(device->cb.tx);
-			device->cb.tx(device);
-		}
-#if (CONF_MCLK_LPDIV) != (CONF_MCLK_CPUDIV)
-		/* Adding grace time while waiting for SCL line to be released */
-		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
-		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
-		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
-#endif
-	}
-}
+// static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
+// {
+// 	void *   hw    = device->hw;
+// 	uint32_t flags = hri_sercomi2cm_read_INTFLAG_reg(hw);
+// 
+// 	if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
+// 		ASSERT(device->cb.error);
+// 		device->cb.error(device);
+// 	} else if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
+// 		if (!hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
+// 			ASSERT(device->cb.rx_done);
+// 			device->cb.rx_done(device, hri_sercomi2cs_read_DATA_reg(hw));
+// 		} else {
+// 			ASSERT(device->cb.tx);
+// 			device->cb.tx(device);
+// 		}
+// #if (CONF_MCLK_LPDIV) != (CONF_MCLK_CPUDIV)
+// 		/* Adding grace time while waiting for SCL line to be released */
+// 		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
+// 		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
+// 		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
+// #endif
+// 	}
+// }
 
 /**
  * \internal Initalize i2c slave hardware

@@ -10,7 +10,8 @@
 
  int32_t SERVO_Init(void* hw_port)
  {
-	return 0;
+	int32_t result = ERR_NONE;
+	return result;
  }
 
  void SERVO_Thread(void* hw_port)

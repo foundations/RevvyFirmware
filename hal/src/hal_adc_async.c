@@ -360,15 +360,15 @@ static void adc_async_channel_conversion_done(struct _adc_async_device *device, 
 	uint8_t                              index    = descr->channel_map[channel];
 	struct adc_async_channel_descriptor *descr_ch = &descr->descr_ch[index];
 
-	ringbuffer_put(&descr_ch->convert, data);
-	if (1 < _adc_async_get_data_size(&descr->device)) {
-		ringbuffer_put(&descr_ch->convert, data >> 8);
-		++descr_ch->bytes_in_buffer;
-	}
-	++descr_ch->bytes_in_buffer;
+// 	ringbuffer_put(&descr_ch->convert, data);
+// 	if (1 < _adc_async_get_data_size(&descr->device)) {
+// 		ringbuffer_put(&descr_ch->convert, data >> 8);
+// 		++descr_ch->bytes_in_buffer;
+// 	}
+// 	++descr_ch->bytes_in_buffer;
 
 	if (descr_ch->adc_async_ch_cb.convert_done) {
-		descr_ch->adc_async_ch_cb.convert_done(descr, channel);
+		descr_ch->adc_async_ch_cb.convert_done(descr, channel, data);
 	}
 }
 
@@ -377,7 +377,7 @@ static void adc_async_window_threshold_reached(struct _adc_async_device *device,
 	struct adc_async_descriptor *const descr = CONTAINER_OF(device, struct adc_async_descriptor, device);
 
 	if (descr->adc_async_cb.monitor) {
-		descr->adc_async_cb.monitor(descr, channel);
+		descr->adc_async_cb.monitor(descr, channel, 0);
 	}
 }
 
@@ -386,7 +386,7 @@ static void adc_async_error_occured(struct _adc_async_device *device, const uint
 	struct adc_async_descriptor *const descr = CONTAINER_OF(device, struct adc_async_descriptor, device);
 
 	if (descr->adc_async_cb.error) {
-		descr->adc_async_cb.error(descr, channel);
+		descr->adc_async_cb.error(descr, channel, 0);
 	}
 }
 

@@ -29,7 +29,7 @@ extern "C" {
 #include <hal_delay.h>
 #include <hal_wdt.h>
 
-//#include <hal_i2c_m_sync.h>
+#include <hal_i2c_m_sync.h>
 #include <hal_i2c_m_async.h>
 #include <hal_i2c_s_async.h>
 
@@ -43,10 +43,14 @@ extern struct adc_async_descriptor ADC_0;
 extern struct adc_async_descriptor ADC_1;
 
 extern struct i2c_s_async_descriptor I2C_0;
-extern struct i2c_m_async_desc I2C_1;
-extern struct i2c_m_async_desc I2C_2;
-extern struct i2c_m_async_desc I2C_3;
-extern struct i2c_m_async_desc I2C_4;
+// extern struct i2c_m_async_desc I2C_1;
+// extern struct i2c_m_async_desc I2C_2;
+// extern struct i2c_m_async_desc I2C_3;
+// extern struct i2c_m_async_desc I2C_4;
+extern struct i2c_m_sync_desc		I2C_1;
+extern struct i2c_m_sync_desc		I2C_2;
+extern struct i2c_m_sync_desc		I2C_3;
+extern struct i2c_m_sync_desc		I2C_4;
 
 extern struct timer_descriptor TIMER_RTC;
 

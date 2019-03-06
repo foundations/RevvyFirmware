@@ -9,7 +9,8 @@
 
  int32_t MOTOR_DUMMY_Init(void* hw_port)
  {
-	return 0;
+	int32_t result = ERR_NONE;
+	return result;
  }
 
  void MOTOR_DUMMY_Thread(void* hw_port)

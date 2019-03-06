@@ -7,6 +7,7 @@
 #include "driver_init.h"
 #include "rrrc_motors.h"
 
+#include "motors/rrrc_motor_base_function.h"
 #include "motors/motor_dummy.h"
 #include "motors/motor_dc.h"
 #include "motors/motor_servo.h"
@@ -173,7 +174,14 @@ uint32_t MotorPortSetType(uint32_t port_idx, motor_type_t type)
 	{
 		motor_ports[port_idx].motor_lib = motor_libs[type];
 		result = motor_ports[port_idx].motor_lib->MotorInit(&motor_ports[port_idx]);
-		result = ERR_NONE;
+		if ((result == ERR_NONE) && (type != MOTOR_NOT_SET))
+		{
+			MotorPort_led0_on(&motor_ports[port_idx]);
+		}
+		else
+		{
+			MotorPort_led0_off(&motor_ports[port_idx]);
+		}
 	}
 	return result;
 }
@@ -245,7 +253,7 @@ static void MotorPort_thread_tick_cb(const struct timer_task *const timer_task)
 }
 
 //*********************************************************************************************
-static void SensorPort_enc0_cb(const void* port)
+static void MotorPort_enc0_cb(const void* port)
 {
 	p_hw_motor_port_t motport = port;
 	if (motport == NULL)
@@ -259,7 +267,7 @@ static void SensorPort_enc0_cb(const void* port)
 }
 
 //*********************************************************************************************
-static void SensorPort_enc1_cb(const void* port)
+static void MotorPort_enc1_cb(const void* port)
 {
 	p_hw_motor_port_t motport = port;
 	if (motport == NULL)
@@ -290,11 +298,11 @@ int32_t MotorPortInit(uint32_t port)
 	motor_ports[port].motor_thread = RRRC_add_task(&MotorPort_thread_tick_cb, 1000/*ms*/, &motor_ports[port]);
 
 	if (motor_ports[port].enc0_gpio >= 0)
-		ext_irq_register(motor_ports[port].enc0_gpio, SensorPort_enc0_cb, &motor_ports[port]);
+		ext_irq_register(motor_ports[port].enc0_gpio, MotorPort_enc0_cb, &motor_ports[port]);
 	if (motor_ports[port].enc1_gpio >= 0)
-		ext_irq_register(motor_ports[port].enc1_gpio, SensorPort_enc1_cb, &motor_ports[port]);
+		ext_irq_register(motor_ports[port].enc1_gpio, MotorPort_enc1_cb, &motor_ports[port]);
 
-	result = SensorPortSetType(port, MOTOR_NOT_SET);
+	result = MotorPortSetType(port, MOTOR_NOT_SET);
 
 	return result;
 }

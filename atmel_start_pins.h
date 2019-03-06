@@ -201,7 +201,7 @@
 #define M2LED1 PB23
 #define M3LED0 PD10
 #define M3LED1 PD12
-#define M4LED0 PA11
+#define M4LED0 PD11
 #define M4LED1 PA11
 #define M5LED0 PA10
 #define M5LED1 PC17
@@ -246,6 +246,11 @@
 #define S3GPIO0 PA18
 #define S3GPIO1 PB13
 
+#define S0ADC PA02
+#define S1ADC PB01
+#define S2ADC PB00
+#define S3ADC PA03
+
 #define S0LED0 PC21
 #define S0LED1 PB07
 #define S1LED0 PB24
@@ -255,6 +260,53 @@
 #define S3LED0 PC16
 #define S3LED1 PC18
 
+
+//SERCOM2
+#define I2C0_SERCOM SERCOM2
+#define I2C0_SDApin	PA12
+#define I2C0_SDApin_function GPIO_PIN_FUNCTION_C
+#define I2C0_SCLpin PA13
+#define I2C0_SCLpin_function GPIO_PIN_FUNCTION_C
+
+//SERCOM0
+#define I2C1_SERCOM SERCOM0
+#define I2C1_SDApin PA08
+#define I2C1_SDApin_function GPIO_PIN_FUNCTION_C
+#define I2C1_SCLpin PA09
+#define I2C1_SCLpin_function GPIO_PIN_FUNCTION_C
+
+//SERCOM1
+#define I2C2_SERCOM SERCOM1
+#define I2C2_SDApin PA16
+#define I2C2_SDApin_function GPIO_PIN_FUNCTION_C
+#define I2C2_SCLpin PA17
+#define I2C2_SCLpin_function GPIO_PIN_FUNCTION_C
+
+//SERCOM3
+#define I2C3_SERCOM SERCOM3
+#define I2C3_SDApin PA22
+#define I2C3_SDApin_function GPIO_PIN_FUNCTION_C
+#define I2C3_SCLpin PA23
+#define I2C3_SCLpin_function GPIO_PIN_FUNCTION_C
+
+//SERCOM6
+#define I2C4_SERCOM SERCOM6
+#define I2C4_SDApin PD09
+#define I2C4_SDApin_function GPIO_PIN_FUNCTION_D
+#define I2C4_SCLpin PD08
+#define I2C4_SCLpin_function GPIO_PIN_FUNCTION_D
+
+
+#define RPiI2Csda I2C0_SDApin
+#define RPiI2Cscl I2C0_SCLpin
+#define S0I2Csda I2C1_SDApin
+#define S0I2Cscl I2C1_SCLpin
+#define S1I2Csda I2C2_SDApin
+#define S1I2Cscl I2C2_SCLpin
+#define S2I2Csda I2C3_SDApin
+#define S2I2Cscl I2C3_SCLpin
+#define S3I2Csda I2C4_SDApin
+#define S3I2Cscl I2C4_SCLpin
 
 
 #define BAT_TS		PB20

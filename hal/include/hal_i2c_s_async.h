@@ -101,8 +101,7 @@ struct i2c_s_async_descriptor {
  *
  * \return Initialization status.
  */
-int32_t i2c_s_async_init(struct i2c_s_async_descriptor *const descr, void *const hw, uint8_t *const rx_buffer,
-                         const uint16_t rx_buffer_length);
+int32_t i2c_s_async_init(struct i2c_s_async_descriptor *const descr, void *const hw);
 
 /**
  * \brief Deinitialize asynchronous I2C slave interface

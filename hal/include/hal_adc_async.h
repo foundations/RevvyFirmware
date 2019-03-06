@@ -57,7 +57,7 @@ struct adc_async_descriptor;
 /**
  * \brief ADC callback type
  */
-typedef void (*adc_async_cb_t)(const struct adc_async_descriptor *const descr, const uint8_t channel);
+typedef void (*adc_async_cb_t)(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data);
 
 /**
  * \brief ADC callback types
