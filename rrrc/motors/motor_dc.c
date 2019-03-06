@@ -55,7 +55,7 @@ uint32_t DC_set_state(void* hw_port, int8_t state)
 		if (mot_data->state != state)
 		{
 			MotorPort_dir_stop(hw_port);
-			uint8_t speed = abs(state)
+			uint8_t speed = abs(state);
 			MotorPort_set_speed(hw_port, speed); //TODO  What if speed 0??
 			if (state > 0)
 				MotorPort_dir_forward(hw_port);
