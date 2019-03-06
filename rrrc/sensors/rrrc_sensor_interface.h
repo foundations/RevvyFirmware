@@ -72,9 +72,12 @@ typedef struct _hw_sensor_port_t
 	struct timer_task* sensor_thread;
 
 	struct i2c_m_sync_desc		*I2C;
+	gpio_num i2c_gpio0;
+	gpio_num i2c_gpio1;
 	
 	struct adc_async_descriptor *ADC;
 	uint32_t adc_chan_idx;
+	gpio_num adc_gpio;
 
 	gpio_num gpio0_num;
 	gpio_num gpio1_num;

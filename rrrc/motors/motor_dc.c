@@ -4,7 +4,7 @@
  * Created: 2/27/2019 9:10:32 PM
  *  Author: User
  */ 
-
+ #include "rrrc_motor_base_function.h"
  #include "motor_dc.h"
 
  #define MAX_MOTOR_VALUES 1
@@ -52,14 +52,18 @@ uint32_t DC_set_state(void* hw_port, int8_t state)
 	if (motport)
 	{
 		p_dc_data_t mot_data = motport->lib_data;
-		//TODO
-		//if (set new state == OK)
-		//{
-		//	mot_data->state = state;
-		//	result = OK;
-		//}else
-		//	result = ERROR;
-		mot_data->state = state;
+		if (mot_data->state != state)
+		{
+			MotorPort_dir_stop(hw_port);
+			uint8_t speed = abs(state)
+			MotorPort_set_speed(hw_port, speed); //TODO  What if speed 0??
+			if (state > 0)
+				MotorPort_dir_forward(hw_port);
+			else
+				MotorPort_dir_backward(hw_port);
+			mot_data->speed = speed;
+			mot_data->state = state;
+		}
 		
 	}
 	return result;

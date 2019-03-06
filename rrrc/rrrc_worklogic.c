@@ -33,6 +33,16 @@ void RRRC_ProcessLogic(void)
 	MotorPortSetType(4, MOTOR_NOT_SET);
 	MotorPortSetType(5, MOTOR_NOT_SET);
 
+	MotorPortSetState(0, 10);
+	MotorPortSetState(0, -10);
+
+	MotorPortSetState(0, 50);
+	MotorPortSetState(0, -50);
+
+	MotorPortSetState(0, 127);
+	MotorPortSetState(0, -127);
+
+
 	while (1)
 	{
 		 delay_ms(200);
@@ -42,6 +52,6 @@ void RRRC_ProcessLogic(void)
 	//This code for DeInit example
 	for (uint32_t idx=0; idx<SENSOR_PORT_AMOUNT; idx++ )
 		SensorPortDeInit(idx);
-// 	for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
-// 		MotorPortInit(idx);
+	for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
+		MotorPortInit(idx);
 }

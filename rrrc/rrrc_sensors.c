@@ -23,7 +23,7 @@ p_sensor_lib_entry_t sensor_libs[] =
 	&sensor_button,
 };
 
-static hw_sensor_port_t sensor_ports[] = 
+hw_sensor_port_t sensor_ports[] = 
 {
 	{
 		.index = 0,
@@ -34,11 +34,11 @@ static hw_sensor_port_t sensor_ports[] =
 
 		.ADC = &ADC_0,
 		.adc_chan_idx = 0,
-		.gpio0_num = PA19, //as input and ext_int
-		.gpio1_num = PA06, //as output
+		.gpio0_num = S0GPIO0, //as input and ext_int
+		.gpio1_num = S0GPIO1, //as output
 
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.led0_gpio = S0LED0,
+		.led1_gpio = S0LED1,
 
 		.TIMER = &TIMER_TC0,
 	},
@@ -52,11 +52,11 @@ static hw_sensor_port_t sensor_ports[] =
 		.ADC = &ADC_0,
 		.adc_chan_idx = 1,
 
-		.gpio0_num = PA22,
-		.gpio1_num = -1,
+		.gpio0_num = S1GPIO0, //as input and ext_int
+		.gpio1_num = S1GPIO1, //as output
 
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.led0_gpio = S1LED0,
+		.led1_gpio = S1LED1,
 
 		.TIMER = &TIMER_TC1,
 	},
@@ -70,11 +70,11 @@ static hw_sensor_port_t sensor_ports[] =
 		.ADC = &ADC_1,
 		.adc_chan_idx = 10,
 
-		.gpio0_num = PA20,
-		.gpio1_num = -1,
+		.gpio0_num = S2GPIO0, //as input and ext_int
+		.gpio1_num = S2GPIO1, //as output
 
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.led0_gpio = S2LED0,
+		.led1_gpio = S2LED1,
 
 		.TIMER = &TIMER_TC2,
 	},
@@ -89,11 +89,11 @@ static hw_sensor_port_t sensor_ports[] =
 		.ADC = &ADC_1,
 		.adc_chan_idx = 11,
 		
-		.gpio0_num = PA21,
-		.gpio1_num = -1,
+		.gpio0_num = S3GPIO0, //as input and ext_int
+		.gpio1_num = S3GPIO1, //as output
 
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.led0_gpio = S3LED0,
+		.led1_gpio = S3LED1,
 
 		.TIMER = &TIMER_TC3,
 	},

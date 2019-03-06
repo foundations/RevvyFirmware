@@ -1,4 +1,8 @@
-#include <atmel_start.h>
+
+
+#include "driver_init.h"
+#include "rrrc_hal.h"
+#include "rrrc_worklogic.h"
 
 #define BIT00           0x00000001
 #define BIT01           0x00000002
@@ -46,8 +50,17 @@
 
 int main(void)
 {
-	/* Initializes MCU, drivers and middleware */
-	atmel_start_init();
+
+	/* Initialize the SAM system */
+	system_init();
+
+	/* Initialize the RRRC logic */
+	RRRC_Init();
+
+	/* start RRRC main procces */
+	RRRC_ProcessLogic();
+
+
     
     _gpio_set_direction(GPIO_PORTA, BIT19, GPIO_DIRECTION_OUT);
     

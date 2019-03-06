@@ -192,29 +192,69 @@
 #define PE30 GPIO(GPIO_PORTE, 30)
 #define PE31 GPIO(GPIO_PORTE, 31)
 
+//for RRRC motors
+#define M0LED0 PC28
+#define M0LED1 PB29
+#define M1LED0 PC25
+#define M1LED1 PB26
+#define M2LED0 PB28
+#define M2LED1 PB23
+#define M3LED0 PD10
+#define M3LED1 PD12
+#define M4LED0 PA11
+#define M4LED1 PA11
+#define M5LED0 PA10
+#define M5LED1 PC17
 
-#define M1IN1 PC16
-#define M1IN2 PC17
+#define M1DIR1 PB21
+#define M1DIR2 PC23
+#define M2DIR1 PB17
+#define M2DIR2 PD20
+#define M3DIR1 PC27
+#define M3DIR2 PC31
+#define M4DIR1 PC30
+#define M4DIR2 PB02
+#define M5DIR1 PD01
+#define M5DIR2 PD00
+#define M6DIR1 PB04
+#define M6DIR2 PC22
 
-#define M2IN1 PC18
-#define M2IN2 PC19
+#define M1ENC0 PB30
+#define M1ENC1 PB31
+#define M2ENC0 PB16
+#define M2ENC1 PB03
+#define M3ENC0 PA14
+#define M3ENC1 PA15
+#define M4ENC0 PB14
+#define M4ENC1 PB15
+#define M5ENC0 PA06
+#define M5ENC1 PA07
+#define M6ENC0 PB06
+#define M6ENC1 PB09
 
-#define M3IN1 PC21
-#define M3IN2 PC24
+#define M12STBY PD21
+#define M34STBY PA27
+#define M56STBY PB06
 
-#define M4IN1 PC25
-#define M4IN2 PC26
+//for RRRC sensors
+#define S0GPIO0 PA19
+#define S0GPIO1 PB10
+#define S1GPIO0 PA20
+#define S1GPIO1 PB11
+#define S2GPIO0 PA21
+#define S2GPIO1 PB12
+#define S3GPIO0 PA18
+#define S3GPIO1 PB13
 
+#define S0LED0 PC21
+#define S0LED1 PB07
+#define S1LED0 PB24
+#define S1LED1 PB25
+#define S2LED0 PC26
+#define S2LED1 PB27
+#define S3LED0 PC16
+#define S3LED1 PC18
 
-#define M5IN1 PC28
-#define M5IN2 PA27
-
-#define M6IN1 PB04
-#define M6IN2 PB06
-
-#define M12STBY PC20
-#define M34STBY PC27
-#define M56STBY PB07
 
 
 #define BAT_TS		PB20

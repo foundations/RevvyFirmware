@@ -43,12 +43,13 @@ static void MotorPort_dir_backward(const void* port)
 	gpio_set_pin_level(motport->dir1_gpio, true);
 }
 
-static void MotorPort_set_speed(const void* port)
+static void MotorPort_set_speed(const void* port, uint8_t speed)
 {
 	p_hw_motor_port_t motport = port;
 	if (motport == NULL)
 		return;
-	//tcc_timer_set_duty_cycle(motport->PWM0, motport->pwm0_ch, data)
+	//convert speed to duty
+	//tcc_timer_set_duty_cycle(motport->PWM0, motport->pwm0_ch, speed)
 }
 
 static void MotorPort_led0_on(const void* port)

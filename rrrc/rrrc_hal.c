@@ -27,6 +27,9 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 #include "rrrc_motors.h"
 #include "rrrc_i2c_protocol.h"
 
+extern hw_motor_port_t motor_ports[SENSOR_PORT_AMOUNT];
+extern hw_sensor_port_t sensor_ports[MOTOR_PORT_AMOUNT];
+
 //*****************************************************************************************************
 //*****************************************************************************************************
 //*****************************************************************************************************
@@ -247,21 +250,130 @@ void RRRC_remove_task(struct timer_task* task)
 	timer_start(&TIMER_RTC);
 }
 
+static void SensorsPinsInit()
+{
+	//led pins
+	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(sensor_ports[idx].led0_gpio, GPIO_PULL_OFF);
+		gpio_set_pin_function(sensor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].led0_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(sensor_ports[idx].led0_gpio, true);
+
+		gpio_set_pin_pull_mode(sensor_ports[idx].led1_gpio, GPIO_PULL_OFF);
+		gpio_set_pin_function(sensor_ports[idx].led1_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].led1_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(sensor_ports[idx].led1_gpio, true);
+	}
+
+	//gpio0 - out
+	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(sensor_ports[idx].gpio0_num, GPIO_PULL_UP);
+		gpio_set_pin_function(sensor_ports[idx].gpio0_num, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].gpio0_num, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(sensor_ports[idx].gpio0_num, false);
+	}
+
+	//gpio1 - in & extint
+	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(sensor_ports[idx].gpio1_num, GPIO_PULL_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].gpio1_num, GPIO_DIRECTION_IN);
+		gpio_set_pin_function(sensor_ports[idx].gpio1_num, GPIO_PIN_FUNCTION_A);
+	}
+
+	//adc pins
+	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(sensor_ports[idx].adc_gpio, GPIO_PULL_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].adc_gpio, GPIO_DIRECTION_OFF);
+		gpio_set_pin_function(sensor_ports[idx].adc_gpio, GPIO_PIN_FUNCTION_B);
+	}
+
+	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(sensor_ports[idx].i2c_gpio0, GPIO_PULL_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].i2c_gpio0, GPIO_DIRECTION_OFF);
+		gpio_set_pin_function(sensor_ports[idx].i2c_gpio0, GPIO_PIN_FUNCTION_C);
+		gpio_set_pin_pull_mode(sensor_ports[idx].i2c_gpio1, GPIO_PULL_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].i2c_gpio1, GPIO_DIRECTION_OFF);
+		gpio_set_pin_function(sensor_ports[idx].i2c_gpio1, GPIO_PIN_FUNCTION_C);
+	}
+
+}
+
+static void MotorsPinsInit()
+{
+	uint8_t moto_stbypins[] = {M12STBY, M34STBY, M56STBY};
+	
+	//led pins
+	for  (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(motor_ports[idx].led0_gpio, GPIO_PULL_OFF);
+		gpio_set_pin_function(motor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(motor_ports[idx].led0_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(motor_ports[idx].led0_gpio, true);
+
+		gpio_set_pin_pull_mode(motor_ports[idx].led1_gpio, GPIO_PULL_OFF);
+		gpio_set_pin_function(motor_ports[idx].led1_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(motor_ports[idx].led1_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(motor_ports[idx].led1_gpio, true);
+	}
+
+	//dir pins
+	for  (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(motor_ports[idx].dir0_gpio, GPIO_PULL_UP);
+		gpio_set_pin_function(motor_ports[idx].dir0_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(motor_ports[idx].dir0_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(motor_ports[idx].dir0_gpio, false);
+
+		gpio_set_pin_pull_mode(motor_ports[idx].dir1_gpio, GPIO_PULL_UP);
+		gpio_set_pin_function(motor_ports[idx].dir1_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(motor_ports[idx].dir1_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(motor_ports[idx].dir1_gpio, false);
+	}
+
+	//enc pins
+	for  (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
+	{
+		gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_OFF);
+		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(motor_ports[idx].enc0_gpio, false);
+
+		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
+		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(motor_ports[idx].enc1_gpio, false);
+	}
+
+
+	for  (int idx=0; idx<ARRAY_SIZE(moto_stbypins); idx++)
+	{
+		gpio_set_pin_pull_mode(moto_stbypins[idx], GPIO_PULL_UP);
+		gpio_set_pin_function(moto_stbypins[idx], GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(moto_stbypins[idx], GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(moto_stbypins[idx], true);
+	}
+
+}
 
 int RRRC_Init(void)
 {
-    adc_async_enable_channel(&ADC_0, 0);
-    adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
-	adc_async_set_inputs(&ADC_0, adc0_ch, 0, 0);
-    adc_async_start_conversion(&ADC_0);
-
-	adc_async_enable_channel(&ADC_1, 0);
-    adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
-	adc_async_set_inputs(&ADC_1, adc1_ch, 0, 0);
-    adc_async_start_conversion(&ADC_1);
-
-
-	i2c_s_async_enable(&I2C_0);
+//     adc_async_enable_channel(&ADC_0, 0);
+//     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
+// 	adc_async_set_inputs(&ADC_0, adc0_ch, 0, 0);
+//     adc_async_start_conversion(&ADC_0);
+// 
+// 	adc_async_enable_channel(&ADC_1, 0);
+//     adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
+// 	adc_async_set_inputs(&ADC_1, adc1_ch, 0, 0);
+//     adc_async_start_conversion(&ADC_1);
+// 
+// 
+// 	i2c_s_async_enable(&I2C_0);
 
 	//i2c_s_async_get_io_descriptor(&I2C_0, &slave_i2c_io);
 	//i2c_s_async_enable(&I2C_0);
@@ -279,7 +391,8 @@ int RRRC_Init(void)
 	//ext_irq_register(PIN_PB31, button_on_PB31_pressed);
 
 
-
+	MotorsPinsInit();
+	SensorsPinsInit();
 
 	return 0;
 }

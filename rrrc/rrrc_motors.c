@@ -18,19 +18,19 @@ p_motor_lib_entry_t motor_libs[] =
 	&motor_servo,
 };
 
-static hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT] =
+hw_motor_port_t motor_ports[] =
 {
 	{
 		.index = 0,
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
-		.enc0_gpio = -1,
-		.enc1_gpio = -1,
-		.dir0_gpio = -1,
-		.dir1_gpio = -1,
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.enc0_gpio = M1ENC0,
+		.enc1_gpio = M1ENC1,
+		.dir0_gpio = M1DIR1,
+		.dir1_gpio = M1DIR2,
+		.led0_gpio = M0LED0,
+		.led1_gpio = M0LED1,
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 0,
 		.PWM1 = &TIMER_TCC1,
@@ -41,12 +41,12 @@ static hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
-		.enc0_gpio = -1,
-		.enc1_gpio = -1,
-		.dir0_gpio = -1,
-		.dir1_gpio = -1,
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.enc0_gpio = M2ENC0,
+		.enc1_gpio = M2ENC1,
+		.dir0_gpio = M2DIR1,
+		.dir1_gpio = M2DIR2,
+		.led0_gpio = M1LED0,
+		.led1_gpio = M1LED1,
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 1,
 		.PWM1 = &TIMER_TCC1,
@@ -57,12 +57,12 @@ static hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
-		.enc0_gpio = -1,
-		.enc1_gpio = -1,
-		.dir0_gpio = -1,
-		.dir1_gpio = -1,
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.enc0_gpio = M3ENC0,
+		.enc1_gpio = M3ENC1,
+		.dir0_gpio = M3DIR1,
+		.dir1_gpio = M3DIR2,
+		.led0_gpio = M2LED0,
+		.led1_gpio = M2LED1,
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 2,
 		.PWM1 = &TIMER_TCC1,
@@ -73,12 +73,12 @@ static hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
-		.enc0_gpio = -1,
-		.enc1_gpio = -1,
-		.dir0_gpio = -1,
-		.dir1_gpio = -1,
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.enc0_gpio = M4ENC0,
+		.enc1_gpio = M4ENC1,
+		.dir0_gpio = M4DIR1,
+		.dir1_gpio = M4DIR2,
+		.led0_gpio = M3LED0,
+		.led1_gpio = M3LED1,
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 3,
 		.PWM1 = &TIMER_TCC1,
@@ -89,10 +89,12 @@ static hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
-		.enc0_gpio = -1,
-		.enc1_gpio = -1,
-		.dir0_gpio = -1,
-		.dir1_gpio = -1,
+		.enc0_gpio = M5ENC0,
+		.enc1_gpio = M5ENC1,
+		.dir0_gpio = M5DIR1,
+		.dir1_gpio = M5DIR2,
+		.led0_gpio = M4LED0,
+		.led1_gpio = M4LED1,
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 4,
 		.PWM1 = &TIMER_TCC2,
@@ -103,12 +105,12 @@ static hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
-		.enc0_gpio = -1,
-		.enc1_gpio = -1,
-		.dir0_gpio = -1,
-		.dir1_gpio = -1,
-		.led0_gpio = -1,
-		.led1_gpio = -1,
+		.enc0_gpio = M6ENC0,
+		.enc1_gpio = M6ENC1,
+		.dir0_gpio = M6DIR1,
+		.dir1_gpio = M6DIR2,
+		.led0_gpio = M5LED0,
+		.led1_gpio = M5LED1,
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 5,
 		.PWM1 = &TIMER_TCC2,
@@ -268,6 +270,14 @@ static void SensorPort_enc1_cb(const void* port)
 		motport->motor_lib->enc1_callback(motport, val);
 
 	return;
+}
+
+
+static void MotorPinsInit(p_hw_motor_port_t port)
+{
+	//encoder pins
+	//dir pins
+	//leds pins
 }
 
 //*********************************************************************************************
