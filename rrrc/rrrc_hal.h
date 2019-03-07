@@ -47,10 +47,17 @@ typedef void (*channel_adc_data_cb_t)(const uint8_t adc_data, void* user_data);
 
 void RRRC_channel_adc_register_cb(uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data);
 void RRRC_channel_adc_unregister_cb(uint32_t chan_idx);
-struct timer_task* RRRC_add_task(timer_cb_t func, uint32_t interval, void* user_data);
+struct timer_task* RRRC_add_task(timer_cb_t func, uint32_t interval, void* user_data, bool oneshot);
 void RRRC_remove_task(struct timer_task* task);
 
 int RRRC_Init(void);
+
+
+static uint32_t SwapEndian(uint32_t dig)
+{
+    uint8_t *c = (uint8_t *) &dig;
+    return * (uint32_t *) (uint8_t[]) {c[3], c[2], c[1], c[0] };
+}
 
 #ifdef __cplusplus
 }

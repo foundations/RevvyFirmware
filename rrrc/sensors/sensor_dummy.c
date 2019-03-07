@@ -1,5 +1,5 @@
 
-
+#include "rrrc_sensor_base_func.h"
 #include "sensor_dummy.h"
 
 #define MAX_SENSOR_VALUES 0

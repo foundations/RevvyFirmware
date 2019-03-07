@@ -99,7 +99,7 @@ void i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t di
         tx_buffer.size = 0;
     }else
     { //rx
-        uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
+        enum RRRC_I2C_CMD cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
         rx_buffer.size = 0;
     }
@@ -168,11 +168,11 @@ static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, con
 	if (adc0_ch==0)
 		if (adc_channel_callback[0].channel_cb_s) adc_channel_callback[0].channel_cb_s(adc_data, adc_channel_callback[0].user_data);
 	if (adc0_ch==1)
-		if (adc_channel_callback[1].channel_cb_s) adc_channel_callback[1].channel_cb_s(adc_data, adc_channel_callback[1].user_data);
-	if (adc0_ch==12)
-		if (adc_channel_callback[2].channel_cb_s) adc_channel_callback[2].channel_cb_s(adc_data, adc_channel_callback[2].user_data);
+		if (adc_channel_callback[1].channel_cb_s) adc_channel_callback[3].channel_cb_s(adc_data, adc_channel_callback[3].user_data);
 	if (adc0_ch==13)
-		if (adc_channel_callback[3].channel_cb_s) adc_channel_callback[3].channel_cb_s(adc_data, adc_channel_callback[3].user_data);
+		if (adc_channel_callback[2].channel_cb_s) adc_channel_callback[1].channel_cb_s(adc_data, adc_channel_callback[1].user_data);
+	if (adc0_ch==12)
+		if (adc_channel_callback[3].channel_cb_s) adc_channel_callback[2].channel_cb_s(adc_data, adc_channel_callback[2].user_data);
 
 	adc0_ch++;
 	if (adc0_ch==2)
@@ -195,14 +195,17 @@ static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, con
 	return;
 }
 
-struct timer_task* RRRC_add_task(timer_cb_t func, uint32_t interval, void* user_data)
+struct timer_task* RRRC_add_task(timer_cb_t func, uint32_t interval, void* user_data, bool oneshot)
 {
 	struct timer_task* task = malloc(sizeof(struct timer_task));
 	if (!task)
 		return NULL;
 	task->interval = interval;
 	task->cb       = func;
-	task->mode     = TIMER_TASK_REPEAT;
+	if (oneshot)
+		task->mode     = TIMER_TASK_ONE_SHOT;
+	else
+		task->mode     = TIMER_TASK_REPEAT;
 	task->user_data = user_data;
 	timer_stop(&TIMER_RTC);
 	timer_add_task(&TIMER_RTC, task);
@@ -236,7 +239,7 @@ static void SensorsPinsInit()
 		gpio_set_pin_level(sensor_ports[idx].led1_gpio, false);
 	}
 
-	//gpio0 - out
+	//gpio0 - in & extint
 	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
 	{
 		gpio_set_pin_pull_mode(sensor_ports[idx].gpio0_num, GPIO_PULL_OFF);
@@ -245,12 +248,13 @@ static void SensorsPinsInit()
 		//gpio_set_pin_level(sensor_ports[idx].gpio0_num, false);
 	}
 
-	//gpio1 - in & extint
+	//gpio1 - out
 	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
 	{
 		gpio_set_pin_pull_mode(sensor_ports[idx].gpio1_num, GPIO_PULL_OFF);
-		gpio_set_pin_direction(sensor_ports[idx].gpio1_num, GPIO_DIRECTION_IN);
-		gpio_set_pin_function(sensor_ports[idx].gpio1_num, GPIO_PIN_FUNCTION_A);
+		gpio_set_pin_direction(sensor_ports[idx].gpio1_num, GPIO_DIRECTION_OUT);
+		gpio_set_pin_function(sensor_ports[idx].gpio1_num, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_level(sensor_ports[idx].gpio1_num, false);
 	}
 
 	//adc pins
@@ -271,6 +275,14 @@ static void SensorsPinsInit()
 // 		gpio_set_pin_function(sensor_ports[idx].i2c_gpio1, GPIO_PIN_FUNCTION_C);
 // 	}
 
+	uint8_t sens_vccio_pins[] = {S0IOVCC, S1IOVCC, S2IOVCC, S3IOVCC};
+	for  (int idx=0; idx<ARRAY_SIZE(sens_vccio_pins); idx++) // chips always ON
+	{
+		gpio_set_pin_pull_mode(sens_vccio_pins[idx], GPIO_PULL_UP);
+		gpio_set_pin_function(sens_vccio_pins[idx], GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(sens_vccio_pins[idx], GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(sens_vccio_pins[idx], true);
+	}
 }
 
 static void MotorsPinsInit()
@@ -368,7 +380,7 @@ int RRRC_Init(void)
 //     adc_async_start_conversion(&ADC_1);
 // 
 // 
- 	//i2c_s_async_enable(&I2C_0);
+ 	i2c_s_async_enable(&I2C_0);
 
 	//i2c_s_async_get_io_descriptor(&I2C_0, &slave_i2c_io);
 	//i2c_s_async_enable(&I2C_0);

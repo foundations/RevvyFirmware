@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "rrrc_sensor_interface.h"
+#include "rrrc_hal.h"
 #include "hal_gpio.h"
 #include "hal_timer.h"
 
@@ -118,10 +119,6 @@ static int32_t SensorPort_gpio1_toggle_state(const void* port)
 	gpio_toggle_pin_level(sensport->gpio1_num);
 	return gpio_get_pin_level(sensport->gpio1_num);
 }
-
-
-
-
 
 static void SensorPort_led0_on(const void* port)
 {

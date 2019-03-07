@@ -189,15 +189,15 @@ int32_t SensorPortGetType(uint32_t port_idx)
 	return result;
 }
 
-int32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
+uint32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
 {
-	uint32_t result = 0;
+	uint32_t amount = 0;
 	if (port_idx < ARRAY_SIZE(sensor_ports) && sensor_ports[port_idx].sensor_lib && sensor_ports[port_idx].sensor_lib->sensor_get_values)
 	{
-		result = sensor_ports[port_idx].sensor_lib->sensor_get_values(&sensor_ports[port_idx], data, 12);
+		amount = sensor_ports[port_idx].sensor_lib->sensor_get_values(&sensor_ports[port_idx], data, 12);
 	}
 
-	return result;
+	return amount;
 }
 
 //*********************************************************************************************
@@ -259,7 +259,7 @@ int32_t SensorPortInit(uint32_t port)
 	if (port>=SENSOR_PORT_AMOUNT)
 		return -1;
 
-	sensor_ports[port].sensor_thread = RRRC_add_task(&SensorPort_thread_tick_cb, 1000/*ms*/, &sensor_ports[port]);
+	sensor_ports[port].sensor_thread = RRRC_add_task(&SensorPort_thread_tick_cb, 100/*ms*/, &sensor_ports[port], false);
 	
 	//*****************************
 	//I2C_init(sensor_ports[port].I2C)

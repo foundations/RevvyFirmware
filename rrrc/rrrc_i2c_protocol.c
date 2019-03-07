@@ -119,7 +119,7 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 	return ret_cmd;
 }
 
-uint8_t MakeResponse(uint8_t cmd, ptransaction_t respose)
+uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 {
 	uint8_t size = 0;
 	uint32_t max_buff_size = MAX_TRANSACTION_SIZE-MIN_TRANSACTION_SIZE;

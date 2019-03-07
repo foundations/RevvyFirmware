@@ -290,7 +290,7 @@
 // <i> In 7-bit addressing mode the range is 0x00 to 0x7F, in 10-bit addressing mode the range is 0x000 to 0x3FF
 // <id> i2c_slave_address
 #ifndef CONF_SERCOM_2_I2CS_ADDRESS
-#define CONF_SERCOM_2_I2CS_ADDRESS 0x2d
+#define CONF_SERCOM_2_I2CS_ADDRESS 0x2D
 #endif
 
 // </h>

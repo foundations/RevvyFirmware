@@ -295,7 +295,7 @@ int32_t MotorPortInit(uint32_t port)
 	if (port>=ARRAY_SIZE(motor_ports))
 		return ERR_INVALID_DATA;
 
-	motor_ports[port].motor_thread = RRRC_add_task(&MotorPort_thread_tick_cb, 1000/*ms*/, &motor_ports[port]);
+	motor_ports[port].motor_thread = RRRC_add_task(&MotorPort_thread_tick_cb, 1000/*ms*/, &motor_ports[port], false);
 
 	if (motor_ports[port].enc0_gpio >= 0)
 		ext_irq_register(motor_ports[port].enc0_gpio, MotorPort_enc0_cb, &motor_ports[port]);

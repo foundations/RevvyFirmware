@@ -12,7 +12,7 @@
 // <0x1=> Clocked by ULPOSC32K
 // <id> eic_arch_cksel
 #ifndef CONF_EIC_CKSEL
-#define CONF_EIC_CKSEL 0
+#define CONF_EIC_CKSEL 1
 #endif
 
 // <o> Pin Sampler frequency selection
@@ -29,7 +29,7 @@
 // <e> Non-Maskable Interrupt Control
 // <id> eic_arch_nmi_ctrl
 #ifndef CONF_EIC_ENABLE_NMI_CTRL
-#define CONF_EIC_ENABLE_NMI_CTRL 1
+#define CONF_EIC_ENABLE_NMI_CTRL 0
 #endif
 
 // <q> Non-Maskable Interrupt Filter Enable
@@ -63,7 +63,7 @@
 // <e> Interrupt 0 Settings
 // <id> eic_arch_enable_irq_setting0
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING0
-#define CONF_EIC_ENABLE_IRQ_SETTING0 1
+#define CONF_EIC_ENABLE_IRQ_SETTING0 0
 #endif
 
 // <q> External Interrupt 0 Filter Enable
@@ -104,7 +104,7 @@
 // <i> Indicates the external interrupt 0 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch0
 #ifndef CONF_EIC_ASYNCH0
-#define CONF_EIC_ASYNCH0 1
+#define CONF_EIC_ASYNCH0 0
 #endif
 
 // </e>
@@ -112,7 +112,7 @@
 // <e> Interrupt 1 Settings
 // <id> eic_arch_enable_irq_setting1
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING1
-#define CONF_EIC_ENABLE_IRQ_SETTING1 1
+#define CONF_EIC_ENABLE_IRQ_SETTING1 0
 #endif
 
 // <q> External Interrupt 1 Filter Enable
@@ -153,7 +153,7 @@
 // <i> Indicates the external interrupt 1 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch1
 #ifndef CONF_EIC_ASYNCH1
-#define CONF_EIC_ASYNCH1 1
+#define CONF_EIC_ASYNCH1 0
 #endif
 
 // </e>
@@ -202,7 +202,7 @@
 // <i> Indicates the external interrupt 2 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch2
 #ifndef CONF_EIC_ASYNCH2
-#define CONF_EIC_ASYNCH2 1
+#define CONF_EIC_ASYNCH2 0
 #endif
 
 // </e>
@@ -251,7 +251,7 @@
 // <i> Indicates the external interrupt 3 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch3
 #ifndef CONF_EIC_ASYNCH3
-#define CONF_EIC_ASYNCH3 1
+#define CONF_EIC_ASYNCH3 0
 #endif
 
 // </e>
@@ -300,7 +300,7 @@
 // <i> Indicates the external interrupt 4 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch4
 #ifndef CONF_EIC_ASYNCH4
-#define CONF_EIC_ASYNCH4 1
+#define CONF_EIC_ASYNCH4 0
 #endif
 
 // </e>
@@ -349,7 +349,7 @@
 // <i> Indicates the external interrupt 5 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch5
 #ifndef CONF_EIC_ASYNCH5
-#define CONF_EIC_ASYNCH5 1
+#define CONF_EIC_ASYNCH5 0
 #endif
 
 // </e>
@@ -357,7 +357,7 @@
 // <e> Interrupt 6 Settings
 // <id> eic_arch_enable_irq_setting6
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING6
-#define CONF_EIC_ENABLE_IRQ_SETTING6 1
+#define CONF_EIC_ENABLE_IRQ_SETTING6 0
 #endif
 
 // <q> External Interrupt 6 Filter Enable
@@ -398,7 +398,7 @@
 // <i> Indicates the external interrupt 6 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch6
 #ifndef CONF_EIC_ASYNCH6
-#define CONF_EIC_ASYNCH6 1
+#define CONF_EIC_ASYNCH6 0
 #endif
 
 // </e>
@@ -406,7 +406,7 @@
 // <e> Interrupt 7 Settings
 // <id> eic_arch_enable_irq_setting7
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING7
-#define CONF_EIC_ENABLE_IRQ_SETTING7 1
+#define CONF_EIC_ENABLE_IRQ_SETTING7 0
 #endif
 
 // <q> External Interrupt 7 Filter Enable
@@ -447,7 +447,7 @@
 // <i> Indicates the external interrupt 7 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch7
 #ifndef CONF_EIC_ASYNCH7
-#define CONF_EIC_ASYNCH7 1
+#define CONF_EIC_ASYNCH7 0
 #endif
 
 // </e>
@@ -455,7 +455,7 @@
 // <e> Interrupt 8 Settings
 // <id> eic_arch_enable_irq_setting8
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING8
-#define CONF_EIC_ENABLE_IRQ_SETTING8 1
+#define CONF_EIC_ENABLE_IRQ_SETTING8 0
 #endif
 
 // <q> External Interrupt 8 Filter Enable
@@ -496,7 +496,7 @@
 // <i> Indicates the external interrupt 8 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch8
 #ifndef CONF_EIC_ASYNCH8
-#define CONF_EIC_ASYNCH8 1
+#define CONF_EIC_ASYNCH8 0
 #endif
 
 // </e>
@@ -504,7 +504,7 @@
 // <e> Interrupt 9 Settings
 // <id> eic_arch_enable_irq_setting9
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING9
-#define CONF_EIC_ENABLE_IRQ_SETTING9 1
+#define CONF_EIC_ENABLE_IRQ_SETTING9 0
 #endif
 
 // <q> External Interrupt 9 Filter Enable
@@ -545,7 +545,7 @@
 // <i> Indicates the external interrupt 9 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch9
 #ifndef CONF_EIC_ASYNCH9
-#define CONF_EIC_ASYNCH9 1
+#define CONF_EIC_ASYNCH9 0
 #endif
 
 // </e>
@@ -594,7 +594,7 @@
 // <i> Indicates the external interrupt 10 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch10
 #ifndef CONF_EIC_ASYNCH10
-#define CONF_EIC_ASYNCH10 1
+#define CONF_EIC_ASYNCH10 0
 #endif
 
 // </e>
@@ -643,7 +643,7 @@
 // <i> Indicates the external interrupt 11 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch11
 #ifndef CONF_EIC_ASYNCH11
-#define CONF_EIC_ASYNCH11 1
+#define CONF_EIC_ASYNCH11 0
 #endif
 
 // </e>
@@ -692,7 +692,7 @@
 // <i> Indicates the external interrupt 12 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch12
 #ifndef CONF_EIC_ASYNCH12
-#define CONF_EIC_ASYNCH12 1
+#define CONF_EIC_ASYNCH12 0
 #endif
 
 // </e>
@@ -741,7 +741,7 @@
 // <i> Indicates the external interrupt 13 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch13
 #ifndef CONF_EIC_ASYNCH13
-#define CONF_EIC_ASYNCH13 1
+#define CONF_EIC_ASYNCH13 0
 #endif
 
 // </e>
@@ -749,7 +749,7 @@
 // <e> Interrupt 14 Settings
 // <id> eic_arch_enable_irq_setting14
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING14
-#define CONF_EIC_ENABLE_IRQ_SETTING14 1
+#define CONF_EIC_ENABLE_IRQ_SETTING14 0
 #endif
 
 // <q> External Interrupt 14 Filter Enable
@@ -790,7 +790,7 @@
 // <i> Indicates the external interrupt 14 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch14
 #ifndef CONF_EIC_ASYNCH14
-#define CONF_EIC_ASYNCH14 1
+#define CONF_EIC_ASYNCH14 0
 #endif
 
 // </e>
@@ -798,7 +798,7 @@
 // <e> Interrupt 15 Settings
 // <id> eic_arch_enable_irq_setting15
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING15
-#define CONF_EIC_ENABLE_IRQ_SETTING15 1
+#define CONF_EIC_ENABLE_IRQ_SETTING15 0
 #endif
 
 // <q> External Interrupt 15 Filter Enable
@@ -839,7 +839,7 @@
 // <i> Indicates the external interrupt 15 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch15
 #ifndef CONF_EIC_ASYNCH15
-#define CONF_EIC_ASYNCH15 1
+#define CONF_EIC_ASYNCH15 0
 #endif
 
 // </e>

@@ -260,6 +260,11 @@
 #define S3LED0 PC16
 #define S3LED1 PC18
 
+#define S0IOVCC PC04
+#define S1IOVCC PC05
+#define S2IOVCC PC06
+#define S3IOVCC PC07
+
 
 //SERCOM2
 #define I2C0_SERCOM SERCOM2
