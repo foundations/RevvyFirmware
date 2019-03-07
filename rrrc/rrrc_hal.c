@@ -27,8 +27,8 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 #include "rrrc_motors.h"
 #include "rrrc_i2c_protocol.h"
 
-extern hw_motor_port_t motor_ports[SENSOR_PORT_AMOUNT];
-extern hw_sensor_port_t sensor_ports[MOTOR_PORT_AMOUNT];
+extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
+extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
 
 //*****************************************************************************************************
 //*****************************************************************************************************
