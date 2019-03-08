@@ -150,6 +150,10 @@ static struct _timer_device *_tc4_dev = NULL;
 
 static struct _timer_device *_tc5_dev = NULL;
 
+static struct _timer_device *_tc6_dev = NULL;
+
+static struct _timer_device *_tc7_dev = NULL;
+
 static int8_t         get_tc_index(const void *const hw);
 static void           _tc_init_irq_param(const void *const hw, void *dev);
 static inline uint8_t _get_hardware_offset(const void *const hw);
@@ -359,6 +363,22 @@ void TC5_Handler(void)
 }
 
 /**
+ * \brief TC interrupt handler
+ */
+void TC6_Handler(void)
+{
+	tc_interrupt_handler(_tc6_dev);
+}
+
+/**
+ * \brief TC interrupt handler
+ */
+void TC7_Handler(void)
+{
+	tc_interrupt_handler(_tc7_dev);
+}
+
+/**
  * \internal Retrieve TC index
  *
  * \param[in] hw The pointer to hardware instance
@@ -402,6 +422,12 @@ static void _tc_init_irq_param(const void *const hw, void *dev)
 	}
 	if (hw == TC5) {
 		_tc5_dev = (struct _timer_device *)dev;
+	}
+	if (hw == TC6) {
+		_tc6_dev = (struct _timer_device *)dev;
+	}
+	if (hw == TC7) {
+		_tc7_dev = (struct _timer_device *)dev;
 	}
 }
 

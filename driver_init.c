@@ -317,7 +317,7 @@ static void TIMER_TC6_init(void)
 static void TIMER_TC7_init(void)
 {
 	hri_mclk_set_APBDMASK_TC7_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, TC7_GCLK_ID, CONF_GCLK_TC6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, TC7_GCLK_ID, CONF_GCLK_TC7_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC7, TC7, _tc_get_timer());
 }
@@ -513,13 +513,17 @@ void system_init(void)
 
 	delay_driver_init();
 
-	TIMER_TC0_init();
-	TIMER_TC1_init();
-	TIMER_TC2_init();
-	TIMER_TC3_init();
-	TIMER_TCC0_init();
-	TIMER_TCC1_init();
-	TIMER_TCC2_init();
+// 	TIMER_TC0_init();
+// 	TIMER_TC1_init();
+// 	TIMER_TC2_init();
+// 	TIMER_TC3_init();
+// 	TIMER_TC4_init();
+// 	TIMER_TC5_init();
+// 	TIMER_TC6_init();
+// 	TIMER_TC7_init();
+// 	TIMER_TCC0_init();
+// 	TIMER_TCC1_init();
+// 	TIMER_TCC2_init();
 
 
 	//USB_0_init();

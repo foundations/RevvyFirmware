@@ -28,13 +28,15 @@ static sensor_lib_entry_t sensor_hc_sr_05 =
     .timer_callback = NULL,
     .adc_callback = NULL,
     .gpio0_callback = HC_SR05_gpio0_callback,
-    .gpio1_callback = HC_SR05_gpio1_callback,
+    .gpio1_callback = NULL,
 };
 
 
 typedef struct _hc_sr05_data_t
 {
 	uint32_t distanse;
+	uint32_t start_time;
+	uint32_t finish_time;
 }hc_sr05_data_t, *p_hc_sr05_data_t;
 
 #ifdef __cplusplus

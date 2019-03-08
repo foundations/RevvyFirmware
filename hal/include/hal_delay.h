@@ -82,6 +82,10 @@ void delay_ms(const uint16_t ms);
  */
 uint32_t delay_get_version(void);
 
+uint32_t get_system_tick(void);
+uint32_t get_cycles_for_1ms(void);
+uint32_t get_cycles_for_1us(void);
+
 /**@}*/
 #ifdef __cplusplus
 }

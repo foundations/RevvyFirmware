@@ -124,7 +124,6 @@ static uint8_t checkCRC(ptransaction_t buff)
 }
 
 
-uint8_t MakeResponse(uint8_t cmd, ptransaction_t buff);
 
 
 #ifdef __cplusplus
@@ -151,7 +150,7 @@ static  std::ostream& operator<<(std::ostream& os, ptransaction_t data)
 #endif
 
 uint8_t CommandHandler(ptransaction_t buff, uint8_t size);
-uint8_t MakeResponse(uint8_t cmd, ptransaction_t respose);
+uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose);
 
 #ifdef __cplusplus
 }

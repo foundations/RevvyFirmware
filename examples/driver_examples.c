@@ -192,7 +192,15 @@ void delay_example(void)
 	delay_ms(5000);
 }
 
+static struct timer_task TIMER_0_task1, TIMER_0_task2;
 static struct timer_task TIMER_1_task1, TIMER_1_task2;
+static struct timer_task TIMER_2_task1, TIMER_2_task2;
+static struct timer_task TIMER_3_task1, TIMER_3_task2;
+static struct timer_task TIMER_4_task1, TIMER_4_task2;
+static struct timer_task TIMER_5_task1, TIMER_5_task2;
+static struct timer_task TIMER_6_task1, TIMER_6_task2;
+static struct timer_task TIMER_7_task1, TIMER_7_task2;
+
 
 /**
  * Example of using TIMER_1.
@@ -205,6 +213,20 @@ static void TIMER_1_task2_cb(const struct timer_task *const timer_task)
 {
 }
 
+void TIMER_0_example(void)
+{
+	TIMER_0_task1.interval = 100;
+	TIMER_0_task1.cb       = TIMER_1_task1_cb;
+	TIMER_0_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_0_task2.interval = 200;
+	TIMER_0_task2.cb       = TIMER_1_task2_cb;
+	TIMER_0_task2.mode     = TIMER_TASK_REPEAT;
+
+	timer_add_task(&TIMER_TC0, &TIMER_0_task1);
+	timer_add_task(&TIMER_TC0, &TIMER_0_task2);
+	timer_start(&TIMER_TC0);
+}
+
 void TIMER_1_example(void)
 {
 	TIMER_1_task1.interval = 100;
@@ -214,11 +236,94 @@ void TIMER_1_example(void)
 	TIMER_1_task2.cb       = TIMER_1_task2_cb;
 	TIMER_1_task2.mode     = TIMER_TASK_REPEAT;
 
-	timer_add_task(&TIMER_TC0, &TIMER_1_task1);
-	timer_add_task(&TIMER_TC0, &TIMER_1_task2);
-	timer_start(&TIMER_TC0);
+	timer_add_task(&TIMER_TC1, &TIMER_1_task1);
+	timer_add_task(&TIMER_TC1, &TIMER_1_task2);
+	timer_start(&TIMER_TC1);
 }
 
+void TIMER_2_example(void)
+{
+	TIMER_2_task1.interval = 100;
+	TIMER_2_task1.cb       = TIMER_1_task1_cb;
+	TIMER_2_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_2_task2.interval = 200;
+	TIMER_2_task2.cb       = TIMER_1_task2_cb;
+	TIMER_2_task2.mode     = TIMER_TASK_REPEAT;
+
+	timer_add_task(&TIMER_TC2, &TIMER_2_task1);
+	timer_add_task(&TIMER_TC2, &TIMER_2_task2);
+	timer_start(&TIMER_TC2);
+}
+
+void TIMER_3_example(void)
+{
+	TIMER_3_task1.interval = 100;
+	TIMER_3_task1.cb       = TIMER_1_task1_cb;
+	TIMER_3_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_3_task2.interval = 200;
+	TIMER_3_task2.cb       = TIMER_1_task2_cb;
+	TIMER_3_task2.mode     = TIMER_TASK_REPEAT;
+
+	timer_add_task(&TIMER_TC3, &TIMER_3_task1);
+	timer_add_task(&TIMER_TC3, &TIMER_3_task2);
+	timer_start(&TIMER_TC3);
+}
+
+void TIMER_4_example(void)
+{
+	TIMER_4_task1.interval = 100;
+	TIMER_4_task1.cb       = TIMER_1_task1_cb;
+	TIMER_4_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_4_task2.interval = 200;
+	TIMER_4_task2.cb       = TIMER_1_task2_cb;
+	TIMER_4_task2.mode     = TIMER_TASK_REPEAT;
+
+	timer_add_task(&TIMER_TC4, &TIMER_4_task1);
+	timer_add_task(&TIMER_TC4, &TIMER_4_task2);
+	timer_start(&TIMER_TC4);
+}
+
+void TIMER_5_example(void)
+{
+	TIMER_5_task1.interval = 100;
+	TIMER_5_task1.cb       = TIMER_1_task1_cb;
+	TIMER_5_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_5_task2.interval = 200;
+	TIMER_5_task2.cb       = TIMER_1_task2_cb;
+	TIMER_5_task2.mode     = TIMER_TASK_REPEAT;
+
+	timer_add_task(&TIMER_TC5, &TIMER_5_task1);
+	timer_add_task(&TIMER_TC5, &TIMER_5_task2);
+	timer_start(&TIMER_TC5);
+}
+
+void TIMER_6_example(void)
+{
+	TIMER_6_task1.interval = 100;
+	TIMER_6_task1.cb       = TIMER_1_task1_cb;
+	TIMER_6_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_6_task2.interval = 200;
+	TIMER_6_task2.cb       = TIMER_1_task2_cb;
+	TIMER_6_task2.mode     = TIMER_TASK_REPEAT;
+
+	timer_add_task(&TIMER_TC6, &TIMER_6_task1);
+	timer_add_task(&TIMER_TC6, &TIMER_6_task2);
+	timer_start(&TIMER_TC6);
+}
+
+void TIMER_7_example(void)
+{
+	TIMER_7_task1.interval = 100;
+	TIMER_7_task1.cb       = TIMER_1_task1_cb;
+	TIMER_7_task1.mode     = TIMER_TASK_REPEAT;
+	TIMER_7_task2.interval = 200;
+	TIMER_7_task2.cb       = TIMER_1_task2_cb;
+	TIMER_7_task2.mode     = TIMER_TASK_REPEAT;
+
+	timer_add_task(&TIMER_TC6, &TIMER_7_task1);
+	timer_add_task(&TIMER_TC6, &TIMER_7_task2);
+	timer_start(&TIMER_TC7);
+}
 
 /**
  * Example of using WDT_0.

@@ -1,5 +1,5 @@
 
-
+#include "rrrc_sensor_base_func.h"
 #include "sensor_button.h"
 
 #define MAX_SENSOR_VALUES 1
@@ -20,7 +20,7 @@ uint32_t BUTTON_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 	if (sensport && data && max_size && (max_size>=MAX_SENSOR_VALUES))
 	{
 		p_button_data_t sens_data = sensport->lib_data;
-		data[0] = sens_data->state;
+		data[0] = SwapEndian(sens_data->state);
 		amount = 1;
 	}
 	return amount;

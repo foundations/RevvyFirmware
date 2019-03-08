@@ -27,7 +27,7 @@ static sensor_lib_entry_t sensor_button =
     //callback from sensor port
     .timer_callback = NULL,
     .adc_callback = NULL,
-    .gpio0_callback = NULL,
+    .gpio0_callback = BUTTON_gpio0_callback,
     .gpio1_callback = NULL,
 };
 

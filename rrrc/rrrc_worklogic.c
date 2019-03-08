@@ -11,7 +11,7 @@
  #include "rrrc_sensors.h"
  #include "rrrc_motors.h"
 
-
+ #include "driver_examples.h"
 
 
 void RRRC_ProcessLogic(void)
@@ -19,20 +19,28 @@ void RRRC_ProcessLogic(void)
 
 	for (uint32_t idx=0; idx<SENSOR_PORT_AMOUNT; idx++ )
 		SensorPortInit(idx);
-	SensorPortSetType(0, SENSOR_ANALOG_SWITCH);
-	SensorPortSetType(1, SENSOR_SWITCH);
-	SensorPortSetType(2, SENSOR_HC_SR05);
-	SensorPortSetType(3, SENSOR_NOT_SET);
+// 	SensorPortSetType(0, SENSOR_ANALOG_SWITCH);
+// 	SensorPortSetType(1, SENSOR_SWITCH);
+// 	SensorPortSetType(2, SENSOR_HC_SR05);
+// 	SensorPortSetType(3, SENSOR_NOT_SET);
 
 	for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
 		MotorPortInit(idx);
-	MotorPortSetType(0, MOTOR_DC);
-	MotorPortSetType(1, MOTOR_DC);
-	MotorPortSetType(2, MOTOR_DC);
-	MotorPortSetType(3, MOTOR_DC);
-	MotorPortSetType(4, MOTOR_DC);
-	MotorPortSetType(5, MOTOR_NOT_SET);
+// 	MotorPortSetType(0, MOTOR_NOT_SET);
+// 	MotorPortSetType(1, MOTOR_NOT_SET);
+// 	MotorPortSetType(2, MOTOR_NOT_SET);
+// 	MotorPortSetType(3, MOTOR_NOT_SET);
+// 	MotorPortSetType(4, MOTOR_DC);
+// 	MotorPortSetType(5, MOTOR_NOT_SET);
 
+// 	TIMER_0_example();
+// 	TIMER_1_example();
+// 	TIMER_2_example();
+// 	TIMER_3_example();
+// 	TIMER_4_example();
+// 	TIMER_5_example();
+// 	TIMER_6_example();
+// 	TIMER_7_example();
 
 	MotorPortSetState(0, 10);
 	MotorPortSetState(0, -10);

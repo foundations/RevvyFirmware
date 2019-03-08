@@ -78,3 +78,18 @@ uint32_t delay_get_version(void)
 {
 	return DRIVER_VERSION;
 }
+
+uint32_t get_system_tick(void)
+{
+	return _system_time_get(hardware);
+}
+
+uint32_t get_cycles_for_1ms(void)
+{
+	return _get_cycles_for_ms(1);
+}
+
+uint32_t get_cycles_for_1us(void)
+{
+	return _get_cycles_for_us(1);
+}

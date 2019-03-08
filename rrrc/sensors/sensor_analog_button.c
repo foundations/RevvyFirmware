@@ -5,6 +5,7 @@
  *  Author: User
  */ 
 
+ #include "rrrc_sensor_base_func.h"
  #include "sensor_analog_button.h"
 
  #define MAX_SENSOR_VALUES 1
@@ -25,7 +26,7 @@
 	 if (sensport && data && max_size && (max_size>=MAX_SENSOR_VALUES))
 	 {
 		 p_abutton_data_t sens_data = sensport->lib_data;
-		 data[0] = sens_data->state;
+		 data[0] = SwapEndian(sens_data->state);
 		 amount = 1;
 	 }
 	 return amount;
@@ -36,14 +37,17 @@
 	 return;
  }
 
- void ABUTTON_adc_callback(void* hw_port, uint32_t data)
- {
-	 p_hw_sensor_port_t sensport = hw_port;
-	 if (sensport)
-	 {
-		 p_abutton_data_t sens_data = sensport->lib_data;
-		 sens_data->state = data;
-	 }
+void ABUTTON_adc_callback(void* hw_port, uint32_t data)
+{
+	p_hw_sensor_port_t sensport = hw_port;
+	if (sensport)
+	{
+		p_abutton_data_t sens_data = sensport->lib_data;
+		if (data>127)
+			sens_data->state = 1;
+		else
+			sens_data->state = 0;
+	}
 
-	 return;
- }
+	return;
+}

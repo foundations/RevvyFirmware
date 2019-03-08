@@ -28,7 +28,7 @@ uint32_t SensorPortGetTypes(uint8_t *data, uint32_t max_size);
 
 int32_t SensorPortSetType(uint32_t port, sensor_type_t type);
 int32_t SensorPortGetType(uint32_t port);
-int32_t SensorPortGetValues(uint32_t port, uint32_t* data); 
+uint32_t SensorPortGetValues(uint32_t port, uint32_t* data); 
 
 int32_t SensorPortInit(uint32_t port);
 int32_t SensorPortDeInit(uint32_t port);
