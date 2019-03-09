@@ -11,9 +11,12 @@
  int32_t DC_Init(void* hw_port)
  {
 	int32_t result = ERR_NONE;
-	p_hw_motor_port_t motsport = hw_port;
-	if (motsport)
-		memset(motsport->lib_data, 0, MOTOR_PORT_LIBDATA);
+	p_hw_motor_port_t motport = hw_port;
+	if (motport)
+		memset(motport->lib_data, 0, MOTOR_PORT_LIBDATA);
+	p_dc_data_t mot_data = motport->lib_data;	
+	
+	timer_get_clock_cycles_in_tick(motport->PWM0, &(mot_data->timer_period));
 	return result;
  }
 
@@ -54,14 +57,18 @@ uint32_t DC_set_state(void* hw_port, int8_t state)
 		p_dc_data_t mot_data = motport->lib_data;
 		if (mot_data->state != state)
 		{
-			MotorPort_dir_stop(hw_port);
 			uint8_t speed = abs(state);
-			MotorPort_set_speed(hw_port, speed); //TODO  What if speed 0??
-			if (state > 0)
+			uint32_t duty = mot_data->timer_period/100*speed;
+			MotorPort_dir_stop(hw_port);
+			if (state)
+			{
+				MotorPort_set_duty_cicle(hw_port, duty); //TODO  What if speed 0??
+				if (state > 0)
 				MotorPort_dir_forward(hw_port);
-			else
+				else
 				MotorPort_dir_backward(hw_port);
-			mot_data->speed = speed;
+			}
+			//mot_data->speed = speed;
 			mot_data->state = state;
 		}
 		

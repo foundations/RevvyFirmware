@@ -115,6 +115,12 @@ int32_t timer_set_clock_cycles_per_tick(struct timer_descriptor *const descr, co
 	return ERR_NONE;
 }
 
+int32_t timer_set_chan_compare_value(struct timer_descriptor *const descr, const uint8_t chan, const uint32_t value)
+{
+	ASSERT(descr && descr->func);
+	descr->func->set_compare_value(&descr->device, value, chan);
+	return ERR_NONE;
+}
 /**
  * \brief Add timer task
  */

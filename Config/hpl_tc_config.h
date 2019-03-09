@@ -175,6 +175,27 @@
 	(uint32_t)(((float)CONF_TC0_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC0_FREQUENCY / CONF_TC0_PRESCALE)))
 #endif
 
+
+#ifndef CONF_TC0_COPEN0
+#define CONF_TC0_COPEN0 0
+#endif
+
+#ifndef CONF_TC0_COPEN0
+#define CONF_TC0_COPEN1 0
+#endif
+
+#ifndef CONF_TC0_CAPTEN0
+#define CONF_TC0_CAPTEN0 0
+#endif
+
+#ifndef CONF_TC0_CAPTEN0
+#define CONF_TC0_CAPTEN1 0
+#endif
+
+
+
+
+
 #ifndef CONF_TC1_ENABLE
 #define CONF_TC1_ENABLE 1
 #endif

@@ -134,6 +134,8 @@ struct _timer_hpl_interface *_tcc_get_timer(void);
  */
 struct _pwm_hpl_interface *_tcc_get_pwm(void);
 
+void _tcc_set_compare_value(struct _timer_device *const device, uint32_t value, uint8_t channel_index);
+
 //@}
 /**@}*/
 

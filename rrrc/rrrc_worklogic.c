@@ -5,13 +5,14 @@
  *  Author: User
  */ 
 
- #include "rrrc_hal.h"
- #include "rrrc_worklogic.h"
- #include "rrrc_i2c_protocol.h"
- #include "rrrc_sensors.h"
- #include "rrrc_motors.h"
+#include "rrrc_hal.h"
+#include "rrrc_worklogic.h"
+#include "rrrc_i2c_protocol.h"
+#include "rrrc_sensors.h"
+#include "rrrc_motors.h"
 
- #include "driver_examples.h"
+#include "driver_examples.h"
+
 
 
 void RRRC_ProcessLogic(void)
@@ -26,12 +27,15 @@ void RRRC_ProcessLogic(void)
 
 	for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
 		MotorPortInit(idx);
-// 	MotorPortSetType(0, MOTOR_NOT_SET);
-// 	MotorPortSetType(1, MOTOR_NOT_SET);
-// 	MotorPortSetType(2, MOTOR_NOT_SET);
-// 	MotorPortSetType(3, MOTOR_NOT_SET);
+// 	MotorPortSetType(0, MOTOR_DC);
+// 	MotorPortSetType(1, MOTOR_DC);
+// 	MotorPortSetType(2, MOTOR_DC);
+// 	MotorPortSetType(3, MOTOR_DC);
 // 	MotorPortSetType(4, MOTOR_DC);
-// 	MotorPortSetType(5, MOTOR_NOT_SET);
+// 	MotorPortSetType(5, MOTOR_DC);
+
+
+	//pwm_1khz_example();
 
 // 	TIMER_0_example();
 // 	TIMER_1_example();
@@ -42,14 +46,52 @@ void RRRC_ProcessLogic(void)
 // 	TIMER_6_example();
 // 	TIMER_7_example();
 
-	MotorPortSetState(0, 10);
-	MotorPortSetState(0, -10);
+// 	MotorPortSetState(0, 10);
+// 	MotorPortSetState(0, 0);
+// 
+// 	MotorPortSetState(1, 10);
+// 	MotorPortSetState(1, 0);
+// 
+// 	MotorPortSetState(2, 10);
+// 	MotorPortSetState(2, 0);
+// 
+// 	MotorPortSetState(3, 10);
+// 	MotorPortSetState(3, 0);
+// 
+// 	MotorPortSetState(4, 10);
+// 	MotorPortSetState(4, 0);
+// 
+// 	MotorPortSetState(5, 10);
+// 	MotorPortSetState(5, 0);
+// 
+// 	MotorPortSetState(0, 0);
+// 	MotorPortSetState(0, 10);
+// 	MotorPortSetState(0, 0);
+// 	MotorPortSetState(0, -10);
+// 
+// 	MotorPortSetState(0, 0);
+// 	MotorPortSetState(0, 50);
+// 	MotorPortSetState(0, 0);
+// 	MotorPortSetState(0, -50);
+// 
+// 	MotorPortSetState(0, 0);
+// 	MotorPortSetState(0, 100);
+// 	MotorPortSetState(0, 0);
+// 	MotorPortSetState(0, -100);
+// 
+// 	MotorPortSetState(0, 0);
+// 
+// 	MotorPortSetState(0, 5);
+// 	MotorPortSetState(0, 20);
+// 	MotorPortSetState(0, 50);
+// 	MotorPortSetState(0, 100);
+// 	MotorPortSetState(0, 50);
+// 	MotorPortSetState(0, 20);
+// 	MotorPortSetState(0, 5);
+	
+	//MotorPortSetState(0, 0);
 
-	MotorPortSetState(0, 50);
-	MotorPortSetState(0, -50);
 
-	MotorPortSetState(0, 127);
-	MotorPortSetState(0, -127);
 
 
 	while (1)

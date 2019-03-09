@@ -232,9 +232,18 @@
 #define M6ENC0 PB06
 #define M6ENC1 PB09
 
+#define M0PWM0 PC10
+#define M1PWM0 PC11
+#define M2PWM0 PC15
+#define M3PWM0 PC12
+#define M4PWM0 PC14
+#define M5PWM0 PC13
+
 #define M12STBY PD21
 #define M34STBY PA27
 #define M56STBY PB06
+
+#define MOTPWEN PB20
 
 //for RRRC sensors
 #define S0GPIO0 PA19

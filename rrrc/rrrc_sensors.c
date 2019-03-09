@@ -46,7 +46,8 @@ hw_sensor_port_t sensor_ports[] =
 
 		.led0_gpio = S0LED0,
 		.led1_gpio = S0LED1,
-
+		
+		.vccio_pin = S0IOVCC,
 		.TIMER = &TIMER_TC0,
 	},
 	{
@@ -68,6 +69,8 @@ hw_sensor_port_t sensor_ports[] =
 		.led0_gpio = S1LED0,
 		.led1_gpio = S1LED1,
 
+		.vccio_pin = S1IOVCC,
+
 		.TIMER = &TIMER_TC1,
 	},
 	{
@@ -88,6 +91,8 @@ hw_sensor_port_t sensor_ports[] =
 
 		.led0_gpio = S2LED0,
 		.led1_gpio = S2LED1,
+		
+		.vccio_pin = S2IOVCC,
 
 		.TIMER = &TIMER_TC2,
 	},
@@ -110,6 +115,8 @@ hw_sensor_port_t sensor_ports[] =
 
 		.led0_gpio = S3LED0,
 		.led1_gpio = S3LED1,
+
+		.vccio_pin = S3IOVCC,
 
 		.TIMER = &TIMER_TC3,
 	},

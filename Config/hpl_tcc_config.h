@@ -23,7 +23,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TCC0_PRESCALER
-#define CONF_TCC0_PRESCALER TCC_CTRLA_PRESCALER_DIV8_Val
+#define CONF_TCC0_PRESCALER TCC_CTRLA_PRESCALER_DIV2_Val
 #endif
 
 //<o> Length of one timer tick in uS <0-16777216>
@@ -269,7 +269,7 @@
 #endif
 
 #ifndef CONF_TCC0_WAVEGEN
-#define CONF_TCC0_WAVEGEN 0
+#define CONF_TCC0_WAVEGEN TCC_WAVE_WAVEGEN_NPWM_Val
 #endif
 
 #ifndef CONF_TCC0_CC0
@@ -334,6 +334,13 @@
 	    | (CONF_TCC0_TCEI0 << TCC_EVCTRL_TCEI0_Pos) | (CONF_TCC0_TCEI1 << TCC_EVCTRL_TCEI1_Pos)                        \
 	    | (CONF_TCC0_TCINV0 << TCC_EVCTRL_TCINV0_Pos) | (CONF_TCC0_TCINV1 << TCC_EVCTRL_TCINV1_Pos)                    \
 	    | TCC_EVCTRL_EVACT1(CONF_TCC0_EVACT1) | TCC_EVCTRL_EVACT0(CONF_TCC0_EVACT0)
+
+#define CONF_TCC0_WAVE											\
+	TCC_WAVE_WAVEGEN(CONF_TCC0_WAVEGEN) | TCC_WAVE_RAMP(0)		\
+	| 0 << TCC_WAVE_CIPEREN_Pos | TCC_WAVE_CICCEN(0)			\
+	| TCC_WAVE_POL(0) | TCC_WAVE_SWAP(0)
+
+
 
 #include "peripheral_clk_config.h"
 
@@ -625,6 +632,10 @@
 	    | (CONF_TCC1_TCINV0 << TCC_EVCTRL_TCINV0_Pos) | (CONF_TCC1_TCINV1 << TCC_EVCTRL_TCINV1_Pos)                    \
 	    | TCC_EVCTRL_EVACT1(CONF_TCC1_EVACT1) | TCC_EVCTRL_EVACT0(CONF_TCC1_EVACT0)
 
+#define CONF_TCC1_WAVE											\
+	TCC_WAVE_WAVEGEN(CONF_TCC1_WAVEGEN) | TCC_WAVE_RAMP(0)		\
+	| 0 << TCC_WAVE_CIPEREN_Pos | TCC_WAVE_CICCEN(0)			\
+	| TCC_WAVE_POL(0) | TCC_WAVE_SWAP(0)
 // <<< end of configuration section >>>
 
 #endif // HPL_TCC_CONFIG_H
