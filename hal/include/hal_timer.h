@@ -167,6 +167,10 @@ int32_t timer_set_clock_cycles_per_tick(struct timer_descriptor *const descr, co
  */
 int32_t timer_get_clock_cycles_in_tick(const struct timer_descriptor *const descr, uint32_t *const cycles);
 
+
+
+int32_t timer_set_chan_compare_value(struct timer_descriptor *const descr, const uint8_t chan, const uint32_t clock_cycles);
+
 /**
  * \brief Add timer task
  *

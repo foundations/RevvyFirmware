@@ -57,8 +57,10 @@ typedef struct _hw_motor_port_t
 
 	struct timer_task* motor_thread;
 
+	struct timer_descriptor *ENCTIMER;
 	gpio_num enc0_gpio;
 	gpio_num enc1_gpio;
+
 	gpio_num dir0_gpio;
 	gpio_num dir1_gpio;
 
@@ -67,8 +69,12 @@ typedef struct _hw_motor_port_t
 	
 	struct timer_descriptor *PWM0;
 	uint32_t pwm0_ch;
+	gpio_num pwm_pin;
+
 	struct timer_descriptor *PWM1;
 	uint32_t pwm1_ch;
+
+	
 
 }hw_motor_port_t, *p_hw_motor_port_t;
 

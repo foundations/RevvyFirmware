@@ -35,6 +35,11 @@ typedef enum _sensor_type_t
 // 
 // typedef void (*sensor_callback_t)(void* data);
 
+typedef enum 
+{
+	SENSOR_VCCIO_3V3,
+	SENSOR_VCCIO_5V0,
+}sensor_vccio_t;
 
 typedef struct _sensor_values_t
 {
@@ -85,21 +90,10 @@ typedef struct _hw_sensor_port_t
 
 	gpio_num led0_gpio;
 	gpio_num led1_gpio;
+
+	gpio_num vccio_pin;
 	
 	struct timer_descriptor *TIMER;
-
-
-	// 		void (*gpio1_ext_callback)(uint32_t value);
-	// 		void (*gpio2_ext_callback)(uint32_t value);
-	//
-	// 	void (*timer_callback)(uint32_t delay);
-
-	// 	uint32_t SCL_GPIO; //I2C, UART, Dig I/O
-	// 	uint32_t SDA_GPIO; //I2C, UART, Dig I/O
-	// 	uint32_t ADC_GPIO; //ADC, Dig I/O
-	// 	uint32_t PWM_GPIO; //PWM Out, Dig I/O
-	// 	uint32_t TC_GPIO;  //Freq In, Ext Int, Dig I/O
-
 }hw_sensor_port_t, *p_hw_sensor_port_t;
 
 

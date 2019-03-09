@@ -521,7 +521,7 @@ void system_init(void)
 // 	TIMER_TC5_init();
 // 	TIMER_TC6_init();
 // 	TIMER_TC7_init();
-// 	TIMER_TCC0_init();
+ 	TIMER_TCC0_init();
 // 	TIMER_TCC1_init();
 // 	TIMER_TCC2_init();
 

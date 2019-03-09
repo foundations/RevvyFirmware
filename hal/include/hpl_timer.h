@@ -85,6 +85,7 @@ struct _timer_hpl_interface {
 	uint32_t (*get_period)(const struct _timer_device *const device);
 	bool (*is_timer_started)(const struct _timer_device *const device);
 	void (*set_timer_irq)(struct _timer_device *const device);
+	void (*set_compare_value)(struct _timer_device *const device, uint32_t value, uint8_t channel_index);
 };
 
 #ifdef __cplusplus

@@ -226,7 +226,7 @@ void RRRC_remove_task(struct timer_task* task)
 static void SensorsPinsInit()
 {
 	//led pins
-	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
 	{
 		gpio_set_pin_pull_mode(sensor_ports[idx].led0_gpio, GPIO_PULL_UP);
 		gpio_set_pin_function(sensor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
@@ -240,7 +240,7 @@ static void SensorsPinsInit()
 	}
 
 	//gpio0 - in & extint
-	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
 	{
 		gpio_set_pin_pull_mode(sensor_ports[idx].gpio0_num, GPIO_PULL_OFF);
 		gpio_set_pin_direction(sensor_ports[idx].gpio0_num, GPIO_DIRECTION_IN);
@@ -249,7 +249,7 @@ static void SensorsPinsInit()
 	}
 
 	//gpio1 - out
-	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
 	{
 		gpio_set_pin_pull_mode(sensor_ports[idx].gpio1_num, GPIO_PULL_OFF);
 		gpio_set_pin_direction(sensor_ports[idx].gpio1_num, GPIO_DIRECTION_OUT);
@@ -258,7 +258,7 @@ static void SensorsPinsInit()
 	}
 
 	//adc pins
-	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
+	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
 	{
 		gpio_set_pin_direction(sensor_ports[idx].adc_gpio, GPIO_DIRECTION_OFF);
 		gpio_set_pin_function(sensor_ports[idx].adc_gpio, GPIO_PIN_FUNCTION_B);
@@ -275,22 +275,20 @@ static void SensorsPinsInit()
 // 		gpio_set_pin_function(sensor_ports[idx].i2c_gpio1, GPIO_PIN_FUNCTION_C);
 // 	}
 
-	uint8_t sens_vccio_pins[] = {S0IOVCC, S1IOVCC, S2IOVCC, S3IOVCC};
-	for  (int idx=0; idx<ARRAY_SIZE(sens_vccio_pins); idx++) // chips always ON
+	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++) 
 	{
-		gpio_set_pin_pull_mode(sens_vccio_pins[idx], GPIO_PULL_UP);
-		gpio_set_pin_function(sens_vccio_pins[idx], GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(sens_vccio_pins[idx], GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(sens_vccio_pins[idx], true);
+		gpio_set_pin_pull_mode(sensor_ports[idx].vccio_pin, GPIO_PULL_UP);
+		gpio_set_pin_function(sensor_ports[idx].vccio_pin, GPIO_PIN_FUNCTION_OFF);
+		gpio_set_pin_direction(sensor_ports[idx].vccio_pin, GPIO_DIRECTION_OUT);
+		gpio_set_pin_level(sensor_ports[idx].vccio_pin, false);//VCCIO_3V3
 	}
 }
 
 static void MotorsPinsInit()
 {
-	uint8_t moto_stbypins[] = {M12STBY, M34STBY, M56STBY};
-	
+
 	//led pins
-	for  (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
+	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
 	{
 		gpio_set_pin_pull_mode(motor_ports[idx].led0_gpio, GPIO_PULL_UP);
 		gpio_set_pin_function(motor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
@@ -304,7 +302,7 @@ static void MotorsPinsInit()
 	}
 
 	//dir pins
-	for  (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
+	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
 	{
 		gpio_set_pin_pull_mode(motor_ports[idx].dir0_gpio, GPIO_PULL_UP);
 		gpio_set_pin_function(motor_ports[idx].dir0_gpio, GPIO_PIN_FUNCTION_OFF);
@@ -318,27 +316,46 @@ static void MotorsPinsInit()
 	}
 
 	//enc pins
-	for  (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
+	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
 	{
-		gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_OFF);
-		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_IN);
-		gpio_set_pin_level(motor_ports[idx].enc0_gpio, false);
+// 		gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_OFF);
+// 		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_OFF);
+// 		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_IN);
+// 		gpio_set_pin_level(motor_ports[idx].enc0_gpio, false);
+// 
+// 		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
+// 		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_OFF);
+// 		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_IN);
+// 		gpio_set_pin_level(motor_ports[idx].enc1_gpio, false);
+		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OFF);
+		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_F);
 
-		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
-		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_IN);
-		gpio_set_pin_level(motor_ports[idx].enc1_gpio, false);
+		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OFF);
+		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_F);
 	}
 
+	//PWM pins 
+	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
+	{
+		gpio_set_pin_direction(motor_ports[idx].pwm_pin, GPIO_DIRECTION_OFF);
+		gpio_set_pin_function(motor_ports[idx].pwm_pin, GPIO_PIN_FUNCTION_F);
+	}
 
-	for  (int idx=0; idx<ARRAY_SIZE(moto_stbypins); idx++) // chips always ON
+	uint8_t moto_stbypins[] = {M12STBY, M34STBY, M56STBY};
+	for (int idx=0; idx<ARRAY_SIZE(moto_stbypins); idx++) // chips always ON
 	{
 		gpio_set_pin_pull_mode(moto_stbypins[idx], GPIO_PULL_UP);
 		gpio_set_pin_function(moto_stbypins[idx], GPIO_PIN_FUNCTION_OFF);
 		gpio_set_pin_direction(moto_stbypins[idx], GPIO_DIRECTION_OUT);
 		gpio_set_pin_level(moto_stbypins[idx], true);
 	}
+
+	gpio_set_pin_pull_mode(MOTPWEN, GPIO_PULL_UP);
+	gpio_set_pin_function(MOTPWEN, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_direction(MOTPWEN, GPIO_DIRECTION_OUT);
+	gpio_set_pin_level(MOTPWEN, true);
+
+	
 
 }
 
@@ -382,6 +399,8 @@ int RRRC_Init(void)
 // 
  	i2c_s_async_enable(&I2C_0);
 
+	//timer_set_clock_cycles_per_tick(&TIMER_TCC0, 0x1770);
+
 	//i2c_s_async_get_io_descriptor(&I2C_0, &slave_i2c_io);
 	//i2c_s_async_enable(&I2C_0);
  
@@ -402,61 +421,5 @@ int RRRC_Init(void)
 
 	return 0;
 }
-
-uint32_t example_selection       = 1;
-void tcc_examples()
-{
-	//TCC_DEFAULT_CONFIGURATION;
-	switch (example_selection) {
-		case 1:
-		pwm_1khz_example();
-		example_selection = 255;
-		break;
-		case 2:
-		circular_buffer_example();
-		example_selection = 255;
-		break;
-		case 3:
-		dead_time_insertion_example();
-		example_selection = 255;
-		break;
-		case 4:
-		tcc_swap_feature_example();
-		example_selection = 255;
-		break;
-		case 5:
-		tcc_invert_feature_example();
-		example_selection = 255;
-		break;
-		case 6:
-		tcc_pattern_generation_example();
-		example_selection = 255;
-		break;
-		case 7:
-		tcc_ramp2_feature_example();
-		example_selection = 255;
-		break;
-		case 8:
-		tcc_ramp2a_feature_example();
-		example_selection = 255;
-		break;
-		case 9:
-		tcc_pwm_dual_slope_mode_example();
-		example_selection = 255;
-		break;
-		default:
-		break;
-	}
-}
-
-// int l_pwm_enable = 0;
-// int l_pwm_disable = 0;
-// 
-// int l_i2c_read = 1;
-// int l_i2c_write = 0;
-// uint8_t i2c_addr = 0xD0;
-// uint8_t buffer[16];
-// uint16_t io_size = 1;
-// int ret =0;
 
 

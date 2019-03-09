@@ -44,11 +44,11 @@ static motor_lib_entry_t motor_dc =
 typedef struct _dc_data_t
 {
 	int8_t state;
-	uint32_t speed;
+	//uint32_t speed;
 	uint32_t steps; //run up to steps and stop, if 0 free run
 	uint32_t counter_forward;
 	uint32_t counter_backward;
-
+	uint32_t timer_period;
 }dc_data_t, *p_dc_data_t;
 
 #ifdef __cplusplus
