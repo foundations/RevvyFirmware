@@ -71,11 +71,6 @@ typedef struct _hw_motor_port_t
 	uint32_t pwm0_ch;
 	gpio_num pwm_pin;
 
-	struct timer_descriptor *PWM1;
-	uint32_t pwm1_ch;
-
-	
-
 }hw_motor_port_t, *p_hw_motor_port_t;
 
 #ifdef __cplusplus

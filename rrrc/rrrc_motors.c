@@ -35,8 +35,6 @@ hw_motor_port_t motor_ports[] =
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 0,
 		.pwm_pin = M0PWM0,
-		.PWM1 = &TIMER_TCC1,
-		.pwm1_ch = 0,
 	},
 	{
 		.index = 1,
@@ -52,8 +50,6 @@ hw_motor_port_t motor_ports[] =
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 1,
 		.pwm_pin = M1PWM0,
-		.PWM1 = &TIMER_TCC1,
-		.pwm1_ch = 1,
 	},
 	{
 		.index = 2,
@@ -69,8 +65,6 @@ hw_motor_port_t motor_ports[] =
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 2,
 		.pwm_pin = M2PWM0,
-		.PWM1 = &TIMER_TCC1,
-		.pwm1_ch = 2,
 	},
 	{
 		.index = 3,
@@ -86,8 +80,6 @@ hw_motor_port_t motor_ports[] =
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 3,
 		.pwm_pin = M3PWM0,
-		.PWM1 = &TIMER_TCC1,
-		.pwm1_ch = 3,
 	},
 	{
 		.index = 4,
@@ -103,8 +95,6 @@ hw_motor_port_t motor_ports[] =
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 4,
 		.pwm_pin = M4PWM0,
-		.PWM1 = &TIMER_TCC2,
-		.pwm1_ch = 0,
 	},
 	{
 		.index = 5,
@@ -120,8 +110,6 @@ hw_motor_port_t motor_ports[] =
 		.PWM0 = &TIMER_TCC0,
 		.pwm0_ch = 5,
 		.pwm_pin = M5PWM0,
-		.PWM1 = &TIMER_TCC2,
-		.pwm1_ch = 1,
 	},
 };
 
