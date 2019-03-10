@@ -30,11 +30,11 @@ int32_t SensorPortSetType(uint32_t port, sensor_type_t type);
 int32_t SensorPortGetType(uint32_t port);
 uint32_t SensorPortGetValues(uint32_t port, uint32_t* data); 
 
+uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size);
+uint32_t SensorPortReadUserData(uint32_t port, uint32_t* data, uint32_t size);
+
 int32_t SensorPortInit(uint32_t port);
 int32_t SensorPortDeInit(uint32_t port);
-
-void Sensor_init(uint32_t index, sensor_type_t type);
-void Sensor_deinit(uint32_t index);
 
 #ifdef __cplusplus
 }

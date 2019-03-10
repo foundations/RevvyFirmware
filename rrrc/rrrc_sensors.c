@@ -259,6 +259,29 @@ static void SensorPort_gpio1_ext_cb(const void* port)
 	return;
 }
 
+uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size)
+{
+	p_hw_sensor_port_t sensport = port;
+	if (sensport == NULL)
+		return;
+
+	if (sensport->sensor_lib && sensport->sensor_lib->write_data)
+		sensport->sensor_lib->write_data(sensport, data, size);
+
+	return;
+}
+uint32_t SensorPortReadUserData(uint32_t port, uint32_t* data, uint32_t size)
+{
+	p_hw_sensor_port_t sensport = port;
+	if (sensport == NULL)
+		return;
+
+	if (sensport->sensor_lib && sensport->sensor_lib->read_data)
+		sensport->sensor_lib->read_data(sensport, data, size);
+
+	return;
+}
+
 //*********************************************************************************************
 int32_t SensorPortInit(uint32_t port)
 {

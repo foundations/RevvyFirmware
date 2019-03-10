@@ -22,6 +22,7 @@ typedef enum _sensor_type_t
 	SENSOR_EKPSMD3528,
 	SENSOR_KXTJ3_1507,
 	SENSOR_POTENTIOMETER,
+	SENSOR_I2CHUB,
 }sensor_type_t;
 
 // typedef enum _sens_callback_type_t
@@ -54,6 +55,8 @@ typedef struct _sensor_lib_entry_t
 
     int32_t (*SensorInit)(void* hw_port);
     void (*sensor_thread)(void* hw_port);
+	uint32_t (*write_data)(void* hw_port, void* data, uint32_t size);
+	uint32_t (*read_data)(void* hw_port, void* data, uint32_t size);
 
 	uint32_t (*sensor_get_values)(void* hw_port, uint32_t* data, uint32_t max_size);
 
