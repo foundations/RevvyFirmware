@@ -12,7 +12,6 @@
 #include <hal_init.h>
 
 #include <hpl_adc_base.h>
-#include <hpl_adc_base.h>
 #include <hpl_rtc_base.h>
 
 /* The channel amount for ADC */
@@ -264,6 +263,7 @@ static void TIMER_TC0_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC0, TC0, _tc_get_timer());
+	//TIMER_0_init();
 }
 
 static void TIMER_TC1_init(void)
@@ -272,6 +272,7 @@ static void TIMER_TC1_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC1_GCLK_ID, CONF_GCLK_TC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC1, TC1, _tc_get_timer());
+	//TIMER_1_init();
 }
 
 static void TIMER_TC2_init(void)
@@ -280,6 +281,7 @@ static void TIMER_TC2_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, CONF_GCLK_TC2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC2, TC2, _tc_get_timer());
+	//TIMER_2_init();
 }
 
 static void TIMER_TC3_init(void)
@@ -288,6 +290,7 @@ static void TIMER_TC3_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, CONF_GCLK_TC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC3, TC3, _tc_get_timer());
+	//TIMER_3_init();
 }
 
 static void TIMER_TC4_init(void)
@@ -296,6 +299,7 @@ static void TIMER_TC4_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC4, TC4, _tc_get_timer());
+	//TIMER_4_init();
 }
 
 static void TIMER_TC5_init(void)
@@ -304,6 +308,8 @@ static void TIMER_TC5_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC5_GCLK_ID, CONF_GCLK_TC5_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC5, TC5, _tc_get_timer());
+	//TIMER_5_init();
+	
 }
 
 static void TIMER_TC6_init(void)
@@ -311,7 +317,7 @@ static void TIMER_TC6_init(void)
 	hri_mclk_set_APBDMASK_TC6_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC6_GCLK_ID, CONF_GCLK_TC6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	timer_init(&TIMER_TC6, TC6, _tc_get_timer());
+	timer_init(&TIMER_TC6, TC6, _tc_get_timer());	
 }
 
 static void TIMER_TC7_init(void)
@@ -477,6 +483,26 @@ static void TIMER_TCC4_init(void)
 // 	USB_0_PORT_init();
 // }
 
+void EVENT_SYSTEM_0_init(void)
+{
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_0, CONF_GCLK_EVSYS_CHANNEL_0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_1, CONF_GCLK_EVSYS_CHANNEL_1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_2, CONF_GCLK_EVSYS_CHANNEL_2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_3, CONF_GCLK_EVSYS_CHANNEL_3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_4, CONF_GCLK_EVSYS_CHANNEL_4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_5, CONF_GCLK_EVSYS_CHANNEL_5_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_6, CONF_GCLK_EVSYS_CHANNEL_6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_7, CONF_GCLK_EVSYS_CHANNEL_7_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_8, CONF_GCLK_EVSYS_CHANNEL_8_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_9, CONF_GCLK_EVSYS_CHANNEL_9_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_10, CONF_GCLK_EVSYS_CHANNEL_10_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_11, CONF_GCLK_EVSYS_CHANNEL_11_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	hri_mclk_set_APBBMASK_EVSYS_bit(MCLK);
+
+	event_system_init();
+}
+
 void WDT_0_CLOCK_init(void)
 {
 	hri_mclk_set_APBAMASK_WDT_bit(MCLK);
@@ -513,12 +539,12 @@ void system_init(void)
 
 	delay_driver_init();
 
-// 	TIMER_TC0_init();
-// 	TIMER_TC1_init();
-// 	TIMER_TC2_init();
-// 	TIMER_TC3_init();
-// 	TIMER_TC4_init();
-// 	TIMER_TC5_init();
+	TIMER_TC0_init();
+	TIMER_TC1_init();
+	TIMER_TC2_init();
+	TIMER_TC3_init();
+	TIMER_TC4_init();
+	TIMER_TC5_init();
 // 	TIMER_TC6_init();
 // 	TIMER_TC7_init();
  	TIMER_TCC0_init();
@@ -528,5 +554,7 @@ void system_init(void)
 
 	//USB_0_init();
 
-	WDT_0_init();
+	//WDT_0_init();
+
+	EVENT_SYSTEM_0_init();
 }

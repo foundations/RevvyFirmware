@@ -102,6 +102,6 @@ void _delay_cycles(void *const hw, uint32_t cycles)
 
 	SysTick->LOAD = buf;
 	SysTick->VAL  = buf;
-	while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
+ 	while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
 		;
 }

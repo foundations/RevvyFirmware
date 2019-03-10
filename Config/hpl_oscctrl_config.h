@@ -136,7 +136,7 @@
 // <i> Indicates whether External Multipurpose Crystal Oscillator is enabled or not
 // <id> xosc1_arch_enable
 #ifndef CONF_XOSC1_ENABLE
-#define CONF_XOSC1_ENABLE 1
+#define CONF_XOSC1_ENABLE 0
 #endif
 
 // <o> Start-Up Time
@@ -207,7 +207,7 @@
 // <i> Indicates whether the connections between the I/O pads and the external clock or crystal oscillator is enabled or not
 // <id> xosc1_arch_xtalen
 #ifndef CONF_XOSC1_XTALEN
-#define CONF_XOSC1_XTALEN 1
+#define CONF_XOSC1_XTALEN 0
 #endif
 //</h>
 //</e>

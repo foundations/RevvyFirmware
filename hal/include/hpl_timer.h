@@ -62,6 +62,9 @@ struct _timer_device;
  */
 struct _timer_callbacks {
 	void (*period_expired)(struct _timer_device *device);
+	void (*error_detect)(struct _timer_device *device);
+	void (*capture_chan0)(struct _timer_device *device);
+	void (*capture_chan1)(struct _timer_device *device);
 };
 
 /**

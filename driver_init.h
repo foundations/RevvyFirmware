@@ -33,6 +33,9 @@ extern "C" {
 #include <hal_i2c_m_async.h>
 #include <hal_i2c_s_async.h>
 
+#include <hal_evsys.h>
+#include <tc_lite.h>
+
 //#include "hal_usb_device.h"
 
 
