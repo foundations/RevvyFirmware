@@ -24,7 +24,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC0_PRESCALER
-#define CONF_TC0_PRESCALER 0x3
+#define CONF_TC0_PRESCALER 0x0
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -83,14 +83,14 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo0
 #ifndef CONF_TC0_MCEO0
-#define CONF_TC0_MCEO0 0
+#define CONF_TC0_MCEO0 1
 #endif
 
 // <q> Output Event On Match or Capture on Channel 1
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC0_MCEO1
-#define CONF_TC0_MCEO1 0
+#define CONF_TC0_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -137,18 +137,6 @@
 #define CONF_TC0_MODE TC_CTRLA_MODE_COUNT16_Val
 #endif
 
-// CC 1 register set to 0
-#ifndef CONF_TC0_CC1
-#define CONF_TC0_CC1 0
-#endif
-
-#ifndef CONF_TC0_ALOCK
-#define CONF_TC0_ALOCK 0
-#endif
-
-// Not used in 32-bit mode
-#define CONF_TC0_PER 0
-
 // Calculating correct top value based on requested tick interval.
 #define CONF_TC0_PRESCALE (1 << CONF_TC0_PRESCALER)
 
@@ -170,26 +158,39 @@
 #define CONF_TC0_PRESCALE 1024
 #endif
 
+// CC 1 register set to 0
+#ifndef CONF_TC0_CC1
+#define CONF_TC0_CC1                                                                                                   \
+	0//(uint32_t)(((float)CONF_TC0_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC0_FREQUENCY / CONF_TC0_PRESCALE)))
+#endif
+
+#ifndef CONF_TC0_ALOCK
+#define CONF_TC0_ALOCK 0
+#endif
+
+// Not used in 32-bit mode
+#define CONF_TC0_PER 0
+
 #ifndef CONF_TC0_CC0
 #define CONF_TC0_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC0_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC0_FREQUENCY / CONF_TC0_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC0_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC0_FREQUENCY / CONF_TC0_PRESCALE)))
 #endif
 
 
 #ifndef CONF_TC0_COPEN0
-#define CONF_TC0_COPEN0 0
+#define CONF_TC0_COPEN0 1
 #endif
 
-#ifndef CONF_TC0_COPEN0
-#define CONF_TC0_COPEN1 0
-#endif
-
-#ifndef CONF_TC0_CAPTEN0
-#define CONF_TC0_CAPTEN0 0
+#ifndef CONF_TC0_COPEN1
+#define CONF_TC0_COPEN1 1
 #endif
 
 #ifndef CONF_TC0_CAPTEN0
-#define CONF_TC0_CAPTEN1 0
+#define CONF_TC0_CAPTEN0 1
+#endif
+
+#ifndef CONF_TC0_CAPTEN1
+#define CONF_TC0_CAPTEN1 1
 #endif
 
 
@@ -331,7 +332,8 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC1_CC1
-#define CONF_TC1_CC1 0
+#define CONF_TC1_CC1                                                                                                   \
+	(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
 #endif
 
 #ifndef CONF_TC1_ALOCK
@@ -365,6 +367,22 @@
 #ifndef CONF_TC1_CC0
 #define CONF_TC1_CC0                                                                                                   \
 	(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
+#endif
+
+#ifndef CONF_TC1_COPEN0
+#define CONF_TC1_COPEN0 1
+#endif
+
+#ifndef CONF_TC1_COPEN1
+#define CONF_TC1_COPEN1 1
+#endif
+
+#ifndef CONF_TC1_CAPTEN0
+#define CONF_TC1_CAPTEN0 1
+#endif
+
+#ifndef CONF_TC1_CAPTEN1
+#define CONF_TC1_CAPTEN1 1
 #endif
 
 #ifndef CONF_TC2_ENABLE
@@ -502,7 +520,8 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC2_CC1
-#define CONF_TC2_CC1 0
+#define CONF_TC2_CC1                                                                                                   \
+	(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
 #endif
 
 #ifndef CONF_TC2_ALOCK
@@ -536,6 +555,23 @@
 #ifndef CONF_TC2_CC0
 #define CONF_TC2_CC0                                                                                                   \
 	(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
+#endif
+
+
+#ifndef CONF_TC2_COPEN0
+#define CONF_TC2_COPEN0 1
+#endif
+
+#ifndef CONF_TC2_COPEN1
+#define CONF_TC2_COPEN1 1
+#endif
+
+#ifndef CONF_TC2_CAPTEN0
+#define CONF_TC2_CAPTEN0 1
+#endif
+
+#ifndef CONF_TC2_CAPTEN1
+#define CONF_TC2_CAPTEN1 1
 #endif
 
 #ifndef CONF_TC3_ENABLE
@@ -673,7 +709,8 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC3_CC1
-#define CONF_TC3_CC1 0
+#define CONF_TC3_CC1                                                                                                   \
+	(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
 #endif
 
 #ifndef CONF_TC3_ALOCK
@@ -707,6 +744,23 @@
 #ifndef CONF_TC3_CC0
 #define CONF_TC3_CC0                                                                                                   \
 	(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
+#endif
+
+
+#ifndef CONF_TC3_COPEN0
+#define CONF_TC3_COPEN0 1
+#endif
+
+#ifndef CONF_TC3_COPEN1
+#define CONF_TC3_COPEN1 1
+#endif
+
+#ifndef CONF_TC3_CAPTEN0
+#define CONF_TC3_CAPTEN0 1
+#endif
+
+#ifndef CONF_TC3_CAPTEN1
+#define CONF_TC3_CAPTEN1 1
 #endif
 
 #ifndef CONF_TC4_ENABLE
@@ -844,7 +898,8 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC4_CC1
-#define CONF_TC4_CC1 0
+#define CONF_TC4_CC1                                                                                                   \
+	(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
 #endif
 
 #ifndef CONF_TC4_ALOCK
@@ -878,6 +933,23 @@
 #ifndef CONF_TC4_CC0
 #define CONF_TC4_CC0                                                                                                   \
 	(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
+#endif
+
+
+#ifndef CONF_TC4_COPEN0
+#define CONF_TC4_COPEN0 1
+#endif
+
+#ifndef CONF_TC4_COPEN1
+#define CONF_TC4_COPEN1 1
+#endif
+
+#ifndef CONF_TC4_CAPTEN0
+#define CONF_TC4_CAPTEN0 1
+#endif
+
+#ifndef CONF_TC4_CAPTEN1
+#define CONF_TC4_CAPTEN1 1
 #endif
 
 #ifndef CONF_TC5_ENABLE
@@ -1015,7 +1087,8 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC5_CC1
-#define CONF_TC5_CC1 0
+#define CONF_TC5_CC1                                                                                                   \
+	(uint32_t)(((float)CONF_TC5_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC5_FREQUENCY / CONF_TC5_PRESCALE)))
 #endif
 
 #ifndef CONF_TC5_ALOCK
@@ -1052,10 +1125,27 @@
 #endif
 
 
+#ifndef CONF_TC5_COPEN0
+#define CONF_TC5_COPEN0 1
+#endif
+
+#ifndef CONF_TC5_COPEN1
+#define CONF_TC5_COPEN1 1
+#endif
+
+#ifndef CONF_TC5_CAPTEN0
+#define CONF_TC5_CAPTEN0 1
+#endif
+
+#ifndef CONF_TC5_CAPTEN1
+#define CONF_TC5_CAPTEN1 1
+#endif
 
 #ifndef CONF_TC6_ENABLE
 #define CONF_TC6_ENABLE 1
 #endif
+
+
 
 #include "peripheral_clk_config.h"
 
@@ -1223,6 +1313,24 @@
 #define CONF_TC6_CC0                                                                                                   \
 	(uint32_t)(((float)CONF_TC6_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC6_FREQUENCY / CONF_TC6_PRESCALE)))
 #endif
+
+
+#ifndef CONF_TC6_COPEN0
+#define CONF_TC6_COPEN0 0
+#endif
+
+#ifndef CONF_TC6_COPEN1
+#define CONF_TC6_COPEN1 0
+#endif
+
+#ifndef CONF_TC6_CAPTEN0
+#define CONF_TC6_CAPTEN0 0
+#endif
+
+#ifndef CONF_TC6_CAPTEN1
+#define CONF_TC6_CAPTEN1 0
+#endif
+
 
 
 #ifndef CONF_TC7_ENABLE
@@ -1396,6 +1504,21 @@
 	(uint32_t)(((float)CONF_TC7_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC7_FREQUENCY / CONF_TC7_PRESCALE)))
 #endif
 
+#ifndef CONF_TC7_COPEN0
+#define CONF_TC7_COPEN0 0
+#endif
+
+#ifndef CONF_TC7_COPEN1
+#define CONF_TC7_COPEN1 0
+#endif
+
+#ifndef CONF_TC7_CAPTEN0
+#define CONF_TC7_CAPTEN0 0
+#endif
+
+#ifndef CONF_TC7_CAPTEN1
+#define CONF_TC7_CAPTEN1 0
+#endif
 
 // <<< end of configuration section >>>
 

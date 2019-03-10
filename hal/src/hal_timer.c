@@ -50,6 +50,9 @@
 
 static void timer_add_timer_task(struct list_descriptor *list, struct timer_task *const new_task, const uint32_t time);
 static void timer_process_counted(struct _timer_device *device);
+static void timer_error(struct _timer_device *device);
+static void capture_chan0(struct _timer_device *device);
+static void capture_chan1(struct _timer_device *device);
 
 /**
  * \brief Initialize timer
@@ -61,6 +64,10 @@ int32_t timer_init(struct timer_descriptor *const descr, void *const hw, struct 
 	descr->func->init(&descr->device, hw);
 	descr->time                           = 0;
 	descr->device.timer_cb.period_expired = timer_process_counted;
+	descr->device.timer_cb.error_detect = timer_error;
+	descr->device.timer_cb.capture_chan0 = capture_chan0;
+	descr->device.timer_cb.capture_chan1 = capture_chan1;
+
 
 	return ERR_NONE;
 }
@@ -254,4 +261,20 @@ static void timer_process_counted(struct _timer_device *device)
 
 		tmp->cb(tmp);
 	}
+}
+
+
+static void timer_error(struct _timer_device *device)
+{
+	
+}
+
+static void capture_chan0(struct _timer_device *device)
+{
+	
+}
+
+static void capture_chan1(struct _timer_device *device)
+{
+	
 }
