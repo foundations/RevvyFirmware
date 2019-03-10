@@ -23,6 +23,8 @@ static sensor_lib_entry_t sensor_hc_sr_05 =
     .SensorInit = HC_SR05_Init,
     .sensor_thread = HC_SR05_Thread,
 	.sensor_get_values = HC_SR05_get_value,
+	.write_data = NULL,
+	.read_data = NULL,
 
     //callback from sensor port
     .timer_callback = NULL,

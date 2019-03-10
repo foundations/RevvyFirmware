@@ -15,6 +15,7 @@ int32_t HC_SR05_Init(void* hw_port)
 	memset(sensport->lib_data, 0, SENSOR_PORT_LIBDATA);
 	
 	SensorPort_set_vccio(sensport, SENSOR_VCCIO_5V0);
+	SensorPort_gpio0_set_as_extint(sensport);
 	SensorPort_gpio1_set_as_gpio(sensport, GPIO_DIRECTION_OUT, GPIO_PULL_UP);
 	SensorPort_gpio1_set_state(sensport, 0);	
 

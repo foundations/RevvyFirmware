@@ -23,6 +23,8 @@ static sensor_lib_entry_t sensor_dummy =
     .name = "NO_SET",
     .SensorInit = SENSOR_DUMMY_Init,
     .sensor_thread = SENSOR_DUMMY_Thread,
+	.write_data = NULL,
+	.read_data = NULL,
 
     //callback from sensor port
     .timer_callback = SENSOR_DUMMY_timer_callback,
