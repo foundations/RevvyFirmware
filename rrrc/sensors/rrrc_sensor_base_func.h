@@ -54,7 +54,7 @@ static int32_t SensorPort_gpio0_set_as_gpio(const p_hw_sensor_port_t sensport, e
 	return 0;
 }
 
-static int32_t SensorPort_gpio0_set_as_extint(const p_hw_sensor_port_t sensport, enum gpio_direction dir)
+static int32_t SensorPort_gpio0_set_as_extint(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
 		return 0;

@@ -5,6 +5,8 @@
  *  Author: vmyakovlev
  */ 
 
+#include "rrrc_hal.h"
+#include "rrrc_indication.h"
 
 led_val_t status_leds[STATUS_LEDS_AMOUNT];
 led_val_t ring_leds[RING_LEDS_AMOUNT];
@@ -30,7 +32,7 @@ uint32_t IndicationDeInit()
 {
 	uint32_t result = ERR_NONE;
 	if (indication_thread)
-		RRRC_remove_task(indication_thread)
+		RRRC_remove_task(indication_thread);
 	indication_thread = NULL;
 	return result;	
 }

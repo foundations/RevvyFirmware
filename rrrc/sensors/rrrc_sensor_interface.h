@@ -22,6 +22,7 @@ typedef enum _sensor_type_t
 	SENSOR_EKPSMD3528,
 	SENSOR_KXTJ3_1507,
 	SENSOR_POTENTIOMETER,
+	SENSOR_I2CHUB,
 }sensor_type_t;
 
 // typedef enum _sens_callback_type_t

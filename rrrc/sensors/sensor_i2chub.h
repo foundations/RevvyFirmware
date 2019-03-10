@@ -9,7 +9,12 @@
 #ifndef SENSOR_I2CHUB_H_
 #define SENSOR_I2CHUB_H_
 
+#include "rrrc_sensor_interface.h"
+#include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int32_t I2CHUB_Init(void* hw_port);
 void I2CHUB_Thread(void* hw_port);
@@ -18,11 +23,11 @@ uint32_t I2CHUB_read_data(void* hw_port, void* data, uint32_t size);
 
 static sensor_lib_entry_t sensor_analog_button =
 {
-	.type_id = SENSOR_ANALOG_SWITCH,
-	.name = "ABUTTON",
-	.SensorInit = ABUTTON_Init,
+	.type_id = SENSOR_I2CHUB,
+	.name = "I2CHUB",
+	.SensorInit = I2CHUB_Init,
 	.sensor_get_values = NULL,
-	.sensor_thread = ABUTTON_Thread,
+	.sensor_thread = I2CHUB_Thread,
 	.write_data = I2CHUB_write_data,
 	.read_data = I2CHUB_read_data,
 
@@ -32,5 +37,10 @@ static sensor_lib_entry_t sensor_analog_button =
 	.gpio0_callback = NULL,
 	.gpio1_callback = NULL,
 };
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* SENSOR_I2CHUB_H_ */
