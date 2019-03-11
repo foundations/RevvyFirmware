@@ -24,7 +24,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC0_PRESCALER
-#define CONF_TC0_PRESCALER 0x0
+#define CONF_TC0_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -193,6 +193,13 @@
 #define CONF_TC0_CAPTEN1 1
 #endif
 
+#ifndef CONF_TC0_DRVCTRLEN0
+#define CONF_TC0_DRVCTRLEN0 1
+#endif
+
+#ifndef CONF_TC0_DRVCTRLEN1
+#define CONF_TC0_DRVCTRLEN1 1
+#endif
 
 
 
@@ -217,7 +224,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC1_PRESCALER
-#define CONF_TC1_PRESCALER 0x3
+#define CONF_TC1_PRESCALER 0x6
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -333,7 +340,7 @@
 // CC 1 register set to 0
 #ifndef CONF_TC1_CC1
 #define CONF_TC1_CC1                                                                                                   \
-	(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
 #endif
 
 #ifndef CONF_TC1_ALOCK
@@ -366,7 +373,7 @@
 
 #ifndef CONF_TC1_CC0
 #define CONF_TC1_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
 #endif
 
 #ifndef CONF_TC1_COPEN0
@@ -384,6 +391,15 @@
 #ifndef CONF_TC1_CAPTEN1
 #define CONF_TC1_CAPTEN1 1
 #endif
+
+#ifndef CONF_TC1_DRVCTRLEN0
+#define CONF_TC1_DRVCTRLEN0 1
+#endif
+
+#ifndef CONF_TC1_DRVCTRLEN1
+#define CONF_TC1_DRVCTRLEN1 1
+#endif
+
 
 #ifndef CONF_TC2_ENABLE
 #define CONF_TC2_ENABLE 1
@@ -405,7 +421,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC2_PRESCALER
-#define CONF_TC2_PRESCALER 0x3
+#define CONF_TC2_PRESCALER 0x6
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -521,7 +537,7 @@
 // CC 1 register set to 0
 #ifndef CONF_TC2_CC1
 #define CONF_TC2_CC1                                                                                                   \
-	(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
 #endif
 
 #ifndef CONF_TC2_ALOCK
@@ -554,7 +570,7 @@
 
 #ifndef CONF_TC2_CC0
 #define CONF_TC2_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
 #endif
 
 
@@ -573,6 +589,15 @@
 #ifndef CONF_TC2_CAPTEN1
 #define CONF_TC2_CAPTEN1 1
 #endif
+
+#ifndef CONF_TC2_DRVCTRLEN0
+#define CONF_TC2_DRVCTRLEN0 1
+#endif
+
+#ifndef CONF_TC2_DRVCTRLEN1
+#define CONF_TC2_DRVCTRLEN1 1
+#endif
+
 
 #ifndef CONF_TC3_ENABLE
 #define CONF_TC3_ENABLE 1
@@ -594,7 +619,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC3_PRESCALER
-#define CONF_TC3_PRESCALER 0x3
+#define CONF_TC3_PRESCALER 0x6
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -710,7 +735,7 @@
 // CC 1 register set to 0
 #ifndef CONF_TC3_CC1
 #define CONF_TC3_CC1                                                                                                   \
-	(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
 #endif
 
 #ifndef CONF_TC3_ALOCK
@@ -743,7 +768,7 @@
 
 #ifndef CONF_TC3_CC0
 #define CONF_TC3_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
 #endif
 
 
@@ -762,6 +787,15 @@
 #ifndef CONF_TC3_CAPTEN1
 #define CONF_TC3_CAPTEN1 1
 #endif
+
+#ifndef CONF_TC3_DRVCTRLEN0
+#define CONF_TC3_DRVCTRLEN0 1
+#endif
+
+#ifndef CONF_TC3_DRVCTRLEN1
+#define CONF_TC3_DRVCTRLEN1 1
+#endif
+
 
 #ifndef CONF_TC4_ENABLE
 #define CONF_TC4_ENABLE 1
@@ -783,7 +817,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC4_PRESCALER
-#define CONF_TC4_PRESCALER 0x3
+#define CONF_TC4_PRESCALER 0x6
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -899,7 +933,7 @@
 // CC 1 register set to 0
 #ifndef CONF_TC4_CC1
 #define CONF_TC4_CC1                                                                                                   \
-	(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
 #endif
 
 #ifndef CONF_TC4_ALOCK
@@ -932,7 +966,7 @@
 
 #ifndef CONF_TC4_CC0
 #define CONF_TC4_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
 #endif
 
 
@@ -951,6 +985,15 @@
 #ifndef CONF_TC4_CAPTEN1
 #define CONF_TC4_CAPTEN1 1
 #endif
+
+#ifndef CONF_TC4_DRVCTRLEN0
+#define CONF_TC4_DRVCTRLEN0 1
+#endif
+
+#ifndef CONF_TC4_DRVCTRLEN1
+#define CONF_TC4_DRVCTRLEN1 1
+#endif
+
 
 #ifndef CONF_TC5_ENABLE
 #define CONF_TC5_ENABLE 1
@@ -972,7 +1015,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC5_PRESCALER
-#define CONF_TC5_PRESCALER 0x3
+#define CONF_TC5_PRESCALER 0x6
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -1088,7 +1131,7 @@
 // CC 1 register set to 0
 #ifndef CONF_TC5_CC1
 #define CONF_TC5_CC1                                                                                                   \
-	(uint32_t)(((float)CONF_TC5_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC5_FREQUENCY / CONF_TC5_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC5_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC5_FREQUENCY / CONF_TC5_PRESCALE)))
 #endif
 
 #ifndef CONF_TC5_ALOCK
@@ -1121,7 +1164,7 @@
 
 #ifndef CONF_TC5_CC0
 #define CONF_TC5_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC5_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC5_FREQUENCY / CONF_TC5_PRESCALE)))
+	0//(uint32_t)(((float)CONF_TC5_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC5_FREQUENCY / CONF_TC5_PRESCALE)))
 #endif
 
 
@@ -1140,6 +1183,15 @@
 #ifndef CONF_TC5_CAPTEN1
 #define CONF_TC5_CAPTEN1 1
 #endif
+
+#ifndef CONF_TC5_DRVCTRLEN0
+#define CONF_TC5_DRVCTRLEN0 1
+#endif
+
+#ifndef CONF_TC5_DRVCTRLEN1
+#define CONF_TC5_DRVCTRLEN1 1
+#endif
+
 
 #ifndef CONF_TC6_ENABLE
 #define CONF_TC6_ENABLE 1
@@ -1331,6 +1383,13 @@
 #define CONF_TC6_CAPTEN1 0
 #endif
 
+#ifndef CONF_TC6_DRVCTRLEN0
+#define CONF_TC6_DRVCTRLEN0 0
+#endif
+
+#ifndef CONF_TC6_DRVCTRLEN1
+#define CONF_TC6_DRVCTRLEN1 0
+#endif
 
 
 #ifndef CONF_TC7_ENABLE
@@ -1520,6 +1579,84 @@
 #define CONF_TC7_CAPTEN1 0
 #endif
 
+#ifndef CONF_TC7_DRVCTRLEN0
+#define CONF_TC7_DRVCTRLEN0 0
+#endif
+
+#ifndef CONF_TC7_DRVCTRLEN1
+#define CONF_TC7_DRVCTRLEN1 0
+#endif
+
 // <<< end of configuration section >>>
+
+
+#ifndef CONF_TC0_CAPTMODE0
+#define CONF_TC0_CAPTMODE0 2
+#endif
+
+#ifndef CONF_TC0_CAPTMODE1
+#define CONF_TC0_CAPTMODE1 2
+#endif
+
+
+
+
+#ifndef CONF_TC1_CAPTMODE0
+#define CONF_TC1_CAPTMODE0 0
+#endif
+
+#ifndef CONF_TC2_CAPTMODE0
+#define CONF_TC2_CAPTMODE0 0
+#endif
+
+#ifndef CONF_TC3_CAPTMODE0
+#define CONF_TC3_CAPTMODE0 0
+#endif
+
+#ifndef CONF_TC4_CAPTMODE0
+#define CONF_TC4_CAPTMODE0 0
+#endif
+
+#ifndef CONF_TC5_CAPTMODE0
+#define CONF_TC5_CAPTMODE0 0
+#endif
+
+#ifndef CONF_TC6_CAPTMODE0
+#define CONF_TC6_CAPTMODE0 0
+#endif
+
+#ifndef CONF_TC7_CAPTMODE0
+#define CONF_TC7_CAPTMODE0 0
+#endif
+
+
+
+#ifndef CONF_TC1_CAPTMODE1
+#define CONF_TC1_CAPTMODE1 0
+#endif
+
+#ifndef CONF_TC2_CAPTMODE1
+#define CONF_TC2_CAPTMODE1 0
+#endif
+
+#ifndef CONF_TC3_CAPTMODE1
+#define CONF_TC3_CAPTMODE1 0
+#endif
+
+#ifndef CONF_TC4_CAPTMODE1
+#define CONF_TC4_CAPTMODE1 0
+#endif
+
+#ifndef CONF_TC5_CAPTMODE1
+#define CONF_TC5_CAPTMODE1 0
+#endif
+
+#ifndef CONF_TC6_CAPTMODE1
+#define CONF_TC6_CAPTMODE1 0
+#endif
+
+#ifndef CONF_TC7_CAPTMODE1
+#define CONF_TC7_CAPTMODE1 0
+#endif
 
 #endif // HPL_TC_CONFIG_H

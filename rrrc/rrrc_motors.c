@@ -26,14 +26,15 @@ hw_motor_port_t motor_ports[] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
+		.enc_timer = &TIMER_TC0,
 		.enc0_gpio = M1ENC0,
 		.enc1_gpio = M1ENC1,
 		.dir0_gpio = M1DIR1,
 		.dir1_gpio = M1DIR2,
 		.led0_gpio = M0LED0,
 		.led1_gpio = M0LED1,
-		.PWM0 = &TIMER_TCC0,
-		.pwm0_ch = 0,
+		.pwm = &TIMER_TCC0,
+		.pwm_ch = 1,
 		.pwm_pin = M0PWM0,
 	},
 	{
@@ -41,14 +42,15 @@ hw_motor_port_t motor_ports[] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
+		.enc_timer = &TIMER_TC2,
 		.enc0_gpio = M2ENC0,
 		.enc1_gpio = M2ENC1,
 		.dir0_gpio = M2DIR1,
 		.dir1_gpio = M2DIR2,
 		.led0_gpio = M1LED0,
 		.led1_gpio = M1LED1,
-		.PWM0 = &TIMER_TCC0,
-		.pwm0_ch = 1,
+		.pwm = &TIMER_TCC0,
+		.pwm_ch = 0,
 		.pwm_pin = M1PWM0,
 	},
 	{
@@ -56,44 +58,47 @@ hw_motor_port_t motor_ports[] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
+		.enc_timer = &TIMER_TC2,
 		.enc0_gpio = M3ENC0,
 		.enc1_gpio = M3ENC1,
 		.dir0_gpio = M3DIR1,
 		.dir1_gpio = M3DIR2,
 		.led0_gpio = M2LED0,
 		.led1_gpio = M2LED1,
-		.PWM0 = &TIMER_TCC0,
-		.pwm0_ch = 2,
-		.pwm_pin = M2PWM0,
+		.pwm = &TIMER_TCC0,
+		.pwm_ch = 5,
+		.pwm_pin = M3PWM0,
 	},
 	{
 		.index = 3,
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
+		.enc_timer = &TIMER_TC3,
 		.enc0_gpio = M4ENC0,
 		.enc1_gpio = M4ENC1,
 		.dir0_gpio = M4DIR1,
 		.dir1_gpio = M4DIR2,
 		.led0_gpio = M3LED0,
 		.led1_gpio = M3LED1,
-		.PWM0 = &TIMER_TCC0,
-		.pwm0_ch = 3,
-		.pwm_pin = M3PWM0,
+		.pwm = &TIMER_TCC0,
+		.pwm_ch = 2,
+		.pwm_pin = M2PWM0,
 	},
 	{
 		.index = 4,
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
+		.enc_timer = &TIMER_TC4,
 		.enc0_gpio = M5ENC0,
 		.enc1_gpio = M5ENC1,
 		.dir0_gpio = M5DIR1,
 		.dir1_gpio = M5DIR2,
 		.led0_gpio = M4LED0,
 		.led1_gpio = M4LED1,
-		.PWM0 = &TIMER_TCC0,
-		.pwm0_ch = 4,
+		.pwm = &TIMER_TCC0,
+		.pwm_ch = 3,
 		.pwm_pin = M4PWM0,
 	},
 	{
@@ -101,14 +106,15 @@ hw_motor_port_t motor_ports[] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.motor_thread = NULL,
+		.enc_timer = &TIMER_TC5,
 		.enc0_gpio = M6ENC0,
 		.enc1_gpio = M6ENC1,
 		.dir0_gpio = M6DIR1,
 		.dir1_gpio = M6DIR2,
 		.led0_gpio = M5LED0,
 		.led1_gpio = M5LED1,
-		.PWM0 = &TIMER_TCC0,
-		.pwm0_ch = 5,
+		.pwm = &TIMER_TCC0,
+		.pwm_ch = 4,
 		.pwm_pin = M5PWM0,
 	},
 };
@@ -247,29 +253,27 @@ static void MotorPort_thread_tick_cb(const struct timer_task *const timer_task)
 }
 
 //*********************************************************************************************
-static void MotorPort_enc0_cb(const void* port)
+static void MotorPort_enc0_cb(uint32_t data, void* port)
 {
 	p_hw_motor_port_t motport = port;
 	if (motport == NULL)
 		return;
 
-	uint32_t val = gpio_get_pin_level(motport->enc0_gpio);
 	if (motport->motor_lib && motport->motor_lib->enc0_callback)
-		motport->motor_lib->enc0_callback(motport, val);
+		motport->motor_lib->enc0_callback(motport, data);
 
 	return;
 }
 
 //*********************************************************************************************
-static void MotorPort_enc1_cb(const void* port)
+static void MotorPort_enc1_cb(uint32_t data, void* port)
 {
 	p_hw_motor_port_t motport = port;
 	if (motport == NULL)
 		return;
 
-	uint32_t val = gpio_get_pin_level(motport->enc1_gpio);
 	if (motport->motor_lib && motport->motor_lib->enc1_callback)
-		motport->motor_lib->enc1_callback(motport, val);
+		motport->motor_lib->enc1_callback(motport, data);
 
 	return;
 }
@@ -291,12 +295,10 @@ int32_t MotorPortInit(uint32_t port)
 
 	motor_ports[port].motor_thread = RRRC_add_task(&MotorPort_thread_tick_cb, 1000/*ms*/, &motor_ports[port], false);
 
-	if (motor_ports[port].enc0_gpio >= 0)
-		ext_irq_register(motor_ports[port].enc0_gpio, MotorPort_enc0_cb, &motor_ports[port]);
-	if (motor_ports[port].enc1_gpio >= 0)
-		ext_irq_register(motor_ports[port].enc1_gpio, MotorPort_enc1_cb, &motor_ports[port]);
-
 	result = MotorPortSetType(port, MOTOR_NOT_SET);
+
+	timer_register_cb(motor_ports[port].enc_timer,TIMER_MC0, MotorPort_enc0_cb, &motor_ports[port]);
+	timer_register_cb(motor_ports[port].enc_timer,TIMER_MC1, MotorPort_enc1_cb, &motor_ports[port]);
 
 	return result;
 }
@@ -308,11 +310,8 @@ int32_t MotorPortDeInit(uint32_t port)
 		RRRC_remove_task(motor_ports[port].motor_thread);
 	motor_ports[port].motor_thread = NULL;
 
-
-	if (motor_ports[port].enc0_gpio >= 0)
-		ext_irq_disable(motor_ports[port].enc0_gpio);
-	if (motor_ports[port].enc1_gpio >= 0)
-		ext_irq_disable(motor_ports[port].enc1_gpio);
+	timer_unregister_cb(motor_ports[port].enc_timer,TIMER_MC0);
+	timer_unregister_cb(motor_ports[port].enc_timer,TIMER_MC1);
 
 	return result;
 }

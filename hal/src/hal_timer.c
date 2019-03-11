@@ -263,18 +263,62 @@ static void timer_process_counted(struct _timer_device *device)
 	}
 }
 
+static int capt0_count = 0;
+static int capt1_count = 0;
+static int err_count = 0;
 
 static void timer_error(struct _timer_device *device)
 {
-	
+	err_count++;
+
+ 	struct timer_descriptor *timer = CONTAINER_OF(device, struct timer_descriptor, device);
+// 
+// 	static uint16_t diff_time = 0;
+// 	uint16_t curtime = hri_tccount16_read_CC_reg(device->hw, 0);
+
+	timer->cbs[TIMER_ERROR].func(0, timer->cbs[TIMER_ERROR].user_data);
 }
 
 static void capture_chan0(struct _timer_device *device)
 {
-	
+	capt0_count++;
+
+	struct timer_descriptor *timer = CONTAINER_OF(device, struct timer_descriptor, device);
+
+	static uint16_t prev_time = 0;
+	uint16_t curtime = hri_tccount16_read_CC_reg(device->hw, 0);
+
+	timer->cbs[TIMER_MC0].func(curtime-prev_time, timer->cbs[TIMER_MC0].user_data);
+	prev_time = curtime;
+
 }
 
 static void capture_chan1(struct _timer_device *device)
 {
-	
+	capt1_count++;	
+
+	struct timer_descriptor *timer = CONTAINER_OF(device, struct timer_descriptor, device);
+
+	static uint16_t prev_time = 0;
+	uint16_t curtime = hri_tccount16_read_CC_reg(device->hw, 1);
+
+	timer->cbs[TIMER_MC1].func(curtime-prev_time, timer->cbs[TIMER_MC1].user_data);
+	prev_time = curtime;
 }
+
+
+int32_t timer_register_cb(struct timer_descriptor *const descr, enum TIMER_CB_FUNC_TUPE type, timer_timer_cb_t func, void* user_data)
+{
+	if (!descr || !func || type>=TIMER_CB_FUNC_MAX)
+		return ERR_INVALID_ARG;
+	descr->cbs[type].func = func;
+	descr->cbs[type].user_data = user_data;
+};
+
+int32_t timer_unregister_cb(struct timer_descriptor *const descr, enum TIMER_CB_FUNC_TUPE type)
+{
+	if (!descr || type>=TIMER_CB_FUNC_MAX)
+		return ERR_INVALID_ARG;
+	descr->cbs[type].func = NULL;
+	descr->cbs[type].user_data = NULL;
+};

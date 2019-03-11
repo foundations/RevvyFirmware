@@ -10,6 +10,9 @@ int32_t BUTTON_Init(void* hw_port)
 	p_hw_sensor_port_t sensport = hw_port;
 	if (sensport)
 		memset(sensport->lib_data, 0, SENSOR_PORT_LIBDATA);
+
+	p_button_data_t sens_data = sensport->lib_data;
+	sens_data->state = SensorPort_gpio0_get_state(sensport);
 	return result;
 }
 

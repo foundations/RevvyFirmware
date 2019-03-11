@@ -7,6 +7,8 @@ uint32_t GetTimerCounter(p_hw_sensor_port_t hwport);
 
 #define MAX_SENSOR_VALUES 1
 
+static void HC_SR05_thread_done(const struct timer_task *const timer_task);
+
 int32_t HC_SR05_Init(void* hw_port)
 {
 	int32_t result = ERR_NONE;
@@ -16,8 +18,10 @@ int32_t HC_SR05_Init(void* hw_port)
 	
 	SensorPort_set_vccio(sensport, SENSOR_VCCIO_5V0);
 	SensorPort_gpio0_set_as_extint(sensport);
-	SensorPort_gpio1_set_as_gpio(sensport, GPIO_DIRECTION_OUT, GPIO_PULL_UP);
+	SensorPort_gpio1_set_as_gpio(sensport, GPIO_DIRECTION_OUT, GPIO_PULL_OFF);
 	SensorPort_gpio1_set_state(sensport, 0);	
+
+	//SensorPortStartThread(sensport, &HC_SR05_thread_done, 200, true);
 
 	return result;
 }
@@ -29,7 +33,9 @@ uint32_t HC_SR05_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 	if (hw_port && data && max_size && (max_size>=MAX_SENSOR_VALUES))
 	{
 		p_hc_sr05_data_t sens_data = sensport->lib_data;
-		data[0] = SwapEndian(sens_data->distanse);
+		uint32_t ticks_in_us = get_cycles_for_1us();
+		uint32_t distance_cm = sens_data->distanse_tick/ticks_in_us/58;
+		data[0] = SwapEndian(distance_cm);
 		amount = 1;
 	}
 	return amount;
@@ -41,32 +47,14 @@ void HC_SR05_Thread(void* hw_port)
 	if (sensport == NULL)
 		return;
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
-	uint32_t data = SwapEndian(sens_data->distanse);
-// 	static uint32_t run = 0;
- 	SensorPort_gpio1_set_state(sensport, 1);
- 	delay_us(10);
- 	SensorPort_gpio1_set_state(sensport, 0);
 
+	SensorPort_gpio1_set_state(sensport, 1);
+	delay_us(15);
+	SensorPort_gpio1_set_state(sensport, 0);
 
 	return;
 }
 
-#define US_PWM_TIMER_PRESCALER (256u)
-#define US_PWM_TIMER_FREQ_MHz (12u)
-uint32_t GetTimerCounter(p_hw_sensor_port_t hwport)
-{
-    int32_t distance = hri_tccount16_read_COUNT_reg(TC0);
-    /* Distance calculation, 10 / 58 = sonic wave speed conversion coefficient (in mm) */
-    distance = (distance * US_PWM_TIMER_PRESCALER * 10u) / (US_PWM_TIMER_FREQ_MHz * 58u);
-    if ((5000 <= distance) || (10 >= distance))
-    {
-        distance = 0;
-    }
-    return distance;
-}
-
-static uint32_t start_time=0;
-static uint32_t finish_time=0;
 void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 {
 	p_hw_sensor_port_t sensport = hw_port;
@@ -81,36 +69,24 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 	else
 	{
 		sens_data->finish_time = get_system_tick();
-		sens_data->distanse = sens_data->finish_time - sens_data->start_time;
+		sens_data->distanse_tick = sens_data->start_time - sens_data->finish_time;
+		//SensorPortStartThread(sensport, &HC_SR05_thread_done, 200, true);
 	}
-// 	if (!start)
-// 	{
-//         hri_tcc_write_CTRLA_reg(TC0, (TC_CTRLA_PRESCALER_DIV256));
-// 		SensorPort_timer_start(sensport);
-//         
-// 		start = 0;
-// 	}else
-// 	{
-//         hri_tc_write_CTRLB_CMD_bf(TC0, TC_CTRLBSET_CMD_READSYNC_Val);
-//         uint32_t val = hri_tccount16_read_COUNT_reg(TC0);
-//         /* Distance calculation, 10 / 58 = sonic wave speed conversion coefficient (in mm) */
-//         val = (val * US_PWM_TIMER_PRESCALER * 10u) / (US_PWM_TIMER_FREQ_MHz * 58u);
-//         if ((5000 <= val) || (10 >= val))
-//         {
-//             val = 0;
-//         }
-// 
-//         //uint32_t val =  GetTimerCounter(sensport);
-//         
-// 		SensorPort_timer_stop(sensport);
-//         
-// 		
-//         
-// 		uint32_t dist = 0;
-// 		p_hc_sr05_data_t sens_data = sensport->lib_data;
-// 		sens_data->distanse = dist;
-// 		start = 1;
-// 	}
 	return;
 }
 
+static void HC_SR05_thread_done(const struct timer_task *const timer_task)
+{
+	p_hw_sensor_port_t sensport = timer_task->user_data;
+	p_hc_sr05_data_t sens_data = sensport->lib_data;
+	uint32_t ticks_in_us = get_cycles_for_1us();
+	uint32_t ticks_in_ms = get_cycles_for_1ms();
+	uint32_t distance_us = sens_data->distanse_tick/ticks_in_us;
+	uint32_t distance_ms = sens_data->distanse_tick/ticks_in_ms;
+	uint32_t distance_cm = distance_us/58;
+	if (sensport == NULL)	
+		return;
+	SensorPort_gpio1_set_state(sensport, 1);
+	delay_us(15);
+	SensorPort_gpio1_set_state(sensport, 0);
+}

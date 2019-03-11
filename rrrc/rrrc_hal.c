@@ -45,7 +45,7 @@ trans_buffer_t rx_buffer;
 trans_buffer_t tx_buffer;
 
 //*****************************************************************************************************
- static inline void i2c_send_stop(void *const hw)
+ static inline void rrrc_i2c_send_stop(void *const hw)
 {
 #define CMD_STOP 0x03
 	hri_sercomi2cm_set_CTRLB_ACKACT_bit(hw);
@@ -53,18 +53,18 @@ trans_buffer_t tx_buffer;
 }
 
 //*****************************************************************************************************
-void i2c_s_async_tx(struct _i2c_s_async_device *const device)
+void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device)
 {
     if ( tx_buffer.index < tx_buffer.size )
     {
         
 		if (tx_buffer.index+1 == tx_buffer.size)
-			i2c_send_stop(device);
+			rrrc_i2c_send_stop(device);
 		_i2c_s_async_write_byte(device, tx_buffer.buff[tx_buffer.index]);
 		tx_buffer.index++;
     }else
     {
-		i2c_send_stop(device);
+		rrrc_i2c_send_stop(device);
 		_i2c_s_async_write_byte(device, 0xFF);
 		
         tx_buffer.index = 0;
@@ -73,7 +73,7 @@ void i2c_s_async_tx(struct _i2c_s_async_device *const device)
 }
 
 //*****************************************************************************************************
-void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
+void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
 {
 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
 
@@ -83,7 +83,7 @@ void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const u
 		rx_buffer.size++;
     }else
     {
-        i2c_send_stop(device);
+        rrrc_i2c_send_stop(device);
         uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
         rx_buffer.size = 0;
@@ -91,7 +91,7 @@ void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const u
 }
 
 //*****************************************************************************************************
-void i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir)
+void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir)
 {
     if (dir)
     { //tx
@@ -106,27 +106,28 @@ void i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t di
 }
 
 //*****************************************************************************************************
-void i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir)
+void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir)
 {
     struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
 
     if (!dir)
     { //tx
         if (tx_buffer.size == 0)
-            i2c_send_stop(device);
+            rrrc_i2c_send_stop(device);
     }else
     { // rx
         if (rx_buffer.size >= MAX_TRANSACTION_SIZE)
-            i2c_send_stop(device);
+            rrrc_i2c_send_stop(device);
     }
 }
 
 //*****************************************************************************************************
-void i2c_s_async_error(struct _i2c_s_async_device *const device)
+void rrrc_i2c_s_async_error(struct _i2c_s_async_device *const device)
 {
 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
 
     //TODO need restart bus
+	return;
 }
 
 //*****************************************************************************************************
@@ -195,7 +196,7 @@ static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, con
 	return;
 }
 
-struct timer_task* RRRC_add_task(timer_cb_t func, uint32_t interval, void* user_data, bool oneshot)
+struct timer_task* RRRC_add_task(timer_task_cb_t func, uint32_t interval, void* user_data, bool oneshot)
 {
 	struct timer_task* task = malloc(sizeof(struct timer_task));
 	if (!task)
@@ -318,14 +319,14 @@ static void MotorsPinsInit()
 	//enc pins
 	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
 	{
+//		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_OFF);
+// 		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OUT);
 // 		gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_OFF);
-// 		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_OFF);
-// 		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_IN);
 // 		gpio_set_pin_level(motor_ports[idx].enc0_gpio, false);
-// 
-// 		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
+// 		
 // 		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_OFF);
-// 		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_IN);
+// 		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OUT);
+// 		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
 // 		gpio_set_pin_level(motor_ports[idx].enc1_gpio, false);
 		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OFF);
 		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_E);
