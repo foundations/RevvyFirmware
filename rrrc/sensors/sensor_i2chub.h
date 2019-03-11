@@ -21,7 +21,7 @@ void I2CHUB_Thread(void* hw_port);
 uint32_t I2CHUB_write_data(void* hw_port, void* data, uint32_t size);
 uint32_t I2CHUB_read_data(void* hw_port, void* data, uint32_t size);
 
-static sensor_lib_entry_t sensor_analog_button =
+static sensor_lib_entry_t sensor_i2chub =
 {
 	.type_id = SENSOR_I2CHUB,
 	.name = "I2CHUB",

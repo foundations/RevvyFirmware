@@ -76,11 +76,13 @@
 		    TC_CTRLA_MODE(CONF_TC##n##_MODE) | TC_CTRLA_PRESCSYNC(CONF_TC##n##_PRESCSYNC)                              \
 		        | (CONF_TC##n##_RUNSTDBY << TC_CTRLA_RUNSTDBY_Pos) | (CONF_TC##n##_ONDEMAND << TC_CTRLA_ONDEMAND_Pos)  \
 		        | TC_CTRLA_PRESCALER(CONF_TC##n##_PRESCALER) | (CONF_TC##n##_ALOCK << TC_CTRLA_ALOCK_Pos)			   \
-				| CONF_TC##n##_COPEN0<<TC_CTRLA_COPEN0_Pos | CONF_TC##n##_CAPTEN0<<TC_CTRLA_CAPTEN0_Pos						   \
-				| CONF_TC##n##_COPEN1<<TC_CTRLA_COPEN1_Pos | CONF_TC##n##_CAPTEN1<<TC_CTRLA_CAPTEN1_Pos,                       \
+				| CONF_TC##n##_COPEN0<<TC_CTRLA_COPEN0_Pos | CONF_TC##n##_CAPTEN0<<TC_CTRLA_CAPTEN0_Pos				   \
+				| CONF_TC##n##_COPEN1<<TC_CTRLA_COPEN1_Pos | CONF_TC##n##_CAPTEN1<<TC_CTRLA_CAPTEN1_Pos				   \
+				| CONF_TC##n##_CAPTMODE0<<TC_CTRLA_CAPTMODE0_Pos | CONF_TC##n##_CAPTMODE1<<TC_CTRLA_CAPTMODE1_Pos ,							\
 		    (CONF_TC##n##_OVFEO << TC_EVCTRL_OVFEO_Pos) | (CONF_TC##n##_TCEI << TC_EVCTRL_TCEI_Pos)                    \
 		        | (CONF_TC##n##_TCINV << TC_EVCTRL_TCINV_Pos) | (CONF_TC##n##_EVACT << TC_EVCTRL_EVACT_Pos)            \
 		        | (CONF_TC##n##_MCEO0 << TC_EVCTRL_MCEO0_Pos) | (CONF_TC##n##_MCEO1 << TC_EVCTRL_MCEO1_Pos),           \
+				 CONF_TC##n##_DRVCTRLEN0<<TC_DRVCTRL_INVEN0_Pos | CONF_TC##n##_DRVCTRLEN1<<TC_DRVCTRL_INVEN1_Pos,\
 		    (CONF_TC##n##_DBGRUN << TC_DBGCTRL_DBGRUN_Pos), CONF_TC##n##_PER, CONF_TC##n##_CC0, CONF_TC##n##_CC1,      \
 	}
 /**
@@ -91,6 +93,7 @@ struct tc_configuration {
 	IRQn_Type              irq;
 	hri_tc_ctrla_reg_t     ctrl_a;
 	hri_tc_evctrl_reg_t    event_ctrl;
+	hri_tc_drvctrl_reg_t   drv_ctrl;
 	hri_tc_dbgctrl_reg_t   dbg_ctrl;
 	hri_tccount8_per_reg_t per;
 	hri_tccount32_cc_reg_t cc0;
@@ -181,6 +184,7 @@ int32_t _tc_timer_init(struct _timer_device *const device, void *const hw)
 	hri_tc_write_CTRLA_reg(hw, _tcs[i].ctrl_a);
 	hri_tc_write_DBGCTRL_reg(hw, _tcs[i].dbg_ctrl);
 	hri_tc_write_EVCTRL_reg(hw, _tcs[i].event_ctrl);
+	hri_tc_write_DRVCTRL_reg(hw, _tcs[i].drv_ctrl);
 	//hri_tc_write_WAVE_reg(hw, TC_WAVE_WAVEGEN_MFRQ);
 
 	if ((_tcs[i].ctrl_a & TC_CTRLA_MODE_Msk) == TC_CTRLA_MODE_COUNT32) {
@@ -196,8 +200,8 @@ int32_t _tc_timer_init(struct _timer_device *const device, void *const hw)
 		hri_tccount8_write_CC_reg(hw, 1, (uint8_t)_tcs[i].cc1);
 		hri_tccount8_write_PER_reg(hw, _tcs[i].per);
 	}
-	//hri_tc_set_INTEN_OVF_bit(hw);
-	hri_tc_set_INTEN_MC0_bit(hw);
+	hri_tc_set_INTEN_OVF_bit(hw);
+	//hri_tc_set_INTEN_MC0_bit(hw);
 	hri_tc_set_INTEN_MC1_bit(hw);
 	hri_tc_set_INTEN_ERR_bit(hw);
 
@@ -315,17 +319,17 @@ static void tc_interrupt_handler(struct _timer_device *device)
 	void *const hw = device->hw;
 
 	if (hri_tc_get_interrupt_OVF_bit(hw)) {
-		hri_tc_clear_interrupt_OVF_bit(hw);
 		device->timer_cb.period_expired(device);
+		hri_tc_clear_interrupt_OVF_bit(hw);
 	}else if (hri_tc_get_interrupt_MC0_bit(hw)) {
-		hri_tc_clear_interrupt_MC0_bit(hw);
 		device->timer_cb.capture_chan0(device);
+		hri_tc_clear_interrupt_MC0_bit(hw);
 	}else if (hri_tc_get_interrupt_MC1_bit(hw)) {
-		hri_tc_clear_interrupt_MC1_bit(hw);
 		device->timer_cb.capture_chan1(device);
+		hri_tc_clear_interrupt_MC1_bit(hw);
 	}else if (hri_tc_get_interrupt_ERR_bit(hw)) {
-		hri_tc_clear_interrupt_ERR_bit(hw);
 		device->timer_cb.error_detect(device);
+		hri_tc_clear_interrupt_ERR_bit(hw);
 	}
 
 }

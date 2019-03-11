@@ -206,18 +206,20 @@
 #define M5LED0 PA10
 #define M5LED1 PC17
 
-#define M1DIR1 PB21
-#define M1DIR2 PC23
-#define M2DIR1 PB17
-#define M2DIR2 PD20
+#define M1DIR1 PB17
+#define M1DIR2 PD20
+#define M2DIR1 PB21
+#define M2DIR2 PC23
+
 #define M3DIR1 PC27
 #define M3DIR2 PC31
 #define M4DIR1 PC30
 #define M4DIR2 PB02
-#define M5DIR1 PD01
-#define M5DIR2 PD00
-#define M6DIR1 PB04
-#define M6DIR2 PC22
+
+#define M6DIR1 PD01
+#define M6DIR2 PD00
+#define M5DIR1 PB04
+#define M5DIR2 PC22
 
 #define M1ENC0 PB30
 #define M1ENC1 PB31
@@ -229,7 +231,7 @@
 #define M4ENC1 PB15
 #define M5ENC0 PA06
 #define M5ENC1 PA07
-#define M6ENC0 PB06
+#define M6ENC0 PB08
 #define M6ENC1 PB09
 
 #define M0PWM0 PC10
@@ -247,13 +249,13 @@
 
 //for RRRC sensors
 #define S0GPIO0 PA19
-#define S0GPIO1 PB10
+#define S0GPIO1		PB10
 #define S1GPIO0 PA20
-#define S1GPIO1 PB11
+#define S1GPIO1		PB13
 #define S2GPIO0 PA21
-#define S2GPIO1 PB12
+#define S2GPIO1		PB12
 #define S3GPIO0 PA18
-#define S3GPIO1 PB13
+#define S3GPIO1		PB11
 
 #define S0ADC PA02
 #define S1ADC PB01

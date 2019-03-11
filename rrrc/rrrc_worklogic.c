@@ -27,17 +27,12 @@ void RRRC_ProcessLogic(void)
 	IndicationInit();
 
 //FOR TEST ONLY
-// 	SensorPortSetType(0, SENSOR_ANALOG_SWITCH);
-// 	SensorPortSetType(1, SENSOR_SWITCH);
-// 	SensorPortSetType(2, SENSOR_HC_SR05);
-// 	SensorPortSetType(3, SENSOR_NOT_SET);
+//  	SensorPortSetType(0, SENSOR_HC_SR05);
+//  	SensorPortSetType(1, SENSOR_HC_SR05);
+//  	SensorPortSetType(2, SENSOR_HC_SR05);
+//  	SensorPortSetType(3, SENSOR_HC_SR05);
 
-// 	MotorPortSetType(0, MOTOR_DC);
-// 	MotorPortSetType(1, MOTOR_DC);
-// 	MotorPortSetType(2, MOTOR_DC);
-// 	MotorPortSetType(3, MOTOR_DC);
-// 	MotorPortSetType(4, MOTOR_DC);
-// 	MotorPortSetType(5, MOTOR_DC);
+	
 
 
 	//pwm_1khz_example();
@@ -51,23 +46,30 @@ void RRRC_ProcessLogic(void)
 // 	TIMER_6_example();
 // 	TIMER_7_example();
 
-// 	MotorPortSetState(0, 10);
-// 	MotorPortSetState(0, 0);
-// 
-// 	MotorPortSetState(1, 10);
-// 	MotorPortSetState(1, 0);
-// 
-// 	MotorPortSetState(2, 10);
-// 	MotorPortSetState(2, 0);
-// 
-// 	MotorPortSetState(3, 10);
-// 	MotorPortSetState(3, 0);
-// 
-// 	MotorPortSetState(4, 10);
-// 	MotorPortSetState(4, 0);
-// 
-// 	MotorPortSetState(5, 10);
-// 	MotorPortSetState(5, 0);
+// 	for (int idx=0; idx<MOTOR_PORT_AMOUNT; idx++)
+// 	{
+// 		MotorPortSetType(idx, MOTOR_DC);
+// 		MotorPortSetState(idx, 30);
+// 		MotorPortSetState(idx, 0);
+// 		MotorPortSetState(idx, -90);
+// 		MotorPortSetState(idx, 0);
+// 		MotorPortSetState(idx, 5);
+// 		MotorPortSetState(idx, 0);
+// 		MotorPortSetType(idx, MOTOR_NOT_SET);
+// 	}
+// 		MotorPortSetType(0, MOTOR_DC);
+// 		MotorPortSetType(1, MOTOR_DC);
+// 		MotorPortSetType(2, MOTOR_DC);
+// 		MotorPortSetType(3, MOTOR_DC);
+// 		MotorPortSetType(4, MOTOR_DC);
+// 		MotorPortSetType(5, MOTOR_DC);
+// 		MotorPortSetState(0, 20);
+// 		MotorPortSetState(1, -20);
+// 		MotorPortSetState(2, 20);
+// 		MotorPortSetState(3, -20);
+// 		MotorPortSetState(4, 80);
+// 		MotorPortSetState(5, -20);
+
 // 
 // 	MotorPortSetState(0, 0);
 // 	MotorPortSetState(0, 10);

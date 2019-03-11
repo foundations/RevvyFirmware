@@ -62,7 +62,20 @@ struct timer_task;
 /**
  * \brief Timer task callback function type
  */
-typedef void (*timer_cb_t)(const struct timer_task *const timer_task);
+typedef void (*timer_task_cb_t)(const struct timer_task *const timer_task);
+typedef void (*timer_timer_cb_t)(uint32_t data, void* user_data);
+
+enum TIMER_CB_FUNC_TUPE{
+	TIMER_OVERFLOW,
+	TIMER_ERROR,
+	TIMER_MC0,
+	TIMER_MC1,
+	TIMER_CB_FUNC_MAX,
+};
+typedef struct _timer_callback_t{
+	timer_timer_cb_t func;
+	void* user_data;
+}timer_callbacks_t;
 
 /**
  * \brief Timer task structure
@@ -72,7 +85,7 @@ struct timer_task {
 	uint32_t            time_label; /*! Absolute timer start time. */
 
 	uint32_t             interval; /*! Number of timer ticks before calling the task. */
-	timer_cb_t           cb;       /*! Function pointer to the task. */
+	timer_task_cb_t           cb;       /*! Function pointer to the task. */
 	enum timer_task_mode mode;     /*! Task mode: one shot or repeat. */
 	void*	user_data;
 };
@@ -86,7 +99,11 @@ struct timer_descriptor {
 	uint32_t                     time;
 	struct list_descriptor       tasks; /*! Timer tasks list. */
 	volatile uint8_t             flags;
+	timer_callbacks_t cbs[TIMER_CB_FUNC_MAX];
 };
+
+int32_t timer_register_cb(struct timer_descriptor *const descr, enum TIMER_CB_FUNC_TUPE, timer_timer_cb_t func, void* user_data);
+int32_t timer_unregister_cb(struct timer_descriptor *const descr, enum TIMER_CB_FUNC_TUPE);
 
 /**
  * \brief Initialize timer

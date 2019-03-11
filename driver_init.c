@@ -529,13 +529,13 @@ void system_init(void)
 	
 	I2C_0_init();	
 
-	I2C_1_init();
-
-	I2C_2_init();
-
-	I2C_3_init();
-	
-	I2C_4_init();
+// 	I2C_1_init();
+// 
+// 	I2C_2_init();
+// 
+// 	I2C_3_init();
+// 	
+// 	I2C_4_init();
 
 	delay_driver_init();
 
@@ -556,5 +556,5 @@ void system_init(void)
 
 	//WDT_0_init();
 
-	EVENT_SYSTEM_0_init();
+	//EVENT_SYSTEM_0_init();
 }

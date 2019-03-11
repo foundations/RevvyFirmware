@@ -14,6 +14,7 @@
 #include "sensors/sensor_button.h"
 #include "sensors/sensor_analog_button.h"
 #include "sensors/sensor_HC_SR05.h"
+#include "sensors/sensor_i2chub.h"
 
 
 
@@ -24,6 +25,7 @@ p_sensor_lib_entry_t sensor_libs[] =
 	&sensor_hc_sr_05,
 	&sensor_button,
 	&sensor_analog_button,
+	&sensor_i2chub
 };
 
 hw_sensor_port_t sensor_ports[] = 
@@ -238,7 +240,8 @@ static void SensorPort_gpio0_ext_cb(const void* port)
 	if (sensport == NULL)
 		return;
 
-	uint32_t val = gpio_get_pin_level(sensport->gpio0_num);
+	uint32_t val = SensorPort_gpio0_get_state(sensport);
+	//uint32_t val = gpio_get_pin_level(sensport->gpio0_num);
 	if (sensport->sensor_lib && sensport->sensor_lib->gpio0_callback)
 		sensport->sensor_lib->gpio0_callback(sensport, val);
 
@@ -289,7 +292,7 @@ int32_t SensorPortInit(uint32_t port)
 	if (port>=SENSOR_PORT_AMOUNT)
 		return -1;
 
-	sensor_ports[port].sensor_thread = RRRC_add_task(&SensorPort_thread_tick_cb, 100/*ms*/, &sensor_ports[port], false);
+	sensor_ports[port].sensor_thread = RRRC_add_task(&SensorPort_thread_tick_cb, 1000/*ms*/, &sensor_ports[port], false);
 	
 	//*****************************
 	//I2C_init(sensor_ports[port].I2C)
@@ -327,3 +330,4 @@ int32_t SensorPortDeInit(uint32_t port)
 
 	return result;
 }
+

@@ -16,7 +16,7 @@
 		memset(motport->lib_data, 0, MOTOR_PORT_LIBDATA);
 	p_dc_data_t mot_data = motport->lib_data;	
 	
-	timer_get_clock_cycles_in_tick(motport->PWM0, &(mot_data->timer_period));
+	timer_get_clock_cycles_in_tick(motport->pwm, &(mot_data->timer_period));
 	return result;
  }
 
@@ -27,11 +27,11 @@
 		if (motport && data && max_size && (max_size>=MAX_MOTOR_VALUES))
 		{
 			p_dc_data_t mot_data = motport->lib_data;
-			data[0] = mot_data->counter_forward + mot_data->counter_backward;
-			amount = 1;
-// 			data[0] = mot_data->counter_forward;
-// 			data[1] = mot_data->counter_backward;
-// 			amount = 2;
+// 			data[0] = mot_data->counter_forward + mot_data->counter_backward;
+// 			amount = 1;
+			data[0] = SwapEndian(mot_data->counter_forward);
+			data[1] = SwapEndian(mot_data->counter_backward);
+			amount = 2;
 		}
 		return amount;
  }
@@ -84,21 +84,23 @@ uint32_t DC_set_state(void* hw_port, int8_t state)
 
   	}
  }
+
  void DC_enc0_callback(void* hw_port, uint32_t data)
  {
  	p_hw_motor_port_t motport = hw_port;
  	if (motport)
  	{
-
+		p_dc_data_t mot_data = motport->lib_data;
+		mot_data->counter_forward++;
  	}
  }
 
- void DC_enc1_callback(void* hw_port, uint32_t data)
- {
+void DC_enc1_callback(void* hw_port, uint32_t data)
+{
  	p_hw_motor_port_t motport = hw_port;
  	if (motport)
  	{
-	 	p_dc_data_t mot_data = motport->lib_data;
-	 	
+		p_dc_data_t mot_data = motport->lib_data;
+		mot_data->counter_backward++;
  	}
- }
+}
