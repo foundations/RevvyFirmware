@@ -24,13 +24,12 @@ void RRRC_ProcessLogic(void)
 	for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
 		MotorPortInit(idx);
 
-	IndicationInit();
 
 //FOR TEST ONLY
-//  	SensorPortSetType(0, SENSOR_HC_SR05);
-//  	SensorPortSetType(1, SENSOR_HC_SR05);
-//  	SensorPortSetType(2, SENSOR_HC_SR05);
-//  	SensorPortSetType(3, SENSOR_HC_SR05);
+ 	SensorPortSetType(0, SENSOR_HC_SR05);
+ 	SensorPortSetType(1, SENSOR_NOT_SET);
+ 	SensorPortSetType(2, SENSOR_NOT_SET);
+ 	SensorPortSetType(3, SENSOR_HC_SR05);
 
 	
 

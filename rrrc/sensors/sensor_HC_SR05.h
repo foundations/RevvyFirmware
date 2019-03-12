@@ -36,10 +36,12 @@ static sensor_lib_entry_t sensor_hc_sr_05 =
 
 typedef struct _hc_sr05_data_t
 {
-	struct timer_task* sensor_thread;
+	struct timer_task sensor_task;
 	uint32_t distanse_tick;
 	uint32_t start_time;
 	uint32_t finish_time;
+	uint32_t self_prev_count;
+	uint32_t self_curr_count;
 }hc_sr05_data_t, *p_hc_sr05_data_t;
 
 #ifdef __cplusplus

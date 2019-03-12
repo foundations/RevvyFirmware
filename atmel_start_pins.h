@@ -194,7 +194,7 @@
 
 //for RRRC motors
 #define M0LED0 PC28
-#define M0LED1 PB29
+#define M0LED1 PC19
 #define M1LED0 PC25
 #define M1LED1 PB26
 #define M2LED0 PB28
@@ -277,7 +277,7 @@
 #define S3IOVCC PC07
 
 
-//SERCOM2
+//SERCOM2!!
 #define I2C0_SERCOM SERCOM2
 #define I2C0_SDApin	PA12
 #define I2C0_SDApin_function GPIO_PIN_FUNCTION_C
@@ -324,6 +324,8 @@
 #define S3I2Csda I2C4_SDApin
 #define S3I2Cscl I2C4_SCLpin
 
+#define WS2812pin PB29
+#define WS2812pin_function GPIO_PIN_FUNCTION_D
 
 #define BAT_TS		PB20
 #define BAT_CHG		PB21
