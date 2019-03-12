@@ -196,11 +196,11 @@ static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, con
 	return;
 }
 
-struct timer_task* RRRC_add_task(timer_task_cb_t func, uint32_t interval, void* user_data, bool oneshot)
+int32_t RRRC_add_task(struct timer_task *const task, timer_task_cb_t func, uint32_t interval, void* user_data, bool oneshot)
 {
-	struct timer_task* task = malloc(sizeof(struct timer_task));
+	int32_t result = ERR_NONE;
 	if (!task)
-		return NULL;
+		return ERR_INVALID_ARG;
 	task->interval = interval;
 	task->cb       = func;
 	if (oneshot)
@@ -211,17 +211,18 @@ struct timer_task* RRRC_add_task(timer_task_cb_t func, uint32_t interval, void* 
 	timer_stop(&TIMER_RTC);
 	timer_add_task(&TIMER_RTC, task);
 	timer_start(&TIMER_RTC);
-	return task;
+	return result;
 }
 
-void RRRC_remove_task(struct timer_task* task)
+int32_t RRRC_remove_task(struct timer_task const* task)
 {
+	int32_t result = ERR_NONE;
 	if (!task)
-		return;
+	return ERR_INVALID_ARG;
 	timer_stop(&TIMER_RTC);
 	timer_remove_task(&TIMER_RTC, task);
-	free(task);
 	timer_start(&TIMER_RTC);
+	return result;
 }
 
 static void SensorsPinsInit()

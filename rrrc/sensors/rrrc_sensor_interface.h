@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "err_codes.h"
+#include <hal_timer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,7 +79,7 @@ typedef struct _hw_sensor_port_t
 
 	uint8_t lib_data[SENSOR_PORT_LIBDATA];
 
-	struct timer_task* sensor_thread;
+	struct timer_task sensor_task;
 
 	struct i2c_m_sync_desc		*I2C;
 	gpio_num i2c_sda;

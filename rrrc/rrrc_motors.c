@@ -19,13 +19,21 @@ p_motor_lib_entry_t motor_libs[] =
 	&motor_servo,
 };
 
+// 	struct list_element elem;       /*! List element. */
+// 	uint32_t            time_label; /*! Absolute timer start time. */
+// 
+// 	uint32_t             interval; /*! Number of timer ticks before calling the task. */
+// 	timer_task_cb_t           cb;       /*! Function pointer to the task. */
+// 	enum timer_task_mode mode;     /*! Task mode: one shot or repeat. */
+// 	void*	user_data;
+//{NULL},0,0,NULL,0,NULL
 hw_motor_port_t motor_ports[] =
 {
 	{
 		.index = 0,
 		.motor_lib = NULL,
 		.lib_data = {0},
-		.motor_thread = NULL,
+		.motor_task = {0},
 		.enc_timer = &TIMER_TC0,
 		.enc0_gpio = M1ENC0,
 		.enc1_gpio = M1ENC1,
@@ -41,7 +49,7 @@ hw_motor_port_t motor_ports[] =
 		.index = 1,
 		.motor_lib = NULL,
 		.lib_data = {0},
-		.motor_thread = NULL,
+		.motor_task = {0},
 		.enc_timer = &TIMER_TC2,
 		.enc0_gpio = M2ENC0,
 		.enc1_gpio = M2ENC1,
@@ -57,7 +65,7 @@ hw_motor_port_t motor_ports[] =
 		.index = 2,
 		.motor_lib = NULL,
 		.lib_data = {0},
-		.motor_thread = NULL,
+		.motor_task = {0},
 		.enc_timer = &TIMER_TC2,
 		.enc0_gpio = M3ENC0,
 		.enc1_gpio = M3ENC1,
@@ -73,7 +81,7 @@ hw_motor_port_t motor_ports[] =
 		.index = 3,
 		.motor_lib = NULL,
 		.lib_data = {0},
-		.motor_thread = NULL,
+		.motor_task = {0},
 		.enc_timer = &TIMER_TC3,
 		.enc0_gpio = M4ENC0,
 		.enc1_gpio = M4ENC1,
@@ -89,7 +97,7 @@ hw_motor_port_t motor_ports[] =
 		.index = 4,
 		.motor_lib = NULL,
 		.lib_data = {0},
-		.motor_thread = NULL,
+		.motor_task = {0},
 		.enc_timer = &TIMER_TC4,
 		.enc0_gpio = M5ENC0,
 		.enc1_gpio = M5ENC1,
@@ -105,7 +113,7 @@ hw_motor_port_t motor_ports[] =
 		.index = 5,
 		.motor_lib = NULL,
 		.lib_data = {0},
-		.motor_thread = NULL,
+		.motor_task = {0},
 		.enc_timer = &TIMER_TC5,
 		.enc0_gpio = M6ENC0,
 		.enc1_gpio = M6ENC1,
@@ -293,9 +301,13 @@ int32_t MotorPortInit(uint32_t port)
 	if (port>=ARRAY_SIZE(motor_ports))
 		return ERR_INVALID_DATA;
 
-	motor_ports[port].motor_thread = RRRC_add_task(&MotorPort_thread_tick_cb, 1000/*ms*/, &motor_ports[port], false);
-
+	result = RRRC_add_task(&motor_ports[port].motor_task, &MotorPort_thread_tick_cb, 1000/*ms*/, &motor_ports[port], false);
+	if (result)
+		return result;
+		
 	result = MotorPortSetType(port, MOTOR_NOT_SET);
+	if (result)
+		return result;
 
 	timer_register_cb(motor_ports[port].enc_timer,TIMER_MC0, MotorPort_enc0_cb, &motor_ports[port]);
 	timer_register_cb(motor_ports[port].enc_timer,TIMER_MC1, MotorPort_enc1_cb, &motor_ports[port]);
@@ -306,9 +318,7 @@ int32_t MotorPortInit(uint32_t port)
 int32_t MotorPortDeInit(uint32_t port)
 {
 	uint32_t result = ERR_NONE;
-	if (motor_ports[port].motor_thread)
-		RRRC_remove_task(motor_ports[port].motor_thread);
-	motor_ports[port].motor_thread = NULL;
+	RRRC_remove_task(&motor_ports[port].motor_task);
 
 	timer_unregister_cb(motor_ports[port].enc_timer,TIMER_MC0);
 	timer_unregister_cb(motor_ports[port].enc_timer,TIMER_MC1);

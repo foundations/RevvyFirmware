@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include "err_codes.h"
+#include <hal_timer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,7 +56,7 @@ typedef struct _hw_motor_port_t
 
 	uint8_t lib_data[MOTOR_PORT_LIBDATA];
 
-	struct timer_task* motor_thread;
+	struct timer_task motor_task;
 
 	struct timer_descriptor *enc_timer;
 	gpio_num enc0_gpio;
