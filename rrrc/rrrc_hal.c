@@ -386,7 +386,7 @@ int RRRC_Init(void)
 
 	MotorsPinsInit();
 	SensorsPinsInit();
-
+	//IndicationInit();
 
     adc_async_enable_channel(&ADC_0, 0);
     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
@@ -413,12 +413,12 @@ int RRRC_Init(void)
 	//timer_add_task(&TIMER_RTC, &TIMER_RTC_task2);
 	//timer_start(&TIMER_RTC);
 
-	timer_set_clock_cycles_per_tick(&TIMER_TC0, 0xFFFF);
-	timer_set_clock_cycles_per_tick(&TIMER_TC1, 0xFFFF);
-	timer_set_clock_cycles_per_tick(&TIMER_TC2, 0xFFFF);
-	timer_set_clock_cycles_per_tick(&TIMER_TC3, 0xFFFF);
-	timer_set_clock_cycles_per_tick(&TIMER_TC4, 0xFFFF);
-	timer_set_clock_cycles_per_tick(&TIMER_TC5, 0xFFFF);
+// 	timer_set_clock_cycles_per_tick(&TIMER_TC0, 0xFFFF);
+// 	timer_set_clock_cycles_per_tick(&TIMER_TC1, 0xFFFF);
+// 	timer_set_clock_cycles_per_tick(&TIMER_TC2, 0xFFFF);
+// 	timer_set_clock_cycles_per_tick(&TIMER_TC3, 0xFFFF);
+// 	timer_set_clock_cycles_per_tick(&TIMER_TC4, 0xFFFF);
+// 	timer_set_clock_cycles_per_tick(&TIMER_TC5, 0xFFFF);
  	timer_start(&TIMER_TC0);
 	timer_start(&TIMER_TC1);
 	timer_start(&TIMER_TC2);

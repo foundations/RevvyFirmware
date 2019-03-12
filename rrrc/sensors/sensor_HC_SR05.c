@@ -13,6 +13,8 @@ int32_t HC_SR05_Init(void* hw_port)
 {
 	int32_t result = ERR_NONE;
 	p_hw_sensor_port_t sensport = hw_port;
+	if (!sensport)
+		return ERR_INVALID_DATA;
 
 	memset(sensport->lib_data, 0, SENSOR_PORT_LIBDATA);
 	
@@ -21,7 +23,9 @@ int32_t HC_SR05_Init(void* hw_port)
 	SensorPort_gpio1_set_as_gpio(sensport, GPIO_DIRECTION_OUT, GPIO_PULL_OFF);
 	SensorPort_gpio1_set_state(sensport, 0);	
 
-	//SensorPortStartThread(sensport, &HC_SR05_thread_done, 200, true);
+	p_hc_sr05_data_t sens_data = sensport->lib_data;
+	//SensorPortStartThread( &(sens_data->sensor_task), sensport, &HC_SR05_thread_done, 200, true);
+	RRRC_add_task(&(sens_data->sensor_task), &HC_SR05_thread_done, 200, sensport, true);
 
 	return result;
 }
@@ -48,9 +52,19 @@ void HC_SR05_Thread(void* hw_port)
 		return;
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
 
-	SensorPort_gpio1_set_state(sensport, 1);
-	delay_us(15);
-	SensorPort_gpio1_set_state(sensport, 0);
+	uint32_t ticks_in_us = get_cycles_for_1us();
+	uint32_t ticks_in_ms = get_cycles_for_1ms();
+	uint32_t distance_us = sens_data->distanse_tick/ticks_in_us;
+	uint32_t distance_ms = sens_data->distanse_tick/ticks_in_ms;
+	uint32_t distance_cm = distance_us/58;
+
+	if (sens_data->self_curr_count == sens_data->self_prev_count)
+	{
+ 		SensorPort_gpio1_set_state(sensport, 1);
+ 		delay_us(15);
+ 		SensorPort_gpio1_set_state(sensport, 0);
+	}
+	sens_data->self_prev_count = sens_data->self_curr_count;
 
 	return;
 }
@@ -70,7 +84,8 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 	{
 		sens_data->finish_time = get_system_tick();
 		sens_data->distanse_tick = sens_data->start_time - sens_data->finish_time;
-		//SensorPortStartThread(sensport, &HC_SR05_thread_done, 200, true);
+		RRRC_remove_task(&(sens_data->sensor_task));
+		RRRC_add_task(&(sens_data->sensor_task), &HC_SR05_thread_done, 200, sensport, true);
 	}
 	return;
 }
@@ -78,6 +93,9 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 static void HC_SR05_thread_done(const struct timer_task *const timer_task)
 {
 	p_hw_sensor_port_t sensport = timer_task->user_data;
+	if (!sensport)
+		return;
+
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
 	uint32_t ticks_in_us = get_cycles_for_1us();
 	uint32_t ticks_in_ms = get_cycles_for_1ms();
@@ -89,4 +107,6 @@ static void HC_SR05_thread_done(const struct timer_task *const timer_task)
 	SensorPort_gpio1_set_state(sensport, 1);
 	delay_us(15);
 	SensorPort_gpio1_set_state(sensport, 0);
+	sens_data->self_curr_count++;
+	SensorPort_led1_toggle(sensport);
 }

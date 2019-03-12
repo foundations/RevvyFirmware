@@ -165,7 +165,7 @@ int32_t timer_remove_task(struct timer_descriptor *const descr, const struct tim
 	descr->flags |= TIMER_FLAG_QUEUE_IS_TAKEN;
 	if (!is_list_element(&descr->tasks, task)) {
 		descr->flags &= ~TIMER_FLAG_QUEUE_IS_TAKEN;
-		ASSERT(false);
+		//ASSERT(false);
 		return ERR_NOT_FOUND;
 	}
 	list_delete_element(&descr->tasks, task);

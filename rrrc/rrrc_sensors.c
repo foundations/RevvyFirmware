@@ -296,6 +296,7 @@ int32_t SensorPortInit(uint32_t port)
 		return -1;
 
 	result = RRRC_add_task(&sensor_ports[port].sensor_task, &SensorPort_thread_tick_cb, 1000/*ms*/, &sensor_ports[port], false);
+
 	if (result)
 		return result;
 	

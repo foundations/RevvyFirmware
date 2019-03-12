@@ -71,18 +71,12 @@ struct i2c_m_sync_desc		I2C_2;
 struct i2c_m_sync_desc		I2C_3;
 struct i2c_m_sync_desc		I2C_4;
 
+//struct spi_m_sync_descriptor SPI_0;
+struct spi_m_dma_descriptor  SPI_0;
+
 struct wdt_descriptor WDT_0;
 
-void ADC_0_PORT_init(void)
-{
 
-}
-
-void ADC_0_CLOCK_init(void)
-{
-	hri_mclk_set_APBDMASK_ADC0_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, ADC0_GCLK_ID, CONF_GCLK_ADC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-}
 
 void ADC_0_init(void)
 {
@@ -112,8 +106,15 @@ void ADC_0_init(void)
 // 	gpio_set_pin_function(PB01, PINMUX_PB01B_ADC0_AIN13);
 }
 
-void ADC_1_PORT_init(void)
+
+void ADC_1_init(void)
 {
+		hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
+		hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	//ADC_1_PORT_init();
+	//adc_sync_init(&ADC_1, ADC1, (void *)NULL);
+	adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, ADC_1_ch, (void *)NULL);
+	adc_async_register_channel_buffer(&ADC_1, 0, ADC_1_buffer, ADC_1_BUFFER_SIZE);
 
 	// Disable digital pin circuitry
 	gpio_set_pin_direction(PC02, GPIO_DIRECTION_OFF);
@@ -129,21 +130,6 @@ void ADC_1_PORT_init(void)
 	gpio_set_pin_direction(PC01, GPIO_DIRECTION_OFF);
 
 	gpio_set_pin_function(PC01, PINMUX_PC01B_ADC1_AIN11);
-}
-
-void ADC_1_CLOCK_init(void)
-{
-	hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-}
-
-void ADC_1_init(void)
-{
-	ADC_1_CLOCK_init();
-	//ADC_1_PORT_init();
-	//adc_sync_init(&ADC_1, ADC1, (void *)NULL);
-	adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, ADC_1_ch, (void *)NULL);
-	adc_async_register_channel_buffer(&ADC_1, 0, ADC_1_buffer, ADC_1_BUFFER_SIZE);
 }
 
 void EXTERNAL_IRQ_0_init(void)
@@ -169,7 +155,7 @@ void EXTERNAL_IRQ_0_init(void)
 // 	// Set pin direction to input
 // 	gpio_set_pin_direction(PB13, GPIO_DIRECTION_IN);
 // 	gpio_set_pin_pull_mode(PB13, GPIO_PULL_OFF);
- 	gpio_set_pin_function(PB13, PINMUX_PB13A_EIC_EXTINT13);
+// 	gpio_set_pin_function(PB13, PINMUX_PB13A_EIC_EXTINT13);
 
 	ext_irq_init();
 }
@@ -186,12 +172,14 @@ void I2C_0_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_SLOW, CONF_GCLK_SERCOM2_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	hri_mclk_set_APBBMASK_SERCOM2_bit(MCLK);
 
-	i2c_s_async_init(&I2C_0, I2C0_SERCOM);
-
 	gpio_set_pin_pull_mode(I2C0_SDApin, GPIO_PULL_OFF);
 	gpio_set_pin_function(I2C0_SDApin, I2C0_SDApin_function);
 	gpio_set_pin_pull_mode(I2C0_SCLpin, GPIO_PULL_OFF);
 	gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
+
+	i2c_s_async_init(&I2C_0, I2C0_SERCOM);
+
+
 }
 
 void I2C_1_init(void)
@@ -200,12 +188,15 @@ void I2C_1_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM1_GCLK_ID_SLOW, CONF_GCLK_SERCOM1_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	hri_mclk_set_APBAMASK_SERCOM1_bit(MCLK);
 
+	gpio_set_pin_pull_mode(I2C1_SDApin, GPIO_PULL_OFF);
+	gpio_set_pin_pull_mode(I2C1_SCLpin, GPIO_PULL_OFF);
+	gpio_set_pin_function(I2C1_SCLpin, I2C1_SCLpin_function);
+	gpio_set_pin_function(I2C1_SDApin, I2C1_SDApin_function);
+	
+
 	i2c_m_sync_init(&I2C_1, I2C1_SERCOM);
 	
-// 	gpio_set_pin_pull_mode(I2C1_SDApin, GPIO_PULL_OFF);
-// 	gpio_set_pin_function(I2C1_SDApin, I2C1_SDApin_function);
-// 	gpio_set_pin_pull_mode(I2C1_SCLpin, GPIO_PULL_OFF);
-// 	gpio_set_pin_function(I2C1_SCLpin, I2C1_SCLpin_function);
+
 }
 
 void I2C_2_init(void)
@@ -250,7 +241,20 @@ void I2C_4_init(void)
 	gpio_set_pin_function(I2C4_SCLpin, I2C4_SCLpin_function);
 }
 
+void SPI_0_Init(void)
+{
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_CORE, CONF_GCLK_SERCOM4_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_SLOW, CONF_GCLK_SERCOM4_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
+	hri_mclk_set_APBDMASK_SERCOM4_bit(MCLK);
+
+	//spi_m_sync_init(&LEDSPI_sync, SERCOM4);
+	spi_m_dma_init(&SPI_0, SERCOM4);
+
+	gpio_set_pin_level(WS2812pin,false);
+	gpio_set_pin_direction(WS2812pin, GPIO_DIRECTION_OUT);
+	gpio_set_pin_function(WS2812pin, WS2812pin_function);
+}
 
 void delay_driver_init(void)
 {
@@ -529,13 +533,15 @@ void system_init(void)
 	
 	I2C_0_init();	
 
-// 	I2C_1_init();
-// 
-// 	I2C_2_init();
-// 
-// 	I2C_3_init();
-// 	
-// 	I2C_4_init();
+	//I2C_1_init();
+
+	I2C_2_init();
+
+	I2C_3_init();
+	
+	I2C_4_init();
+
+	SPI_0_Init();
 
 	delay_driver_init();
 
