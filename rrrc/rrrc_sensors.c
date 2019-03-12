@@ -34,6 +34,7 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 0,
 		.sensor_lib = NULL,
 		.lib_data = {0},
+		.sensor_task = {0},
 
 		.I2C = &I2C_1,
 		.i2c_sda = S0I2Csda,
@@ -56,6 +57,7 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 1,
 		.sensor_lib = NULL,
 		.lib_data = {0},
+		.sensor_task = {0},
 
 		.I2C = &I2C_2,
 		.i2c_sda = S1I2Csda,
@@ -79,6 +81,7 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 2,
 		.sensor_lib = NULL,
 		.lib_data = {0},
+		.sensor_task = {0},
 
 		.I2C = &I2C_3,
 		.i2c_sda = S2I2Csda,
@@ -102,8 +105,8 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 3,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-
-		.sensor_thread = NULL,
+		.sensor_task = {0},
+			
 		.I2C = &I2C_4,
 		.i2c_sda = S3I2Csda,
 		.i2c_scl = S3I2Cscl,
@@ -292,7 +295,9 @@ int32_t SensorPortInit(uint32_t port)
 	if (port>=SENSOR_PORT_AMOUNT)
 		return -1;
 
-	sensor_ports[port].sensor_thread = RRRC_add_task(&SensorPort_thread_tick_cb, 1000/*ms*/, &sensor_ports[port], false);
+	result = RRRC_add_task(&sensor_ports[port].sensor_task, &SensorPort_thread_tick_cb, 1000/*ms*/, &sensor_ports[port], false);
+	if (result)
+		return result;
 	
 	//*****************************
 	//I2C_init(sensor_ports[port].I2C)
@@ -317,9 +322,7 @@ int32_t SensorPortInit(uint32_t port)
 int32_t SensorPortDeInit(uint32_t port)
 {
 	uint32_t result = ERR_NONE;
-	if (sensor_ports[port].sensor_thread)
-		RRRC_remove_task(sensor_ports[port].sensor_thread);
-	sensor_ports[port].sensor_thread = NULL;
+	result = RRRC_remove_task(&sensor_ports[port].sensor_task);
 
 	RRRC_channel_adc_unregister_cb(sensor_ports[port].index);
 

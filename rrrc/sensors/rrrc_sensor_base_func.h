@@ -182,20 +182,21 @@ static void SensorPort_set_vccio(const p_hw_sensor_port_t sensport, sensor_type_
 
 static int32_t SensorPortStartThread(p_hw_sensor_port_t sensport, timer_task_cb_t func, uint32_t time, bool single_run)
 {
+	int32_t result = ERR_NONE;
 	if (!sensport || !func)
 		return ERR_BAD_DATA;
-	sensport->sensor_thread = RRRC_add_task(func, time, sensport, single_run);
-	if (sensport->sensor_thread == NULL)
-		return ERR_NO_MEMORY;
-	return ERR_NONE;
+		
+	result= RRRC_add_task(&(sensport->sensor_task), func, time, sensport, single_run);
+	
+	return result;
 }
 
 static int32_t SensorPortStopThread(p_hw_sensor_port_t sensport)
 {
 	int32_t result = ERR_NONE;
-	if (sensport->sensor_thread)
-		RRRC_remove_task(sensport->sensor_thread);
-	sensport->sensor_thread = NULL;
+	
+	result = RRRC_remove_task(&sensport->sensor_task);
+	
 	return result;
 }
 #endif /* RRRC_SENSOR_BASE_FUNC_H_ */
