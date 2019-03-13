@@ -329,10 +329,11 @@ static void MotorsPinsInit()
 // 		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OUT);
 // 		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
 // 		gpio_set_pin_level(motor_ports[idx].enc1_gpio, false);
-		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OFF);
+//gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_DOWN);
+		//gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OFF);
 		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_E);
-
-		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OFF);
+//gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_DOWN);
+		//gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OFF);
 		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_E);
 	}
 
@@ -386,7 +387,7 @@ int RRRC_Init(void)
 
 	MotorsPinsInit();
 	SensorsPinsInit();
-	//IndicationInit();
+	IndicationInit();
 
     adc_async_enable_channel(&ADC_0, 0);
     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
@@ -421,10 +422,12 @@ int RRRC_Init(void)
 // 	timer_set_clock_cycles_per_tick(&TIMER_TC5, 0xFFFF);
  	timer_start(&TIMER_TC0);
 	timer_start(&TIMER_TC1);
-	timer_start(&TIMER_TC2);
+	//timer_start(&TIMER_TC2);
 	timer_start(&TIMER_TC3);
 	timer_start(&TIMER_TC4);
 	timer_start(&TIMER_TC5);
+	timer_start(&TIMER_TC6);
+	//timer_start(&TIMER_TC7);
 
 	//ext_irq_register(PIN_PB31, button_on_PB31_pressed);
 

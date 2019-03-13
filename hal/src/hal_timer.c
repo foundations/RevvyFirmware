@@ -275,8 +275,8 @@ static void timer_error(struct _timer_device *device)
 // 
 // 	static uint16_t diff_time = 0;
 // 	uint16_t curtime = hri_tccount16_read_CC_reg(device->hw, 0);
-
-	timer->cbs[TIMER_ERROR].func(0, timer->cbs[TIMER_ERROR].user_data);
+	if (timer->cbs[TIMER_ERROR].func)
+		timer->cbs[TIMER_ERROR].func(0, timer->cbs[TIMER_ERROR].user_data);
 }
 
 static void capture_chan0(struct _timer_device *device)
@@ -285,11 +285,24 @@ static void capture_chan0(struct _timer_device *device)
 
 	struct timer_descriptor *timer = CONTAINER_OF(device, struct timer_descriptor, device);
 
-	static uint16_t prev_time = 0;
-	uint16_t curtime = hri_tccount16_read_CC_reg(device->hw, 0);
-
-	timer->cbs[TIMER_MC0].func(curtime-prev_time, timer->cbs[TIMER_MC0].user_data);
-	prev_time = curtime;
+	uint32_t curtime = hri_tccount16_read_CC_reg(device->hw, 0);
+	bool ovf = hri_tc_get_interrupt_OVF_bit(device->hw);
+	if (ovf)
+	{
+		hri_tc_clear_interrupt_OVF_bit(device->hw);
+	}
+// 	uint32_t diff_time=0;
+// 	if (ovf)
+// 		diff_time = 1;
+// 	else if (curtime < device->prev_time_cc0)
+// 		diff_time = 2;
+// 	else if (curtime == device->prev_time_cc0)
+// 		diff_time = 3;
+// 	else
+// 		diff_time = 4;
+	if (timer->cbs[TIMER_MC0].func)
+		timer->cbs[TIMER_MC0].func(curtime, timer->cbs[TIMER_MC0].user_data);
+	device->prev_time_cc0 = curtime;
 
 }
 
@@ -299,11 +312,26 @@ static void capture_chan1(struct _timer_device *device)
 
 	struct timer_descriptor *timer = CONTAINER_OF(device, struct timer_descriptor, device);
 
-	static uint16_t prev_time = 0;
-	uint16_t curtime = hri_tccount16_read_CC_reg(device->hw, 1);
-
-	timer->cbs[TIMER_MC1].func(curtime-prev_time, timer->cbs[TIMER_MC1].user_data);
-	prev_time = curtime;
+	uint32_t curtime = hri_tccount16_read_CC_reg(device->hw, 1);
+	bool ovf = hri_tc_get_interrupt_OVF_bit(device->hw);
+	if (ovf)
+	{
+//		curtime += 0x10000
+		hri_tc_clear_interrupt_OVF_bit(device->hw);
+	}
+//	uint32_t diff_time=0;
+// 	if (ovf)
+// 		diff_time = 1;
+// 	else if (curtime < device->prev_time_cc1)
+// 		diff_time = 2;
+// 	else if (curtime == device->prev_time_cc1)
+// 		diff_time = 3;
+// 	else
+// 		diff_time = 4;
+		//diff_time = curtime - device->prev_time_cc1;
+	if (timer->cbs[TIMER_MC1].func)
+		timer->cbs[TIMER_MC1].func(curtime, timer->cbs[TIMER_MC1].user_data);
+	device->prev_time_cc1 = curtime;
 }
 
 

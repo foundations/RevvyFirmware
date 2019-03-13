@@ -122,7 +122,7 @@
 // <i> Defines the trigger action used for a transfer
 // <id> dmac_trigact_0
 #ifndef CONF_DMAC_TRIGACT_0
-#define CONF_DMAC_TRIGACT_0 0
+#define CONF_DMAC_TRIGACT_0 2
 #endif
 
 // <o> Trigger source
@@ -214,7 +214,7 @@
 // <i> Defines the peripheral trigger which is source of the transfer
 // <id> dmac_trifsrc_0
 #ifndef CONF_DMAC_TRIGSRC_0
-#define CONF_DMAC_TRIGSRC_0 0
+#define CONF_DMAC_TRIGSRC_0 0x0D
 #endif
 
 // <o> Channel Arbitration Level
@@ -284,7 +284,7 @@
 // <i> Indicates whether the source address incrementation is enabled or not
 // <id> dmac_srcinc_0
 #ifndef CONF_DMAC_SRCINC_0
-#define CONF_DMAC_SRCINC_0 0
+#define CONF_DMAC_SRCINC_0 1
 #endif
 
 // <q> Destination Address Increment
@@ -312,7 +312,7 @@
 // <i> Defines the the DMAC should take after a block transfer has completed
 // <id> dmac_blockact_0
 #ifndef CONF_DMAC_BLOCKACT_0
-#define CONF_DMAC_BLOCKACT_0 0
+#define CONF_DMAC_BLOCKACT_0 1
 #endif
 
 // <o> Event Output Selection
@@ -322,7 +322,7 @@
 // <i> Defines the event output selection
 // <id> dmac_evosel_0
 #ifndef CONF_DMAC_EVOSEL_0
-#define CONF_DMAC_EVOSEL_0 0
+#define CONF_DMAC_EVOSEL_0 1
 #endif
 // </e>
 

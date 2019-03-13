@@ -26,10 +26,10 @@ void RRRC_ProcessLogic(void)
 
 
 //FOR TEST ONLY
- 	SensorPortSetType(0, SENSOR_HC_SR05);
- 	SensorPortSetType(1, SENSOR_NOT_SET);
- 	SensorPortSetType(2, SENSOR_NOT_SET);
- 	SensorPortSetType(3, SENSOR_HC_SR05);
+//  	SensorPortSetType(0, SENSOR_HC_SR05);
+//  	SensorPortSetType(1, SENSOR_NOT_SET);
+//  	SensorPortSetType(2, SENSOR_NOT_SET);
+//  	SensorPortSetType(3, SENSOR_HC_SR05);
 
 	
 
@@ -45,17 +45,11 @@ void RRRC_ProcessLogic(void)
 // 	TIMER_6_example();
 // 	TIMER_7_example();
 
-// 	for (int idx=0; idx<MOTOR_PORT_AMOUNT; idx++)
-// 	{
-// 		MotorPortSetType(idx, MOTOR_DC);
-// 		MotorPortSetState(idx, 30);
-// 		MotorPortSetState(idx, 0);
-// 		MotorPortSetState(idx, -90);
-// 		MotorPortSetState(idx, 0);
-// 		MotorPortSetState(idx, 5);
-// 		MotorPortSetState(idx, 0);
-// 		MotorPortSetType(idx, MOTOR_NOT_SET);
-// 	}
+	for (int idx=0; idx<MOTOR_PORT_AMOUNT; idx++)
+	{
+		MotorPortSetType(idx, MOTOR_DC);
+		MotorPortSetState(idx, 20+10*idx);
+	}
 // 		MotorPortSetType(0, MOTOR_DC);
 // 		MotorPortSetType(1, MOTOR_DC);
 // 		MotorPortSetType(2, MOTOR_DC);

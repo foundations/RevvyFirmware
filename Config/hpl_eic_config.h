@@ -49,7 +49,7 @@
 // <i> This defines non-maskable interrupt sense
 // <id> eic_arch_nmisense
 #ifndef CONF_EIC_NMISENSE
-#define CONF_EIC_NMISENSE EIC_NMICTRL_NMISENSE_BOTH_Val
+#define CONF_EIC_NMISENSE EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> Asynchronous Edge Detection Mode

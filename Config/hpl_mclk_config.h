@@ -47,7 +47,7 @@
 // <MCLK_LPDIV_LPDIV_DIV128_Val"> Divide by 128
 // <id> mclk_arch_lpdiv
 #ifndef CONF_MCLK_LPDIV
-#define CONF_MCLK_LPDIV MCLK_LPDIV_LPDIV_DIV1_Val
+#define CONF_MCLK_LPDIV MCLK_LPDIV_LPDIV_DIV8_Val
 #endif
 
 // <y> Backup Clock Division
@@ -61,7 +61,7 @@
 // <MCLK_BUPDIV_BUPDIV_DIV128_Val"> Divide by 128
 // <id> mclk_arch_bupdiv
 #ifndef CONF_MCLK_BUPDIV
-#define CONF_MCLK_BUPDIV MCLK_BUPDIV_BUPDIV_DIV1_Val
+#define CONF_MCLK_BUPDIV MCLK_BUPDIV_BUPDIV_DIV32_Val
 #endif
 // <y> High-Speed Clock Division
 // <MCLK_HSDIV_DIV_DIV1_Val"> Divide by 1

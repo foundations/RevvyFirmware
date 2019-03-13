@@ -109,8 +109,8 @@ void ADC_0_init(void)
 
 void ADC_1_init(void)
 {
-		hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
-		hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	//ADC_1_PORT_init();
 	//adc_sync_init(&ADC_1, ADC1, (void *)NULL);
 	adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, ADC_1_ch, (void *)NULL);
@@ -178,8 +178,6 @@ void I2C_0_init(void)
 	gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
 
 	i2c_s_async_init(&I2C_0, I2C0_SERCOM);
-
-
 }
 
 void I2C_1_init(void)
@@ -188,15 +186,12 @@ void I2C_1_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM1_GCLK_ID_SLOW, CONF_GCLK_SERCOM1_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	hri_mclk_set_APBAMASK_SERCOM1_bit(MCLK);
 
+	i2c_m_sync_init(&I2C_1, I2C1_SERCOM);
+
 	gpio_set_pin_pull_mode(I2C1_SDApin, GPIO_PULL_OFF);
 	gpio_set_pin_pull_mode(I2C1_SCLpin, GPIO_PULL_OFF);
 	gpio_set_pin_function(I2C1_SCLpin, I2C1_SCLpin_function);
 	gpio_set_pin_function(I2C1_SDApin, I2C1_SDApin_function);
-	
-
-	i2c_m_sync_init(&I2C_1, I2C1_SERCOM);
-	
-
 }
 
 void I2C_2_init(void)
@@ -267,7 +262,6 @@ static void TIMER_TC0_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC0, TC0, _tc_get_timer());
-	//TIMER_0_init();
 }
 
 static void TIMER_TC1_init(void)
@@ -276,7 +270,6 @@ static void TIMER_TC1_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC1_GCLK_ID, CONF_GCLK_TC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC1, TC1, _tc_get_timer());
-	//TIMER_1_init();
 }
 
 static void TIMER_TC2_init(void)
@@ -285,7 +278,6 @@ static void TIMER_TC2_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, CONF_GCLK_TC2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC2, TC2, _tc_get_timer());
-	//TIMER_2_init();
 }
 
 static void TIMER_TC3_init(void)
@@ -294,7 +286,6 @@ static void TIMER_TC3_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, CONF_GCLK_TC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC3, TC3, _tc_get_timer());
-	//TIMER_3_init();
 }
 
 static void TIMER_TC4_init(void)
@@ -303,7 +294,6 @@ static void TIMER_TC4_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC4, TC4, _tc_get_timer());
-	//TIMER_4_init();
 }
 
 static void TIMER_TC5_init(void)
@@ -312,8 +302,6 @@ static void TIMER_TC5_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC5_GCLK_ID, CONF_GCLK_TC5_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	timer_init(&TIMER_TC5, TC5, _tc_get_timer());
-	//TIMER_5_init();
-	
 }
 
 static void TIMER_TC6_init(void)
@@ -533,7 +521,7 @@ void system_init(void)
 	
 	I2C_0_init();	
 
-	//I2C_1_init();
+	I2C_1_init();
 
 	I2C_2_init();
 
@@ -547,12 +535,12 @@ void system_init(void)
 
 	TIMER_TC0_init();
 	TIMER_TC1_init();
-	TIMER_TC2_init();
+	//TIMER_TC2_init();
 	TIMER_TC3_init();
 	TIMER_TC4_init();
 	TIMER_TC5_init();
-// 	TIMER_TC6_init();
-// 	TIMER_TC7_init();
+ 	TIMER_TC6_init();
+ 	//TIMER_TC7_init();
  	TIMER_TCC0_init();
 // 	TIMER_TCC1_init();
 // 	TIMER_TCC2_init();

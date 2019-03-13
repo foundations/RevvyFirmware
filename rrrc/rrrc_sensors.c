@@ -296,7 +296,6 @@ int32_t SensorPortInit(uint32_t port)
 		return -1;
 
 	result = RRRC_add_task(&sensor_ports[port].sensor_task, &SensorPort_thread_tick_cb, 1000/*ms*/, &sensor_ports[port], false);
-
 	if (result)
 		return result;
 	
@@ -312,9 +311,6 @@ int32_t SensorPortInit(uint32_t port)
 		ext_irq_register(sensor_ports[port].gpio0_num, SensorPort_gpio0_ext_cb, &sensor_ports[port]);
 	if (sensor_ports[port].gpio1_num >= 0)
 		ext_irq_register(sensor_ports[port].gpio1_num, SensorPort_gpio1_ext_cb, &sensor_ports[port]);
-
-
-	//timer_stop(&TIMER_RTC);	timer_add_task(&TIMER_RTC, task);	timer_start(&TIMER_RTC);
 
 	result = SensorPortSetType(port, SENSOR_NOT_SET);
 
