@@ -24,8 +24,7 @@ int32_t HC_SR05_Init(void* hw_port)
 	SensorPort_gpio1_set_state(sensport, 0);	
 
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
-	//SensorPortStartThread( &(sens_data->sensor_task), sensport, &HC_SR05_thread_done, 200, true);
-	RRRC_add_task(&(sens_data->sensor_task), &HC_SR05_thread_done, 200, sensport, true);
+	RRRC_add_task(&(sens_data->sensor_task), &HC_SR05_thread_done, 20, sensport, true);
 
 	return result;
 }
@@ -85,7 +84,7 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 		sens_data->finish_time = get_system_tick();
 		sens_data->distanse_tick = sens_data->start_time - sens_data->finish_time;
 		RRRC_remove_task(&(sens_data->sensor_task));
-		RRRC_add_task(&(sens_data->sensor_task), &HC_SR05_thread_done, 200, sensport, true);
+		RRRC_add_task(&(sens_data->sensor_task), &HC_SR05_thread_done, 20, sensport, true);
 	}
 	return;
 }

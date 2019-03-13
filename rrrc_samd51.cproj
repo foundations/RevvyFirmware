@@ -312,7 +312,7 @@
       <Value>../hpl/usb</Value>
       <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\atmel\SAMD51_DFP\1.0.70\include</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
@@ -360,7 +360,7 @@
       <Value>../hpl/usb</Value>
       <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\atmel\SAMD51_DFP\1.0.70\include</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.preprocessingassembler.general.IncludePaths>
@@ -391,7 +391,7 @@
       <Value>../hpl/usb</Value>
       <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\atmel\SAMD51_DFP\1.0.70\include</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
 </ArmGcc>
@@ -441,7 +441,7 @@
       <Value>../rrrc</Value>
       <Value>../rrrc/motors</Value>
       <Value>../rrrc/sensors</Value>
-      <Value>%24(PackRepoDir)\atmel\SAMD51_DFP\1.0.70\include</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
@@ -490,7 +490,7 @@
       <Value>../hpl/usb</Value>
       <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\atmel\SAMD51_DFP\1.0.70\include</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
@@ -522,7 +522,7 @@
       <Value>../hpl/usb</Value>
       <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
-      <Value>%24(PackRepoDir)\atmel\SAMD51_DFP\1.0.70\include</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>

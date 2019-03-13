@@ -74,6 +74,9 @@ struct _timer_device {
 	struct _timer_callbacks timer_cb;
 	struct _irq_descriptor  irq;
 	void *                  hw;
+
+	uint32_t prev_time_cc0;
+	uint32_t prev_time_cc1;
 };
 
 /**

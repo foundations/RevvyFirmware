@@ -91,7 +91,8 @@ uint32_t DC_set_state(void* hw_port, int8_t state)
  	if (motport)
  	{
 		p_dc_data_t mot_data = motport->lib_data;
-		mot_data->counter_forward++;
+		//if (data>10000)
+			mot_data->counter_forward = data;//++;
  	}
  }
 
@@ -101,6 +102,7 @@ void DC_enc1_callback(void* hw_port, uint32_t data)
  	if (motport)
  	{
 		p_dc_data_t mot_data = motport->lib_data;
-		mot_data->counter_backward++;
+		//if (data>10000)
+			mot_data->counter_backward = data;//++;
  	}
 }

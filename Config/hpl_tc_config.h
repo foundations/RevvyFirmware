@@ -83,7 +83,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo0
 #ifndef CONF_TC0_MCEO0
-#define CONF_TC0_MCEO0 1
+#define CONF_TC0_MCEO0 0
 #endif
 
 // <q> Output Event On Match or Capture on Channel 1
@@ -126,7 +126,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC0_EVACT
-#define CONF_TC0_EVACT 0
+#define CONF_TC0_EVACT 4
 #endif
 // </e>
 
@@ -198,7 +198,7 @@
 #endif
 
 #ifndef CONF_TC0_DRVCTRLEN1
-#define CONF_TC0_DRVCTRLEN1 1
+#define CONF_TC0_DRVCTRLEN1 0
 #endif
 
 
@@ -224,7 +224,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC1_PRESCALER
-#define CONF_TC1_PRESCALER 0x6
+#define CONF_TC1_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -290,7 +290,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC1_MCEO1
-#define CONF_TC1_MCEO1 0
+#define CONF_TC1_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -326,7 +326,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC1_EVACT
-#define CONF_TC1_EVACT 0
+#define CONF_TC1_EVACT 4
 #endif
 // </e>
 
@@ -397,7 +397,7 @@
 #endif
 
 #ifndef CONF_TC1_DRVCTRLEN1
-#define CONF_TC1_DRVCTRLEN1 1
+#define CONF_TC1_DRVCTRLEN1 0
 #endif
 
 
@@ -421,7 +421,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC2_PRESCALER
-#define CONF_TC2_PRESCALER 0x6
+#define CONF_TC2_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -487,7 +487,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC2_MCEO1
-#define CONF_TC2_MCEO1 0
+#define CONF_TC2_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -523,7 +523,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC2_EVACT
-#define CONF_TC2_EVACT 0
+#define CONF_TC2_EVACT 4
 #endif
 // </e>
 
@@ -595,7 +595,7 @@
 #endif
 
 #ifndef CONF_TC2_DRVCTRLEN1
-#define CONF_TC2_DRVCTRLEN1 1
+#define CONF_TC2_DRVCTRLEN1 0
 #endif
 
 
@@ -619,7 +619,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC3_PRESCALER
-#define CONF_TC3_PRESCALER 0x6
+#define CONF_TC3_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -685,7 +685,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC3_MCEO1
-#define CONF_TC3_MCEO1 0
+#define CONF_TC3_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -721,7 +721,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC3_EVACT
-#define CONF_TC3_EVACT 0
+#define CONF_TC3_EVACT 4
 #endif
 // </e>
 
@@ -793,7 +793,7 @@
 #endif
 
 #ifndef CONF_TC3_DRVCTRLEN1
-#define CONF_TC3_DRVCTRLEN1 1
+#define CONF_TC3_DRVCTRLEN1 0
 #endif
 
 
@@ -817,7 +817,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC4_PRESCALER
-#define CONF_TC4_PRESCALER 0x6
+#define CONF_TC4_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -883,7 +883,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC4_MCEO1
-#define CONF_TC4_MCEO1 0
+#define CONF_TC4_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -919,7 +919,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC4_EVACT
-#define CONF_TC4_EVACT 0
+#define CONF_TC4_EVACT 4
 #endif
 // </e>
 
@@ -991,7 +991,7 @@
 #endif
 
 #ifndef CONF_TC4_DRVCTRLEN1
-#define CONF_TC4_DRVCTRLEN1 1
+#define CONF_TC4_DRVCTRLEN1 0
 #endif
 
 
@@ -1015,7 +1015,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC5_PRESCALER
-#define CONF_TC5_PRESCALER 0x6
+#define CONF_TC5_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -1081,7 +1081,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC5_MCEO1
-#define CONF_TC5_MCEO1 0
+#define CONF_TC5_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -1117,7 +1117,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC5_EVACT
-#define CONF_TC5_EVACT 0
+#define CONF_TC5_EVACT 4
 #endif
 // </e>
 
@@ -1189,7 +1189,7 @@
 #endif
 
 #ifndef CONF_TC5_DRVCTRLEN1
-#define CONF_TC5_DRVCTRLEN1 1
+#define CONF_TC5_DRVCTRLEN1 0
 #endif
 
 
@@ -1215,7 +1215,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC6_PRESCALER
-#define CONF_TC6_PRESCALER 0x3
+#define CONF_TC6_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -1281,7 +1281,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC6_MCEO1
-#define CONF_TC6_MCEO1 0
+#define CONF_TC6_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -1317,7 +1317,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC6_EVACT
-#define CONF_TC6_EVACT 0
+#define CONF_TC6_EVACT 4
 #endif
 // </e>
 
@@ -1368,23 +1368,23 @@
 
 
 #ifndef CONF_TC6_COPEN0
-#define CONF_TC6_COPEN0 0
+#define CONF_TC6_COPEN0 1
 #endif
 
 #ifndef CONF_TC6_COPEN1
-#define CONF_TC6_COPEN1 0
+#define CONF_TC6_COPEN1 1
 #endif
 
 #ifndef CONF_TC6_CAPTEN0
-#define CONF_TC6_CAPTEN0 0
+#define CONF_TC6_CAPTEN0 1
 #endif
 
 #ifndef CONF_TC6_CAPTEN1
-#define CONF_TC6_CAPTEN1 0
+#define CONF_TC6_CAPTEN1 1
 #endif
 
 #ifndef CONF_TC6_DRVCTRLEN0
-#define CONF_TC6_DRVCTRLEN0 0
+#define CONF_TC6_DRVCTRLEN0 1
 #endif
 
 #ifndef CONF_TC6_DRVCTRLEN1
@@ -1412,7 +1412,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC7_PRESCALER
-#define CONF_TC7_PRESCALER 0x3
+#define CONF_TC7_PRESCALER 0x4
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
@@ -1478,7 +1478,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC7_MCEO1
-#define CONF_TC7_MCEO1 0
+#define CONF_TC7_MCEO1 1
 #endif
 
 // <q> Output Event On Timer Tick
@@ -1514,7 +1514,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC7_EVACT
-#define CONF_TC7_EVACT 0
+#define CONF_TC7_EVACT 4
 #endif
 // </e>
 
@@ -1564,23 +1564,23 @@
 #endif
 
 #ifndef CONF_TC7_COPEN0
-#define CONF_TC7_COPEN0 0
+#define CONF_TC7_COPEN0 1
 #endif
 
 #ifndef CONF_TC7_COPEN1
-#define CONF_TC7_COPEN1 0
+#define CONF_TC7_COPEN1 1
 #endif
 
 #ifndef CONF_TC7_CAPTEN0
-#define CONF_TC7_CAPTEN0 0
+#define CONF_TC7_CAPTEN0 1
 #endif
 
 #ifndef CONF_TC7_CAPTEN1
-#define CONF_TC7_CAPTEN1 0
+#define CONF_TC7_CAPTEN1 1
 #endif
 
 #ifndef CONF_TC7_DRVCTRLEN0
-#define CONF_TC7_DRVCTRLEN0 0
+#define CONF_TC7_DRVCTRLEN0 1
 #endif
 
 #ifndef CONF_TC7_DRVCTRLEN1
@@ -1599,64 +1599,69 @@
 #endif
 
 
-
-
 #ifndef CONF_TC1_CAPTMODE0
-#define CONF_TC1_CAPTMODE0 0
+#define CONF_TC1_CAPTMODE0 2
 #endif
-
-#ifndef CONF_TC2_CAPTMODE0
-#define CONF_TC2_CAPTMODE0 0
-#endif
-
-#ifndef CONF_TC3_CAPTMODE0
-#define CONF_TC3_CAPTMODE0 0
-#endif
-
-#ifndef CONF_TC4_CAPTMODE0
-#define CONF_TC4_CAPTMODE0 0
-#endif
-
-#ifndef CONF_TC5_CAPTMODE0
-#define CONF_TC5_CAPTMODE0 0
-#endif
-
-#ifndef CONF_TC6_CAPTMODE0
-#define CONF_TC6_CAPTMODE0 0
-#endif
-
-#ifndef CONF_TC7_CAPTMODE0
-#define CONF_TC7_CAPTMODE0 0
-#endif
-
-
 
 #ifndef CONF_TC1_CAPTMODE1
-#define CONF_TC1_CAPTMODE1 0
+#define CONF_TC1_CAPTMODE1 2
+#endif
+
+
+#ifndef CONF_TC2_CAPTMODE0
+#define CONF_TC2_CAPTMODE0 2
 #endif
 
 #ifndef CONF_TC2_CAPTMODE1
-#define CONF_TC2_CAPTMODE1 0
+#define CONF_TC2_CAPTMODE1 2
+#endif
+
+
+#ifndef CONF_TC3_CAPTMODE0
+#define CONF_TC3_CAPTMODE0 2
 #endif
 
 #ifndef CONF_TC3_CAPTMODE1
-#define CONF_TC3_CAPTMODE1 0
+#define CONF_TC3_CAPTMODE1 2
+#endif
+
+
+#ifndef CONF_TC4_CAPTMODE0
+#define CONF_TC4_CAPTMODE0 2
 #endif
 
 #ifndef CONF_TC4_CAPTMODE1
-#define CONF_TC4_CAPTMODE1 0
+#define CONF_TC4_CAPTMODE1 2
+#endif
+
+
+#ifndef CONF_TC5_CAPTMODE0
+#define CONF_TC5_CAPTMODE0 2
 #endif
 
 #ifndef CONF_TC5_CAPTMODE1
-#define CONF_TC5_CAPTMODE1 0
+#define CONF_TC5_CAPTMODE1 2
+#endif
+
+
+#ifndef CONF_TC6_CAPTMODE0
+#define CONF_TC6_CAPTMODE0 2
 #endif
 
 #ifndef CONF_TC6_CAPTMODE1
-#define CONF_TC6_CAPTMODE1 0
+#define CONF_TC6_CAPTMODE1 2
+#endif
+
+
+#ifndef CONF_TC7_CAPTMODE0
+#define CONF_TC7_CAPTMODE0 2
 #endif
 
 #ifndef CONF_TC7_CAPTMODE1
-#define CONF_TC7_CAPTMODE1 0
+#define CONF_TC7_CAPTMODE1 2
 #endif
+
+
+
 
 #endif // HPL_TC_CONFIG_H

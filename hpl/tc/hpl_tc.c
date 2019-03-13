@@ -200,8 +200,8 @@ int32_t _tc_timer_init(struct _timer_device *const device, void *const hw)
 		hri_tccount8_write_CC_reg(hw, 1, (uint8_t)_tcs[i].cc1);
 		hri_tccount8_write_PER_reg(hw, _tcs[i].per);
 	}
-	hri_tc_set_INTEN_OVF_bit(hw);
-	//hri_tc_set_INTEN_MC0_bit(hw);
+	//hri_tc_set_INTEN_OVF_bit(hw);
+	hri_tc_set_INTEN_MC0_bit(hw);
 	hri_tc_set_INTEN_MC1_bit(hw);
 	hri_tc_set_INTEN_ERR_bit(hw);
 
@@ -318,19 +318,21 @@ static void tc_interrupt_handler(struct _timer_device *device)
 /*	while(1);*/
 	void *const hw = device->hw;
 
-	if (hri_tc_get_interrupt_OVF_bit(hw)) {
-		device->timer_cb.period_expired(device);
-		hri_tc_clear_interrupt_OVF_bit(hw);
+	if (hri_tc_get_interrupt_ERR_bit(hw)) {
+		device->timer_cb.error_detect(device);
+		hri_tc_clear_interrupt_ERR_bit(hw);
 	}else if (hri_tc_get_interrupt_MC0_bit(hw)) {
 		device->timer_cb.capture_chan0(device);
 		hri_tc_clear_interrupt_MC0_bit(hw);
+		hri_tccount16_write_CC_reg(hw, 0, 0);
 	}else if (hri_tc_get_interrupt_MC1_bit(hw)) {
 		device->timer_cb.capture_chan1(device);
 		hri_tc_clear_interrupt_MC1_bit(hw);
-	}else if (hri_tc_get_interrupt_ERR_bit(hw)) {
-		device->timer_cb.error_detect(device);
-		hri_tc_clear_interrupt_ERR_bit(hw);
-	}
+		hri_tccount16_write_CC_reg(hw, 1, 0);
+ 	}//else if (hri_tc_get_interrupt_OVF_bit(hw)) {
+// 		device->timer_cb.period_expired(device);
+// 		hri_tc_clear_interrupt_OVF_bit(hw);
+// 	}
 
 }
 

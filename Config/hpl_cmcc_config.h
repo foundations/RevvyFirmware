@@ -29,7 +29,7 @@
 //<i> Defines the data cache should be disabled or not.
 // <id> cmcc_data_cache_disable
 #ifndef CONF_CMCC_DATA_CACHE_DISABLE
-#define CONF_CMCC_DATA_CACHE_DISABLE 0x1
+#define CONF_CMCC_DATA_CACHE_DISABLE 0x0
 #endif
 
 // <q> Instruction cache disable
