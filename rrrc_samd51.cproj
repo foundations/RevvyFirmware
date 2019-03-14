@@ -1160,6 +1160,9 @@
     <Compile Include="rrrc\rrrc_indication.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\rrrc_indication_predefined.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\rrrc_motors.c">
       <SubType>compile</SubType>
     </Compile>

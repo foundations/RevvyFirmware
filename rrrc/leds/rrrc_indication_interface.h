@@ -12,5 +12,4 @@
 
 
 
-
 #endif /* RRRC_INDICATION_INTERFACE_H_ */

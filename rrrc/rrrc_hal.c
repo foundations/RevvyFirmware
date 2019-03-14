@@ -387,7 +387,7 @@ int RRRC_Init(void)
 
 	MotorsPinsInit();
 	SensorsPinsInit();
-	IndicationInit();
+	//IndicationInit();
 
     adc_async_enable_channel(&ADC_0, 0);
     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
