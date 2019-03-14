@@ -9,6 +9,7 @@ uint32_t GetTimerCounter(p_hw_sensor_port_t hwport);
 
 static void HC_SR05_thread_done(const struct timer_task *const timer_task);
 
+//*********************************************************************************************
 int32_t HC_SR05_Init(void* hw_port)
 {
 	int32_t result = ERR_NONE;
@@ -29,6 +30,7 @@ int32_t HC_SR05_Init(void* hw_port)
 	return result;
 }
 
+//*********************************************************************************************
 uint32_t HC_SR05_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 {
 	uint32_t amount = 0;
@@ -44,6 +46,7 @@ uint32_t HC_SR05_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 	return amount;
 }
 
+//*********************************************************************************************
 void HC_SR05_Thread(void* hw_port)
 {
 	p_hw_sensor_port_t sensport = hw_port;
@@ -68,6 +71,7 @@ void HC_SR05_Thread(void* hw_port)
 	return;
 }
 
+//*********************************************************************************************
 void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 {
 	p_hw_sensor_port_t sensport = hw_port;
@@ -89,6 +93,7 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 	return;
 }
 
+//*********************************************************************************************
 static void HC_SR05_thread_done(const struct timer_task *const timer_task)
 {
 	p_hw_sensor_port_t sensport = timer_task->user_data;

@@ -4,14 +4,15 @@
  * Created: 2/13/2019 7:54:51 PM
  *  Author: User
  */ 
- #include "rrrc_hal.h"
- #include "rrrc_i2c_protocol.h"
-  #include "rrrc_sensors.h"
- #include "rrrc_motors.h"
- #include <utils_assert.h>
+#include "rrrc_hal.h"
+#include "rrrc_i2c_protocol.h"
+#include "rrrc_sensors.h"
+#include "rrrc_motors.h"
+#include <utils_assert.h>
 
- static uint32_t request_port=0;
+static uint32_t request_port=0;
 
+//*********************************************************************************************
 uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
  {
 	 uint8_t ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
@@ -119,6 +120,7 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 	return ret_cmd;
 }
 
+//*********************************************************************************************
 uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 {
 	uint8_t size = 0;
@@ -205,8 +207,6 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 			respose->command = RRRC_I2C_CMD_STATUS_ERROR;
 			break;
 		}
-
-
 	}
 	respose->data_crc = calcCRC(respose->data, respose->data_length);
 	size = MIN_TRANSACTION_SIZE+respose->data_length;

@@ -19,14 +19,6 @@ p_motor_lib_entry_t motor_libs[] =
 	&motor_servo,
 };
 
-// 	struct list_element elem;       /*! List element. */
-// 	uint32_t            time_label; /*! Absolute timer start time. */
-// 
-// 	uint32_t             interval; /*! Number of timer ticks before calling the task. */
-// 	timer_task_cb_t           cb;       /*! Function pointer to the task. */
-// 	enum timer_task_mode mode;     /*! Task mode: one shot or repeat. */
-// 	void*	user_data;
-//{NULL},0,0,NULL,0,NULL
 hw_motor_port_t motor_ports[] =
 {
 	{
@@ -127,16 +119,19 @@ hw_motor_port_t motor_ports[] =
 	},
 };
 
+//*********************************************************************************************
 uint8_t MotorPortGetPortsAmount()
 {
 	return ARRAY_SIZE(motor_ports); //MOTOR_PORT_AMOUNT;
 }
 
+//*********************************************************************************************
 uint8_t	MotorPortGetTypesAmount()
 {
 	return ARRAY_SIZE(motor_libs);
 }
 
+//*********************************************************************************************
 char* MotorPortGetTypeName(uint32_t idx)
 {
 	if (idx<ARRAY_SIZE(motor_libs))
@@ -147,6 +142,7 @@ char* MotorPortGetTypeName(uint32_t idx)
 	return NULL;
 }
 
+//*********************************************************************************************
 uint8_t MotorPortGetTypeId(uint32_t idx)
 {
 	if (idx<ARRAY_SIZE(motor_libs))
@@ -157,6 +153,7 @@ uint8_t MotorPortGetTypeId(uint32_t idx)
 	return 0xFF;
 }
 
+//*********************************************************************************************
 uint32_t MotorPortGetTypes(uint8_t *data, uint32_t max_size)
 {
 	int motor_types = ARRAY_SIZE(motor_libs);
@@ -174,6 +171,7 @@ uint32_t MotorPortGetTypes(uint8_t *data, uint32_t max_size)
 	return size;
 }
 
+//*********************************************************************************************
 uint32_t MotorPortSetType(uint32_t port_idx, motor_type_t type)
 {
 	uint32_t result = ERR_INVALID_DATA;
@@ -194,6 +192,7 @@ uint32_t MotorPortSetType(uint32_t port_idx, motor_type_t type)
 	return result;
 }
 
+//*********************************************************************************************
 uint32_t MotorPortGetType(uint32_t port_idx)
 {
 	uint32_t result = 0;
@@ -204,6 +203,7 @@ uint32_t MotorPortGetType(uint32_t port_idx)
 	return result;
 }
 
+//*********************************************************************************************
 uint32_t MotorPortSetState(uint32_t port_idx, int8_t state)
 {
 	uint32_t result = 0;
@@ -214,6 +214,7 @@ uint32_t MotorPortSetState(uint32_t port_idx, int8_t state)
 	return result;
 }
 
+//*********************************************************************************************
 int8_t MotorPortGetState(uint32_t port_idx)
 {
 	int8_t result = 0;
@@ -224,6 +225,7 @@ int8_t MotorPortGetState(uint32_t port_idx)
 	return result;
 }
 
+//*********************************************************************************************
 uint32_t MotoPortSetSteps(uint32_t port_idx, uint32_t steps)
 {
 	uint32_t result = 0;
@@ -234,6 +236,7 @@ uint32_t MotoPortSetSteps(uint32_t port_idx, uint32_t steps)
 	return result;
 }
 
+//*********************************************************************************************
 uint32_t MotorPortGetCount(uint32_t port_idx, uint32_t* data)
 {
 	uint32_t result = 0;
@@ -243,11 +246,6 @@ uint32_t MotorPortGetCount(uint32_t port_idx, uint32_t* data)
 	}
 	return result;
 }
-
-
-
-
-
 
 //*********************************************************************************************
 static void MotorPort_thread_tick_cb(const struct timer_task *const timer_task)
@@ -286,14 +284,6 @@ static void MotorPort_enc1_cb(uint32_t data, void* port)
 	return;
 }
 
-
-static void MotorPinsInit(p_hw_motor_port_t port)
-{
-	//encoder pins
-	//dir pins
-	//leds pins
-}
-
 //*********************************************************************************************
 int32_t MotorPortInit(uint32_t port)
 {
@@ -315,6 +305,7 @@ int32_t MotorPortInit(uint32_t port)
 	return result;
 }
 
+//*********************************************************************************************
 int32_t MotorPortDeInit(uint32_t port)
 {
 	uint32_t result = ERR_NONE;

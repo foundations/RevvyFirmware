@@ -27,23 +27,23 @@ static led_ring_frame_t led_ring_userframes[LEDS_USER_MAX_FRAMES] = {0x00};
 
 static led_ring_frame_t* Led_ring_curr_buff = NULL;
 
-
 #define LED_RESET_SIZE 40 
 uint8_t frame_leds[LED_RESET_SIZE+(sizeof(led_val_t)*(STATUS_LEDS_AMOUNT+RING_LEDS_AMOUNT)*8)];
 
 static struct timer_task indication_thread;
-
+//*********************************************************************************************
 static void tx_complete_cb_SPI_0(struct _dma_resource *resource)
 {
 	return;
 }
 
+//*********************************************************************************************
+static void MakeLedBuffer()
+{
 #define LED_VAL_ZERO 0xC0
 #define LED_VAL_ONE 0x3C
 #define LED_VAL_RES 0x00
 
-static void MakeLedBuffer()
-{
 	uint32_t frame_idx = 0;
 	for (int32_t idx=0; idx<LED_RESET_SIZE; idx++)
 		frame_leds[frame_idx++] = LED_VAL_RES;
@@ -108,6 +108,7 @@ static void MakeLedBuffer()
 		frame_curr = 0;
 }
 
+//*********************************************************************************************
 static void indication_thread_tick_cb(const struct timer_task *const timer_task)
 {
 
@@ -121,6 +122,7 @@ static void indication_thread_tick_cb(const struct timer_task *const timer_task)
 	return;
 }
 
+//*********************************************************************************************
 int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame)
 {
 	if (frame_id<LEDS_USER_MAX_FRAMES && frame && led_ring_mode==RING_LED_USER)
@@ -133,6 +135,7 @@ int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame)
 	return ERR_INVALID_ARG;
 }
 
+//*********************************************************************************************
 int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
 {
 	int32_t status = ERR_NONE;
@@ -172,12 +175,13 @@ int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
 	return status;
 }
 
-
+//*********************************************************************************************
 uint32_t IndicationInit(){	
 	uint32_t result = ERR_NONE;
 	IndicationSetType(RING_LED_PREDEF_3);
 	result = RRRC_add_task(&indication_thread, &indication_thread_tick_cb, 1/*ms as fps*/, NULL, false);
 	return result;}
+//*********************************************************************************************
 uint32_t IndicationDeInit()
 {
 	uint32_t result = ERR_NONE;

@@ -76,13 +76,9 @@ extern struct timer_descriptor TIMER_TCC4;
 
 extern struct wdt_descriptor WDT_0;
 
-//extern struct spi_m_sync_descriptor SPI_0;
 extern struct spi_m_dma_descriptor  SPI_0;
 
-/**
- * \brief Perform system initialization, initialize pins and clocks for
- * peripherals
- */
+
 void system_init(void);
 
 #ifdef __cplusplus

@@ -44,8 +44,8 @@ hw_sensor_port_t sensor_ports[] =
 		.adc_chan_idx = 0,
 		.adc_gpio = S0ADC,
 
-		.gpio0_num = S0GPIO0, //
-		.gpio1_num = S0GPIO1, //
+		.gpio0_num = S0GPIO0, //as input and ext_int
+		.gpio1_num = S0GPIO1, //as output
 
 		.led0_gpio = S0LED0,
 		.led1_gpio = S0LED1,
@@ -67,8 +67,8 @@ hw_sensor_port_t sensor_ports[] =
 		.adc_chan_idx = 1,
 		.adc_gpio = S1ADC,
 
-		.gpio0_num = S1GPIO0, //
-		.gpio1_num = S1GPIO1, //
+		.gpio0_num = S1GPIO0, //as input and ext_int
+		.gpio1_num = S1GPIO1, //as output
 
 		.led0_gpio = S1LED0,
 		.led1_gpio = S1LED1,
@@ -127,16 +127,19 @@ hw_sensor_port_t sensor_ports[] =
 	},
 };
 
+//*********************************************************************************************
 uint8_t SensorPortGetPortsAmount()
 {
 	return ARRAY_SIZE(sensor_ports);//SENSOR_PORT_AMOUNT;
 }
 
+//*********************************************************************************************
 uint8_t	SensorPortGetTypesAmount()
 {
 	return ARRAY_SIZE(sensor_libs);
 }
 
+//*********************************************************************************************
 char* SensorPortGetTypeName(uint32_t idx)
 {
 	if (idx<ARRAY_SIZE(sensor_libs))
@@ -147,6 +150,7 @@ char* SensorPortGetTypeName(uint32_t idx)
 	return NULL;
 }
 
+//*********************************************************************************************
 uint8_t SensorPortGetTypeId(uint32_t idx)
 {
 	if (idx<ARRAY_SIZE(sensor_libs))
@@ -157,6 +161,7 @@ uint8_t SensorPortGetTypeId(uint32_t idx)
 	return 0xFF;
 }
 
+//*********************************************************************************************
 uint32_t SensorPortGetTypes(uint8_t *data, uint32_t max_size)
 {
 	int sensor_types = ARRAY_SIZE(sensor_libs);
@@ -174,6 +179,7 @@ uint32_t SensorPortGetTypes(uint8_t *data, uint32_t max_size)
 	return size;
 }
 
+//*********************************************************************************************
 int32_t SensorPortSetType(uint32_t port_idx, sensor_type_t sens_type)
 {
 	uint32_t result = ERR_INVALID_DATA;
@@ -191,6 +197,7 @@ int32_t SensorPortSetType(uint32_t port_idx, sensor_type_t sens_type)
 	return result;
 }
 
+//*********************************************************************************************
 int32_t SensorPortGetType(uint32_t port_idx)
 {
 	uint32_t result = 0;
@@ -265,6 +272,7 @@ static void SensorPort_gpio1_ext_cb(const void* port)
 	return;
 }
 
+//*********************************************************************************************
 uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size)
 {
 	p_hw_sensor_port_t sensport = port;
@@ -276,6 +284,8 @@ uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size)
 
 	return;
 }
+
+//*********************************************************************************************
 uint32_t SensorPortReadUserData(uint32_t port, uint32_t* data, uint32_t size)
 {
 	p_hw_sensor_port_t sensport = port;
@@ -316,6 +326,8 @@ int32_t SensorPortInit(uint32_t port)
 
 	return result;
 }
+
+//*********************************************************************************************
 int32_t SensorPortDeInit(uint32_t port)
 {
 	uint32_t result = ERR_NONE;

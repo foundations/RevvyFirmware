@@ -27,6 +27,7 @@ static void SensorPort_timer_start(const void* port)
 	return;
 }
 
+//*********************************************************************************************
 static void SensorPort_timer_stop(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -35,6 +36,7 @@ static void SensorPort_timer_stop(const p_hw_sensor_port_t sensport)
 	return;
 }
 
+//*********************************************************************************************
 static uint32_t SensorPort_timer_get_counter(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -44,6 +46,7 @@ static uint32_t SensorPort_timer_get_counter(const p_hw_sensor_port_t sensport)
 	return val;
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio0_set_as_gpio(const p_hw_sensor_port_t sensport, enum gpio_direction dir, enum gpio_pull_mode pull_mode)
 {
 	if (sensport == NULL)
@@ -54,6 +57,7 @@ static int32_t SensorPort_gpio0_set_as_gpio(const p_hw_sensor_port_t sensport, e
 	return 0;
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio0_set_as_extint(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -64,6 +68,7 @@ static int32_t SensorPort_gpio0_set_as_extint(const p_hw_sensor_port_t sensport)
 	return 0;
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio0_get_state(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -71,6 +76,7 @@ static int32_t SensorPort_gpio0_get_state(const p_hw_sensor_port_t sensport)
 	return gpio_get_pin_level(sensport->gpio0_num);
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio0_set_state(const p_hw_sensor_port_t sensport, enum gpio_direction data)
 {
 	if (sensport == NULL)
@@ -79,6 +85,7 @@ static int32_t SensorPort_gpio0_set_state(const p_hw_sensor_port_t sensport, enu
 	return gpio_get_pin_level(sensport->gpio0_num);
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio0_toggle_state(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -87,6 +94,7 @@ static int32_t SensorPort_gpio0_toggle_state(const p_hw_sensor_port_t sensport)
 	return gpio_get_pin_level(sensport->gpio0_num);
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio1_set_as_gpio(const p_hw_sensor_port_t sensport, enum gpio_direction dir, enum gpio_pull_mode pull_mode)
 {
 	if (sensport == NULL)
@@ -97,6 +105,7 @@ static int32_t SensorPort_gpio1_set_as_gpio(const p_hw_sensor_port_t sensport, e
 	return 0;
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio1_set_as_extint(const p_hw_sensor_port_t sensport, enum gpio_direction dir)
 {
 	if (sensport == NULL)
@@ -107,6 +116,7 @@ static int32_t SensorPort_gpio1_set_as_extint(const p_hw_sensor_port_t sensport,
 	return 0;		
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio1_get_state(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -114,6 +124,7 @@ static int32_t SensorPort_gpio1_get_state(const p_hw_sensor_port_t sensport)
 	return gpio_get_pin_level(sensport->gpio1_num);
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio1_set_state(const p_hw_sensor_port_t sensport, int32_t data)
 {
 	if (sensport == NULL)
@@ -122,6 +133,7 @@ static int32_t SensorPort_gpio1_set_state(const p_hw_sensor_port_t sensport, int
 	return gpio_get_pin_level(sensport->gpio1_num);
 }
 
+//*********************************************************************************************
 static int32_t SensorPort_gpio1_toggle_state(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -130,6 +142,7 @@ static int32_t SensorPort_gpio1_toggle_state(const p_hw_sensor_port_t sensport)
 	return gpio_get_pin_level(sensport->gpio1_num);
 }
 
+//*********************************************************************************************
 static void SensorPort_led0_on(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -137,6 +150,7 @@ static void SensorPort_led0_on(const p_hw_sensor_port_t sensport)
 	gpio_set_pin_level(sensport->led0_gpio, 1);
 }
 
+//*********************************************************************************************
 static void SensorPort_led0_off(const p_hw_sensor_port_t sensport)
 {
 
@@ -145,6 +159,7 @@ static void SensorPort_led0_off(const p_hw_sensor_port_t sensport)
 	gpio_set_pin_level(sensport->led0_gpio, 0);
 }
 
+//*********************************************************************************************
 static void SensorPort_led0_toggle(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -152,6 +167,7 @@ static void SensorPort_led0_toggle(const p_hw_sensor_port_t sensport)
 	gpio_toggle_pin_level(sensport->led0_gpio);
 }
 
+//*********************************************************************************************
 static void SensorPort_led1_on(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -159,6 +175,7 @@ static void SensorPort_led1_on(const p_hw_sensor_port_t sensport)
 	gpio_set_pin_level(sensport->led1_gpio, 1);
 }
 
+//*********************************************************************************************
 static void SensorPort_led1_off(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -166,6 +183,7 @@ static void SensorPort_led1_off(const p_hw_sensor_port_t sensport)
 	gpio_set_pin_level(sensport->led1_gpio, 0);
 }
 
+//*********************************************************************************************
 static void SensorPort_led1_toggle(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)
@@ -173,6 +191,7 @@ static void SensorPort_led1_toggle(const p_hw_sensor_port_t sensport)
 	gpio_toggle_pin_level(sensport->led1_gpio);
 }
 
+//*********************************************************************************************
 static void SensorPort_set_vccio(const p_hw_sensor_port_t sensport, sensor_type_t val){
 	if (sensport == NULL)
 		return;

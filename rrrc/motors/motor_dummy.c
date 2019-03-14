@@ -5,25 +5,29 @@
  *  Author: User
  */ 
 
- #include "motor_dummy.h"
+#include "motor_dummy.h"
 
- int32_t MOTOR_DUMMY_Init(void* hw_port)
- {
+//*********************************************************************************************
+int32_t MOTOR_DUMMY_Init(void* hw_port)
+{
 	int32_t result = ERR_NONE;
 	return result;
- }
+}
 
- void MOTOR_DUMMY_Thread(void* hw_port)
- {
+//*********************************************************************************************
+void MOTOR_DUMMY_Thread(void* hw_port)
+{
 
- }
+}
 
- void MOTOR_DUMMY_enc0_callback(void* hw_port, uint32_t data)
- {
+//*********************************************************************************************
+void MOTOR_DUMMY_enc0_callback(void* hw_port, uint32_t data)
+{
 
- }
+}
 
- void MOTOR_DUMMY_enc1_callback(void* hw_port, uint32_t data)
- {
+//*********************************************************************************************
+void MOTOR_DUMMY_enc1_callback(void* hw_port, uint32_t data)
+{
 
- }
+}

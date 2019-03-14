@@ -10,8 +10,6 @@
 
 #include <hal_gpio.h>
 
-// SAMD51 has 14 pin functions
-
 #define GPIO_PIN_FUNCTION_A 0
 #define GPIO_PIN_FUNCTION_B 1
 #define GPIO_PIN_FUNCTION_C 2

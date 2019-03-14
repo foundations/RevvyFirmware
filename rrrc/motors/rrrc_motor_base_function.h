@@ -16,6 +16,7 @@
 #include "hal_gpio.h"
 #include "hal_timer.h"
 
+//*********************************************************************************************
 static void MotorPort_set_duty_cicle(p_hw_motor_port_t motport, uint32_t duty)
 {
 	if (motport == NULL)
@@ -25,6 +26,7 @@ static void MotorPort_set_duty_cicle(p_hw_motor_port_t motport, uint32_t duty)
 	timer_start(motport->pwm);
 }
 
+//*********************************************************************************************
 static void MotorPort_dir_stop(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -34,6 +36,7 @@ static void MotorPort_dir_stop(p_hw_motor_port_t motport)
 	gpio_set_pin_level(motport->dir1_gpio, false);
 }
 
+//*********************************************************************************************
 static void MotorPort_dir_forward(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -42,6 +45,7 @@ static void MotorPort_dir_forward(p_hw_motor_port_t motport)
 	gpio_set_pin_level(motport->dir0_gpio, true);
 }
 
+//*********************************************************************************************
 static void MotorPort_dir_backward(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -50,6 +54,7 @@ static void MotorPort_dir_backward(p_hw_motor_port_t motport)
 	gpio_set_pin_level(motport->dir1_gpio, true);
 }
 
+//*********************************************************************************************
 static void MotorPort_led0_on(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -57,6 +62,7 @@ static void MotorPort_led0_on(p_hw_motor_port_t motport)
 	gpio_set_pin_level(motport->led0_gpio, 1);
 }
 
+//*********************************************************************************************
 static void MotorPort_led0_off(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -64,6 +70,7 @@ static void MotorPort_led0_off(p_hw_motor_port_t motport)
 	gpio_set_pin_level(motport->led0_gpio, 0);
 }
 
+//*********************************************************************************************
 static void MotorPort_led0_toggle(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -71,6 +78,7 @@ static void MotorPort_led0_toggle(p_hw_motor_port_t motport)
 	gpio_toggle_pin_level(motport->led0_gpio);
 }
 
+//*********************************************************************************************
 static void MotorPort_led1_on(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -78,6 +86,7 @@ static void MotorPort_led1_on(p_hw_motor_port_t motport)
 	gpio_set_pin_level(motport->led1_gpio, 1);
 }
 
+//*********************************************************************************************
 static void MotorPort_led1_off(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -85,6 +94,7 @@ static void MotorPort_led1_off(p_hw_motor_port_t motport)
 	gpio_set_pin_level(motport->led1_gpio, 0);
 }
 
+//*********************************************************************************************
 static void MotorPort_led1_toggle(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -92,6 +102,7 @@ static void MotorPort_led1_toggle(p_hw_motor_port_t motport)
 	gpio_toggle_pin_level(motport->led1_gpio);
 }
 
+//*********************************************************************************************
 static int32_t MotorPort_gpio0_get_state(const p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -99,6 +110,7 @@ static int32_t MotorPort_gpio0_get_state(const p_hw_motor_port_t motport)
 	return gpio_get_pin_level(motport->enc0_gpio);
 }
 
+//*********************************************************************************************
 static int32_t MotorPort_gpio1_get_state(const p_hw_motor_port_t motport)
 {
 	if (motport == NULL)

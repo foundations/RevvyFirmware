@@ -77,85 +77,28 @@ struct spi_m_dma_descriptor  SPI_0;
 struct wdt_descriptor WDT_0;
 
 
-
 void ADC_0_init(void)
 {
 	hri_mclk_set_APBDMASK_ADC0_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, ADC0_GCLK_ID, CONF_GCLK_ADC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
 	adc_async_init(&ADC_0, ADC0, ADC_0_map, ADC_0_CH_MAX, ADC_0_CH_AMOUNT, &ADC_0_ch[0], (void *)NULL);
 	adc_async_register_channel_buffer(&ADC_0, 0, ADC_0_buffer, ADC_0_BUFFER_SIZE);
-
-	// #define S0ADC PA02
-	// #define S1ADC PB01
-	// #define S2ADC PB00
-	// #define S3ADC PA03
-	// Disable digital pin circuitry
-// 	gpio_set_pin_direction(PA02, GPIO_DIRECTION_OFF);
-// 	gpio_set_pin_function(PA02, PINMUX_PA02B_ADC0_AIN0);
-// 
-// 	// Disable digital pin circuitry
-// 	gpio_set_pin_direction(PA03, GPIO_DIRECTION_OFF);
-// 	gpio_set_pin_function(PA03, PINMUX_PA03B_ADC0_AIN1);
-// 
-// 	// Disable digital pin circuitry
-// 	gpio_set_pin_direction(PB00, GPIO_DIRECTION_OFF);
-// 	gpio_set_pin_function(PB00, PINMUX_PB00B_ADC0_AIN12);
-// 
-// 	// Disable digital pin circuitry
-// 	gpio_set_pin_direction(PB01, GPIO_DIRECTION_OFF);
-// 	gpio_set_pin_function(PB01, PINMUX_PB01B_ADC0_AIN13);
 }
-
 
 void ADC_1_init(void)
 {
 	hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	//ADC_1_PORT_init();
-	//adc_sync_init(&ADC_1, ADC1, (void *)NULL);
+
 	adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, ADC_1_ch, (void *)NULL);
 	adc_async_register_channel_buffer(&ADC_1, 0, ADC_1_buffer, ADC_1_BUFFER_SIZE);
-
-	// Disable digital pin circuitry
-	gpio_set_pin_direction(PC02, GPIO_DIRECTION_OFF);
-
-	gpio_set_pin_function(PC02, PINMUX_PC02B_ADC1_AIN4);
-
-	// Disable digital pin circuitry
-	gpio_set_pin_direction(PC00, GPIO_DIRECTION_OFF);
-
-	gpio_set_pin_function(PC00, PINMUX_PC00B_ADC1_AIN10);
-
-	// Disable digital pin circuitry
-	gpio_set_pin_direction(PC01, GPIO_DIRECTION_OFF);
-
-	gpio_set_pin_function(PC01, PINMUX_PC01B_ADC1_AIN11);
 }
 
 void EXTERNAL_IRQ_0_init(void)
 {
 	hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, CONF_GCLK_EIC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
-
-// 	// Set pin direction to input
-// 	gpio_set_pin_direction(PB10, GPIO_DIRECTION_IN);
-// 	gpio_set_pin_pull_mode(PB10, GPIO_PULL_OFF);
-// 	gpio_set_pin_function(PB10, PINMUX_PB10A_EIC_EXTINT10);
-// 
-// 	// Set pin direction to input
-// 	gpio_set_pin_direction(PB11, GPIO_DIRECTION_IN);
-// 	gpio_set_pin_pull_mode(PB11, GPIO_PULL_OFF);
-// 	gpio_set_pin_function(PB11, PINMUX_PB11A_EIC_EXTINT11);
-// 
-// 	// Set pin direction to input
-// 	gpio_set_pin_direction(PB12, GPIO_DIRECTION_IN);
-// 	gpio_set_pin_pull_mode(PB12, GPIO_PULL_OFF);
-// 	gpio_set_pin_function(PB12, PINMUX_PB12A_EIC_EXTINT12);
-// 
-// 	// Set pin direction to input
-// 	gpio_set_pin_direction(PB13, GPIO_DIRECTION_IN);
-// 	gpio_set_pin_pull_mode(PB13, GPIO_PULL_OFF);
-// 	gpio_set_pin_function(PB13, PINMUX_PB13A_EIC_EXTINT13);
 
 	ext_irq_init();
 }
@@ -240,10 +183,8 @@ void SPI_0_Init(void)
 {
 	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_CORE, CONF_GCLK_SERCOM4_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_SLOW, CONF_GCLK_SERCOM4_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
 	hri_mclk_set_APBDMASK_SERCOM4_bit(MCLK);
 
-	//spi_m_sync_init(&LEDSPI_sync, SERCOM4);
 	spi_m_dma_init(&SPI_0, SERCOM4);
 
 	gpio_set_pin_level(WS2812pin,false);
@@ -360,140 +301,6 @@ static void TIMER_TCC4_init(void)
 	timer_init(&TIMER_TCC4, TCC4, _tcc_get_timer());
 }
 
-// void USB_0_PORT_init(void)
-// {
-// 
-// 	gpio_set_pin_direction(PA24,
-// 	                       // <y> Pin direction
-// 	                       // <id> pad_direction
-// 	                       // <GPIO_DIRECTION_OFF"> Off
-// 	                       // <GPIO_DIRECTION_IN"> In
-// 	                       // <GPIO_DIRECTION_OUT"> Out
-// 	                       GPIO_DIRECTION_OUT);
-// 
-// 	gpio_set_pin_level(PA24,
-// 	                   // <y> Initial level
-// 	                   // <id> pad_initial_level
-// 	                   // <false"> Low
-// 	                   // <true"> High
-// 	                   false);
-// 
-// 	gpio_set_pin_pull_mode(PA24,
-// 	                       // <y> Pull configuration
-// 	                       // <id> pad_pull_config
-// 	                       // <GPIO_PULL_OFF"> Off
-// 	                       // <GPIO_PULL_UP"> Pull-up
-// 	                       // <GPIO_PULL_DOWN"> Pull-down
-// 	                       GPIO_PULL_OFF);
-// 
-// 	gpio_set_pin_function(PA24,
-// 	                      // <y> Pin function
-// 	                      // <id> pad_function
-// 	                      // <i> Auto : use driver pinmux if signal is imported by driver, else turn off function
-// 	                      // <PINMUX_PA24H_USB_DM"> Auto
-// 	                      // <GPIO_PIN_FUNCTION_OFF"> Off
-// 	                      // <GPIO_PIN_FUNCTION_A"> A
-// 	                      // <GPIO_PIN_FUNCTION_B"> B
-// 	                      // <GPIO_PIN_FUNCTION_C"> C
-// 	                      // <GPIO_PIN_FUNCTION_D"> D
-// 	                      // <GPIO_PIN_FUNCTION_E"> E
-// 	                      // <GPIO_PIN_FUNCTION_F"> F
-// 	                      // <GPIO_PIN_FUNCTION_G"> G
-// 	                      // <GPIO_PIN_FUNCTION_H"> H
-// 	                      // <GPIO_PIN_FUNCTION_I"> I
-// 	                      // <GPIO_PIN_FUNCTION_J"> J
-// 	                      // <GPIO_PIN_FUNCTION_K"> K
-// 	                      // <GPIO_PIN_FUNCTION_L"> L
-// 	                      // <GPIO_PIN_FUNCTION_M"> M
-// 	                      // <GPIO_PIN_FUNCTION_N"> N
-// 	                      PINMUX_PA24H_USB_DM);
-// 
-// 	gpio_set_pin_direction(PA25,
-// 	                       // <y> Pin direction
-// 	                       // <id> pad_direction
-// 	                       // <GPIO_DIRECTION_OFF"> Off
-// 	                       // <GPIO_DIRECTION_IN"> In
-// 	                       // <GPIO_DIRECTION_OUT"> Out
-// 	                       GPIO_DIRECTION_OUT);
-// 
-// 	gpio_set_pin_level(PA25,
-// 	                   // <y> Initial level
-// 	                   // <id> pad_initial_level
-// 	                   // <false"> Low
-// 	                   // <true"> High
-// 	                   false);
-// 
-// 	gpio_set_pin_pull_mode(PA25,
-// 	                       // <y> Pull configuration
-// 	                       // <id> pad_pull_config
-// 	                       // <GPIO_PULL_OFF"> Off
-// 	                       // <GPIO_PULL_UP"> Pull-up
-// 	                       // <GPIO_PULL_DOWN"> Pull-down
-// 	                       GPIO_PULL_OFF);
-// 
-// 	gpio_set_pin_function(PA25,
-// 	                      // <y> Pin function
-// 	                      // <id> pad_function
-// 	                      // <i> Auto : use driver pinmux if signal is imported by driver, else turn off function
-// 	                      // <PINMUX_PA25H_USB_DP"> Auto
-// 	                      // <GPIO_PIN_FUNCTION_OFF"> Off
-// 	                      // <GPIO_PIN_FUNCTION_A"> A
-// 	                      // <GPIO_PIN_FUNCTION_B"> B
-// 	                      // <GPIO_PIN_FUNCTION_C"> C
-// 	                      // <GPIO_PIN_FUNCTION_D"> D
-// 	                      // <GPIO_PIN_FUNCTION_E"> E
-// 	                      // <GPIO_PIN_FUNCTION_F"> F
-// 	                      // <GPIO_PIN_FUNCTION_G"> G
-// 	                      // <GPIO_PIN_FUNCTION_H"> H
-// 	                      // <GPIO_PIN_FUNCTION_I"> I
-// 	                      // <GPIO_PIN_FUNCTION_J"> J
-// 	                      // <GPIO_PIN_FUNCTION_K"> K
-// 	                      // <GPIO_PIN_FUNCTION_L"> L
-// 	                      // <GPIO_PIN_FUNCTION_M"> M
-// 	                      // <GPIO_PIN_FUNCTION_N"> N
-// 	                      PINMUX_PA25H_USB_DP);
-// }
-// 
-// /* The USB module requires a GCLK_USB of 48 MHz ~ 0.25% clock
-//  * for low speed and full speed operation. */
-// #if (CONF_GCLK_USB_FREQUENCY > (48000000 + 48000000 / 400)) || (CONF_GCLK_USB_FREQUENCY < (48000000 - 48000000 / 400))
-// #warning USB clock should be 48MHz ~ 0.25% clock, check your configuration!
-// #endif
-// 
-// void USB_0_CLOCK_init(void)
-// {
-// 
-// 	hri_gclk_write_PCHCTRL_reg(GCLK, USB_GCLK_ID, CONF_GCLK_USB_SRC | GCLK_PCHCTRL_CHEN);
-// 	hri_mclk_set_AHBMASK_USB_bit(MCLK);
-// 	hri_mclk_set_APBBMASK_USB_bit(MCLK);
-// }
-// 
-// void USB_0_init(void)
-// {
-// 	USB_0_CLOCK_init();
-// 	usb_d_init();
-// 	USB_0_PORT_init();
-// }
-
-void EVENT_SYSTEM_0_init(void)
-{
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_0, CONF_GCLK_EVSYS_CHANNEL_0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_1, CONF_GCLK_EVSYS_CHANNEL_1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_2, CONF_GCLK_EVSYS_CHANNEL_2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_3, CONF_GCLK_EVSYS_CHANNEL_3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_4, CONF_GCLK_EVSYS_CHANNEL_4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_5, CONF_GCLK_EVSYS_CHANNEL_5_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_6, CONF_GCLK_EVSYS_CHANNEL_6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_7, CONF_GCLK_EVSYS_CHANNEL_7_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_8, CONF_GCLK_EVSYS_CHANNEL_8_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_9, CONF_GCLK_EVSYS_CHANNEL_9_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_10, CONF_GCLK_EVSYS_CHANNEL_10_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_11, CONF_GCLK_EVSYS_CHANNEL_11_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-	hri_mclk_set_APBBMASK_EVSYS_bit(MCLK);
-
-	event_system_init();
-}
 
 void WDT_0_CLOCK_init(void)
 {
@@ -545,10 +352,5 @@ void system_init(void)
 // 	TIMER_TCC1_init();
 // 	TIMER_TCC2_init();
 
-
-	//USB_0_init();
-
 	//WDT_0_init();
-
-	//EVENT_SYSTEM_0_init();
 }
