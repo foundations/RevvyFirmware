@@ -366,7 +366,7 @@ static void MotorsPinsInit()
 }
 
 //*********************************************************************************************
-void SYS_MONITOR_init(void)
+void SystemMonitorPinsInit(void)
 {
 	gpio_set_pin_direction(BAT_TS, GPIO_DIRECTION_IN);
 	gpio_set_pin_function(BAT_TS, GPIO_PIN_FUNCTION_OFF);
@@ -391,8 +391,7 @@ int RRRC_Init(void)
 {
 	MotorsPinsInit();
 	SensorsPinsInit();
-	SYS_MONITOR_init();
-	//IndicationInit();
+	SystemMonitorPinsInit();
 
     adc_async_enable_channel(&ADC_0, 0);
     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);

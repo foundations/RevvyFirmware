@@ -13,7 +13,7 @@ int32_t BUTTON_Init(void* hw_port)
 		memset(sensport->lib_data, 0, SENSOR_PORT_LIBDATA);
 
 	p_button_data_t sens_data = sensport->lib_data;
-	sens_data->state = SensorPort_gpio0_get_state(sensport);
+	sens_data->state = SensorPort_gpio0_get_state(sensport)?0:1;
 	return result;
 }
 
@@ -44,7 +44,7 @@ void BUTTON_gpio0_callback(void* hw_port, uint32_t data)
 	if (sensport)
 	{
 		p_button_data_t sens_data = sensport->lib_data;
-		sens_data->state = data;
+		sens_data->state = data?0:1;
 	}
 
 	return;

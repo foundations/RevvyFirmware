@@ -176,9 +176,10 @@ int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
 }
 
 //*********************************************************************************************
-uint32_t IndicationInit(){	
+uint32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
 	IndicationSetType(RING_LED_PREDEF_3);
+
 	result = RRRC_add_task(&indication_thread, &indication_thread_tick_cb, 1/*ms as fps*/, NULL, false);
 	return result;}
 //*********************************************************************************************

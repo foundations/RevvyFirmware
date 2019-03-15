@@ -98,7 +98,7 @@ void DC_enc0_callback(void* hw_port, uint32_t data)
 	if (motport)
 	{
 		p_dc_data_t mot_data = motport->lib_data;
-		mot_data->counter_forward = ++;
+		mot_data->counter_forward++;
 	}
 }
 
@@ -109,6 +109,6 @@ void DC_enc1_callback(void* hw_port, uint32_t data)
 	if (motport)
 	{
 		p_dc_data_t mot_data = motport->lib_data;
-		mot_data->counter_backward = ++;
+		mot_data->counter_backward++;
 	}
 }
