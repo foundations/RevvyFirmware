@@ -57,24 +57,24 @@ void DebugMon_Handler        ( void )
 	while (1) {
 	}
 }
-void PendSV_Handler          ( void )
-{
-	while (1) {
-	}
-}
-void SysTick_Handler         ( void )
-{
-	while (1) {
-	}
-}
-/* Peripherals handlers */
-void PM_Handler              ( void )
-{
-	while (1) {
-	}
-}
-void MCLK_Handler            ( void )
-{
-	while (1) {
-	}
-}
+// void PendSV_Handler          ( void )
+// {
+// 	while (1) {
+// 	}
+// }
+// void SysTick_Handler         ( void )
+// {
+// 	while (1) {
+// 	}
+// }
+// /* Peripherals handlers */
+// void PM_Handler              ( void )
+// {
+// 	while (1) {
+// 	}
+// }
+// void MCLK_Handler            ( void )
+// {
+// 	while (1) {
+// 	}
+// }
