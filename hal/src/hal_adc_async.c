@@ -212,7 +212,14 @@ int32_t adc_async_read_channel(struct adc_async_descriptor *const descr, const u
 int32_t adc_async_start_conversion(struct adc_async_descriptor *const descr)
 {
 	ASSERT(descr);
-	_adc_async_convert(&descr->device);
+	_adc_async_convert_start(&descr->device);
+	return ERR_NONE;
+}
+
+int32_t adc_async_stop_conversion(struct adc_async_descriptor *const descr)
+{
+	ASSERT(descr);
+	_adc_async_convert_stop(&descr->device);
 	return ERR_NONE;
 }
 

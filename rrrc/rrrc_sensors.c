@@ -34,7 +34,7 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 0,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.sensor_task = {0},
+		.xSensorPortTask = NULL,
 
 		.I2C = &I2C_1,
 		.i2c_sda = S0I2Csda,
@@ -57,7 +57,7 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 1,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.sensor_task = {0},
+		.xSensorPortTask = NULL,
 
 		.I2C = &I2C_2,
 		.i2c_sda = S1I2Csda,
@@ -81,7 +81,7 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 2,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.sensor_task = {0},
+		.xSensorPortTask = NULL,
 
 		.I2C = &I2C_3,
 		.i2c_sda = S2I2Csda,
@@ -105,7 +105,7 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 3,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.sensor_task = {0},
+		.xSensorPortTask = NULL,
 			
 		.I2C = &I2C_4,
 		.i2c_sda = S3I2Csda,
@@ -220,14 +220,17 @@ uint32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
 }
 
 //*********************************************************************************************
-static void SensorPort_thread_tick_cb(const struct timer_task *const timer_task)
+static void SensorPort_xTask(const void* user_data)
 {
-	p_hw_sensor_port_t sensport = timer_task->user_data;
+	p_hw_sensor_port_t sensport = user_data;
 	if (sensport == NULL)
 		return;
-	
-	if (sensport->sensor_lib && sensport->sensor_lib->sensor_thread)
-		sensport->sensor_lib->sensor_thread(sensport);
+	for(;;)
+	{
+		if (sensport->sensor_lib && sensport->sensor_lib->sensor_thread)
+			sensport->sensor_lib->sensor_thread(sensport);
+		os_sleep(200);
+	}
 }
 
 //*********************************************************************************************
@@ -299,46 +302,50 @@ uint32_t SensorPortReadUserData(uint32_t port, uint32_t* data, uint32_t size)
 }
 
 //*********************************************************************************************
-int32_t SensorPortInit(uint32_t port)
+int32_t SensorPortInit(uint32_t port_idx)
 {
 	uint32_t result = ERR_NONE;
-	if (port>=SENSOR_PORT_AMOUNT)
-		return -1;
+	if (port_idx>=SENSOR_PORT_AMOUNT)
+		return ERR_INVALID_DATA;
 
-	result = RRRC_add_task(&sensor_ports[port].sensor_task, &SensorPort_thread_tick_cb, 1000/*ms*/, &sensor_ports[port], false);
-	if (result)
-		return result;
-	
+	result = SensorPortSetType(port_idx, SENSOR_NOT_SET);
+
+	RRRC_channel_adc_register_cb(sensor_ports[port_idx].index, SensorPort_adc_cb, &sensor_ports[port_idx]);
+
+	if (sensor_ports[port_idx].gpio0_num >= 0)
+		ext_irq_register(sensor_ports[port_idx].gpio0_num, SensorPort_gpio0_ext_cb, &sensor_ports[port_idx]);
+	if (sensor_ports[port_idx].gpio1_num >= 0)
+		ext_irq_register(sensor_ports[port_idx].gpio1_num, SensorPort_gpio1_ext_cb, &sensor_ports[port_idx]);
+
 	//*****************************
 	//I2C_init(sensor_ports[port].I2C)
 	//I2C already init in Sync mode
 	//But in future will be Async mode
 	//*****************************
-	
-	RRRC_channel_adc_register_cb(sensor_ports[port].index, SensorPort_adc_cb, &sensor_ports[port]);
 
-	if (sensor_ports[port].gpio0_num >= 0)
-		ext_irq_register(sensor_ports[port].gpio0_num, SensorPort_gpio0_ext_cb, &sensor_ports[port]);
-	if (sensor_ports[port].gpio1_num >= 0)
-		ext_irq_register(sensor_ports[port].gpio1_num, SensorPort_gpio1_ext_cb, &sensor_ports[port]);
-
-	result = SensorPortSetType(port, SENSOR_NOT_SET);
+	char task_name[configMAX_TASK_NAME_LEN+1];
+	snprintf(task_name, configMAX_TASK_NAME_LEN, "sensorport%01d", port_idx);
+	if (xTaskCreate(SensorPort_xTask, task_name, 256 / sizeof(portSTACK_TYPE), &sensor_ports[port_idx], tskIDLE_PRIORITY+1, &sensor_ports[port_idx].xSensorPortTask) != pdPASS) 
+		return ERR_FAILURE;
 
 	return result;
 }
 
 //*********************************************************************************************
-int32_t SensorPortDeInit(uint32_t port)
+int32_t SensorPortDeInit(uint32_t port_idx)
 {
 	uint32_t result = ERR_NONE;
-	result = RRRC_remove_task(&sensor_ports[port].sensor_task);
 
-	RRRC_channel_adc_unregister_cb(sensor_ports[port].index);
+	SensorPortSetType(port_idx, SENSOR_NOT_SET);
 
-	if (sensor_ports[port].gpio0_num >= 0)
-		ext_irq_disable(sensor_ports[port].gpio0_num);
-	if (sensor_ports[port].gpio1_num >= 0)
-		ext_irq_disable(sensor_ports[port].gpio1_num);
+	vTaskDelete(sensor_ports[port_idx].xSensorPortTask);
+
+	RRRC_channel_adc_unregister_cb(sensor_ports[port_idx].index);
+
+	if (sensor_ports[port_idx].gpio0_num >= 0)
+		ext_irq_disable(sensor_ports[port_idx].gpio0_num);
+	if (sensor_ports[port_idx].gpio1_num >= 0)
+		ext_irq_disable(sensor_ports[port_idx].gpio1_num);
 
 	return result;
 }

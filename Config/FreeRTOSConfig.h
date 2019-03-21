@@ -97,13 +97,13 @@ void assert_triggered(const char *file, uint32_t line);
 // <q> Use maclloc failed hook
 // <id> freertos_use_malloc_failed_hook
 #ifndef configUSE_MALLOC_FAILED_HOOK
-#define configUSE_MALLOC_FAILED_HOOK 1
+#define configUSE_MALLOC_FAILED_HOOK 0
 #endif
 
 // <q> Use idle hook
 // <id> freertos_use_idle_hook
 #ifndef configUSE_IDLE_HOOK
-#define configUSE_IDLE_HOOK 1
+#define configUSE_IDLE_HOOK 0
 #endif
 
 // <q> Use tick hook
@@ -116,7 +116,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <q> Use tickless idle
 // <id> freertos_use_tickless_idle
 #ifndef configUSE_TICKLESS_IDLE
-#define configUSE_TICKLESS_IDLE 1
+#define configUSE_TICKLESS_IDLE 0
 #endif
 
 // <q> Use trace facility
@@ -135,20 +135,20 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> default is not supposed for Cortex-M0
 // <id> freertos_use_port_optimised_functions
 #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
+#define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 #endif
 
 // <q> Use application task tag functions
 // <id> freertos_use_application_task_tag_functions
 #ifndef configUSE_APPLICATION_TASK_TAG
-#define configUSE_APPLICATION_TASK_TAG 1
+#define configUSE_APPLICATION_TASK_TAG 0
 #endif
 
 // <q> Use co-routines
 // <id> freertos_use_co_routines
 /* Co-routine definitions. */
 #ifndef configUSE_CO_ROUTINES
-#define configUSE_CO_ROUTINES 1
+#define configUSE_CO_ROUTINES 0
 #endif
 
 // <o> Co-routine max priority <1-2>
@@ -190,7 +190,7 @@ void assert_triggered(const char *file, uint32_t line);
 
 #define configPRIO_BITS 3
 
-#define configMAX_TASK_NAME_LEN (8)
+#define configMAX_TASK_NAME_LEN (15)
 #define configIDLE_SHOULD_YIELD 1
 #define configQUEUE_REGISTRY_SIZE 0
 #define configUSE_QUEUE_SETS 1
@@ -202,13 +202,13 @@ to exclude the API function. */
 // <q> Include function to set task priority
 // <id> freertos_vtaskpriorityset
 #ifndef INCLUDE_vTaskPrioritySet
-#define INCLUDE_vTaskPrioritySet 1
+#define INCLUDE_vTaskPrioritySet 0
 #endif
 
 // <q> Include function to get task priority
 // <id> freertos_uxtaskpriorityget
 #ifndef INCLUDE_uxTaskPriorityGet
-#define INCLUDE_uxTaskPriorityGet 1
+#define INCLUDE_uxTaskPriorityGet 0
 #endif
 
 // <q> Include function to delete task
@@ -226,7 +226,7 @@ to exclude the API function. */
 // <q> Include function to resume task from ISR
 // <id> freertos_xresumefromisr
 #ifndef INCLUDE_xResumeFromISR
-#define INCLUDE_xResumeFromISR 1
+#define INCLUDE_xResumeFromISR 0
 #endif
 
 // <q> Include task delay utilities
@@ -246,7 +246,7 @@ to exclude the API function. */
 // <q> Include the function to get current task handler
 // <id> freertos_xtaskgetcurrenttaskhandle
 #ifndef INCLUDE_xTaskGetCurrentTaskHandle
-#define INCLUDE_xTaskGetCurrentTaskHandle 1
+#define INCLUDE_xTaskGetCurrentTaskHandle 0
 #endif
 
 #define INCLUDE_uxTaskGetStackHighWaterMark 0
@@ -254,7 +254,7 @@ to exclude the API function. */
 // <q> Include the function to get idle task handler
 // <id> freertos_xtaskgetidletaskhandle
 #ifndef INCLUDE_xTaskGetIdleTaskHandle
-#define INCLUDE_xTaskGetIdleTaskHandle 1
+#define INCLUDE_xTaskGetIdleTaskHandle 0
 #endif
 
 #define INCLUDE_xTimerGetTimerDaemonTaskHandle 0
@@ -274,13 +274,13 @@ to exclude the API function. */
 // <q> Include the function to clean task resources
 // <id> freertos_vtaskcleanupresources
 #ifndef INCLUDE_vTaskCleanUpResources
-#define INCLUDE_vTaskCleanUpResources 1
+#define INCLUDE_vTaskCleanUpResources 0
 #endif
 
 // <q> Include the function to pend timer call
 // <id> freertos_xtimerpendfunctioncall
 #ifndef INCLUDE_xTimerPendFunctionCall
-#define INCLUDE_xTimerPendFunctionCall 1
+#define INCLUDE_xTimerPendFunctionCall 0
 #endif
 
 // </e>

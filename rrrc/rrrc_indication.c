@@ -30,7 +30,7 @@ static led_ring_frame_t* Led_ring_curr_buff = NULL;
 #define LED_RESET_SIZE 40 
 uint8_t frame_leds[LED_RESET_SIZE+(sizeof(led_val_t)*(STATUS_LEDS_AMOUNT+RING_LEDS_AMOUNT)*8)];
 
-static struct timer_task indication_thread;
+static TaskHandle_t      xIndicationTask;
 //*********************************************************************************************
 static void tx_complete_cb_SPI_0(struct _dma_resource *resource)
 {
@@ -122,6 +122,19 @@ static void indication_thread_tick_cb(const struct timer_task *const timer_task)
 	return;
 }
 
+static void Indication_xTask(const void* user_data)
+{
+
+	MakeLedBuffer();
+	struct io_descriptor *io;
+	spi_m_dma_get_io_descriptor(&SPI_0, &io);
+
+	spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
+	spi_m_dma_enable(&SPI_0);
+	io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
+	return;
+}
+
 //*********************************************************************************************
 int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame)
 {
@@ -180,14 +193,17 @@ uint32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
 	IndicationSetType(RING_LED_PREDEF_3);
 
-	result = RRRC_add_task(&indication_thread, &indication_thread_tick_cb, 1/*ms as fps*/, NULL, false);
+	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
+	if (xTaskCreate(Indication_xTask, task_name, 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xIndicationTask) != pdPASS) 
+		return ERR_FAILURE;
+
 	return result;}
 //*********************************************************************************************
 uint32_t IndicationDeInit()
 {
 	uint32_t result = ERR_NONE;
 	
-	RRRC_remove_task(&indication_thread);
+	vTaskDelete(xIndicationTask);
 
 	return result;	
 }

@@ -7,19 +7,17 @@
 int main(void)
 {
 
-	/* Initialize the SAM system */
 	system_init();
 
-	/* Initialize the RRRC logic */
-	RRRC_Init();
+	if (ERR_NONE == RRRC_Init())
+		vTaskStartScheduler(); //main loop
 
-	/* start RRRC main process */
-	RRRC_ProcessLogic();
+	RRRC_DeInit();
 
-	/* Replace with your application code */
 	while (1) {
-
+		__NOP();
 	}
+	
 }
 
 

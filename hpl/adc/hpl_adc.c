@@ -413,9 +413,14 @@ void _adc_sync_convert(struct _adc_sync_device *const device)
 /**
  * \brief Make conversion
  */
-void _adc_async_convert(struct _adc_async_device *const device)
+void _adc_async_convert_start(struct _adc_async_device *const device)
 {
 	hri_adc_set_SWTRIG_START_bit(device->hw);
+}
+
+void _adc_async_convert_stop(struct _adc_async_device *const device)
+{
+	hri_adc_clear_SWTRIG_START_bit(device->hw);
 }
 
 /**

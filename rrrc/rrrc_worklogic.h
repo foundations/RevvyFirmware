@@ -13,7 +13,10 @@
 extern "C" {
 #endif
 
-void RRRC_ProcessLogic(void);
+int32_t RRRC_Init(void);
+int32_t RRRC_DeInit(void);
+
+void RRRC_ProcessLogic_xTask(void* user_data);
 
 #ifdef __cplusplus
 }
