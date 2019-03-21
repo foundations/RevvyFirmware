@@ -15,7 +15,7 @@ int main(void)
 	RRRC_DeInit();
 
 	while (1) {
-		__NOP();
+		__BKPT(1);
 	}
 	
 }
@@ -24,35 +24,42 @@ int main(void)
 /* Cortex-M4 core handlers */
 void NMI_Handler             ( void ){
 	while (1) {
+		__BKPT(1);
 	}
 }
 void HardFault_Handler       ( void ){
 	while (1) {
+		__BKPT(1);
 	}
 }
 void MemManage_Handler       ( void )
 {
 	while (1) {
+		__BKPT(1);
 	}
 }
 void BusFault_Handler        ( void )
 {
 	while (1) {
+		__BKPT(1);
 	}
 }
 void UsageFault_Handler      ( void )
 {
 	while (1) {
+		__BKPT(1);
 	}
 }
 void SVC_Handler             ( void )
 {
 	while (1) {
+		__BKPT(1);
 	}
 }
 void DebugMon_Handler        ( void )
 {
 	while (1) {
+		__BKPT(1);
 	}
 }
 // void PendSV_Handler          ( void )

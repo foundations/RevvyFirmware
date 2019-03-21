@@ -125,13 +125,16 @@ static void indication_thread_tick_cb(const struct timer_task *const timer_task)
 static void Indication_xTask(const void* user_data)
 {
 
-	MakeLedBuffer();
-	struct io_descriptor *io;
-	spi_m_dma_get_io_descriptor(&SPI_0, &io);
+	for(;;)
+	{
+		MakeLedBuffer();
+		struct io_descriptor *io;
+		spi_m_dma_get_io_descriptor(&SPI_0, &io);
 
-	spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
-	spi_m_dma_enable(&SPI_0);
-	io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
+		spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
+		spi_m_dma_enable(&SPI_0);
+		io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
+	}
 	return;
 }
 
