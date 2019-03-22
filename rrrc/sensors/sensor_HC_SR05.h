@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 int32_t HC_SR05_Init(void* hw_port);
+int32_t HC_SR05_DeInit(void* hw_port);
 uint32_t HC_SR05_get_value(void* hw_port, uint32_t* data, uint32_t max_size);
 void HC_SR05_Thread(void* hw_port);
 void HC_SR05_gpio0_callback(void* hw_port, uint32_t data);
@@ -21,6 +22,7 @@ static sensor_lib_entry_t sensor_hc_sr_05 =
     .type_id = SENSOR_HC_SR05,
     .name = "HC_SR05",
     .SensorInit = HC_SR05_Init,
+	.SensorDeInit = NULL,
     .sensor_thread = HC_SR05_Thread,
 	.sensor_get_values = HC_SR05_get_value,
 	.write_data = NULL,
@@ -36,7 +38,7 @@ static sensor_lib_entry_t sensor_hc_sr_05 =
 
 typedef struct _hc_sr05_data_t
 {
-	struct timer_task sensor_task;
+	TaskHandle_t    xHCSR05Task;
 	uint32_t distanse_tick;
 	uint32_t start_time;
 	uint32_t finish_time;
