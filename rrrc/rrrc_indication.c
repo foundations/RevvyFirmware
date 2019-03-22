@@ -27,7 +27,7 @@ static led_ring_frame_t led_ring_userframes[LEDS_USER_MAX_FRAMES] = {0x00};
 
 static led_ring_frame_t* Led_ring_curr_buff = NULL;
 
-#define LED_RESET_SIZE 40 
+#define LED_RESET_SIZE 50 
 uint8_t frame_leds[LED_RESET_SIZE+(sizeof(led_val_t)*(STATUS_LEDS_AMOUNT+RING_LEDS_AMOUNT)*8)];
 
 static TaskHandle_t      xIndicationTask;
@@ -134,6 +134,7 @@ static void Indication_xTask(const void* user_data)
 		spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
 		spi_m_dma_enable(&SPI_0);
 		io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
+		os_sleep(100);
 	}
 	return;
 }
@@ -184,6 +185,11 @@ int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
 			frame_curr = 0;
 			frame_max = ARRAY_SIZE(ring_leds_round_blue);
 			break;
+	case RING_LED_PREDEF_4:
+		Led_ring_curr_buff = ring_leds_running_fire_blue;
+		frame_curr = 0;
+		frame_max = ARRAY_SIZE(ring_leds_running_fire_blue);
+		break;
 	default:
 		status = ERR_INVALID_DATA;
 		break;
@@ -194,7 +200,7 @@ int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
 //*********************************************************************************************
 uint32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
-	IndicationSetType(RING_LED_PREDEF_3);
+	IndicationSetType(RING_LED_PREDEF_4);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
 	if (xTaskCreate(Indication_xTask, task_name, 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xIndicationTask) != pdPASS) 

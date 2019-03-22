@@ -29,6 +29,7 @@ static motor_lib_entry_t motor_dc =
 	.type_id = MOTOR_DC,
 	.name = "MOTOR_DC",
 	.MotorInit = DC_Init,
+	.MotorDeInit = NULL,
 	.motor_get_counter = DC_get_counter,
 	.motor_get_state = DC_get_state,
 	.motor_set_state = DC_set_state,

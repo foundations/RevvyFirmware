@@ -214,6 +214,8 @@ int32_t RRRC_Init(void)
 	timer_start(&TIMER_TC6);
 	//timer_start(&TIMER_TC7);
 
+	SensorPortSetType(0,SENSOR_HC_SR05);
+
 	return ERR_NONE;
 }
 

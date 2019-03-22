@@ -183,7 +183,6 @@ static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, con
  	if (adc0_ch==14)
  		adc0_ch = 0;
 	adc_async_set_inputs(descr, adc0_ch, 0, channel);
-
 	
 	return;
 }

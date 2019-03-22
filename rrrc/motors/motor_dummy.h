@@ -26,6 +26,7 @@ extern "C" {
 		.type_id = MOTOR_NOT_SET,
 		.name = "MOTOR_NO_SET",
 		.MotorInit = MOTOR_DUMMY_Init,
+		.MotorDeInit = NULL,
 		.motor_thread = MOTOR_DUMMY_Thread,
 
 		//callback from motor port

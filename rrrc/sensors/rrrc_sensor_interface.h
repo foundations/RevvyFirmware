@@ -56,6 +56,7 @@ typedef struct _sensor_lib_entry_t
     char*	name;
 
     int32_t (*SensorInit)(void* hw_port);
+	int32_t (*SensorDeInit)(void* hw_port);
     void (*sensor_thread)(void* hw_port);
 	uint32_t (*write_data)(void* hw_port, void* data, uint32_t size);
 	uint32_t (*read_data)(void* hw_port, void* data, uint32_t size);

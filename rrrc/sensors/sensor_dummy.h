@@ -22,6 +22,7 @@ static sensor_lib_entry_t sensor_dummy =
     .type_id = SENSOR_NOT_SET,
     .name = "NO_SET",
     .SensorInit = SENSOR_DUMMY_Init,
+	.SensorDeInit = NULL,
     .sensor_thread = SENSOR_DUMMY_Thread,
 	.write_data = NULL,
 	.read_data = NULL,
