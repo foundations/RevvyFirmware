@@ -267,12 +267,3 @@ void RRRC_ProcessLogic_xTask(void* user	)
 
 }
 
-void RRRC_SysMom_xTask(void* user	)
-{
-
-	while (1)
-	{
-		os_sleep(200);
-	}
-
-}

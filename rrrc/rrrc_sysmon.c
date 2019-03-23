@@ -22,6 +22,16 @@ static void SensorPort_adc_bat_volt_cb(const uint8_t adc_data, void* user_data)
 	
 }
 
+void RRRC_SysMom_xTask(void* user_data)
+{
+
+	while (1)
+	{
+		os_sleep(200);
+	}
+
+}
+
 int32_t SysMon_Init()
 {
 	int32_t result = ERR_NONE;
