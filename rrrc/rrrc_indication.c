@@ -108,20 +108,6 @@ static void MakeLedBuffer()
 		frame_curr = 0;
 }
 
-//*********************************************************************************************
-static void indication_thread_tick_cb(const struct timer_task *const timer_task)
-{
-
-	MakeLedBuffer();
-	struct io_descriptor *io;
-	spi_m_dma_get_io_descriptor(&SPI_0, &io);
-
-	spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
-	spi_m_dma_enable(&SPI_0);
-	io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
-	return;
-}
-
 static void Indication_xTask(const void* user_data)
 {
 
@@ -148,12 +134,24 @@ int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame)
 		if (frame_id>=frame_max)
 			frame_max = frame_id+1;
 		return ERR_NONE;
-	}
-	return ERR_INVALID_ARG;
+	}else
+		return ERR_INVALID_ARG;
+
+	return ERR_NONE;
 }
 
+int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val)
+{
+	if (stled_idx<STATUS_LEDS_AMOUNT && led_val)
+	{
+		status_leds[stled_idx] = *led_val;
+	}else
+		return ERR_INVALID_ARG;
+		
+	return ERR_NONE;
+}
 //*********************************************************************************************
-int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
+int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type)
 {
 	int32_t status = ERR_NONE;
 	switch (type)
@@ -198,9 +196,21 @@ int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
 }
 
 //*********************************************************************************************
+uint32_t IndicationGetRingLedsAmount()
+{
+	return RING_LEDS_AMOUNT;
+}
+
+//*********************************************************************************************
+uint32_t IndicationGetStatusLedsAmount()
+{
+	return STATUS_LEDS_AMOUNT;
+}
+
+//*********************************************************************************************
 uint32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
-	IndicationSetType(RING_LED_PREDEF_4);
+	IndicationSetRingType(RING_LED_PREDEF_4);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
 	if (xTaskCreate(Indication_xTask, task_name, 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xIndicationTask) != pdPASS) 

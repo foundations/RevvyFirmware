@@ -28,6 +28,8 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 	{
 		case RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT:
 		case RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT:
+		case RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT:
+		case RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT:
 		case RRRC_I2C_CMD_SENSOR_GET_TYPES:
 		case RRRC_I2C_CMD_MOTOR_GET_TYPES:
 		case RRRC_I2C_CMD_SENSOR_GET_TYPE:
@@ -86,7 +88,7 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 				uint8_t port = buff->data[0];
 				int8_t state = buff->data[1];
 				uint32_t status = MotorPortSetState(port, state);
-				if (status == 0)
+				if (status == ERR_NONE)
 					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
 				else
 					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
@@ -102,14 +104,28 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 				uint8_t port = buff->data[0];
 				uint32_t steps = buff->data[1]<<24 | buff->data[2]<<16 | buff->data[3]<<8 | buff->data[4] ;
 				uint32_t status = MotoPortSetSteps(port, steps);
-				if (status == 0)
+				if (status == ERR_NONE)
 					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
 				else
 					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
 			}
 			break;
 		}
-
+		case RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO:
+		{
+			if (buff->data_length != 1)
+				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			else
+			{
+				uint32_t scenario_idx = buff->data[0];
+				uint32_t status = IndicationSetRingType(scenario_idx);
+				if (status == ERR_NONE)
+					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+				else
+					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			}
+			break;
+		}
 
 		default:
 		{
@@ -198,6 +214,18 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 			respose->data_length = MotorPortGetCount(request_port, respose->data) * 4;
 			break;
 		};
+		case RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT:
+		{
+			respose->data[0] = IndicationGetRingLedsAmount();
+			respose->data_length = 1;
+			break;
+		}
+		case RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT:
+		{
+			respose->data[0] = IndicationGetStatusLedsAmount();
+			respose->data_length = 1;
+			break;
+		}		
 		case RRRC_I2C_CMD_SENSOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_STATE:

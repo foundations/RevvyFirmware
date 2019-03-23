@@ -325,9 +325,11 @@
 #define WS2812pin PB29
 #define WS2812pin_function GPIO_PIN_FUNCTION_D
 
-#define BAT_TS		PB20
-#define BAT_CHG		PB21
-#define BAT_PG		PB22
-#define BAT_ISET2	PB23
+#define BAT_EN		PB22 //OUT
+#define BAT_CHG		PB19 //IN
+#define BAT_PG		PB22 //IN
+#define BAT_ISET2	PB18 //OUT
+
+#define MOT_CURRENT_FAULT	PB05 //IN
 
 #endif // ATMEL_START_PINS_H_INCLUDED

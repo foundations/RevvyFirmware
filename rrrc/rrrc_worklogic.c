@@ -10,10 +10,15 @@
 #include "rrrc_i2c_protocol.h"
 #include "rrrc_sensors.h"
 #include "rrrc_motors.h"
+#include "rrrc_indication.h"
+#include "rrrc_sysmon.h"
 
-static TaskHandle_t      xRRRC_MainTask;
+static TaskHandle_t      xRRRC_Main_xTask;
+
 extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
 extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
+
+void RRRC_ProcessLogic_xTask(void* user_data);
 
 //*********************************************************************************************
 static void SensorsPinsInit()
@@ -154,8 +159,8 @@ static void MotorsPinsInit()
 //*********************************************************************************************
 void SystemMonitorPinsInit(void)
 {
-	gpio_set_pin_direction(BAT_TS, GPIO_DIRECTION_IN);
-	gpio_set_pin_function(BAT_TS, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_direction(BAT_EN, GPIO_DIRECTION_IN);
+	gpio_set_pin_function(BAT_EN, GPIO_PIN_FUNCTION_OFF);
 
 	gpio_set_pin_direction(BAT_CHG, GPIO_DIRECTION_IN);
 	gpio_set_pin_pull_mode(BAT_CHG, GPIO_PULL_UP);
@@ -169,7 +174,11 @@ void SystemMonitorPinsInit(void)
 	gpio_set_pin_function(BAT_ISET2, GPIO_PIN_FUNCTION_OFF);
 	gpio_set_pin_level(BAT_ISET2, false); //100mA
 
-	//register ADC callback for voltage monitoring
+	gpio_set_pin_direction(MOT_CURRENT_FAULT, GPIO_DIRECTION_IN);
+	gpio_set_pin_pull_mode(MOT_CURRENT_FAULT, GPIO_PULL_UP);
+	gpio_set_pin_function(MOT_CURRENT_FAULT, GPIO_PIN_FUNCTION_OFF);
+
+
 }
 
 //*********************************************************************************************
@@ -196,12 +205,10 @@ int32_t RRRC_Init(void)
 
 	result = IndicationInit();
 
-	if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+2, &xRRRC_MainTask)) 
-		return ERR_FAILURE;
+	result = SysMon_Init();
 
 	adc_convertion_start(0);
 	adc_convertion_start(1);
-
 
  	i2c_s_async_enable(&I2C_0);
 
@@ -213,7 +220,10 @@ int32_t RRRC_Init(void)
 	timer_start(&TIMER_TC5);
 	timer_start(&TIMER_TC6);
 	//timer_start(&TIMER_TC7);
-
+	
+	if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_SysMon", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
+		return ERR_FAILURE;
+	
 	SensorPortSetType(0,SENSOR_HC_SR05);
 
 	return ERR_NONE;
@@ -236,7 +246,7 @@ int32_t RRRC_DeInit(void)
 	adc_convertion_stop(0);
 	adc_convertion_stop(1);
 
-	vTaskDelete(xRRRC_MainTask);
+	vTaskDelete(xRRRC_Main_xTask);
 
 	for (uint32_t idx=0; idx<SENSOR_PORT_AMOUNT; idx++ )
 		SensorPortDeInit(idx);
@@ -253,6 +263,16 @@ void RRRC_ProcessLogic_xTask(void* user	)
 	while (1)
 	{
 		 os_sleep(200);
+	}
+
+}
+
+void RRRC_SysMom_xTask(void* user	)
+{
+
+	while (1)
+	{
+		os_sleep(200);
 	}
 
 }

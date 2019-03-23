@@ -70,7 +70,8 @@ typedef struct _led_val_t
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();
 
-
+int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val);
+int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type);
 
 uint32_t IndicationInit();
 uint32_t IndicationDeInit();
