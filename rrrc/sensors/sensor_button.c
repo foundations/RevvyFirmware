@@ -45,6 +45,7 @@ void BUTTON_gpio0_callback(void* hw_port, uint32_t data)
 	{
 		p_button_data_t sens_data = sensport->lib_data;
 		sens_data->state = data?0:1;
+		SensorPort_led1_toggle(sensport);
 	}
 
 	return;

@@ -159,26 +159,34 @@ static void MotorsPinsInit()
 //*********************************************************************************************
 void SystemMonitorPinsInit(void)
 {
-	gpio_set_pin_direction(BAT_EN, GPIO_DIRECTION_IN);
-	gpio_set_pin_function(BAT_EN, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_direction(SM_BAT_EN, GPIO_DIRECTION_IN);
+	gpio_set_pin_function(SM_BAT_EN, GPIO_PIN_FUNCTION_OFF);
 
-	gpio_set_pin_direction(BAT_CHG, GPIO_DIRECTION_IN);
-	gpio_set_pin_pull_mode(BAT_CHG, GPIO_PULL_UP);
-	gpio_set_pin_function(BAT_CHG, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_direction(SM_BAT_CHG, GPIO_DIRECTION_IN);
+	gpio_set_pin_pull_mode(SM_BAT_CHG, GPIO_PULL_UP);
+	gpio_set_pin_function(SM_BAT_CHG, GPIO_PIN_FUNCTION_OFF);
 
-	gpio_set_pin_direction(BAT_PG, GPIO_DIRECTION_IN);
-	gpio_set_pin_pull_mode(BAT_PG, GPIO_PULL_UP);
-	gpio_set_pin_function(BAT_PG, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_direction(SM_BAT_PG, GPIO_DIRECTION_IN);
+	gpio_set_pin_pull_mode(SM_BAT_PG, GPIO_PULL_UP);
+	gpio_set_pin_function(SM_BAT_PG, GPIO_PIN_FUNCTION_OFF);
 
-	gpio_set_pin_direction(BAT_ISET2, GPIO_DIRECTION_OUT);
-	gpio_set_pin_function(BAT_ISET2, GPIO_PIN_FUNCTION_OFF);
-	gpio_set_pin_level(BAT_ISET2, false); //100mA
+	gpio_set_pin_direction(SM_BAT_ISET2, GPIO_DIRECTION_OUT);
+	gpio_set_pin_function(SM_BAT_ISET2, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_level(SM_BAT_ISET2, false); //100mA
 
-	gpio_set_pin_direction(MOT_CURRENT_FAULT, GPIO_DIRECTION_IN);
-	gpio_set_pin_pull_mode(MOT_CURRENT_FAULT, GPIO_PULL_UP);
-	gpio_set_pin_function(MOT_CURRENT_FAULT, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_direction(SM_MOT_CURRENT_FAULT, GPIO_DIRECTION_IN);
+	gpio_set_pin_pull_mode(SM_MOT_CURRENT_FAULT, GPIO_PULL_UP);
+	gpio_set_pin_function(SM_MOT_CURRENT_FAULT, GPIO_PIN_FUNCTION_OFF);
 
+	//adc pins
+	gpio_set_pin_direction(SM_MOT_VOLTAGE, GPIO_DIRECTION_OFF);
+	gpio_set_pin_function(SM_MOT_VOLTAGE, GPIO_PIN_FUNCTION_B);
 
+	gpio_set_pin_direction(SM_MOT_CURRENT, GPIO_DIRECTION_OFF);
+	gpio_set_pin_function(SM_MOT_CURRENT, GPIO_PIN_FUNCTION_B);
+
+	gpio_set_pin_direction(SM_BAT_VOLTAGE, GPIO_DIRECTION_OFF);
+	gpio_set_pin_function(SM_BAT_VOLTAGE, GPIO_PIN_FUNCTION_B);
 }
 
 //*********************************************************************************************
@@ -262,7 +270,7 @@ void RRRC_ProcessLogic_xTask(void* user	)
 
 	while (1)
 	{
-		 os_sleep(200);
+		 os_sleep(200*rtos_get_ticks_in_ms());
 	}
 
 }

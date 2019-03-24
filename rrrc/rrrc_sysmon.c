@@ -12,22 +12,50 @@
 static TaskHandle_t      xRRRC_SysMon_xTask;
 void RRRC_SysMom_xTask(void* user_data);
 
-static void SensorPort_adc_mot_volt_cb(const uint8_t adc_data, void* user_data)
+static rrrc_sysmot_t sysmon_val = {0};
+
+static void SysMon_adc_mot_volt_cb(const uint8_t adc_data, void* user_data)
 {
-	
+	sysmon_val.motor_voltage = adc_data;
+	return;
 }
 
-static void SensorPort_adc_bat_volt_cb(const uint8_t adc_data, void* user_data)
+static void SysMon_adc_bat_volt_cb(const uint8_t adc_data, void* user_data)
 {
-	
+	sysmon_val.battery_voltage = adc_data;
+	return;
+}
+
+static void SysMon_adc_mot_current_cb(const uint8_t adc_data, void* user_data)
+{
+	sysmon_val.motor_current= adc_data;
+	return;
+}
+
+int32_t SysMonGetValues(uint32_t* data)
+{
+	sysmon_val.systicks = get_system_tick();
+	uint32_t sz = sizeof (rrrc_sysmot_t);
+	memcpy(data, &sysmon_val, sz );
+	return sz;
 }
 
 void RRRC_SysMom_xTask(void* user_data)
 {
-
+// #define BAT_EN		PB22 //OUT
+// #define BAT_CHG		PB19 //IN
+// #define BAT_PG		PB22 //IN
+// #define BAT_ISET2	PB18 //OUT
+// 
+// #define MOT_CURRENT_FAULT	PB05 //IN
 	while (1)
 	{
-		os_sleep(200);
+		uint32_t val = 0;
+		val = gpio_get_pin_level(SM_BAT_CHG);
+		val = gpio_get_pin_level(SM_BAT_PG);
+		val = gpio_get_pin_level(SM_MOT_CURRENT_FAULT);
+
+		os_sleep(200*rtos_get_ticks_in_ms());
 	}
 
 }
@@ -35,8 +63,9 @@ void RRRC_SysMom_xTask(void* user_data)
 int32_t SysMon_Init()
 {
 	int32_t result = ERR_NONE;
-	RRRC_channel_adc_register_cb(11, SensorPort_adc_mot_volt_cb, NULL);
-	RRRC_channel_adc_register_cb(12, SensorPort_adc_bat_volt_cb, NULL);	
+	RRRC_channel_adc_register_cb(1, 0, SysMon_adc_mot_current_cb, NULL);
+	RRRC_channel_adc_register_cb(1, 1, SysMon_adc_bat_volt_cb, NULL);
+	RRRC_channel_adc_register_cb(1, 2, SysMon_adc_mot_volt_cb, NULL);
 	
 	if (pdPASS != xTaskCreate(RRRC_SysMom_xTask, "RRRC_Main", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+2, &xRRRC_SysMon_xTask))
 		return ERR_FAILURE;
@@ -47,8 +76,9 @@ int32_t SysMon_Init()
 int32_t SysMon_DeInit()
 {
 	int32_t result = ERR_NONE;
-	RRRC_channel_adc_unregister_cb(11);
-	RRRC_channel_adc_unregister_cb(12);
+	RRRC_channel_adc_unregister_cb(1, 0);
+	RRRC_channel_adc_unregister_cb(1, 1);
+	RRRC_channel_adc_unregister_cb(1, 2);
 	
 	vTaskDelete(xRRRC_SysMon_xTask);
 	

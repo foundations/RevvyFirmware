@@ -83,6 +83,7 @@ void HCSR05_xTask(void* hw_port)
 		
 		if (xResult == pdPASS)
 		{
+			os_sleep(20*rtos_get_ticks_in_ms());
 	 		SensorPort_gpio1_set_state(sensport, 1);
 	 		delay_us(15);
 	 		SensorPort_gpio1_set_state(sensport, 0);
@@ -106,11 +107,14 @@ void HC_SR05_Thread(void* hw_port)
 
 	if (sens_data->self_curr_count == sens_data->self_prev_count)
 	{
-//  		SensorPort_gpio1_set_state(sensport, 1);
-//  		delay_us(15);
-//  		SensorPort_gpio1_set_state(sensport, 0);
-		const static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-		xTaskNotify(sens_data->xHCSR05Task, 0x01, eSetBits);
+		static uint32_t err_wait_counter = 0;
+		if (err_wait_counter==10)
+		{
+			const static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+			xTaskNotify(sens_data->xHCSR05Task, 0x01, eSetBits);
+			err_wait_counter = 0;
+		}else
+			err_wait_counter++;
 	}
 	sens_data->self_prev_count = sens_data->self_curr_count;
 
@@ -132,24 +136,14 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 	else
 	{
 		sens_data->finish_time = get_system_tick();
-		sens_data->distanse_tick = sens_data->start_time - sens_data->finish_time;
+		if (sens_data->start_time>sens_data->finish_time)
+			sens_data->distanse_tick = sens_data->finish_time - sens_data->start_time;
+		else
+			sens_data->distanse_tick = sens_data->finish_time - sens_data->start_time;
 		
-		
-
-		/* Clear the interrupt source. */
-
-		//prvClearInterrupt();
-
-		/* Notify the task that the reception is complete by setting the RX_BIT in the task's notification value. */
 		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
 		xTaskNotifyFromISR(sens_data->xHCSR05Task, 0x01, eSetBits, &xHigherPriorityTaskWoken);
-
-
-		/* If xHigherPriorityTaskWoken is now set to pdTRUE, then a context switch should be performed to ensure the interrupt returns directly to the highest priority task. The macro used for this purpose depends on the port in use and may be  called portEND_SWITCHING_ISR(). */
-
-		//portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
 	}
 	return;
 }
-

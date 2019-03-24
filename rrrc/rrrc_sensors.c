@@ -231,7 +231,7 @@ static void SensorPort_xTask(const void* user_data)
 	{
 		if (sensport->sensor_lib && sensport->sensor_lib->sensor_thread)
 			sensport->sensor_lib->sensor_thread(sensport);
-		os_sleep(200);
+		os_sleep(200*rtos_get_ticks_in_ms());
 	}
 }
 
@@ -312,7 +312,7 @@ int32_t SensorPortInit(uint32_t port_idx)
 
 	result = SensorPortSetType(port_idx, SENSOR_NOT_SET);
 
-	RRRC_channel_adc_register_cb(sensor_ports[port_idx].index, SensorPort_adc_cb, &sensor_ports[port_idx]);
+	RRRC_channel_adc_register_cb(0, sensor_ports[port_idx].index, SensorPort_adc_cb, &sensor_ports[port_idx]);
 
 	if (sensor_ports[port_idx].gpio0_num >= 0)
 		ext_irq_register(sensor_ports[port_idx].gpio0_num, SensorPort_gpio0_ext_cb, &sensor_ports[port_idx]);
@@ -342,7 +342,7 @@ int32_t SensorPortDeInit(uint32_t port_idx)
 
 	vTaskDelete(sensor_ports[port_idx].xSensorPortTask);
 
-	RRRC_channel_adc_unregister_cb(sensor_ports[port_idx].index);
+	RRRC_channel_adc_unregister_cb(0, sensor_ports[port_idx].index);
 
 	if (sensor_ports[port_idx].gpio0_num >= 0)
 		ext_irq_disable(sensor_ports[port_idx].gpio0_num);

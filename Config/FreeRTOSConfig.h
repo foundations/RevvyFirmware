@@ -202,13 +202,13 @@ to exclude the API function. */
 // <q> Include function to set task priority
 // <id> freertos_vtaskpriorityset
 #ifndef INCLUDE_vTaskPrioritySet
-#define INCLUDE_vTaskPrioritySet 0
+#define INCLUDE_vTaskPrioritySet 1
 #endif
 
 // <q> Include function to get task priority
 // <id> freertos_uxtaskpriorityget
 #ifndef INCLUDE_uxTaskPriorityGet
-#define INCLUDE_uxTaskPriorityGet 0
+#define INCLUDE_uxTaskPriorityGet 1
 #endif
 
 // <q> Include function to delete task
@@ -226,13 +226,13 @@ to exclude the API function. */
 // <q> Include function to resume task from ISR
 // <id> freertos_xresumefromisr
 #ifndef INCLUDE_xResumeFromISR
-#define INCLUDE_xResumeFromISR 0
+#define INCLUDE_xResumeFromISR 1
 #endif
 
 // <q> Include task delay utilities
 // <id> freertos_vtaskdelayuntil
 #ifndef INCLUDE_vTaskDelayUntil
-#define INCLUDE_vTaskDelayUntil 0
+#define INCLUDE_vTaskDelayUntil 1
 #endif
 
 // <q> Include task delay function
@@ -241,15 +241,15 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelay 1
 #endif
 
-#define INCLUDE_xTaskGetSchedulerState 0
+#define INCLUDE_xTaskGetSchedulerState 1
 
 // <q> Include the function to get current task handler
 // <id> freertos_xtaskgetcurrenttaskhandle
 #ifndef INCLUDE_xTaskGetCurrentTaskHandle
-#define INCLUDE_xTaskGetCurrentTaskHandle 0
+#define INCLUDE_xTaskGetCurrentTaskHandle 1
 #endif
 
-#define INCLUDE_uxTaskGetStackHighWaterMark 0
+#define INCLUDE_uxTaskGetStackHighWaterMark 1
 
 // <q> Include the function to get idle task handler
 // <id> freertos_xtaskgetidletaskhandle
@@ -262,25 +262,25 @@ to exclude the API function. */
 // <q> Include the function to get task name
 // <id> freertos_pctaskgettaskname
 #ifndef INCLUDE_pcTaskGetTaskName
-#define INCLUDE_pcTaskGetTaskName 0
+#define INCLUDE_pcTaskGetTaskName 1
 #endif
 
 // <q> Include the function to get task state
 // <id> freertos_etaskgetstate
 #ifndef INCLUDE_eTaskGetState
-#define INCLUDE_eTaskGetState 0
+#define INCLUDE_eTaskGetState 1
 #endif
 
 // <q> Include the function to clean task resources
 // <id> freertos_vtaskcleanupresources
 #ifndef INCLUDE_vTaskCleanUpResources
-#define INCLUDE_vTaskCleanUpResources 0
+#define INCLUDE_vTaskCleanUpResources 1
 #endif
 
 // <q> Include the function to pend timer call
 // <id> freertos_xtimerpendfunctioncall
 #ifndef INCLUDE_xTimerPendFunctionCall
-#define INCLUDE_xTimerPendFunctionCall 0
+#define INCLUDE_xTimerPendFunctionCall 1
 #endif
 
 // </e>

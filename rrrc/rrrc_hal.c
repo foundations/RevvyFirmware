@@ -135,54 +135,57 @@ void rrrc_i2c_s_async_error(struct _i2c_s_async_device *const device)
 
 //static volatile uint8_t adc_data = 0;
 static volatile int adc0_ch = 0;
-static volatile int adc1_ch = 10;
+static volatile int adc1_ch = 0;
 
 struct _adc_channel_callback
 {
+	uint32_t chan;
 	channel_adc_data_cb_t  channel_cb_s;
 	void* user_data;
-}adc_channel_callback[SENSOR_PORT_AMOUNT] = {{NULL,NULL},{NULL,NULL},{NULL,NULL},{NULL,NULL}};
-//channel_adc_data_cb_t channel_cb_s[4]  = {NULL,NULL,NULL,NULL};
+};
+
+
+struct _adc_channel_callback adc0_channel_callback[SENSOR_PORT_AMOUNT] = {{0, NULL,NULL},{1, NULL,NULL},{13, NULL,NULL},{12, NULL,NULL}};
+struct _adc_channel_callback adc1_channel_callback[3] = {{4, NULL,NULL},{11, NULL,NULL},{10, NULL,NULL}};
 
 //*********************************************************************************************
-int32_t RRRC_channel_adc_register_cb(uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data)
+int32_t RRRC_channel_adc_register_cb(uint32_t adc_idx, uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data)
 {
-	if (chan_idx>=SENSOR_PORT_AMOUNT || func==NULL)
+	if (adc_idx>=2 || chan_idx>=SENSOR_PORT_AMOUNT || func==NULL)
 		return ERR_INVALID_ARG;
-	adc_channel_callback[chan_idx].channel_cb_s = func;
-	adc_channel_callback[chan_idx].user_data = user_data;
+	if (adc_idx == 0)
+	{
+		adc0_channel_callback[chan_idx].channel_cb_s = func;
+		adc0_channel_callback[chan_idx].user_data = user_data;
+	}else
+	{
+		adc1_channel_callback[chan_idx].channel_cb_s = func;
+		adc1_channel_callback[chan_idx].user_data = user_data;
+	}
 	return ERR_NONE;
 }
 
 //*********************************************************************************************
-int32_t RRRC_channel_adc_unregister_cb(uint32_t chan_idx)
+int32_t RRRC_channel_adc_unregister_cb(uint32_t adc_idx, uint32_t chan_idx)
 {
-	if (chan_idx>=SENSOR_PORT_AMOUNT)
+	if (adc_idx>=2 || chan_idx>=SENSOR_PORT_AMOUNT)
 		return ERR_INVALID_ARG;
-	adc_channel_callback[chan_idx].channel_cb_s = NULL;
-	adc_channel_callback[chan_idx].user_data = NULL;
+	adc0_channel_callback[chan_idx].channel_cb_s = NULL;
+	adc0_channel_callback[chan_idx].user_data = NULL;
 	return ERR_NONE;
 }
 
 //*********************************************************************************************
 static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
 {
-	//adc_async_read_channel(descr, channel, &adc_data, sizeof(adc_data));
-	if (adc0_ch==0)
-		if (adc_channel_callback[0].channel_cb_s) adc_channel_callback[0].channel_cb_s(adc_data, adc_channel_callback[0].user_data);
-	if (adc0_ch==1)
-		if (adc_channel_callback[1].channel_cb_s) adc_channel_callback[3].channel_cb_s(adc_data, adc_channel_callback[3].user_data);
-	if (adc0_ch==13)
-		if (adc_channel_callback[2].channel_cb_s) adc_channel_callback[1].channel_cb_s(adc_data, adc_channel_callback[1].user_data);
-	if (adc0_ch==12)
-		if (adc_channel_callback[3].channel_cb_s) adc_channel_callback[2].channel_cb_s(adc_data, adc_channel_callback[2].user_data);
+	if (adc0_channel_callback[adc0_ch].channel_cb_s) 
+		adc0_channel_callback[adc0_ch].channel_cb_s(adc_data, adc0_channel_callback[adc0_ch].user_data);
 
 	adc0_ch++;
-	if (adc0_ch==2)
-		adc0_ch = 12;
- 	if (adc0_ch==14)
- 		adc0_ch = 0;
-	adc_async_set_inputs(descr, adc0_ch, 0, channel);
+	if (adc0_ch>=ARRAY_SIZE(adc0_channel_callback))
+		adc0_ch = 0;
+
+	adc_async_set_inputs(descr, adc0_ch, 0, adc0_channel_callback[adc0_ch].chan);
 	
 	return;
 }
@@ -190,11 +193,14 @@ static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, con
 //*********************************************************************************************
 static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
 {
-	//adc_async_read_channel(descr, channel, &adc_data, sizeof(adc_data));
+	if (adc1_channel_callback[adc1_ch].channel_cb_s) 
+		adc1_channel_callback[adc1_ch].channel_cb_s(adc_data, adc1_channel_callback[adc1_ch].user_data);
+
 	adc1_ch++;
-	if (adc1_ch==2)
+	if (adc1_ch>=ARRAY_SIZE(adc1_channel_callback))
 		adc1_ch = 0;
-	adc_async_set_inputs(descr, adc1_ch, 0, channel);
+
+	adc_async_set_inputs(descr, adc1_ch, 0, adc1_channel_callback[adc1_ch].chan);
 	return;
 }
 

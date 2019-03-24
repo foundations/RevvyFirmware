@@ -339,14 +339,14 @@
 // <i> These bits define the ADC clock relative to the peripheral clock (PRESCALER)
 // <id> adc_prescaler
 #ifndef CONF_ADC_1_PRESCALER
-#define CONF_ADC_1_PRESCALER 0x0
+#define CONF_ADC_1_PRESCALER 0x7
 #endif
 
 // <q> Free Running Mode
 // <i> When enabled, the ADC is in free running mode and a new conversion will be initiated when a previous conversion completes. (FREERUN)
 // <id> adc_freerunning_mode
 #ifndef CONF_ADC_1_FREERUN
-#define CONF_ADC_1_FREERUN 0
+#define CONF_ADC_1_FREERUN 1
 #endif
 
 // <q> Differential Mode
@@ -383,7 +383,7 @@
 // <i> These bits define the Mux selection for the positive ADC input. (MUXPOS)
 // <id> adc_pinmux_positive
 #ifndef CONF_ADC_1_MUXPOS
-#define CONF_ADC_1_MUXPOS 0x0
+#define CONF_ADC_1_MUXPOS 0x6
 #endif
 
 // <o> Negative Mux Input Selection
@@ -399,7 +399,7 @@
 // <i> These bits define the Mux selection for the negative ADC input. (MUXNEG)
 // <id> adc_pinmux_negative
 #ifndef CONF_ADC_1_MUXNEG
-#define CONF_ADC_1_MUXNEG 0x0
+#define CONF_ADC_1_MUXNEG 0x7
 #endif
 
 // </h>

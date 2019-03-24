@@ -16,6 +16,7 @@ typedef struct _rrrc_sysmon_t
 {
 	uint32_t systicks;
 	uint32_t motor_voltage;
+	uint32_t motor_current;
 	uint32_t battery_voltage;	
 	uint32_t battery_status;
 	
@@ -24,5 +25,6 @@ typedef struct _rrrc_sysmon_t
 
 int32_t SysMon_Init();
 int32_t SysMon_DeInit();
+int32_t SysMonGetValues(uint32_t* data);
 
 #endif /* RRRC_SYSMON_H_ */

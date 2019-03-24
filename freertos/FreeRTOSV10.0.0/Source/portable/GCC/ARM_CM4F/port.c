@@ -736,7 +736,7 @@ void vPortValidateInterruptPriority(void)
 		The following links provide detailed information:
 		http://www.freertos.org/RTOS-Cortex-M3-M4.html
 		http://www.freertos.org/FAQHelp.html */
-		configASSERT(ucCurrentPriority >= ucMaxSysCallPriority);
+		//configASSERT(ucCurrentPriority >= ucMaxSysCallPriority);
 	}
 
 	/* Priority grouping:  The interrupt controller (NVIC) allows the bits

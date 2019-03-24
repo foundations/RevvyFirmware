@@ -259,7 +259,7 @@ static void MotorPort_xTask(const void* user_data)
 	{
 		if (motport->motor_lib && motport->motor_lib->motor_thread)
 			motport->motor_lib->motor_thread(motport);
-		os_sleep(200);
+		os_sleep(200*rtos_get_ticks_in_ms());
 	}
 }
 

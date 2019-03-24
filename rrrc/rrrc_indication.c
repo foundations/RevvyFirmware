@@ -120,8 +120,8 @@ static void Indication_xTask(const void* user_data)
 		spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
 		spi_m_dma_enable(&SPI_0);
 		io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
-		os_sleep(100);
-	}
+		os_sleep(100*rtos_get_ticks_in_ms());
+	}//1000 tick = 15ms
 	return;
 }
 
