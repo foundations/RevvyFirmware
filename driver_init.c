@@ -336,6 +336,9 @@ void system_init(void)
 {
 	init_mcu();
 
+	hri_mclk_set_APBAMASK_SUPC_bit(MCLK);
+	hri_supc_write_VREF_SEL_bf(SUPC, 1<<SUPC_VREF_TSEN_Pos | 1<< SUPC_VREF_TSSEL);
+	
 	ADC_0_init();
 
 	ADC_1_init();

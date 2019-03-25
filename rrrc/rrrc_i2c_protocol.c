@@ -8,6 +8,7 @@
 #include "rrrc_i2c_protocol.h"
 #include "rrrc_sensors.h"
 #include "rrrc_motors.h"
+#include "rrrc_indication.h"
 #include <utils_assert.h>
 
 static uint32_t request_port=0;
@@ -126,7 +127,42 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 			}
 			break;
 		}
-
+		case RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME:
+		{
+			if ( buff->data_length != (1+sizeof(led_ring_frame_t)))
+				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			else
+			{
+				uint32_t frame_idx = buff->data[0];
+				led_ring_frame_t* led_frame = &buff->data[1];
+				uint32_t status = IndicationUpdateUserFrame(frame_idx, led_frame);
+				if (status == ERR_NONE)
+					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+				else
+					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			}
+			break;
+		}
+		case RRRC_I2C_CMD_INDICATION_SET_STATUS_LEDS:
+		{
+			if (buff->data_length != (1+sizeof(led_val_t)))
+				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			else
+			{
+				uint32_t led_idx = buff->data[0];
+				p_led_val_t led_rgb = &buff->data[1];
+				uint32_t status = IndicationSetStatusLed(led_idx, led_rgb);
+				if (status == ERR_NONE)
+					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+				else
+					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			}
+			break;
+		}
+		
+// int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame);
+// int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val);
+// int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type);
 		default:
 		{
 			break;
@@ -225,7 +261,12 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 			respose->data[0] = IndicationGetStatusLedsAmount();
 			respose->data_length = 1;
 			break;
-		}		
+		}
+		case RRRC_I2C_CMD_SYSMON_GET_STAT:
+		{
+			respose->data_length = SysMonGetValues(respose->data);
+			break;
+		}
 		case RRRC_I2C_CMD_SENSOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_STATE:

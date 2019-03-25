@@ -126,13 +126,13 @@ static void Indication_xTask(const void* user_data)
 }
 
 //*********************************************************************************************
-int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame)
+int32_t IndicationUpdateUserFrame(uint32_t frame_idx, led_ring_frame_t* frame)
 {
-	if (frame_id<LEDS_USER_MAX_FRAMES && frame && led_ring_mode==RING_LED_USER)
+	if (frame_idx<LEDS_USER_MAX_FRAMES && frame && led_ring_mode==RING_LED_USER)
 	{
-		memcpy(&led_ring_userframes[frame_id], frame, sizeof(led_ring_frame_t));
-		if (frame_id>=frame_max)
-			frame_max = frame_id+1;
+		memcpy(&led_ring_userframes[frame_idx], frame, sizeof(led_ring_frame_t));
+		if (frame_idx>=frame_max)
+			frame_max = frame_idx+1;
 		return ERR_NONE;
 	}else
 		return ERR_INVALID_ARG;
@@ -140,6 +140,7 @@ int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame)
 	return ERR_NONE;
 }
 
+//*********************************************************************************************
 int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val)
 {
 	if (stled_idx<STATUS_LEDS_AMOUNT && led_val)
@@ -150,6 +151,7 @@ int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val)
 		
 	return ERR_NONE;
 }
+
 //*********************************************************************************************
 int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type)
 {
@@ -208,7 +210,7 @@ uint32_t IndicationGetStatusLedsAmount()
 }
 
 //*********************************************************************************************
-uint32_t IndicationInit(){
+int32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
 	IndicationSetRingType(RING_LED_PREDEF_4);
 
@@ -218,7 +220,7 @@ uint32_t IndicationInit(){
 
 	return result;}
 //*********************************************************************************************
-uint32_t IndicationDeInit()
+int32_t IndicationDeInit()
 {
 	uint32_t result = ERR_NONE;
 	

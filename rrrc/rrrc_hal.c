@@ -146,7 +146,7 @@ struct _adc_channel_callback
 
 
 struct _adc_channel_callback adc0_channel_callback[SENSOR_PORT_AMOUNT] = {{0, NULL,NULL},{1, NULL,NULL},{13, NULL,NULL},{12, NULL,NULL}};
-struct _adc_channel_callback adc1_channel_callback[3] = {{4, NULL,NULL},{11, NULL,NULL},{10, NULL,NULL}};
+struct _adc_channel_callback adc1_channel_callback[3] = {{4, NULL,NULL},{11, NULL,NULL},{10, NULL,NULL},{0x1D, NULL,NULL}};
 
 //*********************************************************************************************
 int32_t RRRC_channel_adc_register_cb(uint32_t adc_idx, uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data)
