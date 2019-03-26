@@ -158,40 +158,47 @@ int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type)
 	int32_t status = ERR_NONE;
 	switch (type)
 	{
-	case RING_LED_OFF:
-		Led_ring_curr_buff = led_ring_userframes;
-		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
-		frame_curr = 0;
-		frame_max = 1;
-		break;
 	case RING_LED_USER:
 		Led_ring_curr_buff = led_ring_userframes;
 		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
 		frame_curr = 0;
 		frame_max = 1;
+		led_ring_mode = RING_LED_USER;
 		break;
 	case RING_LED_PREDEF_1:
 		Led_ring_curr_buff = ring_leds_round_red;
 		frame_curr = 0;
 		frame_max = ARRAY_SIZE(ring_leds_round_red);
+		led_ring_mode = RING_LED_PREDEF_1;
 		break;
 	case RING_LED_PREDEF_2:
 		Led_ring_curr_buff = ring_leds_round_green;
 		frame_curr = 0;
 		frame_max = ARRAY_SIZE(ring_leds_round_green);
+		led_ring_mode = RING_LED_PREDEF_2;
 		break;
 	case RING_LED_PREDEF_3:
-			Led_ring_curr_buff = ring_leds_round_blue;
-			frame_curr = 0;
-			frame_max = ARRAY_SIZE(ring_leds_round_blue);
-			break;
+		Led_ring_curr_buff = ring_leds_round_blue;
+		frame_curr = 0;
+		led_ring_mode = RING_LED_PREDEF_3;
+		frame_max = ARRAY_SIZE(ring_leds_round_blue);
+		break;
 	case RING_LED_PREDEF_4:
 		Led_ring_curr_buff = ring_leds_running_fire_blue;
 		frame_curr = 0;
 		frame_max = ARRAY_SIZE(ring_leds_running_fire_blue);
+		led_ring_mode = RING_LED_PREDEF_4;
+		break;
+	case RING_LED_OFF:
+		Led_ring_curr_buff = led_ring_userframes;
+		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
+		frame_curr = 0;
+		frame_max = 1;
+		led_ring_mode = RING_LED_OFF;
 		break;
 	default:
 		status = ERR_INVALID_DATA;
+		led_ring_mode = RING_LED_OFF;
 		break;
 	}
 	return status;

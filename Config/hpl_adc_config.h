@@ -311,7 +311,7 @@
 // <i>  Defines the bit resolution for the ADC sample values (RESSEL)
 // <id> adc_resolution
 #ifndef CONF_ADC_1_RESSEL
-#define CONF_ADC_1_RESSEL 0x0
+#define CONF_ADC_1_RESSEL 0x03
 #endif
 
 // <o> Reference Selection
@@ -324,7 +324,7 @@
 // <i> Select the reference for the ADC (REFSEL)
 // <id> adc_reference
 #ifndef CONF_ADC_1_REFSEL
-#define CONF_ADC_1_REFSEL 0x3
+#define CONF_ADC_1_REFSEL 0x00
 #endif
 
 // <o> Prescaler configuration
@@ -495,7 +495,7 @@
 // <i> Define how many samples should be added together.The result will be available in the Result register (SAMPLENUM)
 // <id> adc_arch_samplenum
 #ifndef CONF_ADC_1_SAMPLENUM
-#define CONF_ADC_1_SAMPLENUM 0x0
+#define CONF_ADC_1_SAMPLENUM 0xA
 #endif
 
 // <o> Sampling Time Length <0-63>

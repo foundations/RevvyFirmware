@@ -46,6 +46,15 @@ static void UnLock(mutex_t* mtx)
 	CRITICAL_SECTION_LEAVE();
 }
 
+#define MIN_TRANSACTION_SIZE 3
+#define MAX_TRANSACTION_SIZE 127
+
+typedef struct _trans_buffer_t
+{
+    uint8_t buff[MAX_TRANSACTION_SIZE];
+    uint32_t size;
+    uint32_t index;
+}trans_buffer_t, *p_trans_buffer_t;
 
 typedef void (*channel_adc_data_cb_t)(const uint8_t adc_data, void* user_data);
 
@@ -64,8 +73,8 @@ static uint32_t SwapEndian(uint32_t dig)
 
 static inline uint32_t rtos_get_ticks_in_ms()
 {
-	uint32_t ticks = xTaskGetTickCount();
-	return 52;
+	//uint32_t ticks = xTaskGetTickCount();
+	return 64;
 }
 #ifdef __cplusplus
 }

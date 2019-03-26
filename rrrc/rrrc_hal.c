@@ -25,7 +25,7 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 #include "rrrc_hal.h"
 #include "rrrc_sensors.h"
 #include "rrrc_motors.h"
-#include "rrrc_i2c_protocol.h"
+//#include "rrrc_i2c_protocol.h"
 
 
 
@@ -33,12 +33,7 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 //*****************************************************************************************************
 //*****************************************************************************************************
 
-typedef struct _trans_buffer_t
-{
-    uint8_t buff[MAX_TRANSACTION_SIZE];
-    uint32_t size;
-    uint32_t index;
-}trans_buffer_t, *p_trans_buffer_t;
+
 
 trans_buffer_t rx_buffer;
 trans_buffer_t tx_buffer;
@@ -71,6 +66,7 @@ void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device)
     }
 }
 
+extern TaskHandle_t    xCommunicationTask;
 //*****************************************************************************************************
 void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
 {
@@ -83,9 +79,12 @@ void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, co
     }else
     {
         rrrc_i2c_send_stop(device);
-        uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
-        tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
-        rx_buffer.size = 0;
+		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
+
+//         uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
+//         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
+//         rx_buffer.size = 0;
     }
 }
 
@@ -98,9 +97,11 @@ void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8
         tx_buffer.size = 0;
     }else
     { //rx
-        enum RRRC_I2C_CMD cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
-        tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
-        rx_buffer.size = 0;
+//         enum RRRC_I2C_CMD cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
+//         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
+//         rx_buffer.size = 0;
+		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
     }
 }
 
@@ -146,23 +147,25 @@ struct _adc_channel_callback
 
 
 struct _adc_channel_callback adc0_channel_callback[SENSOR_PORT_AMOUNT] = {{0, NULL,NULL},{1, NULL,NULL},{13, NULL,NULL},{12, NULL,NULL}};
-struct _adc_channel_callback adc1_channel_callback[3] = {{4, NULL,NULL},{11, NULL,NULL},{10, NULL,NULL},{0x1D, NULL,NULL}};
+struct _adc_channel_callback adc1_channel_callback[4] = {{4, NULL,NULL},{11, NULL,NULL},{10, NULL,NULL},{0x1D, NULL,NULL}};
 
 //*********************************************************************************************
 int32_t RRRC_channel_adc_register_cb(uint32_t adc_idx, uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data)
 {
 	if (adc_idx>=2 || chan_idx>=SENSOR_PORT_AMOUNT || func==NULL)
 		return ERR_INVALID_ARG;
-	if (adc_idx == 0)
+	if (adc_idx == 0 && chan_idx<ARRAY_SIZE(adc0_channel_callback))
 	{
 		adc0_channel_callback[chan_idx].channel_cb_s = func;
 		adc0_channel_callback[chan_idx].user_data = user_data;
-	}else
+		return ERR_NONE;
+	}else if (adc_idx == 1 && chan_idx<ARRAY_SIZE(adc1_channel_callback))
 	{
 		adc1_channel_callback[chan_idx].channel_cb_s = func;
 		adc1_channel_callback[chan_idx].user_data = user_data;
+		return ERR_NONE;
 	}
-	return ERR_NONE;
+	return ERR_FAILURE;
 }
 
 //*********************************************************************************************
@@ -170,9 +173,18 @@ int32_t RRRC_channel_adc_unregister_cb(uint32_t adc_idx, uint32_t chan_idx)
 {
 	if (adc_idx>=2 || chan_idx>=SENSOR_PORT_AMOUNT)
 		return ERR_INVALID_ARG;
-	adc0_channel_callback[chan_idx].channel_cb_s = NULL;
-	adc0_channel_callback[chan_idx].user_data = NULL;
-	return ERR_NONE;
+	if (adc_idx == 0 && chan_idx<ARRAY_SIZE(adc0_channel_callback))
+	{
+		adc0_channel_callback[chan_idx].channel_cb_s = NULL;
+		adc0_channel_callback[chan_idx].user_data = NULL;
+		return ERR_NONE;
+	}else if (adc_idx == 1 && chan_idx<ARRAY_SIZE(adc1_channel_callback))
+	{
+		adc1_channel_callback[chan_idx].channel_cb_s = NULL;
+		adc1_channel_callback[chan_idx].user_data = NULL;
+		return ERR_NONE;
+	}
+	return ERR_FAILURE;
 }
 
 //*********************************************************************************************

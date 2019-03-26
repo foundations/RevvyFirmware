@@ -215,24 +215,16 @@ int32_t RRRC_Init(void)
 
 	result = SysMon_Init();
 
+	result = RRRC_Comminicationc_Init();
+
 	adc_convertion_start(0);
 	adc_convertion_start(1);
 
- 	i2c_s_async_enable(&I2C_0);
-
- 	timer_start(&TIMER_TC0);
-	timer_start(&TIMER_TC1);
-	//timer_start(&TIMER_TC2);
-	timer_start(&TIMER_TC3);
-	timer_start(&TIMER_TC4);
-	timer_start(&TIMER_TC5);
-	timer_start(&TIMER_TC6);
-	//timer_start(&TIMER_TC7);
-	
 	if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_SysMon", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
 		return ERR_FAILURE;
 	
 	SensorPortSetType(0,SENSOR_HC_SR05);
+	SensorPortSetType(1,SENSOR_ANALOG_SWITCH);
 
 	return ERR_NONE;
 }
@@ -240,17 +232,8 @@ int32_t RRRC_Init(void)
 int32_t RRRC_DeInit(void)
 {
 
-
-	i2c_s_async_disable(&I2C_0);
-
- 	timer_stop(&TIMER_TC0);
-	timer_stop(&TIMER_TC1);
-	//timer_stop(&TIMER_TC2);
-	timer_stop(&TIMER_TC3);
-	timer_stop(&TIMER_TC4);
-	timer_stop(&TIMER_TC5);
-	timer_stop(&TIMER_TC6);
-
+	RRRC_Comminicationc_DeInit();
+	
 	adc_convertion_stop(0);
 	adc_convertion_stop(1);
 
@@ -259,7 +242,11 @@ int32_t RRRC_DeInit(void)
 	for (uint32_t idx=0; idx<SENSOR_PORT_AMOUNT; idx++ )
 		SensorPortDeInit(idx);
 	for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
-		MotorPortInit(idx);
+		MotorPortDeInit(idx);
+
+	IndicationDeInit();
+
+	SysMon_DeInit();
 
 	return ERR_NONE;
 }

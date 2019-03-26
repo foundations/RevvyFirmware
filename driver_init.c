@@ -24,7 +24,7 @@
 
 /* The maximal channel number of enabled channels */
 #define ADC_0_CH_MAX 15
-#define ADC_1_CH_MAX 15
+#define ADC_1_CH_MAX 0x1D
 
 struct adc_async_descriptor         ADC_0;
 struct adc_async_descriptor         ADC_1;

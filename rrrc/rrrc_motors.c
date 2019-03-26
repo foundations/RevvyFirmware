@@ -303,6 +303,7 @@ int32_t MotorPortInit(uint32_t port_idx)
 	timer_register_cb(motor_ports[port_idx].enc_timer,TIMER_MC0, MotorPort_enc0_cb, &motor_ports[port_idx]);
 	timer_register_cb(motor_ports[port_idx].enc_timer,TIMER_MC1, MotorPort_enc1_cb, &motor_ports[port_idx]);
 
+	timer_start(motor_ports[port_idx].enc_timer);
 
 	char task_name[configMAX_TASK_NAME_LEN+1];
 	snprintf(task_name, configMAX_TASK_NAME_LEN, "motorport%01d", port_idx);
@@ -322,6 +323,8 @@ int32_t MotorPortDeInit(uint32_t port_idx)
 	MotorPortSetType(port_idx, MOTOR_NOT_SET);
 
 	vTaskDelete(motor_ports[port_idx].xMotorPortTask);
+	
+	timer_stop(motor_ports[port_idx].enc_timer);
 
 	timer_unregister_cb(motor_ports[port_idx].enc_timer,TIMER_MC0);
 	timer_unregister_cb(motor_ports[port_idx].enc_timer,TIMER_MC1);
