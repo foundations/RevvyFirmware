@@ -298,8 +298,8 @@ void RRRC_Comunication_xTask(void* user_data)
 		if (xResult == pdPASS)
 		{
 			uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
-          tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
-          rx_buffer.size = 0;
+			tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
+			rx_buffer.size = 0;
 // 			os_sleep(20*rtos_get_ticks_in_ms());
 // 	 		SensorPort_gpio1_set_state(sensport, 1);
 // 	 		delay_us(15);
@@ -313,7 +313,7 @@ void RRRC_Comunication_xTask(void* user_data)
 int32_t RRRC_Comminicationc_Init()
 {
 	int32_t ret = ERR_NONE;
-	if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xCommunicationTask) != pdPASS)
+	if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY, &xCommunicationTask) != pdPASS)
 		ret = ERR_FAILURE;
 	else
 		i2c_s_async_enable(&I2C_0);

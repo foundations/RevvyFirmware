@@ -74,7 +74,7 @@ static uint32_t SwapEndian(uint32_t dig)
 static inline uint32_t rtos_get_ticks_in_ms()
 {
 	//uint32_t ticks = xTaskGetTickCount();
-	return 64;
+	return 32;
 }
 #ifdef __cplusplus
 }

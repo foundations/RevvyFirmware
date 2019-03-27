@@ -13,10 +13,10 @@
 
 led_status_t status_leds = 
 {
-	{LED_RED},
-	{LED_GREEN},
-	{LED_BLUE},
-	{LED_YELLOW}
+	{LED_OFF},
+	{LED_OFF},
+	{LED_OFF},
+	{LED_RED}
 };
 
 uint32_t frame_max = 0;
@@ -190,15 +190,14 @@ int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type)
 		led_ring_mode = RING_LED_PREDEF_4;
 		break;
 	case RING_LED_OFF:
+	default:
 		Led_ring_curr_buff = led_ring_userframes;
 		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
 		frame_curr = 0;
 		frame_max = 1;
 		led_ring_mode = RING_LED_OFF;
-		break;
-	default:
-		status = ERR_INVALID_DATA;
-		led_ring_mode = RING_LED_OFF;
+		if (type!=RING_LED_OFF)
+			status = ERR_INVALID_DATA;
 		break;
 	}
 	return status;
@@ -219,10 +218,10 @@ uint32_t IndicationGetStatusLedsAmount()
 //*********************************************************************************************
 int32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
-	IndicationSetRingType(RING_LED_PREDEF_4);
+	IndicationSetRingType(RING_LED_OFF);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
-	if (xTaskCreate(Indication_xTask, task_name, 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xIndicationTask) != pdPASS) 
+	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xIndicationTask) != pdPASS) 
 		return ERR_FAILURE;
 
 	return result;}

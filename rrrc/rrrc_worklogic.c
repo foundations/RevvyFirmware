@@ -220,11 +220,12 @@ int32_t RRRC_Init(void)
 	adc_convertion_start(0);
 	adc_convertion_start(1);
 
-	if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_SysMon", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
-		return ERR_FAILURE;
+// 	if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
+// 		return ERR_FAILURE;
 	
-	SensorPortSetType(0,SENSOR_HC_SR05);
-	SensorPortSetType(1,SENSOR_ANALOG_SWITCH);
+// 	SensorPortSetType(0,SENSOR_HC_SR05);
+// 	SensorPortSetType(1,SENSOR_ANALOG_SWITCH);
+//	IndicationSetRingType(RING_LED_PREDEF_4);
 
 	return ERR_NONE;
 }

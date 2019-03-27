@@ -32,7 +32,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> Default: 64
 // <id> freertos_minimal_stack_size
 #ifndef configMINIMAL_STACK_SIZE
-#define configMINIMAL_STACK_SIZE ((uint16_t)64)
+#define configMINIMAL_STACK_SIZE ((uint16_t)256)
 #endif
 
 /* configTOTAL_HEAP_SIZE is not used when heap_3.c is used. */
@@ -41,7 +41,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> Default: 2400
 // <id> freertos_total_heap_size
 #ifndef configTOTAL_HEAP_SIZE
-#define configTOTAL_HEAP_SIZE ((size_t)(10240))
+#define configTOTAL_HEAP_SIZE ((size_t)(20480))
 #endif
 
 // <q> Enable mutex
@@ -91,13 +91,13 @@ void assert_triggered(const char *file, uint32_t line);
 // <q> Check stack overflow
 // <id> freertos_check_for_stack_overflow
 #ifndef configCHECK_FOR_STACK_OVERFLOW
-#define configCHECK_FOR_STACK_OVERFLOW 0
+#define configCHECK_FOR_STACK_OVERFLOW 1
 #endif
 
 // <q> Use maclloc failed hook
 // <id> freertos_use_malloc_failed_hook
 #ifndef configUSE_MALLOC_FAILED_HOOK
-#define configUSE_MALLOC_FAILED_HOOK 0
+#define configUSE_MALLOC_FAILED_HOOK 1
 #endif
 
 // <q> Use idle hook
@@ -122,7 +122,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <q> Use trace facility
 // <id> freertos_use_trace_facility
 #ifndef configUSE_TRACE_FACILITY
-#define configUSE_TRACE_FACILITY 1
+#define configUSE_TRACE_FACILITY 0
 #endif
 
 // <q> Use statistics formating functions
@@ -185,7 +185,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> Default is 64
 // <id> freertos_timer_task_stack_depth
 #ifndef TIMER_TASK_STACK_DEPTH
-#define configTIMER_TASK_STACK_DEPTH (64)
+#define configTIMER_TASK_STACK_DEPTH (128)
 #endif
 
 #define configPRIO_BITS 3
@@ -241,15 +241,15 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelay 1
 #endif
 
-#define INCLUDE_xTaskGetSchedulerState 1
+#define INCLUDE_xTaskGetSchedulerState 0
 
 // <q> Include the function to get current task handler
 // <id> freertos_xtaskgetcurrenttaskhandle
 #ifndef INCLUDE_xTaskGetCurrentTaskHandle
-#define INCLUDE_xTaskGetCurrentTaskHandle 1
+#define INCLUDE_xTaskGetCurrentTaskHandle 0
 #endif
 
-#define INCLUDE_uxTaskGetStackHighWaterMark 1
+#define INCLUDE_uxTaskGetStackHighWaterMark 0
 
 // <q> Include the function to get idle task handler
 // <id> freertos_xtaskgetidletaskhandle
@@ -268,13 +268,13 @@ to exclude the API function. */
 // <q> Include the function to get task state
 // <id> freertos_etaskgetstate
 #ifndef INCLUDE_eTaskGetState
-#define INCLUDE_eTaskGetState 1
+#define INCLUDE_eTaskGetState 0
 #endif
 
 // <q> Include the function to clean task resources
 // <id> freertos_vtaskcleanupresources
 #ifndef INCLUDE_vTaskCleanUpResources
-#define INCLUDE_vTaskCleanUpResources 1
+#define INCLUDE_vTaskCleanUpResources 0
 #endif
 
 // <q> Include the function to pend timer call

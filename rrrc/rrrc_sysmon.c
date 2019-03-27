@@ -62,9 +62,9 @@ void RRRC_SysMom_xTask(void* user_data)
 		uint32_t bat_bg = gpio_get_pin_level(SM_BAT_PG);
 		uint32_t motor_current_fault = gpio_get_pin_level(SM_MOT_CURRENT_FAULT);
 		
-		if (motor_current_fault)
-			for(uint32_t mot_idx=0; mot_idx<MotorPortGetPortsAmount(); mot_idx++)
-				MotorPortSetState(mot_idx, 0);
+// 		if (motor_current_fault)
+// 			for(uint32_t mot_idx=0; mot_idx<MotorPortGetPortsAmount(); mot_idx++)
+// 				MotorPortSetState(mot_idx, 0);
 
 		os_sleep(200*rtos_get_ticks_in_ms());
 	}
@@ -78,9 +78,9 @@ int32_t SysMon_Init()
 	RRRC_channel_adc_register_cb(1, 2, SysMon_adc_mot_volt_cb, NULL);
 	RRRC_channel_adc_register_cb(1, 3, SysMon_adc_temperature_cb, NULL);
 	
-	if (pdPASS != xTaskCreate(RRRC_SysMom_xTask, "RRRC_Main", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+2, &xRRRC_SysMon_xTask))
+	if (pdPASS != xTaskCreate(RRRC_SysMom_xTask, "RRRC_SysMon", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+2, &xRRRC_SysMon_xTask))
 		return ERR_FAILURE;
-	
+
 	return result;
 }
 

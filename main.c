@@ -44,19 +44,32 @@ void BusFault_Handler        ( void )
 		__BKPT(1);
 	}
 }
-void UsageFault_Handler      ( void )
+void UsageFault_Handler ( void )
 {
 	while (1) {
 		__BKPT(1);
 	}
 }
-void SVC_Handler             ( void )
+void SVC_Handler ( void )
 {
 	while (1) {
 		__BKPT(1);
 	}
 }
-void DebugMon_Handler        ( void )
+void DebugMon_Handler ( void )
+{
+	while (1) {
+		__BKPT(1);
+	}
+}
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+	while (1) {
+		__BKPT(1);
+	}
+}
+void vApplicationMallocFailedHook()
 {
 	while (1) {
 		__BKPT(1);
