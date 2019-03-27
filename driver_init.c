@@ -23,8 +23,8 @@
 #define ADC_1_BUFFER_SIZE 16
 
 /* The maximal channel number of enabled channels */
-#define ADC_0_CH_MAX 0
-#define ADC_1_CH_MAX 0
+#define ADC_0_CH_MAX 15
+#define ADC_1_CH_MAX 0x1D
 
 struct adc_async_descriptor         ADC_0;
 struct adc_async_descriptor         ADC_1;
@@ -92,7 +92,7 @@ void ADC_1_init(void)
 	hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-	adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, ADC_1_ch, (void *)NULL);
+	adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, &ADC_1_ch[0], (void *)NULL);
 	adc_async_register_channel_buffer(&ADC_1, 0, ADC_1_buffer, ADC_1_BUFFER_SIZE);
 }
 
@@ -336,6 +336,9 @@ void system_init(void)
 {
 	init_mcu();
 
+	hri_mclk_set_APBAMASK_SUPC_bit(MCLK);
+	hri_supc_write_VREF_SEL_bf(SUPC, 1<<SUPC_VREF_TSEN_Pos | 1<< SUPC_VREF_TSSEL);
+	
 	ADC_0_init();
 
 	ADC_1_init();

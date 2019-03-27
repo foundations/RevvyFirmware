@@ -23,6 +23,7 @@ enum INDICATON_RING_TYPE
 	RING_LED_PREDEF_1,
 	RING_LED_PREDEF_2,
 	RING_LED_PREDEF_3,
+	RING_LED_PREDEF_4,
 
 	RING_LED_PREDEF_MAX //Must be last
 };
@@ -69,9 +70,11 @@ typedef struct _led_val_t
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();
 
+int32_t IndicationUpdateUserFrame(uint32_t frame_idx, led_ring_frame_t* frame);
+int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val);
+int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type);
 
-
-uint32_t IndicationInit();
-uint32_t IndicationDeInit();
+int32_t IndicationInit();
+int32_t IndicationDeInit();
 
 #endif /* RRRC_INDICATION_H_ */

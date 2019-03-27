@@ -27,6 +27,7 @@ static motor_lib_entry_t motor_servo =
 	.type_id = MOTOR_SERVO,
 	.name = "MOTOR_SERVO",
 	.MotorInit = SERVO_Init,
+	.MotorDeInit = NULL,
 	.motor_thread = SERVO_Thread,
 
 	//callback from motor port

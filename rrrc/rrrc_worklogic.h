@@ -13,7 +13,8 @@
 extern "C" {
 #endif
 
-void RRRC_ProcessLogic(void);
+int32_t RRRC_Init(void);
+int32_t RRRC_DeInit(void);
 
 #ifdef __cplusplus
 }

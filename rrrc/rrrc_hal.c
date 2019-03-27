@@ -25,21 +25,15 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 #include "rrrc_hal.h"
 #include "rrrc_sensors.h"
 #include "rrrc_motors.h"
-#include "rrrc_i2c_protocol.h"
+//#include "rrrc_i2c_protocol.h"
 
-extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
-extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
+
 
 //*****************************************************************************************************
 //*****************************************************************************************************
 //*****************************************************************************************************
 
-typedef struct _trans_buffer_t
-{
-    uint8_t buff[MAX_TRANSACTION_SIZE];
-    uint32_t size;
-    uint32_t index;
-}trans_buffer_t, *p_trans_buffer_t;
+
 
 trans_buffer_t rx_buffer;
 trans_buffer_t tx_buffer;
@@ -72,6 +66,7 @@ void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device)
     }
 }
 
+extern TaskHandle_t    xCommunicationTask;
 //*****************************************************************************************************
 void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
 {
@@ -84,9 +79,12 @@ void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, co
     }else
     {
         rrrc_i2c_send_stop(device);
-        uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
-        tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
-        rx_buffer.size = 0;
+		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
+
+//         uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
+//         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
+//         rx_buffer.size = 0;
     }
 }
 
@@ -99,9 +97,11 @@ void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8
         tx_buffer.size = 0;
     }else
     { //rx
-        enum RRRC_I2C_CMD cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
-        tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
-        rx_buffer.size = 0;
+//         enum RRRC_I2C_CMD cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
+//         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
+//         rx_buffer.size = 0;
+		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
     }
 }
 
@@ -136,53 +136,68 @@ void rrrc_i2c_s_async_error(struct _i2c_s_async_device *const device)
 
 //static volatile uint8_t adc_data = 0;
 static volatile int adc0_ch = 0;
-static volatile int adc1_ch = 10;
+static volatile int adc1_ch = 0;
 
 struct _adc_channel_callback
 {
+	uint32_t chan;
 	channel_adc_data_cb_t  channel_cb_s;
 	void* user_data;
-}adc_channel_callback[SENSOR_PORT_AMOUNT] = {{NULL,NULL},{NULL,NULL},{NULL,NULL},{NULL,NULL}};
-//channel_adc_data_cb_t channel_cb_s[4]  = {NULL,NULL,NULL,NULL};
+};
+
+
+struct _adc_channel_callback adc0_channel_callback[SENSOR_PORT_AMOUNT] = {{0, NULL,NULL},{1, NULL,NULL},{13, NULL,NULL},{12, NULL,NULL}};
+struct _adc_channel_callback adc1_channel_callback[4] = {{4, NULL,NULL},{11, NULL,NULL},{10, NULL,NULL},{0x1D, NULL,NULL}};
 
 //*********************************************************************************************
-void RRRC_channel_adc_register_cb(uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data)
+int32_t RRRC_channel_adc_register_cb(uint32_t adc_idx, uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data)
 {
-	if (chan_idx>=SENSOR_PORT_AMOUNT || func==NULL)
-		return;
-	adc_channel_callback[chan_idx].channel_cb_s = func;
-	adc_channel_callback[chan_idx].user_data = user_data;
+	if (adc_idx>=2 || chan_idx>=SENSOR_PORT_AMOUNT || func==NULL)
+		return ERR_INVALID_ARG;
+	if (adc_idx == 0 && chan_idx<ARRAY_SIZE(adc0_channel_callback))
+	{
+		adc0_channel_callback[chan_idx].channel_cb_s = func;
+		adc0_channel_callback[chan_idx].user_data = user_data;
+		return ERR_NONE;
+	}else if (adc_idx == 1 && chan_idx<ARRAY_SIZE(adc1_channel_callback))
+	{
+		adc1_channel_callback[chan_idx].channel_cb_s = func;
+		adc1_channel_callback[chan_idx].user_data = user_data;
+		return ERR_NONE;
+	}
+	return ERR_FAILURE;
 }
 
 //*********************************************************************************************
-void RRRC_channel_adc_unregister_cb(uint32_t chan_idx)
+int32_t RRRC_channel_adc_unregister_cb(uint32_t adc_idx, uint32_t chan_idx)
 {
-	if (chan_idx>=SENSOR_PORT_AMOUNT)
-		return;
-	adc_channel_callback[chan_idx].channel_cb_s = NULL;
-	adc_channel_callback[chan_idx].user_data = NULL;
+	if (adc_idx>=2 || chan_idx>=SENSOR_PORT_AMOUNT)
+		return ERR_INVALID_ARG;
+	if (adc_idx == 0 && chan_idx<ARRAY_SIZE(adc0_channel_callback))
+	{
+		adc0_channel_callback[chan_idx].channel_cb_s = NULL;
+		adc0_channel_callback[chan_idx].user_data = NULL;
+		return ERR_NONE;
+	}else if (adc_idx == 1 && chan_idx<ARRAY_SIZE(adc1_channel_callback))
+	{
+		adc1_channel_callback[chan_idx].channel_cb_s = NULL;
+		adc1_channel_callback[chan_idx].user_data = NULL;
+		return ERR_NONE;
+	}
+	return ERR_FAILURE;
 }
 
 //*********************************************************************************************
 static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
 {
-	//adc_async_read_channel(descr, channel, &adc_data, sizeof(adc_data));
-	if (adc0_ch==0)
-		if (adc_channel_callback[0].channel_cb_s) adc_channel_callback[0].channel_cb_s(adc_data, adc_channel_callback[0].user_data);
-	if (adc0_ch==1)
-		if (adc_channel_callback[1].channel_cb_s) adc_channel_callback[3].channel_cb_s(adc_data, adc_channel_callback[3].user_data);
-	if (adc0_ch==13)
-		if (adc_channel_callback[2].channel_cb_s) adc_channel_callback[1].channel_cb_s(adc_data, adc_channel_callback[1].user_data);
-	if (adc0_ch==12)
-		if (adc_channel_callback[3].channel_cb_s) adc_channel_callback[2].channel_cb_s(adc_data, adc_channel_callback[2].user_data);
+	if (adc0_channel_callback[adc0_ch].channel_cb_s) 
+		adc0_channel_callback[adc0_ch].channel_cb_s(adc_data, adc0_channel_callback[adc0_ch].user_data);
 
 	adc0_ch++;
-	if (adc0_ch==2)
-		adc0_ch = 12;
- 	if (adc0_ch==14)
- 		adc0_ch = 0;
-	adc_async_set_inputs(descr, adc0_ch, 0, channel);
+	if (adc0_ch>=ARRAY_SIZE(adc0_channel_callback))
+		adc0_ch = 0;
 
+	adc_async_set_inputs(descr, adc0_ch, 0, adc0_channel_callback[adc0_ch].chan);
 	
 	return;
 }
@@ -190,11 +205,14 @@ static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, con
 //*********************************************************************************************
 static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
 {
-	//adc_async_read_channel(descr, channel, &adc_data, sizeof(adc_data));
+	if (adc1_channel_callback[adc1_ch].channel_cb_s) 
+		adc1_channel_callback[adc1_ch].channel_cb_s(adc_data, adc1_channel_callback[adc1_ch].user_data);
+
 	adc1_ch++;
-	if (adc1_ch==2)
+	if (adc1_ch>=ARRAY_SIZE(adc1_channel_callback))
 		adc1_ch = 0;
-	adc_async_set_inputs(descr, adc1_ch, 0, channel);
+
+	adc_async_set_inputs(descr, adc1_ch, 0, adc1_channel_callback[adc1_ch].chan);
 	return;
 }
 
@@ -217,6 +235,39 @@ int32_t RRRC_add_task(struct timer_task *const task, timer_task_cb_t func, uint3
 	return result;
 }
 
+int32_t adc_convertion_start(uint32_t adc_idx)
+{
+	int32_t result = ERR_NONE;
+	if (0 == adc_idx)
+    {
+	    adc_async_enable_channel(&ADC_0, 0);
+	    adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
+	    adc_async_set_inputs(&ADC_0, adc0_ch, 0, 0);
+	    adc_async_start_conversion(&ADC_0);
+    }else if (1 == adc_idx)
+    {
+	    adc_async_enable_channel(&ADC_1, 0);
+	    adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
+	    adc_async_set_inputs(&ADC_1, adc1_ch, 0, 0);
+	    adc_async_start_conversion(&ADC_1);
+    }else
+		result = ERR_INVALID_ARG;
+
+	return result;
+}
+
+int32_t adc_convertion_stop(uint32_t adc_idx)
+{
+	int32_t result = ERR_NONE;
+	if (0 == adc_idx)
+		result = adc_async_stop_conversion(&ADC_0);
+	if (1 == adc_idx)
+		result = adc_async_stop_conversion(&ADC_1);
+	else
+		result = ERR_INVALID_ARG;
+	return result;
+}
+
 //*********************************************************************************************
 int32_t RRRC_remove_task(struct timer_task const* task)
 {
@@ -228,193 +279,4 @@ int32_t RRRC_remove_task(struct timer_task const* task)
 	timer_start(&TIMER_RTC);
 	return result;
 }
-
-//*********************************************************************************************
-static void SensorsPinsInit()
-{
-	//led pins
-	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-	{
-		gpio_set_pin_pull_mode(sensor_ports[idx].led0_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(sensor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(sensor_ports[idx].led0_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(sensor_ports[idx].led0_gpio, false);
-
-		gpio_set_pin_pull_mode(sensor_ports[idx].led1_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(sensor_ports[idx].led1_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(sensor_ports[idx].led1_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(sensor_ports[idx].led1_gpio, false);
-	}
-
-	//gpio0 - in & extint
-	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-	{
-		gpio_set_pin_pull_mode(sensor_ports[idx].gpio0_num, GPIO_PULL_OFF);
-		gpio_set_pin_direction(sensor_ports[idx].gpio0_num, GPIO_DIRECTION_IN);
-		gpio_set_pin_function(sensor_ports[idx].gpio0_num, GPIO_PIN_FUNCTION_A);		
-	}
-
-	//gpio1 - out
-	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-	{
-		gpio_set_pin_pull_mode(sensor_ports[idx].gpio1_num, GPIO_PULL_OFF);
-		gpio_set_pin_direction(sensor_ports[idx].gpio1_num, GPIO_DIRECTION_OUT);
-		gpio_set_pin_function(sensor_ports[idx].gpio1_num, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_level(sensor_ports[idx].gpio1_num, false);
-	}
-
-	//adc pins
-	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-	{
-		gpio_set_pin_direction(sensor_ports[idx].adc_gpio, GPIO_DIRECTION_OFF);
-		gpio_set_pin_function(sensor_ports[idx].adc_gpio, GPIO_PIN_FUNCTION_B);
-	}
-
-	// i2c pins - TODO now this pins init in driver_init()
-// 	for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-// 	{
-// 		gpio_set_pin_pull_mode(sensor_ports[idx].i2c_gpio0, GPIO_PULL_OFF);
-// 		gpio_set_pin_direction(sensor_ports[idx].i2c_gpio0, GPIO_DIRECTION_OFF);
-// 		gpio_set_pin_function(sensor_ports[idx].i2c_gpio0, GPIO_PIN_FUNCTION_C);
-// 		gpio_set_pin_pull_mode(sensor_ports[idx].i2c_gpio1, GPIO_PULL_OFF);
-// 		gpio_set_pin_direction(sensor_ports[idx].i2c_gpio1, GPIO_DIRECTION_OFF);
-// 		gpio_set_pin_function(sensor_ports[idx].i2c_gpio1, GPIO_PIN_FUNCTION_C);
-// 	}
-
-	for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++) 
-	{
-		gpio_set_pin_pull_mode(sensor_ports[idx].vccio_pin, GPIO_PULL_UP);
-		gpio_set_pin_function(sensor_ports[idx].vccio_pin, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(sensor_ports[idx].vccio_pin, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(sensor_ports[idx].vccio_pin, false);//VCCIO_3V3
-	}
-}
-
-//*********************************************************************************************
-static void MotorsPinsInit()
-{
-
-	//led pins
-	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-	{
-		gpio_set_pin_pull_mode(motor_ports[idx].led0_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(motor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].led0_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(motor_ports[idx].led0_gpio, false);
-
-		gpio_set_pin_pull_mode(motor_ports[idx].led1_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(motor_ports[idx].led1_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].led1_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(motor_ports[idx].led1_gpio, false);
-	}
-
-	//dir pins
-	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-	{
-		gpio_set_pin_pull_mode(motor_ports[idx].dir0_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(motor_ports[idx].dir0_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].dir0_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(motor_ports[idx].dir0_gpio, false);
-
-		gpio_set_pin_pull_mode(motor_ports[idx].dir1_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(motor_ports[idx].dir1_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].dir1_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(motor_ports[idx].dir1_gpio, false);
-	}
-
-	//enc pins //TODO !!!!TESTING
-	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-	{
-//		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_OFF);
-// 		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OUT);
-// 		gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_OFF);
-// 		gpio_set_pin_level(motor_ports[idx].enc0_gpio, false);
-// 		
-// 		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_OFF);
-// 		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OUT);
-// 		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
-// 		gpio_set_pin_level(motor_ports[idx].enc1_gpio, false);
-//gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_DOWN);
-		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_IN);
-		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_E);
-//gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_DOWN);
-		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_IN);
-		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_E);
-	}
-
-	//PWM pins 
-	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-	{
-		gpio_set_pin_direction(motor_ports[idx].pwm_pin, GPIO_DIRECTION_OFF);
-		gpio_set_pin_function(motor_ports[idx].pwm_pin, GPIO_PIN_FUNCTION_F);
-	}
-
-	uint8_t moto_stbypins[] = {M12STBY, M34STBY, M56STBY};
-	for (int idx=0; idx<ARRAY_SIZE(moto_stbypins); idx++) // chips always ON
-	{
-		gpio_set_pin_pull_mode(moto_stbypins[idx], GPIO_PULL_UP);
-		gpio_set_pin_function(moto_stbypins[idx], GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(moto_stbypins[idx], GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(moto_stbypins[idx], true);
-	}
-
-	gpio_set_pin_pull_mode(MOTPWEN, GPIO_PULL_UP);
-	gpio_set_pin_function(MOTPWEN, GPIO_PIN_FUNCTION_OFF);
-	gpio_set_pin_direction(MOTPWEN, GPIO_DIRECTION_OUT);
-	gpio_set_pin_level(MOTPWEN, true);	
-
-}
-
-//*********************************************************************************************
-void SystemMonitorPinsInit(void)
-{
-	gpio_set_pin_direction(BAT_TS, GPIO_DIRECTION_IN);
-	gpio_set_pin_function(BAT_TS, GPIO_PIN_FUNCTION_OFF);
-
-	gpio_set_pin_direction(BAT_CHG, GPIO_DIRECTION_IN);
-	gpio_set_pin_pull_mode(BAT_CHG, GPIO_PULL_UP);
-	gpio_set_pin_function(BAT_CHG, GPIO_PIN_FUNCTION_OFF);
-
-	gpio_set_pin_direction(BAT_PG, GPIO_DIRECTION_IN);
-	gpio_set_pin_pull_mode(BAT_PG, GPIO_PULL_UP);
-	gpio_set_pin_function(BAT_PG, GPIO_PIN_FUNCTION_OFF);
-
-	gpio_set_pin_direction(BAT_ISET2, GPIO_DIRECTION_OUT);
-	gpio_set_pin_function(BAT_ISET2, GPIO_PIN_FUNCTION_OFF);
-	gpio_set_pin_level(BAT_ISET2, false); //100mA
-
-	//register ADC callback for voltage monitoring
-}
-
-//*********************************************************************************************
-int RRRC_Init(void)
-{
-	MotorsPinsInit();
-	SensorsPinsInit();
-	SystemMonitorPinsInit();
-
-    adc_async_enable_channel(&ADC_0, 0);
-    adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
-	adc_async_set_inputs(&ADC_0, adc0_ch, 0, 0);
-    adc_async_start_conversion(&ADC_0);
-
-// 	adc_async_enable_channel(&ADC_1, 0);
-//  adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
-// 	adc_async_set_inputs(&ADC_1, adc1_ch, 0, 0);
-//  adc_async_start_conversion(&ADC_1);
-
- 	i2c_s_async_enable(&I2C_0);
-
- 	timer_start(&TIMER_TC0);
-	timer_start(&TIMER_TC1);
-	//timer_start(&TIMER_TC2);
-	timer_start(&TIMER_TC3);
-	timer_start(&TIMER_TC4);
-	timer_start(&TIMER_TC5);
-	timer_start(&TIMER_TC6);
-	//timer_start(&TIMER_TC7);
-
-	return 0;
-}
-
 

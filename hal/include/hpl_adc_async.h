@@ -152,7 +152,8 @@ bool _adc_async_is_channel_conversion_done(const struct _adc_async_device *const
  *
  * \param[in] device The pointer to ADC device instance
  */
-void _adc_async_convert(struct _adc_async_device *const device);
+void _adc_async_convert_start(struct _adc_async_device *const device);
+void _adc_async_convert_stop(struct _adc_async_device *const device);
 
 /**
  * \brief Retrieve the conversion result

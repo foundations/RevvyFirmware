@@ -13,10 +13,10 @@
 
 led_status_t status_leds = 
 {
-	{LED_RED},
-	{LED_GREEN},
-	{LED_BLUE},
-	{LED_YELLOW}
+	{LED_OFF},
+	{LED_OFF},
+	{LED_OFF},
+	{LED_RED}
 };
 
 uint32_t frame_max = 0;
@@ -27,10 +27,10 @@ static led_ring_frame_t led_ring_userframes[LEDS_USER_MAX_FRAMES] = {0x00};
 
 static led_ring_frame_t* Led_ring_curr_buff = NULL;
 
-#define LED_RESET_SIZE 40 
+#define LED_RESET_SIZE 50 
 uint8_t frame_leds[LED_RESET_SIZE+(sizeof(led_val_t)*(STATUS_LEDS_AMOUNT+RING_LEDS_AMOUNT)*8)];
 
-static struct timer_task indication_thread;
+static TaskHandle_t      xIndicationTask;
 //*********************************************************************************************
 static void tx_complete_cb_SPI_0(struct _dma_resource *resource)
 {
@@ -108,86 +108,129 @@ static void MakeLedBuffer()
 		frame_curr = 0;
 }
 
-//*********************************************************************************************
-static void indication_thread_tick_cb(const struct timer_task *const timer_task)
+static void Indication_xTask(const void* user_data)
 {
 
-	MakeLedBuffer();
-	struct io_descriptor *io;
-	spi_m_dma_get_io_descriptor(&SPI_0, &io);
+	for(;;)
+	{
+		MakeLedBuffer();
+		struct io_descriptor *io;
+		spi_m_dma_get_io_descriptor(&SPI_0, &io);
 
-	spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
-	spi_m_dma_enable(&SPI_0);
-	io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
+		spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
+		spi_m_dma_enable(&SPI_0);
+		io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
+		os_sleep(100*rtos_get_ticks_in_ms());
+	}//1000 tick = 15ms
 	return;
 }
 
 //*********************************************************************************************
-int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame)
+int32_t IndicationUpdateUserFrame(uint32_t frame_idx, led_ring_frame_t* frame)
 {
-	if (frame_id<LEDS_USER_MAX_FRAMES && frame && led_ring_mode==RING_LED_USER)
+	if (frame_idx<LEDS_USER_MAX_FRAMES && frame && led_ring_mode==RING_LED_USER)
 	{
-		memcpy(&led_ring_userframes[frame_id], frame, sizeof(led_ring_frame_t));
-		if (frame_id>=frame_max)
-			frame_max = frame_id+1;
+		memcpy(&led_ring_userframes[frame_idx], frame, sizeof(led_ring_frame_t));
+		if (frame_idx>=frame_max)
+			frame_max = frame_idx+1;
 		return ERR_NONE;
-	}
-	return ERR_INVALID_ARG;
+	}else
+		return ERR_INVALID_ARG;
+
+	return ERR_NONE;
 }
 
 //*********************************************************************************************
-int32_t IndicationSetType(enum INDICATON_RING_TYPE type)
+int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val)
+{
+	if (stled_idx<STATUS_LEDS_AMOUNT && led_val)
+	{
+		status_leds[stled_idx] = *led_val;
+	}else
+		return ERR_INVALID_ARG;
+		
+	return ERR_NONE;
+}
+
+//*********************************************************************************************
+int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type)
 {
 	int32_t status = ERR_NONE;
 	switch (type)
 	{
-	case RING_LED_OFF:
-		Led_ring_curr_buff = led_ring_userframes;
-		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
-		frame_curr = 0;
-		frame_max = 1;
-		break;
 	case RING_LED_USER:
 		Led_ring_curr_buff = led_ring_userframes;
 		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
 		frame_curr = 0;
 		frame_max = 1;
+		led_ring_mode = RING_LED_USER;
 		break;
 	case RING_LED_PREDEF_1:
 		Led_ring_curr_buff = ring_leds_round_red;
 		frame_curr = 0;
 		frame_max = ARRAY_SIZE(ring_leds_round_red);
+		led_ring_mode = RING_LED_PREDEF_1;
 		break;
 	case RING_LED_PREDEF_2:
 		Led_ring_curr_buff = ring_leds_round_green;
 		frame_curr = 0;
 		frame_max = ARRAY_SIZE(ring_leds_round_green);
+		led_ring_mode = RING_LED_PREDEF_2;
 		break;
 	case RING_LED_PREDEF_3:
-			Led_ring_curr_buff = ring_leds_round_blue;
-			frame_curr = 0;
-			frame_max = ARRAY_SIZE(ring_leds_round_blue);
-			break;
+		Led_ring_curr_buff = ring_leds_round_blue;
+		frame_curr = 0;
+		led_ring_mode = RING_LED_PREDEF_3;
+		frame_max = ARRAY_SIZE(ring_leds_round_blue);
+		break;
+	case RING_LED_PREDEF_4:
+		Led_ring_curr_buff = ring_leds_running_fire_blue;
+		frame_curr = 0;
+		frame_max = ARRAY_SIZE(ring_leds_running_fire_blue);
+		led_ring_mode = RING_LED_PREDEF_4;
+		break;
+	case RING_LED_OFF:
 	default:
-		status = ERR_INVALID_DATA;
+		Led_ring_curr_buff = led_ring_userframes;
+		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
+		frame_curr = 0;
+		frame_max = 1;
+		led_ring_mode = RING_LED_OFF;
+		if (type!=RING_LED_OFF)
+			status = ERR_INVALID_DATA;
 		break;
 	}
 	return status;
 }
 
 //*********************************************************************************************
-uint32_t IndicationInit(){
-	uint32_t result = ERR_NONE;
-	IndicationSetType(RING_LED_PREDEF_3);
+uint32_t IndicationGetRingLedsAmount()
+{
+	return RING_LEDS_AMOUNT;
+}
 
-	result = RRRC_add_task(&indication_thread, &indication_thread_tick_cb, 1/*ms as fps*/, NULL, false);
+//*********************************************************************************************
+uint32_t IndicationGetStatusLedsAmount()
+{
+	return STATUS_LEDS_AMOUNT;
+}
+
+//*********************************************************************************************
+int32_t IndicationInit(){
+	uint32_t result = ERR_NONE;
+	IndicationSetRingType(RING_LED_OFF);
+
+	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
+	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xIndicationTask) != pdPASS) 
+		return ERR_FAILURE;
+
 	return result;}
 //*********************************************************************************************
-uint32_t IndicationDeInit()
+int32_t IndicationDeInit()
 {
 	uint32_t result = ERR_NONE;
 	
-	RRRC_remove_task(&indication_thread);
+	vTaskDelete(xIndicationTask);
 
 	return result;	
 }

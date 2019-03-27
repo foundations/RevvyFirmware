@@ -69,9 +69,9 @@ uint32_t DC_set_state(void* hw_port, int8_t state)
 			{
 				MotorPort_set_duty_cicle(hw_port, duty); //TODO  What if speed 0??
 				if (state > 0)
-				MotorPort_dir_forward(hw_port);
+					MotorPort_dir_forward(hw_port);
 				else
-				MotorPort_dir_backward(hw_port);
+					MotorPort_dir_backward(hw_port);
 			}
 			//mot_data->speed = speed;
 			mot_data->state = state;

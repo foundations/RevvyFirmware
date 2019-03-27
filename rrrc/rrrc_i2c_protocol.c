@@ -8,6 +8,7 @@
 #include "rrrc_i2c_protocol.h"
 #include "rrrc_sensors.h"
 #include "rrrc_motors.h"
+#include "rrrc_indication.h"
 #include <utils_assert.h>
 
 static uint32_t request_port=0;
@@ -28,6 +29,8 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 	{
 		case RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT:
 		case RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT:
+		case RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT:
+		case RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT:
 		case RRRC_I2C_CMD_SENSOR_GET_TYPES:
 		case RRRC_I2C_CMD_MOTOR_GET_TYPES:
 		case RRRC_I2C_CMD_SENSOR_GET_TYPE:
@@ -86,7 +89,7 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 				uint8_t port = buff->data[0];
 				int8_t state = buff->data[1];
 				uint32_t status = MotorPortSetState(port, state);
-				if (status == 0)
+				if (status == ERR_NONE)
 					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
 				else
 					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
@@ -102,15 +105,64 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 				uint8_t port = buff->data[0];
 				uint32_t steps = buff->data[1]<<24 | buff->data[2]<<16 | buff->data[3]<<8 | buff->data[4] ;
 				uint32_t status = MotoPortSetSteps(port, steps);
-				if (status == 0)
+				if (status == ERR_NONE)
 					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
 				else
 					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
 			}
 			break;
 		}
-
-
+		case RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO:
+		{
+			if (buff->data_length != 1)
+				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			else
+			{
+				uint32_t scenario_idx = buff->data[0];
+				uint32_t status = IndicationSetRingType(scenario_idx);
+				if (status == ERR_NONE)
+					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+				else
+					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			}
+			break;
+		}
+		case RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME:
+		{
+			if ( buff->data_length != (1+sizeof(led_ring_frame_t)))
+				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			else
+			{
+				uint32_t frame_idx = buff->data[0];
+				led_ring_frame_t* led_frame = &buff->data[1];
+				uint32_t status = IndicationUpdateUserFrame(frame_idx, led_frame);
+				if (status == ERR_NONE)
+					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+				else
+					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			}
+			break;
+		}
+		case RRRC_I2C_CMD_INDICATION_SET_STATUS_LEDS:
+		{
+			if (buff->data_length != (1+sizeof(led_val_t)))
+				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			else
+			{
+				uint32_t led_idx = buff->data[0];
+				p_led_val_t led_rgb = &buff->data[1];
+				uint32_t status = IndicationSetStatusLed(led_idx, led_rgb);
+				if (status == ERR_NONE)
+					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+				else
+					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+			}
+			break;
+		}
+		
+// int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame);
+// int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val);
+// int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type);
 		default:
 		{
 			break;
@@ -198,6 +250,23 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 			respose->data_length = MotorPortGetCount(request_port, respose->data) * 4;
 			break;
 		};
+		case RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT:
+		{
+			respose->data[0] = IndicationGetRingLedsAmount();
+			respose->data_length = 1;
+			break;
+		}
+		case RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT:
+		{
+			respose->data[0] = IndicationGetStatusLedsAmount();
+			respose->data_length = 1;
+			break;
+		}
+		case RRRC_I2C_CMD_SYSMON_GET_STAT:
+		{
+			respose->data_length = SysMonGetValues(respose->data);
+			break;
+		}
 		case RRRC_I2C_CMD_SENSOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_STATE:
@@ -213,3 +282,49 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 	return size;
 }
 
+TaskHandle_t    xCommunicationTask;
+extern trans_buffer_t rx_buffer;
+extern trans_buffer_t tx_buffer;
+void RRRC_Comunication_xTask(void* user_data)
+{
+	BaseType_t xResult;
+	uint32_t ulNotifiedValue;
+
+
+	for(;;)
+	{
+		xResult = xTaskNotifyWait(pdFALSE, UINT32_MAX, &ulNotifiedValue, portMAX_DELAY);
+		
+		if (xResult == pdPASS)
+		{
+			uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
+			tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
+			rx_buffer.size = 0;
+// 			os_sleep(20*rtos_get_ticks_in_ms());
+// 	 		SensorPort_gpio1_set_state(sensport, 1);
+// 	 		delay_us(15);
+// 	 		SensorPort_gpio1_set_state(sensport, 0);
+// 			sens_data->self_curr_count++;
+// 			SensorPort_led1_toggle(sensport);
+		}
+	}
+}
+
+int32_t RRRC_Comminicationc_Init()
+{
+	int32_t ret = ERR_NONE;
+	if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY, &xCommunicationTask) != pdPASS)
+		ret = ERR_FAILURE;
+	else
+		i2c_s_async_enable(&I2C_0);
+	return ret;
+}
+
+int32_t RRRC_Comminicationc_DeInit()
+{
+	int32_t ret = ERR_NONE;
+	i2c_s_async_disable(&I2C_0);
+
+	vTaskDelete(xCommunicationTask);
+	return ret;
+}

@@ -201,8 +201,22 @@ void _oscctrl_init_referenced_generators(void)
 
 #if CONF_FDPLL0_CONFIG == 1
 #if CONF_FDPLL0_ENABLE == 1
+
+#if 0	//errata CHIP003-4
 	while (!(hri_oscctrl_get_DPLLSTATUS_LOCK_bit(hw, 0) || hri_oscctrl_get_DPLLSTATUS_CLKRDY_bit(hw, 0)))
 		;
+#else
+    // Workaround begins
+    while (!(hri_oscctrl_get_DPLLSTATUS_CLKRDY_bit(hw, 0)));
+    // wait 10 ms
+    uint32_t val = 600;
+    while (val != 0)
+    {
+        --val;
+    }
+    // Workaround ends
+#endif
+    
 #endif
 #if CONF_FDPLL0_ONDEMAND == 1
 	hri_oscctrl_set_DPLLCTRLA_ONDEMAND_bit(hw, 0);

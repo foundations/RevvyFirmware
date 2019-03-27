@@ -51,6 +51,7 @@ void ABUTTON_adc_callback(void* hw_port, uint32_t data)
 			sens_data->state = 1;
 		else
 			sens_data->state = 0;
+		SensorPort_led1_toggle(sensport);
 	}
 
 	return;

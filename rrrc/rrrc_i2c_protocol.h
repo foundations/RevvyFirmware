@@ -12,9 +12,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define MIN_TRANSACTION_SIZE 3
-#define MAX_TRANSACTION_SIZE 127
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,7 +47,7 @@ enum RRRC_I2C_CMD
 	RRRC_I2C_CMD_STATUS_READY		= 0x03,		//As status
 	RRRC_I2C_CMD_DUMMY				= 0x09,		//Use for PING
 	RRRC_I2C_CMD_PING	=	RRRC_I2C_CMD_DUMMY,
-	RRRC_I2C_CMD_INIT				= 0x0A,
+	RRRC_I2C_CMD_RESET				= 0x0A,
 	//about device
 	RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT	= 0x10,
 	RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT	= 0x11,
@@ -81,7 +78,10 @@ enum RRRC_I2C_CMD
 	RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT	= 0x91,
 	RRRC_I2C_CMD_INDICATION_SET_STATUS_LEDS			= 0x92,
 	RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO		= 0x93,
-	RRRC_I2C_CMD_INDICATION_SET_RING_USER			= 0x94,
+	RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME		= 0x94,
+	//system monitor
+	RRRC_I2C_CMD_SYSMON_GET_STAT		= 0x94,
+	
 };
 
 
@@ -159,6 +159,8 @@ static  std::ostream& operator<<(std::ostream& os, ptransaction_t data)
 
 uint8_t CommandHandler(ptransaction_t buff, uint8_t size);
 uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose);
+int32_t RRRC_Comminicationc_Init();
+int32_t RRRC_Comminicationc_DeInit();
 
 #ifdef __cplusplus
 }

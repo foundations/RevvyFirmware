@@ -11,7 +11,8 @@
 
 #include <stdint.h>
 #include "err_codes.h"
-#include <hal_timer.h>
+#include "rrrc_hal.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +35,7 @@ typedef struct _motor_lib_entry_t
 	void* port;
 
 	int32_t (*MotorInit)(void* hw_port);
+	int32_t (*MotorDeInit)(void* hw_port);
 	uint32_t (*motor_get_counter)(void* hw_port, uint32_t* data, uint32_t max_size);
 	int8_t (*motor_get_state)(void* hw_port);
 	uint32_t (*motor_set_state)(void* hw_port, int8_t state);
@@ -56,7 +58,7 @@ typedef struct _hw_motor_port_t
 
 	uint8_t lib_data[MOTOR_PORT_LIBDATA];
 
-	struct timer_task motor_task;
+	TaskHandle_t      xMotorPortTask;
 
 	struct timer_descriptor *enc_timer;
 	gpio_num enc0_gpio;

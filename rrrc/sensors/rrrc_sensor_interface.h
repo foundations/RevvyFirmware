@@ -4,7 +4,8 @@
 
 #include <stdint.h>
 #include "err_codes.h"
-#include <hal_timer.h>
+#include "rrrc_hal.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +56,7 @@ typedef struct _sensor_lib_entry_t
     char*	name;
 
     int32_t (*SensorInit)(void* hw_port);
+	int32_t (*SensorDeInit)(void* hw_port);
     void (*sensor_thread)(void* hw_port);
 	uint32_t (*write_data)(void* hw_port, void* data, uint32_t size);
 	uint32_t (*read_data)(void* hw_port, void* data, uint32_t size);
@@ -79,7 +81,7 @@ typedef struct _hw_sensor_port_t
 
 	uint8_t lib_data[SENSOR_PORT_LIBDATA];
 
-	struct timer_task sensor_task;
+	TaskHandle_t      xSensorPortTask;
 
 	struct i2c_m_sync_desc		*I2C;
 	gpio_num i2c_sda;

@@ -21,6 +21,7 @@ static sensor_lib_entry_t sensor_button =
     .type_id = SENSOR_SWITCH,
     .name = "BUTTON",
     .SensorInit = BUTTON_Init,
+	.SensorDeInit = NULL,
 	.sensor_get_values = BUTTON_get_value,
     .sensor_thread = BUTTON_Thread,
 	.write_data = NULL,
