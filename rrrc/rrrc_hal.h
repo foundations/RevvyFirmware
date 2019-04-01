@@ -74,8 +74,14 @@ static uint32_t SwapEndian(uint32_t dig)
 static inline uint32_t rtos_get_ticks_in_ms()
 {
 	//uint32_t ticks = xTaskGetTickCount();
-	return 32;
+	return portTICK_PERIOD_MS;
 }
+
+static inline uint32_t rtos_ms_to_ticks(uint32_t ms)
+{
+	return ms * rtos_get_ticks_in_ms();
+}
+
 #ifdef __cplusplus
 }
 #endif
