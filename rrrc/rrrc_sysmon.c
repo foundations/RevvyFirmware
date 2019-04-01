@@ -9,8 +9,8 @@
 
 #include "rrrc_sysmon.h"
 #include "rrrc_motors.h"
-#define adc_to_volt(x) ((3300/1023)*x)
-#define adc_to_celsius(x) ((3300/1023)*x)
+#define adc_to_volt(x)    ((uint32_t)((3300.0f/1023) * x))
+#define adc_to_celsius(x) ((uint32_t)((3300.0f/1023) * x))
 static TaskHandle_t      xRRRC_SysMon_xTask;
 void RRRC_SysMom_xTask(void* user_data);
 
