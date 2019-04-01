@@ -197,7 +197,7 @@ static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, con
 	if (adc0_ch>=ARRAY_SIZE(adc0_channel_callback))
 		adc0_ch = 0;
 
-	adc_async_set_inputs(descr, adc0_ch, 0, adc0_channel_callback[adc0_ch].chan);
+	adc_async_set_inputs(descr, adc0_channel_callback[adc0_ch].chan, 0, 0);
 	
 	return;
 }
@@ -212,7 +212,7 @@ static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, con
 	if (adc1_ch>=ARRAY_SIZE(adc1_channel_callback))
 		adc1_ch = 0;
 
-	adc_async_set_inputs(descr, adc1_ch, 0, adc1_channel_callback[adc1_ch].chan);
+	adc_async_set_inputs(descr, adc1_channel_callback[adc1_ch].chan, 0, 0);
 	return;
 }
 
