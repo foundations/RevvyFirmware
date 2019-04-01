@@ -186,9 +186,13 @@ int32_t SensorPortSetType(uint32_t port_idx, sensor_type_t sens_type)
 
 	if (port_idx<ARRAY_SIZE(sensor_ports) && sens_type<ARRAY_SIZE(sensor_libs))
 	{
+		if (sensor_ports[port_idx].sensor_lib != NULL)
+		{
+			if(sensor_ports[port_idx].sensor_lib->SensorDeInit)
+				sensor_ports[port_idx].sensor_lib->SensorDeInit(&sensor_ports[port_idx]);
+		}
+		
 		sensor_ports[port_idx].sensor_lib = sensor_libs[sens_type];
-		if(sensor_ports[port_idx].sensor_lib->SensorDeInit)
-			sensor_ports[port_idx].sensor_lib->SensorDeInit(&sensor_ports[port_idx]);
 		result = sensor_ports[port_idx].sensor_lib->SensorInit(&sensor_ports[port_idx]);
 		if ((result == ERR_NONE) && (sens_type != SENSOR_NOT_SET))
 			SensorPort_led0_on(&sensor_ports[port_idx]);
@@ -224,14 +228,17 @@ uint32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
 //*********************************************************************************************
 static void SensorPort_xTask(const void* user_data)
 {
+	TickType_t xLastWakeTime = xTaskGetTickCount();
 	p_hw_sensor_port_t sensport = user_data;
 	if (sensport == NULL)
 		return;
 	for(;;)
 	{
 		if (sensport->sensor_lib && sensport->sensor_lib->sensor_thread)
+		{
 			sensport->sensor_lib->sensor_thread(sensport);
-		os_sleep(200*rtos_get_ticks_in_ms());
+		}
+		vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(200u));
 	}
 }
 
