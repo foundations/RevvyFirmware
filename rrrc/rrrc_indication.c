@@ -38,41 +38,46 @@ static void tx_complete_cb_SPI_0(struct _dma_resource *resource)
 }
 
 //*********************************************************************************************
-static void MakeLedBuffer()
+static inline uint8_t getLedBitPattern(uint8_t bitValue)
 {
 #define LED_VAL_ZERO 0xC0
-#define LED_VAL_ONE 0x3C
+#define LED_VAL_ONE  0xFC
+	
+	if (bitValue)
+	{
+		return LED_VAL_ONE;
+	}
+	else
+	{
+		return LED_VAL_ZERO;
+	}
+}
+
+//*********************************************************************************************
+static void MakeLedBuffer()
+{
 #define LED_VAL_RES 0x00
 
 	uint32_t frame_idx = 0;
 	for (int32_t idx=0; idx<LED_RESET_SIZE; idx++)
-		frame_leds[frame_idx++] = LED_VAL_RES;
+	frame_leds[frame_idx++] = LED_VAL_RES;
 	
 	for(uint32_t idx=0; idx<STATUS_LEDS_AMOUNT; idx++)
 	{
 		for(int32_t bit=7; bit>=0; bit--)
 		{
 			uint8_t bit_val = status_leds[idx].G>>bit;
-			uint8_t byte_val = LED_VAL_ZERO;
-			if (bit_val)
-				byte_val |= LED_VAL_ONE;
-			frame_leds[frame_idx++] = byte_val;
+			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
 		}
 		for(int32_t bit=7; bit>=0; bit--)
 		{
 			uint8_t bit_val = status_leds[idx].R>>bit;
-			uint8_t byte_val = LED_VAL_ZERO;
-			if (bit_val)
-				byte_val |= LED_VAL_ONE;
-			frame_leds[frame_idx++] = byte_val;
+			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
 		}
 		for(int32_t bit=7; bit>=0; bit--)
 		{
 			uint8_t bit_val = status_leds[idx].B>>bit;
-			uint8_t byte_val = LED_VAL_ZERO;
-			if (bit_val)
-				byte_val |= LED_VAL_ONE;
-			frame_leds[frame_idx++] = byte_val;
+			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
 		}
 	}
 
@@ -81,26 +86,17 @@ static void MakeLedBuffer()
 		for(int32_t bit=7; bit>=0; bit--)
 		{
 			uint8_t bit_val = Led_ring_curr_buff[frame_curr][idx].G>>bit;
-			uint8_t byte_val = LED_VAL_ZERO;
-			if (bit_val)
-				byte_val |= LED_VAL_ONE;
-			frame_leds[frame_idx++] = byte_val;
+			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
 		}
 		for(int32_t bit=7; bit>=0; bit--)
 		{
 			uint8_t bit_val = Led_ring_curr_buff[frame_curr][idx].R>>bit;
-			uint8_t byte_val = LED_VAL_ZERO;
-			if (bit_val)
-				byte_val |= LED_VAL_ONE;
-			frame_leds[frame_idx++] = byte_val;
+			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
 		}
 		for(int32_t bit=7; bit>=0; bit--)
 		{
 			uint8_t bit_val = Led_ring_curr_buff[frame_curr][idx].B>>bit;
-			uint8_t byte_val = LED_VAL_ZERO;
-			if (bit_val)
-				byte_val |= LED_VAL_ONE;
-			frame_leds[frame_idx++] = byte_val;
+			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
 		}
 	}
 	frame_curr++;
@@ -110,7 +106,7 @@ static void MakeLedBuffer()
 
 static void Indication_xTask(const void* user_data)
 {
-
+	TickType_t xLastWakeTime = xTaskGetTickCount();
 	for(;;)
 	{
 		MakeLedBuffer();
@@ -120,8 +116,8 @@ static void Indication_xTask(const void* user_data)
 		spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, tx_complete_cb_SPI_0);
 		spi_m_dma_enable(&SPI_0);
 		io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
-		os_sleep(100*rtos_get_ticks_in_ms());
-	}//1000 tick = 15ms
+		vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(200u));
+	}
 	return;
 }
 
@@ -221,7 +217,7 @@ int32_t IndicationInit(){
 	IndicationSetRingType(RING_LED_OFF);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
-	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xIndicationTask) != pdPASS) 
+	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, 5, &xIndicationTask) != pdPASS) 
 		return ERR_FAILURE;
 
 	return result;}

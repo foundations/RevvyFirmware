@@ -252,14 +252,17 @@ uint32_t MotorPortGetCount(uint32_t port_idx, uint32_t* data)
 //*********************************************************************************************
 static void MotorPort_xTask(const void* user_data)
 {
+	TickType_t xLastWakeTime = xTaskGetTickCount();
 	p_hw_motor_port_t motport = user_data;
 	if (motport == NULL)
 		return;
 	for(;;)
 	{
 		if (motport->motor_lib && motport->motor_lib->motor_thread)
+		{
 			motport->motor_lib->motor_thread(motport);
-		os_sleep(200*rtos_get_ticks_in_ms());
+		}
+		vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(200u));
 	}
 }
 

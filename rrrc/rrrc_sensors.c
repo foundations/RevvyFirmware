@@ -224,14 +224,17 @@ uint32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
 //*********************************************************************************************
 static void SensorPort_xTask(const void* user_data)
 {
+	TickType_t xLastWakeTime = xTaskGetTickCount();
 	p_hw_sensor_port_t sensport = user_data;
 	if (sensport == NULL)
 		return;
 	for(;;)
 	{
 		if (sensport->sensor_lib && sensport->sensor_lib->sensor_thread)
+		{
 			sensport->sensor_lib->sensor_thread(sensport);
-		os_sleep(200*rtos_get_ticks_in_ms());
+		}
+		vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(200u));
 	}
 }
 
