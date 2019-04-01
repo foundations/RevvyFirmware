@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 int32_t ABUTTON_Init(void* hw_port);
+int32_t ABUTTON_DeInit(void* hw_port);
 uint32_t ABUTTON_get_value(void* hw_port, uint32_t* data, uint32_t max_size);
 void ABUTTON_Thread(void* hw_port);
 void ABUTTON_adc_callback(void* hw_port, uint32_t data);
@@ -26,7 +27,7 @@ static sensor_lib_entry_t sensor_analog_button =
 	.type_id = SENSOR_ANALOG_SWITCH,
 	.name = "ABUTTON",
 	.SensorInit = ABUTTON_Init,
-	.SensorDeInit = NULL,
+	.SensorDeInit = ABUTTON_DeInit,
 	.sensor_get_values = ABUTTON_get_value,
 	.sensor_thread = ABUTTON_Thread,
 	.write_data = NULL,

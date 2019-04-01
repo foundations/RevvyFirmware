@@ -40,7 +40,7 @@ void ABUTTON_Thread(void* hw_port)
 	return;
 }
 
- //*********************************************************************************************
+//*********************************************************************************************
 void ABUTTON_adc_callback(void* hw_port, uint32_t data)
 {
 	p_hw_sensor_port_t sensport = hw_port;
@@ -55,4 +55,16 @@ void ABUTTON_adc_callback(void* hw_port, uint32_t data)
 	}
 
 	return;
+}
+
+ //*********************************************************************************************
+int32_t ABUTTON_DeInit(void* hw_port)
+{
+	p_hw_sensor_port_t sensport = hw_port;
+	if (sensport)
+	{
+		SensorPort_led1_off(sensport);
+	}
+
+	return ERR_NONE;
 }

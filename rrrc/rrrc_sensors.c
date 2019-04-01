@@ -186,9 +186,13 @@ int32_t SensorPortSetType(uint32_t port_idx, sensor_type_t sens_type)
 
 	if (port_idx<ARRAY_SIZE(sensor_ports) && sens_type<ARRAY_SIZE(sensor_libs))
 	{
+		if (sensor_ports[port_idx].sensor_lib != NULL)
+		{
+			if(sensor_ports[port_idx].sensor_lib->SensorDeInit)
+				sensor_ports[port_idx].sensor_lib->SensorDeInit(&sensor_ports[port_idx]);
+		}
+		
 		sensor_ports[port_idx].sensor_lib = sensor_libs[sens_type];
-		if(sensor_ports[port_idx].sensor_lib->SensorDeInit)
-			sensor_ports[port_idx].sensor_lib->SensorDeInit(&sensor_ports[port_idx]);
 		result = sensor_ports[port_idx].sensor_lib->SensorInit(&sensor_ports[port_idx]);
 		if ((result == ERR_NONE) && (sens_type != SENSOR_NOT_SET))
 			SensorPort_led0_on(&sensor_ports[port_idx]);
