@@ -9,8 +9,8 @@
 
 #include "rrrc_sysmon.h"
 #include "rrrc_motors.h"
-#define adc_to_volt(x)    ((uint32_t)((3300.0f/1023) * x))
-#define adc_to_celsius(x) ((uint32_t)((3300.0f/1023) * x))
+#define adc_to_volt(x)    ((uint32_t)((3300.0f/255) * x))
+#define adc_to_celsius(x) ((uint32_t)((3300.0f/255) * x))
 static TaskHandle_t      xRRRC_SysMon_xTask;
 void RRRC_SysMom_xTask(void* user_data);
 
@@ -18,12 +18,16 @@ static rrrc_sysmot_t sysmon_val = {0};
 
 static void SysMon_adc_mot_volt_cb(const uint8_t adc_data, void* user_data)
 {
-	sysmon_val.motor_voltage = adc_data;
+//R1=100K
+//R2=30K
+	sysmon_val.motor_voltage = adc_to_volt(adc_data);
 	return;
 }
 
 static void SysMon_adc_bat_volt_cb(const uint8_t adc_data, void* user_data)
 {
+//R1=100K
+//R2=240K
 	sysmon_val.battery_voltage = adc_to_volt(adc_data);
 	return;
 }

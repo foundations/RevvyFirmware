@@ -99,7 +99,6 @@ typedef struct _hw_sensor_port_t
 
 	gpio_num vccio_pin;
 	
-	struct timer_descriptor *TIMER;
 }hw_sensor_port_t, *p_hw_sensor_port_t;
 
 

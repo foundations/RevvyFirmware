@@ -18,35 +18,6 @@
 
 
 //*********************************************************************************************
-static void SensorPort_timer_start(const void* port) 
-{
-	p_hw_sensor_port_t sensport = port;
-	if (sensport == NULL)
-		return;
-	_tc_timer_start(sensport->TIMER);
-	return;
-}
-
-//*********************************************************************************************
-static void SensorPort_timer_stop(const p_hw_sensor_port_t sensport)
-{
-	if (sensport == NULL)
-		return;
-	_tc_timer_stop(sensport->TIMER);
-	return;
-}
-
-//*********************************************************************************************
-static uint32_t SensorPort_timer_get_counter(const p_hw_sensor_port_t sensport)
-{
-	if (sensport == NULL)
-		return;
-	uint32_t val = 0;
-	timer_get_clock_cycles_in_tick(sensport->TIMER, &val);
-	return val;
-}
-
-//*********************************************************************************************
 static int32_t SensorPort_gpio0_set_as_gpio(const p_hw_sensor_port_t sensport, enum gpio_direction dir, enum gpio_pull_mode pull_mode)
 {
 	if (sensport == NULL)

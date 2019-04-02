@@ -31,7 +31,7 @@
 // <i> Select the reference for the ADC (REFSEL)
 // <id> adc_reference
 #ifndef CONF_ADC_0_REFSEL
-#define CONF_ADC_0_REFSEL 0x00
+#define CONF_ADC_0_REFSEL 0x03
 #endif
 
 // <o> Prescaler configuration
@@ -90,7 +90,7 @@
 // <i> These bits define the Mux selection for the positive ADC input. (MUXPOS)
 // <id> adc_pinmux_positive
 #ifndef CONF_ADC_0_MUXPOS
-#define CONF_ADC_0_MUXPOS 0x6
+#define CONF_ADC_0_MUXPOS 0x0
 #endif
 
 // <o> Negative Mux Input Selection
@@ -106,7 +106,7 @@
 // <i> These bits define the Mux selection for the negative ADC input. (MUXNEG)
 // <id> adc_pinmux_negative
 #ifndef CONF_ADC_0_MUXNEG
-#define CONF_ADC_0_MUXNEG 0x7
+#define CONF_ADC_0_MUXNEG 0x18
 #endif
 
 // </h>
@@ -202,7 +202,7 @@
 // <i> Define how many samples should be added together.The result will be available in the Result register (SAMPLENUM)
 // <id> adc_arch_samplenum
 #ifndef CONF_ADC_0_SAMPLENUM
-#define CONF_ADC_0_SAMPLENUM 0xA
+#define CONF_ADC_0_SAMPLENUM 0
 #endif
 
 // <o> Sampling Time Length <0-63>
@@ -250,7 +250,7 @@
 // <e> Event Control
 // <id> adc_arch_event_settings
 #ifndef CONF_ADC_0_EVENT_CONTROL
-#define CONF_ADC_0_EVENT_CONTROL 1
+#define CONF_ADC_0_EVENT_CONTROL 0
 #endif
 
 // <q> Window Monitor Event Out
@@ -264,7 +264,7 @@
 // <i> Enables event output on result ready event (RESRDEO)
 // <id> adc_arch_resrdyeo
 #ifndef CONF_ADC_0_RESRDYEO
-#define CONF_ADC_0_RESRDYEO 1
+#define CONF_ADC_0_RESRDYEO 0
 #endif
 
 // <q> Invert flush Event Signal
@@ -324,7 +324,7 @@
 // <i> Select the reference for the ADC (REFSEL)
 // <id> adc_reference
 #ifndef CONF_ADC_1_REFSEL
-#define CONF_ADC_1_REFSEL 0x00
+#define CONF_ADC_1_REFSEL 0x03
 #endif
 
 // <o> Prescaler configuration
@@ -383,7 +383,7 @@
 // <i> These bits define the Mux selection for the positive ADC input. (MUXPOS)
 // <id> adc_pinmux_positive
 #ifndef CONF_ADC_1_MUXPOS
-#define CONF_ADC_1_MUXPOS 0x6
+#define CONF_ADC_1_MUXPOS 0x4
 #endif
 
 // <o> Negative Mux Input Selection
@@ -399,7 +399,7 @@
 // <i> These bits define the Mux selection for the negative ADC input. (MUXNEG)
 // <id> adc_pinmux_negative
 #ifndef CONF_ADC_1_MUXNEG
-#define CONF_ADC_1_MUXNEG 0x7
+#define CONF_ADC_1_MUXNEG 0x18
 #endif
 
 // </h>
@@ -495,7 +495,7 @@
 // <i> Define how many samples should be added together.The result will be available in the Result register (SAMPLENUM)
 // <id> adc_arch_samplenum
 #ifndef CONF_ADC_1_SAMPLENUM
-#define CONF_ADC_1_SAMPLENUM 0xA
+#define CONF_ADC_1_SAMPLENUM 0x0
 #endif
 
 // <o> Sampling Time Length <0-63>
