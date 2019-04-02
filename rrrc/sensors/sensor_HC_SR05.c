@@ -102,15 +102,18 @@ void HC_SR05_Thread(void* hw_port)
 
 	if (sens_data->self_curr_count == sens_data->self_prev_count)
 	{
-		static uint32_t err_wait_counter = 0;
-		if (err_wait_counter==10)
+		if (sens_data->err_wait_counter == 10)
 		{
             xTaskNotify(sens_data->xHCSR05Task, 0x01, eSetBits);
-			err_wait_counter = 0;
+			sens_data->err_wait_counter = 0;
 		}else
-			err_wait_counter++;
+			sens_data->err_wait_counter++;
 	}
-	sens_data->self_prev_count = sens_data->self_curr_count;
+    else
+    {
+        sens_data->self_prev_count = sens_data->self_curr_count;
+        sens_data->err_wait_counter = 0u;
+    }
 
 	return;
 }

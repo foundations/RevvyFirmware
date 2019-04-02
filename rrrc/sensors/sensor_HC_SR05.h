@@ -44,6 +44,7 @@ typedef struct _hc_sr05_data_t
 	uint32_t finish_time;
 	uint32_t self_prev_count;
 	uint32_t self_curr_count;
+    uint32_t err_wait_counter;
 }hc_sr05_data_t, *p_hc_sr05_data_t;
 
 #ifdef __cplusplus
