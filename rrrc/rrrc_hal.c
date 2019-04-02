@@ -79,8 +79,9 @@ void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, co
     }else
     {
         rrrc_i2c_send_stop(device);
-		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		BaseType_t xHigherPriorityTaskWoken = pdTRUE;
 		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
 //         uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
 //         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
@@ -100,8 +101,9 @@ void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8
 //         enum RRRC_I2C_CMD cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
 //         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
 //         rx_buffer.size = 0;
-		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		BaseType_t xHigherPriorityTaskWoken = pdTRUE;
 		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
 

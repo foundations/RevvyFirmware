@@ -32,7 +32,6 @@ int32_t HC_SR05_Init(void* hw_port)
 
 	if (xTaskCreate(HCSR05_xTask, task_name, 256 / sizeof(portSTACK_TYPE), sensport, tskIDLE_PRIORITY+1, &(sens_data->xHCSR05Task)) != pdPASS)
 		return ERR_FAILURE;
-	xTaskNotify(sens_data->xHCSR05Task, 0x01, eSetBits);
 
 	return result;
 }
@@ -78,18 +77,14 @@ void HCSR05_xTask(void* hw_port)
 
 	for(;;)
 	{
-		xResult = xTaskNotifyWait(pdFALSE, UINT32_MAX, &ulNotifiedValue, portMAX_DELAY);
-		//ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
-		
-		if (xResult == pdPASS)
-		{
-			os_sleep(20*rtos_get_ticks_in_ms());
-	 		SensorPort_gpio1_set_state(sensport, 1);
-	 		delay_us(15);
-	 		SensorPort_gpio1_set_state(sensport, 0);
-			sens_data->self_curr_count++;
-			SensorPort_led1_toggle(sensport);
-		}
+		os_sleep(20*rtos_get_ticks_in_ms());
+	 	SensorPort_gpio1_set_state(sensport, 1);
+	 	delay_us(15);
+	 	SensorPort_gpio1_set_state(sensport, 0);
+		sens_data->self_curr_count++;
+		SensorPort_led1_toggle(sensport);
+
+        (void) xTaskNotifyWait(pdFALSE, UINT32_MAX, &ulNotifiedValue, portMAX_DELAY);
 	}
 }
 void HC_SR05_Thread(void* hw_port)
@@ -110,8 +105,7 @@ void HC_SR05_Thread(void* hw_port)
 		static uint32_t err_wait_counter = 0;
 		if (err_wait_counter==10)
 		{
-			const static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-			xTaskNotify(sens_data->xHCSR05Task, 0x01, eSetBits);
+            xTaskNotify(sens_data->xHCSR05Task, 0x01, eSetBits);
 			err_wait_counter = 0;
 		}else
 			err_wait_counter++;
@@ -141,9 +135,9 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 		else
 			sens_data->distanse_tick = sens_data->finish_time - sens_data->start_time;
 		
-		const static BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		BaseType_t xHigherPriorityTaskWoken = pdTRUE;
 		xTaskNotifyFromISR(sens_data->xHCSR05Task, 0x01, eSetBits, &xHigherPriorityTaskWoken);
-
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 	}
 	return;
 }
