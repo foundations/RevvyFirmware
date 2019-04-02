@@ -75,16 +75,21 @@ void HCSR05_xTask(void* hw_port)
 		return;
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
 
+    TickType_t xLastWakeTime = xTaskGetTickCount();
 	for(;;)
 	{
-		os_sleep(20*rtos_get_ticks_in_ms());
 	 	SensorPort_gpio1_set_state(sensport, 1);
 	 	delay_us(15);
 	 	SensorPort_gpio1_set_state(sensport, 0);
 		sens_data->self_curr_count++;
-		SensorPort_led1_toggle(sensport);
 
+		SensorPort_led1_on(sensport);
         (void) xTaskNotifyWait(pdFALSE, UINT32_MAX, &ulNotifiedValue, portMAX_DELAY);
+    	SensorPort_led1_off(sensport);
+
+        // sleep for at least 20ms but set a desired sample rate of 2 samples per sec
+        vTaskDelay(rtos_ms_to_ticks(20));
+        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(500));
 	}
 }
 void HC_SR05_Thread(void* hw_port)
