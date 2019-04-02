@@ -51,7 +51,6 @@ hw_sensor_port_t sensor_ports[] =
 		.led1_gpio = S0LED1,
 		
 		.vccio_pin = S0IOVCC,
-		.TIMER = &TIMER_TC0,
 	},
 	{
 		.index = 1,
@@ -74,8 +73,6 @@ hw_sensor_port_t sensor_ports[] =
 		.led1_gpio = S1LED1,
 
 		.vccio_pin = S1IOVCC,
-
-		.TIMER = &TIMER_TC1,
 	},
 	{
 		.index = 2,
@@ -99,7 +96,6 @@ hw_sensor_port_t sensor_ports[] =
 		
 		.vccio_pin = S2IOVCC,
 
-		.TIMER = &TIMER_TC2,
 	},
 	{
 		.index = 3,
@@ -122,8 +118,6 @@ hw_sensor_port_t sensor_ports[] =
 		.led1_gpio = S3LED1,
 
 		.vccio_pin = S3IOVCC,
-
-		.TIMER = &TIMER_TC3,
 	},
 };
 
