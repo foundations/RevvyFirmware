@@ -43,6 +43,8 @@ int32_t HC_SR05_DeInit(void* hw_port)
 	p_hw_sensor_port_t sensport = hw_port;
 	if (sensport == NULL)
 		return ERR_INVALID_ARG;
+
+    SensorPort_led1_off(sensport);
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
 	vTaskDelete(sens_data->xHCSR05Task);
 
