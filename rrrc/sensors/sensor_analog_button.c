@@ -43,18 +43,23 @@ void ABUTTON_Thread(void* hw_port)
 //*********************************************************************************************
 void ABUTTON_adc_callback(void* hw_port, uint32_t data)
 {
-	p_hw_sensor_port_t sensport = hw_port;
-	if (sensport)
-	{
-		p_abutton_data_t sens_data = sensport->lib_data;
-		if (data>127)
-			sens_data->state = 1;
-		else
-			sens_data->state = 0;
-		SensorPort_led1_toggle(sensport);
-	}
+    p_hw_sensor_port_t sensport = hw_port;
+    if (sensport)
+    {
+        p_abutton_data_t sens_data = sensport->lib_data;
+        if (data > 127)
+        {
+            sens_data->state = 1;
+            SensorPort_led1_on(sensport);
+        }
+        else
+        {
+            sens_data->state = 0;
+            SensorPort_led1_off(sensport);
+        }
+    }
 
-	return;
+    return;
 }
 
  //*********************************************************************************************

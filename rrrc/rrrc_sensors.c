@@ -36,7 +36,7 @@ hw_sensor_port_t sensor_ports[] =
 		.lib_data = {0},
 		.xSensorPortTask = NULL,
 
-		.I2C = &I2C_1,
+		.I2C = &I2C_4,
 		.i2c_sda = S0I2Csda,
 		.i2c_scl = S0I2Cscl,
 
@@ -58,7 +58,7 @@ hw_sensor_port_t sensor_ports[] =
 		.lib_data = {0},
 		.xSensorPortTask = NULL,
 
-		.I2C = &I2C_2,
+		.I2C = &I2C_1,
 		.i2c_sda = S1I2Csda,
 		.i2c_scl = S1I2Cscl,
 
@@ -80,7 +80,7 @@ hw_sensor_port_t sensor_ports[] =
 		.lib_data = {0},
 		.xSensorPortTask = NULL,
 
-		.I2C = &I2C_3,
+		.I2C = &I2C_2,
 		.i2c_sda = S2I2Csda,
 		.i2c_scl = S2I2Cscl,
 
@@ -103,7 +103,7 @@ hw_sensor_port_t sensor_ports[] =
 		.lib_data = {0},
 		.xSensorPortTask = NULL,
 			
-		.I2C = &I2C_4,
+		.I2C = &I2C_3,
 		.i2c_sda = S3I2Csda,
 		.i2c_scl = S3I2Cscl,
 

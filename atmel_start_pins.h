@@ -246,33 +246,33 @@
 #define MOTPWEN PB20
 
 //for RRRC sensors
-#define S0GPIO0 PA19
-#define S0GPIO1		PB10
-#define S1GPIO0 PA20
-#define S1GPIO1		PB13
-#define S2GPIO0 PA21
-#define S2GPIO1		PB12
-#define S3GPIO0 PA18
-#define S3GPIO1		PB11
+#define S0GPIO0 PA18
+#define S0GPIO1 PB11
+#define S1GPIO0 PA19
+#define S1GPIO1 PB10
+#define S2GPIO0 PA20
+#define S2GPIO1 PB13
+#define S3GPIO0 PA21
+#define S3GPIO1 PB12
 
-#define S0ADC PA02
-#define S1ADC PB01
-#define S2ADC PB00
-#define S3ADC PA03
+#define S0ADC PA03
+#define S1ADC PA02
+#define S2ADC PB01
+#define S3ADC PB00
 
-#define S0LED0 PC21
-#define S0LED1 PB07
-#define S1LED0 PB24
-#define S1LED1 PB25
-#define S2LED0 PC26
-#define S2LED1 PB27
-#define S3LED0 PC16
-#define S3LED1 PC18
+#define S0LED0 PC16
+#define S0LED1 PC18
+#define S1LED0 PC21
+#define S1LED1 PB07
+#define S2LED0 PB24
+#define S2LED1 PB25
+#define S3LED0 PC26
+#define S3LED1 PB27
 
-#define S0IOVCC PC04
-#define S1IOVCC PC05
-#define S2IOVCC PC06
-#define S3IOVCC PC07
+#define S0IOVCC PC07
+#define S1IOVCC PC04
+#define S2IOVCC PC05
+#define S3IOVCC PC06
 
 
 //SERCOM2!!
@@ -313,14 +313,14 @@
 
 #define RPiI2Csda I2C0_SDApin
 #define RPiI2Cscl I2C0_SCLpin
-#define S0I2Csda I2C1_SDApin
-#define S0I2Cscl I2C1_SCLpin
-#define S1I2Csda I2C2_SDApin
-#define S1I2Cscl I2C2_SCLpin
-#define S2I2Csda I2C3_SDApin
-#define S2I2Cscl I2C3_SCLpin
-#define S3I2Csda I2C4_SDApin
-#define S3I2Cscl I2C4_SCLpin
+#define S0I2Csda I2C4_SDApin
+#define S0I2Cscl I2C4_SCLpin
+#define S1I2Csda I2C1_SDApin
+#define S1I2Cscl I2C1_SCLpin
+#define S2I2Csda I2C2_SDApin
+#define S2I2Cscl I2C2_SCLpin
+#define S3I2Csda I2C3_SDApin
+#define S3I2Cscl I2C3_SCLpin
 
 #define WS2812pin PB29
 #define WS2812pin_function GPIO_PIN_FUNCTION_D
