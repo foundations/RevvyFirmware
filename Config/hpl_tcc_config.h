@@ -23,13 +23,13 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TCC0_PRESCALER
-#define CONF_TCC0_PRESCALER TCC_CTRLA_PRESCALER_DIV2_Val
+#define CONF_TCC0_PRESCALER TCC_CTRLA_PRESCALER_DIV8_Val
 #endif
 
 //<o> Length of one timer tick in uS <0-16777216>
 // <id> timer_tick
 #ifndef CONF_TCC0_TIMER_TICK
-#define CONF_TCC0_TIMER_TICK 1000
+#define CONF_TCC0_TIMER_TICK 200
 #endif
 
 // </h>
@@ -310,8 +310,7 @@
 #endif
 
 #ifndef CONF_TCC0_PER
-#define CONF_TCC0_PER                                                                                                  \
-	(uint32_t)(((float)CONF_TCC0_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TCC0_FREQUENCY / CONF_TCC0_PRESCALE)))
+#define CONF_TCC0_PER 128
 #endif
 
 #define CONF_TCC0_CTRLA                                                                                                \

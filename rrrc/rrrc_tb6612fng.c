@@ -43,7 +43,7 @@ static void tb6612fng_drv_set_speed(p_tb6612fng_t drv, int8_t speed)
     uint8_t duty = (speed < 0) ? -speed : speed;
 
     timer_stop(drv->pwm);
-    timer_set_chan_compare_value(drv->pwm, drv->pwm_ch, duty * 256);
+    timer_set_chan_compare_value(drv->pwm, drv->pwm_ch, duty);
     timer_start(drv->pwm);
 }
 
