@@ -185,7 +185,7 @@ int32_t _tc_timer_init(struct _timer_device *const device, void *const hw)
 	hri_tc_write_DBGCTRL_reg(hw, _tcs[i].dbg_ctrl);
 	hri_tc_write_EVCTRL_reg(hw, _tcs[i].event_ctrl);
 	hri_tc_write_DRVCTRL_reg(hw, _tcs[i].drv_ctrl);
-	//hri_tc_write_WAVE_reg(hw, TC_WAVE_WAVEGEN_MFRQ);
+	hri_tc_write_WAVE_reg(hw, TC_WAVE_WAVEGEN_NFRQ);
 
 	if ((_tcs[i].ctrl_a & TC_CTRLA_MODE_Msk) == TC_CTRLA_MODE_COUNT32) {
 		hri_tccount32_write_CC_reg(hw, 0, _tcs[i].cc0);
@@ -200,13 +200,15 @@ int32_t _tc_timer_init(struct _timer_device *const device, void *const hw)
 		hri_tccount8_write_CC_reg(hw, 1, (uint8_t)_tcs[i].cc1);
 		hri_tccount8_write_PER_reg(hw, _tcs[i].per);
 	}
-	//hri_tc_set_INTEN_OVF_bit(hw);
+
+	_tc_init_irq_param(hw, (void *)device);
+	NVIC_DisableIRQ(_tcs[i].irq);
+
+	hri_tc_set_INTEN_OVF_bit(hw);
 	hri_tc_set_INTEN_MC0_bit(hw);
 	hri_tc_set_INTEN_MC1_bit(hw);
 	hri_tc_set_INTEN_ERR_bit(hw);
 
-	_tc_init_irq_param(hw, (void *)device);
-	NVIC_DisableIRQ(_tcs[i].irq);
 	NVIC_ClearPendingIRQ(_tcs[i].irq);
 	NVIC_EnableIRQ(_tcs[i].irq);
 
@@ -232,6 +234,7 @@ void _tc_timer_deinit(struct _timer_device *const device)
 void _tc_timer_start(struct _timer_device *const device)
 {
 	hri_tc_set_CTRLA_ENABLE_bit(device->hw);
+    hri_tc_set_CTRLB_CMD_bf(device->hw, TC_CTRLBSET_CMD_RETRIGGER_Val);
 }
 /**
  * \brief Stop hardware timer
@@ -324,15 +327,15 @@ static void tc_interrupt_handler(struct _timer_device *device)
 	}else if (hri_tc_get_interrupt_MC0_bit(hw)) {
 		device->timer_cb.capture_chan0(device);
 		hri_tc_clear_interrupt_MC0_bit(hw);
-		hri_tccount16_write_CC_reg(hw, 0, 0);
+		//hri_tccount16_write_CC_reg(hw, 0, 0);
 	}else if (hri_tc_get_interrupt_MC1_bit(hw)) {
 		device->timer_cb.capture_chan1(device);
 		hri_tc_clear_interrupt_MC1_bit(hw);
-		hri_tccount16_write_CC_reg(hw, 1, 0);
- 	}//else if (hri_tc_get_interrupt_OVF_bit(hw)) {
-// 		device->timer_cb.period_expired(device);
-// 		hri_tc_clear_interrupt_OVF_bit(hw);
-// 	}
+		//hri_tccount16_write_CC_reg(hw, 1, 0);
+ 	}else if (hri_tc_get_interrupt_OVF_bit(hw)) {
+ 		device->timer_cb.period_expired(device);
+ 		hri_tc_clear_interrupt_OVF_bit(hw);
+ 	}
 
 }
 

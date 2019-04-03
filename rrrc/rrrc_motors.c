@@ -58,7 +58,7 @@ hw_motor_port_t motor_ports[] =
 		.motor_lib = NULL,
 		.lib_data = {0},
 		.xMotorPortTask = NULL,
-		.enc_timer = &TIMER_TC3,
+		.enc_timer = &TIMER_TC7,
 		.enc0_gpio = M3ENC0,
 		.enc1_gpio = M3ENC1,
 		.dir0_gpio = M3DIR1,
@@ -306,7 +306,7 @@ int32_t MotorPortInit(uint32_t port_idx)
 	timer_register_cb(motor_ports[port_idx].enc_timer,TIMER_MC0, MotorPort_enc0_cb, &motor_ports[port_idx]);
 	timer_register_cb(motor_ports[port_idx].enc_timer,TIMER_MC1, MotorPort_enc1_cb, &motor_ports[port_idx]);
 
-	timer_start(motor_ports[port_idx].enc_timer);
+	//timer_start(motor_ports[port_idx].enc_timer);
 
 	char task_name[configMAX_TASK_NAME_LEN+1];
 	snprintf(task_name, configMAX_TASK_NAME_LEN, "motorport%01d", port_idx);

@@ -421,13 +421,13 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC2_PRESCALER
-#define CONF_TC2_PRESCALER 0x4
+#define CONF_TC2_PRESCALER 0x0
 #endif
 
 // <o> Length of one timer tick in uS <0-4294967295>
 // <id> timer_tick
 #ifndef CONF_TC2_TIMER_TICK
-#define CONF_TC2_TIMER_TICK 1000
+#define CONF_TC2_TIMER_TICK 5
 #endif
 // </h>
 
@@ -451,7 +451,7 @@
 // <i> Indicates whether the module will continue to run in standby sleep mode
 // <id> tc_arch_runstdby
 #ifndef CONF_TC2_RUNSTDBY
-#define CONF_TC2_RUNSTDBY 0
+#define CONF_TC2_RUNSTDBY 1
 #endif
 
 // <q> Run in debug mode
@@ -487,7 +487,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC2_MCEO1
-#define CONF_TC2_MCEO1 1
+#define CONF_TC2_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -523,7 +523,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC2_EVACT
-#define CONF_TC2_EVACT 4
+#define CONF_TC2_EVACT 3
 #endif
 // </e>
 
@@ -531,13 +531,12 @@
 
 // Mode set to 32-bit
 #ifndef CONF_TC2_MODE
-#define CONF_TC2_MODE TC_CTRLA_MODE_COUNT16_Val
+#define CONF_TC2_MODE TC_CTRLA_MODE_COUNT32_Val
 #endif
 
 // CC 1 register set to 0
 #ifndef CONF_TC2_CC1
-#define CONF_TC2_CC1                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
+#define CONF_TC2_CC1 0xFFFFFFFF
 #endif
 
 #ifndef CONF_TC2_ALOCK
@@ -569,8 +568,7 @@
 #endif
 
 #ifndef CONF_TC2_CC0
-#define CONF_TC2_CC0                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC2_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC2_FREQUENCY / CONF_TC2_PRESCALE)))
+#define CONF_TC2_CC0 0xFFFFFFFF
 #endif
 
 
@@ -579,19 +577,19 @@
 #endif
 
 #ifndef CONF_TC2_COPEN1
-#define CONF_TC2_COPEN1 1
+#define CONF_TC2_COPEN1 0
 #endif
 
 #ifndef CONF_TC2_CAPTEN0
-#define CONF_TC2_CAPTEN0 1
+#define CONF_TC2_CAPTEN0 0
 #endif
 
 #ifndef CONF_TC2_CAPTEN1
-#define CONF_TC2_CAPTEN1 1
+#define CONF_TC2_CAPTEN1 0
 #endif
 
 #ifndef CONF_TC2_DRVCTRLEN0
-#define CONF_TC2_DRVCTRLEN0 1
+#define CONF_TC2_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC2_DRVCTRLEN1

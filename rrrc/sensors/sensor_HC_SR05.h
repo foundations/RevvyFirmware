@@ -35,16 +35,19 @@ static sensor_lib_entry_t sensor_hc_sr_05 =
     .gpio1_callback = NULL,
 };
 
+#define HCSR05_MEDIAN_FITLER_SIZE   3
 
 typedef struct _hc_sr05_data_t
 {
 	TaskHandle_t    xHCSR05Task;
-	uint32_t distanse_tick;
+	uint32_t distance_tick;
+	uint32_t filtered_distance_tick;
 	uint32_t start_time;
-	uint32_t finish_time;
 	uint32_t self_prev_count;
 	uint32_t self_curr_count;
     uint32_t err_wait_counter;
+    uint32_t distanceBuffer[HCSR05_MEDIAN_FITLER_SIZE - 1];
+    uint32_t distanceBufferWriteIdx;
 }hc_sr05_data_t, *p_hc_sr05_data_t;
 
 #ifdef __cplusplus

@@ -19,33 +19,6 @@
 extern "C" {
 #endif
 
-typedef struct _mutex_t
-{
-	int mtx;
-}mutex_t, *p_mutex_t;
-static void Lock(mutex_t* mtx)
-{
-	CRITICAL_SECTION_ENTER();
-	while(mtx->mtx);	mtx->mtx = 1;
-	CRITICAL_SECTION_LEAVE();
-}
-
-static bool TryLock(mutex_t* mtx)
-{
-	CRITICAL_SECTION_ENTER();
-	if (mtx->mtx)	
-		return false;
-	mtx->mtx = 1;
-	return true;
-	CRITICAL_SECTION_LEAVE();
-}
-static void UnLock(mutex_t* mtx)
-{
-	CRITICAL_SECTION_ENTER();
-	mtx->mtx = 0;
-	CRITICAL_SECTION_LEAVE();
-}
-
 #define MIN_TRANSACTION_SIZE 3
 #define MAX_TRANSACTION_SIZE 127
 
@@ -64,6 +37,10 @@ int32_t RRRC_channel_adc_register_cb(uint32_t adc_idx, uint32_t chan_idx, channe
 int32_t RRRC_channel_adc_unregister_cb(uint32_t adc_idx, uint32_t chan_idx);
 int32_t RRRC_add_task(struct timer_task *const task, timer_task_cb_t func, uint32_t interval, void* user_data, bool oneshot);
 int32_t RRRC_remove_task(struct timer_task const* task);
+
+void high_res_timer_init(struct timer_descriptor* timer);
+uint32_t high_res_timer_get_count(void);
+uint32_t high_res_timer_ticks_per_ms(void);
 
 static uint32_t SwapEndian(uint32_t dig)
 {

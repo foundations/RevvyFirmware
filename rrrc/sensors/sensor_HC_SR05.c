@@ -2,6 +2,7 @@
 #include "rrrc_sensor_base_func.h"
 #include "sensor_HC_SR05.h"
 #include <hal_delay.h>
+#include <math.h>
 
 uint32_t GetTimerCounter(p_hw_sensor_port_t hwport);
 
@@ -56,12 +57,50 @@ uint32_t HC_SR05_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 	if (hw_port && data && max_size && (max_size>=MAX_SENSOR_VALUES))
 	{
 		p_hc_sr05_data_t sens_data = sensport->lib_data;
-		uint32_t ticks_in_us = get_cycles_for_1us();
-		uint32_t distance_cm = sens_data->distanse_tick/ticks_in_us/58;
+
+		uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
+        portENTER_CRITICAL();
+        uint32_t distance_tick = sens_data->filtered_distance_tick;
+        portEXIT_CRITICAL();
+
+		float distance_ms = (float)distance_tick / ticks_in_ms;
+		uint32_t distance_cm = (uint32_t)lroundf(distance_ms * 17.0f);
+
 		data[0] = SwapEndian(distance_cm);
 		amount = 1;
 	}
 	return amount;
+}
+
+static inline void swap_uint32(uint32_t* a, uint32_t* b)
+{
+    uint32_t t = *a;
+    *a = *b;
+    *b = t;
+}
+
+static void update_filtered_distance(p_hc_sr05_data_t sens_data)
+{
+    uint32_t ordered[HCSR05_MEDIAN_FITLER_SIZE];
+
+    memcpy(&ordered[0], &sens_data->distanceBuffer[0], sizeof(sens_data->distanceBuffer));
+    ordered[HCSR05_MEDIAN_FITLER_SIZE - 1] = sens_data->distance_tick;
+
+    sens_data->distanceBuffer[sens_data->distanceBufferWriteIdx] = sens_data->distance_tick;
+    sens_data->distanceBufferWriteIdx = (sens_data->distanceBufferWriteIdx + 1) % ARRAY_SIZE(sens_data->distanceBuffer);
+
+    for (uint32_t i = 0; i < HCSR05_MEDIAN_FITLER_SIZE - 1; i++)
+    {
+        for (uint32_t j = i; j < HCSR05_MEDIAN_FITLER_SIZE - 1; j++)
+        {
+            if (ordered[i] > ordered[j])
+            {
+                swap_uint32(&ordered[i], &ordered[j]);
+            }
+        }
+    }
+
+    sens_data->filtered_distance_tick = ordered[HCSR05_MEDIAN_FITLER_SIZE / 2];
 }
 
 //*********************************************************************************************
@@ -83,12 +122,12 @@ void HCSR05_xTask(void* hw_port)
 	 	SensorPort_gpio1_set_state(sensport, 0);
 		sens_data->self_curr_count++;
 
-		SensorPort_led1_on(sensport);
-        (void) xTaskNotifyWait(pdFALSE, UINT32_MAX, &ulNotifiedValue, portMAX_DELAY);
-    	SensorPort_led1_off(sensport);
+        (void) ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        // sleep for at least 20ms but set a desired sample rate of 2 samples per sec
-        vTaskDelay(rtos_ms_to_ticks(20));
+        update_filtered_distance(sens_data);
+
+        // set a desired sample rate of 2 samples per sec but sleep for at least 200ms
+        vTaskDelay(rtos_ms_to_ticks(200));
         vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(500));
 	}
 }
@@ -99,17 +138,11 @@ void HC_SR05_Thread(void* hw_port)
 		return;
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
 
-	uint32_t ticks_in_us = get_cycles_for_1us();
-	uint32_t ticks_in_ms = get_cycles_for_1ms();
-	uint32_t distance_us = sens_data->distanse_tick/ticks_in_us;
-	uint32_t distance_ms = sens_data->distanse_tick/ticks_in_ms;
-	uint32_t distance_cm = distance_us/58;
-
 	if (sens_data->self_curr_count == sens_data->self_prev_count)
 	{
 		if (sens_data->err_wait_counter == 10)
 		{
-            xTaskNotify(sens_data->xHCSR05Task, 0x01, eSetBits);
+            xTaskNotifyGive(sens_data->xHCSR05Task);
 			sens_data->err_wait_counter = 0;
 		}else
 			sens_data->err_wait_counter++;
@@ -133,18 +166,23 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 
 	if (data)
 	{
-		sens_data->start_time = get_system_tick();
+		sens_data->start_time = high_res_timer_get_count();
+		SensorPort_led1_on(sensport);
 	}
 	else
 	{
-		sens_data->finish_time = get_system_tick();
-		if (sens_data->start_time>sens_data->finish_time)
-			sens_data->distanse_tick = sens_data->finish_time - sens_data->start_time;
-		else
-			sens_data->distanse_tick = sens_data->finish_time - sens_data->start_time;
+		uint32_t finish_time = high_res_timer_get_count();
+    	SensorPort_led1_off(sensport);
+
+		uint32_t dist = finish_time - sens_data->start_time;
+
+        if (dist < 0x7FFFFFFF)
+        {
+            sens_data->distance_tick = dist;
+        }
 		
-		BaseType_t xHigherPriorityTaskWoken = pdTRUE;
-		xTaskNotifyFromISR(sens_data->xHCSR05Task, 0x01, eSetBits, &xHigherPriorityTaskWoken);
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		vTaskNotifyGiveFromISR(sens_data->xHCSR05Task, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 	}
 	return;

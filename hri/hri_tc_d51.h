@@ -2462,6 +2462,8 @@ static inline void hri_tccount32_toggle_CC_reg(const void *const hw, uint8_t ind
 static inline hri_tccount32_cc_reg_t hri_tccount32_read_CC_reg(const void *const hw, uint8_t index)
 {
 	hri_tc_wait_for_sync(hw, TC_SYNCBUSY_CC0 | TC_SYNCBUSY_CC1);
+hri_tc_set_CTRLB_CMD_bf(hw, TC_CTRLBSET_CMD_READSYNC_Val);
+
 	return ((Tc *)hw)->COUNT32.CC[index].reg;
 }
 
