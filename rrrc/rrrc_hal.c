@@ -51,12 +51,10 @@ void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device)
 {
     if ( tx_buffer.index < tx_buffer.size )
     {
-        
-		if (tx_buffer.index+1 == tx_buffer.size)
-			rrrc_i2c_send_stop(device);
-		_i2c_s_async_write_byte(device, tx_buffer.buff[tx_buffer.index]);
+        _i2c_s_async_write_byte(device, tx_buffer.buff[tx_buffer.index]);
 		tx_buffer.index++;
-    }else
+    }
+    else
     {
 		rrrc_i2c_send_stop(device);
 		_i2c_s_async_write_byte(device, 0xFF);
@@ -76,16 +74,6 @@ void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, co
     {
         rx_buffer.buff[rx_buffer.size] = data;
 		rx_buffer.size++;
-    }else
-    {
-        rrrc_i2c_send_stop(device);
-		BaseType_t xHigherPriorityTaskWoken = pdTRUE;
-		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-
-//         uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
-//         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
-//         rx_buffer.size = 0;
     }
 }
 
@@ -98,10 +86,7 @@ void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8
         tx_buffer.size = 0;
     }else
     { //rx
-//         enum RRRC_I2C_CMD cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
-//         tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
-//         rx_buffer.size = 0;
-		BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
@@ -216,25 +201,6 @@ static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, con
 
 	adc_async_set_inputs(descr, adc1_channel_callback[adc1_ch].chan, ADC_INTERNAL_GND_ch, 0); 
 	return;
-}
-
-//*********************************************************************************************
-int32_t RRRC_add_task(struct timer_task *const task, timer_task_cb_t func, uint32_t interval, void* user_data, bool oneshot)
-{
-	int32_t result = ERR_NONE;
-	if (!task)
-		return ERR_INVALID_ARG;
-	task->interval = interval;
-	task->cb       = func;
-	if (oneshot)
-		task->mode     = TIMER_TASK_ONE_SHOT;
-	else
-		task->mode     = TIMER_TASK_REPEAT;
-	task->user_data = user_data;
-	timer_stop(&TIMER_RTC);
-	timer_add_task(&TIMER_RTC, task);
-	timer_start(&TIMER_RTC);
-	return result;
 }
 
 int32_t adc_convertion_start(uint32_t adc_idx)

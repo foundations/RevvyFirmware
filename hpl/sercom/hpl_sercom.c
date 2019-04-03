@@ -1132,10 +1132,10 @@ static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
         hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
 	} else if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
 		if (!hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
-			if (device->cb.rx_done_cb);
+			if (device->cb.rx_done_cb)
 				device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
 		} else {
-			if (device->cb.tx_cb);
+			if (device->cb.tx_cb)
 				device->cb.tx_cb(device);
 		}
 #if (CONF_MCLK_LPDIV) != (CONF_MCLK_CPUDIV)

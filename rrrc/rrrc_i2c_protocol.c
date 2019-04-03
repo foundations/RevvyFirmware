@@ -300,12 +300,6 @@ void RRRC_Comunication_xTask(void* user_data)
 			uint8_t cmd = CommandHandler(rx_buffer.buff, rx_buffer.size);
 			tx_buffer.size = MakeResponse(cmd, tx_buffer.buff);
 			rx_buffer.size = 0;
-// 			os_sleep(20*rtos_get_ticks_in_ms());
-// 	 		SensorPort_gpio1_set_state(sensport, 1);
-// 	 		delay_us(15);
-// 	 		SensorPort_gpio1_set_state(sensport, 0);
-// 			sens_data->self_curr_count++;
-// 			SensorPort_led1_toggle(sensport);
 		}
 	}
 }
