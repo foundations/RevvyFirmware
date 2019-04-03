@@ -92,6 +92,9 @@ void _delay_cycles(void *const hw, uint32_t cycles)
 	uint8_t  n   = cycles >> 24;
 	uint32_t buf = cycles;
 
+    uint32_t load = SysTick->LOAD;
+    uint32_t val  = SysTick->VAL;
+
 	while (n--) {
 		SysTick->LOAD = 0xFFFFFF;
 		SysTick->VAL  = 0xFFFFFF;
@@ -104,4 +107,8 @@ void _delay_cycles(void *const hw, uint32_t cycles)
 	SysTick->VAL  = buf;
  	while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
 		;
+
+    /* restore original values to not mess with OS timing too much */
+	SysTick->LOAD = load;
+	SysTick->VAL  = val;
 }
