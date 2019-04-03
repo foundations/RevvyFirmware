@@ -910,13 +910,6 @@ struct i2cm_configuration {
 static inline void _i2c_m_enable_implementation(void *hw);
 static int32_t     _i2c_m_sync_init_impl(struct _i2c_m_service *const service, void *const hw);
 
-#if SERCOM_I2CM_AMOUNT < 1
-/** Dummy array to pass compiling. */
-static struct i2cm_configuration _i2cms[1] = {{0}};
-#else
-/**
- * \brief Array of SERCOM I2CM configurations
- */
 static struct i2cm_configuration _i2cms[] = {
 #if CONF_SERCOM_0_I2CM_ENABLE == 1
     I2CM_CONFIGURATION(0),
@@ -943,7 +936,6 @@ static struct i2cm_configuration _i2cms[] = {
     I2CM_CONFIGURATION(7),
 #endif
 };
-#endif
 
 /**
  * \internal Retrieve ordinal number of the given sercom hardware instance
@@ -955,9 +947,8 @@ static struct i2cm_configuration _i2cms[] = {
 static int8_t _get_i2cm_index(const void *const hw)
 {
 	uint8_t sercom_offset = _sercom_get_hardware_index(hw);
-	uint8_t i;
 
-	for (i = 0; i < ARRAY_SIZE(_i2cms); i++) {
+	for (uint32_t i = 0; i < ARRAY_SIZE(_i2cms); i++) {
 		if (_i2cms[i].number == sercom_offset) {
 			return i;
 		}

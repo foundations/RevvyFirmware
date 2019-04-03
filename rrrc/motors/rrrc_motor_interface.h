@@ -18,15 +18,16 @@
 extern "C" {
 #endif
 
-
 #define MOTOR_PORT_LIBDATA 128
 
 typedef enum _motor_type_t
 {
 	MOTOR_NOT_SET,
-	MOTOR_DC,
+    MOTOR_OPENLOOP,
 	MOTOR_SERVO
 }motor_type_t;
+
+typedef struct _hw_motor_port_t;
 
 typedef struct _motor_lib_entry_t
 {
@@ -36,18 +37,23 @@ typedef struct _motor_lib_entry_t
 
 	int32_t (*MotorInit)(void* hw_port);
 	int32_t (*MotorDeInit)(void* hw_port);
-	uint32_t (*motor_get_counter)(void* hw_port, uint32_t* data, uint32_t max_size);
-	int8_t (*motor_get_state)(void* hw_port);
-	uint32_t (*motor_set_state)(void* hw_port, int8_t state);
-	uint32_t (*motor_set_steps)(void* hw_port, uint32_t steps);
-	void (*motor_thread)(void* hw_port);
 
-	//callback from encoder
-	void (*enc0_callback)(void* hw_port, uint32_t state);
-	void (*enc1_callback)(void* hw_port, uint32_t state);
+	int32_t (*motor_set_config)(void* hw_port, const uint8_t* data, uint32_t size);
+	uint32_t (*motor_get_config)(void* hw_port, uint8_t* data, uint32_t max_size);
+
+	uint32_t (*motor_get_position)(void* hw_port, uint8_t* data, uint32_t max_size);
+
+	uint32_t (*motor_set_control)(void* hw_port, int32_t value);
+	uint32_t (*motor_get_control)(void* hw_port, uint8_t* data, uint32_t max_size);
 }motor_lib_entry_t, *p_motor_lib_entry_t;
 
-
+typedef struct 
+{
+    void (*init)(struct _hw_motor_port_t* hw_port);
+    void (*set_speed)(struct _hw_motor_port_t* hw_port, int8_t speed);
+    int8_t (*get_speed)(struct _hw_motor_port_t* hw_port);
+    void (*deinit)(struct _hw_motor_port_t* hw_port);
+} motor_driver_lib_entry_t;
 
 typedef uint8_t gpio_num;
 
@@ -58,27 +64,16 @@ typedef struct _hw_motor_port_t
 
 	uint8_t lib_data[MOTOR_PORT_LIBDATA];
 
-	TaskHandle_t      xMotorPortTask;
-
-	struct timer_descriptor *enc_timer;
-	gpio_num enc0_gpio;
-	gpio_num enc1_gpio;
-
-	gpio_num dir0_gpio;
-	gpio_num dir1_gpio;
-
 	gpio_num led0_gpio;
 	gpio_num led1_gpio;
-	
-	struct timer_descriptor *pwm;
-	uint32_t pwm_ch;
-	gpio_num pwm_pin;
+
+    void* motorDriverConfig;
+    const motor_driver_lib_entry_t* motor_driver_lib;
+    
 }hw_motor_port_t, *p_hw_motor_port_t;
 
 #ifdef __cplusplus
 }
 #endif
-
-
 
 #endif /* RRRC_MOTOR_INTERFACE_H_ */

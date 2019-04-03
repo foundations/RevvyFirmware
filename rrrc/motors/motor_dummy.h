@@ -14,29 +14,21 @@
 
 #ifdef __cplusplus
 extern "C" {
-	#endif
+#endif
 
-	int32_t MOTOR_DUMMY_Init(void* hw_port);
-	void MOTOR_DUMMY_Thread(void* hw_port);
-	void MOTOR_DUMMY_enc0_callback(void* hw_port, uint32_t data);
-	void MOTOR_DUMMY_enc1_callback(void* hw_port, uint32_t data);
+int32_t MOTOR_DUMMY_Init(void* hw_port);
 
-	static motor_lib_entry_t motor_dummy =
-	{
-		.type_id = MOTOR_NOT_SET,
-		.name = "MOTOR_NO_SET",
-		.MotorInit = MOTOR_DUMMY_Init,
-		.MotorDeInit = NULL,
-		.motor_thread = MOTOR_DUMMY_Thread,
-
-		//callback from motor port
-		.enc0_callback = MOTOR_DUMMY_enc0_callback,
-		.enc1_callback = MOTOR_DUMMY_enc1_callback,
-	};
+static motor_lib_entry_t motor_dummy =
+{
+	.type_id = MOTOR_NOT_SET,
+	.name = "MOTOR_NO_SET",
+	.MotorInit = MOTOR_DUMMY_Init,
+	.MotorDeInit = NULL,
+};
 
 
 
-	#ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

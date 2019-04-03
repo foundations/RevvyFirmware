@@ -13,6 +13,13 @@
 
 static uint32_t request_port=0;
 
+static int32_t get_int32(uint8_t* buffer)
+{
+    uint32_t bytes = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3] << 0;
+
+    return (int32_t) (bytes);
+}
+
 //*********************************************************************************************
 uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
  {
@@ -20,7 +27,6 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 
 	 if ( (buff == NULL) || (size < MIN_TRANSACTION_SIZE) )
 		return ret_cmd;
-
 
 	 if( !checkCRC(buff) )
 		return ret_cmd;
@@ -80,15 +86,15 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 			}
 			break;
 		}
-		case RRRC_I2C_CMD_MOTOR_SET_STATE:
+		case RRRC_I2C_CMD_MOTOR_SET_CONTROL:
 		{
-			if (buff->data_length != 2)
+			if (buff->data_length != 5)
 				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
 			else
 			{
 				uint8_t port = buff->data[0];
-				int8_t state = buff->data[1];
-				uint32_t status = MotorPortSetState(port, state);
+				int32_t state = get_int32(&buff->data[1]);
+				uint32_t status = MotorPortSetControl(port, state);
 				if (status == ERR_NONE)
 					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
 				else
@@ -184,7 +190,6 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 	respose->command = cmd;
 	respose->data_length = 0;
 	
-
 	switch (cmd)
 	{
 		case RRRC_I2C_CMD_DUMMY:
@@ -269,7 +274,7 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 		}
 		case RRRC_I2C_CMD_SENSOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_TYPE:
-		case RRRC_I2C_CMD_MOTOR_SET_STATE:
+		case RRRC_I2C_CMD_MOTOR_SET_CONTROL:
 		case RRRC_I2C_CMD_MOTOR_SET_STEPS:
 		default:
 		{

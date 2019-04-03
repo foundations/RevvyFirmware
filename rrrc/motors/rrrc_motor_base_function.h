@@ -17,44 +17,6 @@
 #include "hal_timer.h"
 
 //*********************************************************************************************
-static void MotorPort_set_duty_cicle(p_hw_motor_port_t motport, uint32_t duty)
-{
-	if (motport == NULL)
-		return;
-	timer_stop(motport->pwm);
-	timer_set_chan_compare_value(motport->pwm, motport->pwm_ch, duty);
-	timer_start(motport->pwm);
-}
-
-//*********************************************************************************************
-static void MotorPort_dir_stop(p_hw_motor_port_t motport)
-{
-	if (motport == NULL)
-		return;	
-	//MotorPort_set_duty_cicle(motport, 200);
-	gpio_set_pin_level(motport->dir0_gpio, false);
-	gpio_set_pin_level(motport->dir1_gpio, false);
-}
-
-//*********************************************************************************************
-static void MotorPort_dir_forward(p_hw_motor_port_t motport)
-{
-	if (motport == NULL)
-		return;
-	MotorPort_dir_stop(motport);
-	gpio_set_pin_level(motport->dir0_gpio, true);
-}
-
-//*********************************************************************************************
-static void MotorPort_dir_backward(p_hw_motor_port_t motport)
-{
-	if (motport == NULL)
-		return;
-	MotorPort_dir_stop(motport);
-	gpio_set_pin_level(motport->dir1_gpio, true);
-}
-
-//*********************************************************************************************
 static void MotorPort_led0_on(p_hw_motor_port_t motport)
 {
 	if (motport == NULL)
@@ -100,22 +62,6 @@ static void MotorPort_led1_toggle(p_hw_motor_port_t motport)
 	if (motport == NULL)
 		return;
 	gpio_toggle_pin_level(motport->led1_gpio);
-}
-
-//*********************************************************************************************
-static int32_t MotorPort_gpio0_get_state(const p_hw_motor_port_t motport)
-{
-	if (motport == NULL)
-		return 0;
-	return gpio_get_pin_level(motport->enc0_gpio);
-}
-
-//*********************************************************************************************
-static int32_t MotorPort_gpio1_get_state(const p_hw_motor_port_t motport)
-{
-	if (motport == NULL)
-	return 0;
-	return gpio_get_pin_level(motport->enc1_gpio);
 }
 
 #endif /* RRRC_MOTOR_BASE_FUNCTION_H_ */

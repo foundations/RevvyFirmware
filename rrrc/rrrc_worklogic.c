@@ -84,7 +84,6 @@ static void SensorsPinsInit()
 //*********************************************************************************************
 static void MotorsPinsInit()
 {
-
 	//led pins
 	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
 	{
@@ -99,45 +98,9 @@ static void MotorsPinsInit()
 		gpio_set_pin_level(motor_ports[idx].led1_gpio, false);
 	}
 
-	//dir pins
 	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
 	{
-		gpio_set_pin_pull_mode(motor_ports[idx].dir0_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(motor_ports[idx].dir0_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].dir0_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(motor_ports[idx].dir0_gpio, false);
-
-		gpio_set_pin_pull_mode(motor_ports[idx].dir1_gpio, GPIO_PULL_UP);
-		gpio_set_pin_function(motor_ports[idx].dir1_gpio, GPIO_PIN_FUNCTION_OFF);
-		gpio_set_pin_direction(motor_ports[idx].dir1_gpio, GPIO_DIRECTION_OUT);
-		gpio_set_pin_level(motor_ports[idx].dir1_gpio, false);
-	}
-
-	//enc pins //TODO !!!!TESTING
-	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-	{
-//		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_OFF);
-// 		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_OUT);
-// 		gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_OFF);
-// 		gpio_set_pin_level(motor_ports[idx].enc0_gpio, false);
-// 		
-// 		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_OFF);
-// 		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_OUT);
-// 		gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_OFF);
-// 		gpio_set_pin_level(motor_ports[idx].enc1_gpio, false);
-//gpio_set_pin_pull_mode(motor_ports[idx].enc0_gpio, GPIO_PULL_DOWN);
-		gpio_set_pin_direction(motor_ports[idx].enc0_gpio, GPIO_DIRECTION_IN);
-		gpio_set_pin_function(motor_ports[idx].enc0_gpio, GPIO_PIN_FUNCTION_E);
-//gpio_set_pin_pull_mode(motor_ports[idx].enc1_gpio, GPIO_PULL_DOWN);
-		gpio_set_pin_direction(motor_ports[idx].enc1_gpio, GPIO_DIRECTION_IN);
-		gpio_set_pin_function(motor_ports[idx].enc1_gpio, GPIO_PIN_FUNCTION_E);
-	}
-
-	//PWM pins 
-	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-	{
-		gpio_set_pin_direction(motor_ports[idx].pwm_pin, GPIO_DIRECTION_OFF);
-		gpio_set_pin_function(motor_ports[idx].pwm_pin, GPIO_PIN_FUNCTION_F);
+    	tb6612fng_one_time_init(&motor_ports[idx]);
 	}
 
 	uint8_t moto_stbypins[] = {M12STBY, M34STBY, M56STBY};
@@ -152,8 +115,7 @@ static void MotorsPinsInit()
 	gpio_set_pin_pull_mode(MOTPWEN, GPIO_PULL_UP);
 	gpio_set_pin_function(MOTPWEN, GPIO_PIN_FUNCTION_OFF);
 	gpio_set_pin_direction(MOTPWEN, GPIO_DIRECTION_OUT);
-	gpio_set_pin_level(MOTPWEN, true);	
-
+	gpio_set_pin_level(MOTPWEN, true);
 }
 
 //*********************************************************************************************

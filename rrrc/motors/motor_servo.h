@@ -18,9 +18,6 @@ extern "C" {
 #endif
 
 int32_t SERVO_Init(void* hw_port);
-void SERVO_Thread(void* hw_port);
-void SERVO_enc0_callback(void* hw_port, uint32_t data);
-void SERVO_enc1_callback(void* hw_port, uint32_t data);
 
 static motor_lib_entry_t motor_servo =
 {
@@ -28,11 +25,6 @@ static motor_lib_entry_t motor_servo =
 	.name = "MOTOR_SERVO",
 	.MotorInit = SERVO_Init,
 	.MotorDeInit = NULL,
-	.motor_thread = SERVO_Thread,
-
-	//callback from motor port
-	.enc0_callback = SERVO_enc0_callback,
-	.enc1_callback = SERVO_enc1_callback,
 };
 
 #ifdef __cplusplus

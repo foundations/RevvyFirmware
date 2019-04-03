@@ -29,15 +29,7 @@ static motor_lib_entry_t motor_dc =
 	.type_id = MOTOR_DC,
 	.name = "MOTOR_DC",
 	.MotorInit = DC_Init,
-	.MotorDeInit = NULL,
-	.motor_get_counter = DC_get_counter,
-	.motor_get_state = DC_get_state,
-	.motor_set_state = DC_set_state,
-	.motor_thread = DC_Thread,
-
-	//callback from motor port
-	.enc0_callback = DC_enc0_callback,
-	.enc1_callback = DC_enc1_callback,
+	.MotorDeInit = NULL
 };
 
 

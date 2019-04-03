@@ -372,15 +372,15 @@ void system_init(void)
 
 	delay_driver_init();
 
-	//TIMER_TC0_init();
-	//TIMER_TC1_init();
+	TIMER_TC0_init();
+	TIMER_TC1_init();
 	TIMER_TC2_init();
 	//TIMER_TC3_init(); // do not use; used as TC2 slave
-	//TIMER_TC4_init();
-	//TIMER_TC5_init();
- 	//TIMER_TC6_init();
- 	//TIMER_TC7_init();
- 	//TIMER_TCC0_init();
+	TIMER_TC4_init();
+	TIMER_TC5_init();
+ 	TIMER_TC6_init();
+ 	TIMER_TC7_init();
+ 	TIMER_TCC0_init();
 // 	TIMER_TCC1_init();
 // 	TIMER_TCC2_init();
 
