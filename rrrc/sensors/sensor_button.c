@@ -13,7 +13,26 @@ int32_t BUTTON_Init(void* hw_port)
 		memset(sensport->lib_data, 0, SENSOR_PORT_LIBDATA);
 
 	p_button_data_t sens_data = sensport->lib_data;
-	sens_data->state = SensorPort_gpio0_get_state(sensport)?0:1;
+	sens_data->state = SensorPort_gpio0_get_state(sensport) ? 0 : 1;
+	if (sens_data->state)
+	{
+    	SensorPort_led1_on(sensport);
+	}
+	else
+	{
+    	SensorPort_led1_off(sensport);
+	}
+	return result;
+}
+
+//*********************************************************************************************
+int32_t BUTTON_DeInit(void* hw_port)
+{
+	int32_t result = ERR_NONE;
+	p_hw_sensor_port_t sensport = hw_port;
+	if (sensport)
+    	SensorPort_led1_off(sensport);
+
 	return result;
 }
 
@@ -22,7 +41,7 @@ uint32_t BUTTON_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 {
 	uint32_t amount = 0;
 	p_hw_sensor_port_t sensport = hw_port;
-	if (sensport && data && max_size && (max_size>=MAX_SENSOR_VALUES))
+	if (sensport && data && (max_size >= MAX_SENSOR_VALUES))
 	{
 		p_button_data_t sens_data = sensport->lib_data;
 		data[0] = SwapEndian(sens_data->state);
@@ -44,8 +63,15 @@ void BUTTON_gpio0_callback(void* hw_port, uint32_t data)
 	if (sensport)
 	{
 		p_button_data_t sens_data = sensport->lib_data;
-		sens_data->state = data?0:1;
-		SensorPort_led1_toggle(sensport);
+		sens_data->state = data ? 0 : 1;
+        if (sens_data->state)
+        {
+            SensorPort_led1_on(sensport);
+        }
+        else
+        {
+            SensorPort_led1_off(sensport);
+        }
 	}
 
 	return;

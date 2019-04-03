@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 int32_t BUTTON_Init(void* hw_port);
+int32_t BUTTON_DeInit(void* hw_port);
 uint32_t BUTTON_get_value(void* hw_port, uint32_t* data, uint32_t max_size);
 void BUTTON_Thread(void* hw_port);
 void BUTTON_gpio0_callback(void* hw_port, uint32_t data);
@@ -21,7 +22,7 @@ static sensor_lib_entry_t sensor_button =
     .type_id = SENSOR_SWITCH,
     .name = "BUTTON",
     .SensorInit = BUTTON_Init,
-	.SensorDeInit = NULL,
+	.SensorDeInit = BUTTON_DeInit,
 	.sensor_get_values = BUTTON_get_value,
     .sensor_thread = BUTTON_Thread,
 	.write_data = NULL,
