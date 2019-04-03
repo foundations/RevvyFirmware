@@ -4,12 +4,9 @@
 #include <hal_delay.h>
 #include <math.h>
 
-uint32_t GetTimerCounter(p_hw_sensor_port_t hwport);
-
 #define MAX_SENSOR_VALUES 1
 
-static void HC_SR05_thread_done(const struct timer_task *const timer_task);
-void HCSR05_xTask(void* hw_port);
+static void HCSR05_xTask(void* hw_port);
 
 //*********************************************************************************************
 int32_t HC_SR05_Init(void* hw_port)
@@ -24,7 +21,7 @@ int32_t HC_SR05_Init(void* hw_port)
 	SensorPort_set_vccio(sensport, SENSOR_VCCIO_5V0);
 	SensorPort_gpio0_set_as_extint(sensport);
 	SensorPort_gpio1_set_as_gpio(sensport, GPIO_DIRECTION_OUT, GPIO_PULL_OFF);
-	SensorPort_gpio1_set_state(sensport, 0);	
+	SensorPort_gpio1_set_state(sensport, 0);
 
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
 
@@ -61,9 +58,7 @@ uint32_t HC_SR05_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 		p_hc_sr05_data_t sens_data = sensport->lib_data;
 
 		uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
-        portENTER_CRITICAL();
         uint32_t distance_tick = sens_data->filtered_distance_tick;
-        portEXIT_CRITICAL();
 
 		float distance_ms = (float)distance_tick / ticks_in_ms;
 		uint32_t distance_cm = (uint32_t)lroundf(distance_ms * 17.0f);
@@ -106,7 +101,7 @@ static void update_filtered_distance(p_hc_sr05_data_t sens_data)
 }
 
 //*********************************************************************************************
-void HCSR05_xTask(void* hw_port)
+static void HCSR05_xTask(void* hw_port)
 {
 	BaseType_t xResult;
 	uint32_t ulNotifiedValue;
@@ -119,20 +114,21 @@ void HCSR05_xTask(void* hw_port)
     TickType_t xLastWakeTime = xTaskGetTickCount();
 	for(;;)
 	{
-	 	SensorPort_gpio1_set_state(sensport, 1);
-	 	delay_us(15);
-	 	SensorPort_gpio1_set_state(sensport, 0);
-		sens_data->self_curr_count++;
+        SensorPort_gpio1_set_state(sensport, 1);
+        delay_us(15);
+        SensorPort_gpio1_set_state(sensport, 0);
+        sens_data->self_curr_count++;
 
         (void) ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         update_filtered_distance(sens_data);
 
-        // set a desired sample rate of 2 samples per sec but sleep for at least 200ms
+        // set a desired sample rate of 1 sample per sec but sleep for at least 200ms
         vTaskDelay(rtos_ms_to_ticks(200));
-        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(500));
+        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(1000));
 	}
 }
+
 void HC_SR05_Thread(void* hw_port)
 {
 	p_hw_sensor_port_t sensport = hw_port;
@@ -145,9 +141,12 @@ void HC_SR05_Thread(void* hw_port)
 		if (sens_data->err_wait_counter == 10)
 		{
             xTaskNotifyGive(sens_data->xHCSR05Task);
-			sens_data->err_wait_counter = 0;
-		}else
-			sens_data->err_wait_counter++;
+            sens_data->err_wait_counter = 0;
+		}
+        else
+		{
+            sens_data->err_wait_counter++;
+        }
 	}
     else
     {
@@ -178,7 +177,7 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 
 		uint32_t dist = finish_time - sens_data->start_time;
 
-        if (dist < 0x7FFFFFFF)
+        if (dist < 0x7FFFFFFFu) /* FIXME: this is a hack to prevent start > finish cases (unknown root cause) */
         {
             sens_data->distance_tick = dist;
         }
