@@ -260,10 +260,11 @@ uint32_t high_res_timer_get_count(void)
 {
     hri_tc_set_CTRLB_CMD_bf(high_res_timer->device.hw, TC_CTRLBSET_CMD_READSYNC_Val);
     while (hri_tc_read_CTRLB_CMD_bf(high_res_timer->device.hw) != 0);
-    return hri_tccount32_get_COUNT_COUNT_bf(high_res_timer->device.hw, 0xFFFFFFFF);
+
+    return hri_tccount16_get_COUNT_COUNT_bf(high_res_timer->device.hw, 0xFFFF);
 }
 
 uint32_t high_res_timer_ticks_per_ms(void)
 {
-    return 24000;
+    return 24;
 }

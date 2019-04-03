@@ -421,15 +421,8 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC2_PRESCALER
-#define CONF_TC2_PRESCALER 0x0
+#define CONF_TC2_PRESCALER 0x07
 #endif
-
-// <o> Length of one timer tick in uS <0-4294967295>
-// <id> timer_tick
-#ifndef CONF_TC2_TIMER_TICK
-#define CONF_TC2_TIMER_TICK 5
-#endif
-// </h>
 
 // <e> Advanced configuration
 // <id> timer_advanced_configuration
@@ -531,7 +524,7 @@
 
 // Mode set to 32-bit
 #ifndef CONF_TC2_MODE
-#define CONF_TC2_MODE TC_CTRLA_MODE_COUNT32_Val
+#define CONF_TC2_MODE TC_CTRLA_MODE_COUNT16_Val
 #endif
 
 // CC 1 register set to 0

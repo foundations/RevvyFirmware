@@ -114,9 +114,11 @@ static void HCSR05_xTask(void* hw_port)
     TickType_t xLastWakeTime = xTaskGetTickCount();
 	for(;;)
 	{
+    	CRITICAL_SECTION_ENTER();
         SensorPort_gpio1_set_state(sensport, 1);
-        delay_us(15);
+        delay_us(30);
         SensorPort_gpio1_set_state(sensport, 0);
+        CRITICAL_SECTION_LEAVE();
         sens_data->self_curr_count++;
 
         (void) ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
@@ -124,8 +126,7 @@ static void HCSR05_xTask(void* hw_port)
         update_filtered_distance(sens_data);
 
         // set a desired sample rate of 1 sample per sec but sleep for at least 200ms
-        vTaskDelay(rtos_ms_to_ticks(200));
-        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(1000));
+        vTaskDelay(rtos_ms_to_ticks(20));
 	}
 }
 
@@ -138,7 +139,7 @@ void HC_SR05_Thread(void* hw_port)
 
 	if (sens_data->self_curr_count == sens_data->self_prev_count)
 	{
-		if (sens_data->err_wait_counter == 10)
+		if (sens_data->err_wait_counter == 9)
 		{
             xTaskNotifyGive(sens_data->xHCSR05Task);
             sens_data->err_wait_counter = 0;
@@ -177,7 +178,7 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
 
 		uint32_t dist = finish_time - sens_data->start_time;
 
-        if (dist < 0x7FFFFFFFu) /* FIXME: this is a hack to prevent start > finish cases (unknown root cause) */
+        if (dist < 0x7FFFu) /* FIXME: this is a hack to prevent start > finish cases (unknown root cause) */
         {
             sens_data->distance_tick = dist;
         }
