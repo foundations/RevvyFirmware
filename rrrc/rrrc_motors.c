@@ -17,64 +17,40 @@
 tb6612fng_t motor_driver_configs[] =
 {
     {
-        .enc_timer = &TIMER_TC0,
-        .enc0_gpio = M1ENC0,
-        .enc1_gpio = M1ENC1,
         .dir0_gpio = M1DIR1,
         .dir1_gpio = M1DIR2,
         .pwm = &TIMER_TCC0,
-        .pwm_ch = 1,
-        .pwm_pin = M0PWM0
+        .pwm_ch = 1
     },
     {
-        .enc_timer = &TIMER_TC6,
-        .enc0_gpio = M2ENC0,
-        .enc1_gpio = M2ENC1,
         .dir0_gpio = M2DIR1,
         .dir1_gpio = M2DIR2,
         .pwm = &TIMER_TCC0,
-        .pwm_ch = 0,
-        .pwm_pin = M1PWM0
+        .pwm_ch = 0
     },
     {
-        .enc_timer = &TIMER_TC7,
-        .enc0_gpio = M3ENC0,
-        .enc1_gpio = M3ENC1,
         .dir0_gpio = M3DIR1,
         .dir1_gpio = M3DIR2,
         .pwm = &TIMER_TCC0,
-        .pwm_ch = 5,
-        .pwm_pin = M3PWM0
+        .pwm_ch = 5
     },
     {
-        .enc_timer = &TIMER_TC5,
-        .enc0_gpio = M4ENC0,
-        .enc1_gpio = M4ENC1,
         .dir0_gpio = M4DIR1,
         .dir1_gpio = M4DIR2,
         .pwm = &TIMER_TCC0,
-        .pwm_ch = 2,
-        .pwm_pin = M2PWM0
+        .pwm_ch = 2
     },
     {
-        .enc_timer = &TIMER_TC1,
-        .enc0_gpio = M5ENC0,
-        .enc1_gpio = M5ENC1,
         .dir0_gpio = M5DIR1,
         .dir1_gpio = M5DIR2,
         .pwm = &TIMER_TCC0,
-        .pwm_ch = 3,
-        .pwm_pin = M4PWM0
+        .pwm_ch = 3
     },
     {
-        .enc_timer = &TIMER_TC4,
-        .enc0_gpio = M6ENC0,
-        .enc1_gpio = M6ENC1,
         .dir0_gpio = M6DIR1,
         .dir1_gpio = M6DIR2,
         .pwm = &TIMER_TCC0,
-        .pwm_ch = 4,
-        .pwm_pin = M5PWM0
+        .pwm_ch = 4
     },
 };
 
@@ -92,8 +68,12 @@ hw_motor_port_t motor_ports[] =
 		.index = 0,
 		.motor_lib = NULL,
 		.lib_data = {0},
+		.enc_timer = &TIMER_TC0,
+		.enc0_gpio = M1ENC0,
+		.enc1_gpio = M1ENC1,
 		.led0_gpio = M0LED0,
 		.led1_gpio = M0LED1,
+        .pwm_pin = M0PWM0,
         .motor_driver_lib = &motor_driver_tb6612fng,
         .motorDriverConfig = &motor_driver_configs[0]
 	},
@@ -101,8 +81,12 @@ hw_motor_port_t motor_ports[] =
 		.index = 1,
 		.motor_lib = NULL,
 		.lib_data = {0},
+		.enc_timer = &TIMER_TC6,
+		.enc0_gpio = M2ENC0,
+		.enc1_gpio = M2ENC1,
 		.led0_gpio = M1LED0,
 		.led1_gpio = M1LED1,
+		.pwm_pin = M1PWM0,
 		.motor_driver_lib = &motor_driver_tb6612fng,
 		.motorDriverConfig = &motor_driver_configs[1]
 	},
@@ -110,8 +94,12 @@ hw_motor_port_t motor_ports[] =
 		.index = 2,
 		.motor_lib = NULL,
 		.lib_data = {0},
+		.enc_timer = &TIMER_TC7,
+		.enc0_gpio = M3ENC0,
+		.enc1_gpio = M3ENC1,
 		.led0_gpio = M2LED0,
 		.led1_gpio = M2LED1,
+		.pwm_pin = M2PWM0,
 		.motor_driver_lib = &motor_driver_tb6612fng,
 		.motorDriverConfig = &motor_driver_configs[2]
 	},
@@ -119,8 +107,12 @@ hw_motor_port_t motor_ports[] =
 		.index = 3,
 		.motor_lib = NULL,
 		.lib_data = {0},
+		.enc_timer = &TIMER_TC5,
+		.enc0_gpio = M4ENC0,
+		.enc1_gpio = M4ENC1,
 		.led0_gpio = M3LED0,
 		.led1_gpio = M3LED1,
+		.pwm_pin = M3PWM0,
 		.motor_driver_lib = &motor_driver_tb6612fng,
 		.motorDriverConfig = &motor_driver_configs[3]
 	},
@@ -128,8 +120,12 @@ hw_motor_port_t motor_ports[] =
 		.index = 4,
 		.motor_lib = NULL,
 		.lib_data = {0},
+		.enc_timer = &TIMER_TC1,
+		.enc0_gpio = M5ENC0,
+		.enc1_gpio = M5ENC1,
 		.led0_gpio = M4LED0,
 		.led1_gpio = M4LED1,
+		.pwm_pin = M4PWM0,
 		.motor_driver_lib = &motor_driver_tb6612fng,
 		.motorDriverConfig = &motor_driver_configs[4]
 	},
@@ -137,8 +133,12 @@ hw_motor_port_t motor_ports[] =
 		.index = 5,
 		.motor_lib = NULL,
 		.lib_data = {0},
+		.enc_timer = &TIMER_TC4,
+		.enc0_gpio = M6ENC0,
+		.enc1_gpio = M6ENC1,
 		.led0_gpio = M5LED0,
 		.led1_gpio = M5LED1,
+		.pwm_pin = M5PWM0,
 		.motor_driver_lib = &motor_driver_tb6612fng,
 		.motorDriverConfig = &motor_driver_configs[5]
 	},

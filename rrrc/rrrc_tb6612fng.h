@@ -15,17 +15,11 @@
 #include "motors/rrrc_motor_interface.h"
 
 typedef struct {
-
-    struct timer_descriptor *enc_timer;
-    gpio_num enc0_gpio;
-    gpio_num enc1_gpio;
-
     gpio_num dir0_gpio;
     gpio_num dir1_gpio;
     
     struct timer_descriptor *pwm;
     uint32_t pwm_ch;
-    gpio_num pwm_pin;
 
     int8_t speed;
 } tb6612fng_t, *p_tb6612fng_t;

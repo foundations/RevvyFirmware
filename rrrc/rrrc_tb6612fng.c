@@ -68,12 +68,6 @@ void tb6612fng_one_time_init(hw_motor_port_t* hw_port)
     gpio_set_pin_function(drv->dir1_gpio, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(drv->dir1_gpio, GPIO_DIRECTION_OUT);
     gpio_set_pin_level(drv->dir1_gpio, false);
-
-    // PWM
-    gpio_set_pin_direction(drv->pwm_pin, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(drv->pwm_pin, GPIO_PIN_FUNCTION_F);
-
-    // ENC
 }
 
 void tb6612fng_init(hw_motor_port_t* hw_port)

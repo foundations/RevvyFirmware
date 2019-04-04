@@ -65,8 +65,14 @@ typedef struct _hw_motor_port_t
 
 	uint8_t lib_data[MOTOR_PORT_LIBDATA];
 
+	struct timer_descriptor *enc_timer;
+	gpio_num enc0_gpio;
+	gpio_num enc1_gpio;
+
 	gpio_num led0_gpio;
 	gpio_num led1_gpio;
+
+	gpio_num pwm_pin;
 
     void* motorDriverConfig;
     const motor_driver_lib_entry_t* motor_driver_lib;

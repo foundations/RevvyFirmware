@@ -101,6 +101,10 @@ static void MotorsPinsInit()
 	for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
 	{
     	tb6612fng_one_time_init(&motor_ports[idx]);
+
+    	// PWM
+    	gpio_set_pin_direction(motor_ports[idx].pwm_pin, GPIO_DIRECTION_OFF);
+    	gpio_set_pin_function(motor_ports[idx].pwm_pin, GPIO_PIN_FUNCTION_F);
 	}
 
 	uint8_t moto_stbypins[] = {M12STBY, M34STBY, M56STBY};

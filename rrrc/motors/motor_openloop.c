@@ -7,6 +7,22 @@
 
 #include "motor_openloop.h"
 
+static int32_t saturate_int32(int32_t value, int32_t min, int32_t max)
+{
+    if (value < min)
+    {
+        return min;
+    }
+    else if (value > max)
+    {
+        return max;
+    }
+    else
+    {
+        return value;
+    }
+}
+
 typedef struct {} *p_motor_openloop_data_t;
 
 static int32_t MOTOR_OPENLOOP_Init(void* hw_port)
@@ -48,7 +64,7 @@ static uint32_t MOTOR_OPENLOOP_set_control(void* hw_port, int32_t value)
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_openloop_data_t data = (p_motor_openloop_data_t) motport->lib_data;
 
-    motport->motor_driver_lib->set_speed(motport, value);
+    motport->motor_driver_lib->set_speed(motport, saturate_int32(value, -100, 100));
 
     return 0;
 }
