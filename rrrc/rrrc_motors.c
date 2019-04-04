@@ -250,6 +250,17 @@ uint32_t MotorPortSetControl(uint32_t port_idx, int32_t value)
 }
 
 //*********************************************************************************************
+int32_t MotorPortSetConfig(uint32_t port_idx, uint8_t *data, uint32_t size)
+{
+    int32_t result = ERR_INVALID_ARG;
+    if (port_idx < ARRAY_SIZE(motor_ports) && motor_ports[port_idx].motor_lib && motor_ports[port_idx].motor_lib->motor_set_config)
+    {
+        result = motor_ports[port_idx].motor_lib->motor_set_config(&motor_ports[port_idx], data, size);
+    }
+    return result;
+}
+
+//*********************************************************************************************
 int8_t MotorPortGetState(uint32_t port_idx)
 {
 	int8_t result = 0;

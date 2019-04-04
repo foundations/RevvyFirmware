@@ -6,8 +6,11 @@
  */ 
 
 #include "motor_position_controlled.h"
+#include "controller/pid.h"
 
-typedef struct {} *p_motor_pos_ctrl_data_t;
+typedef struct {
+    PID_t controller;
+} *p_motor_pos_ctrl_data_t;
 
 static int32_t MOTOR_POSITION_CONTROLLED_Init(void* hw_port)
 {
@@ -16,6 +19,8 @@ static int32_t MOTOR_POSITION_CONTROLLED_Init(void* hw_port)
 
     ASSERT(motport && motport->motor_driver_lib);
     motport->motor_driver_lib->init(motport);
+
+    pid_initialize(&data->controller);
 
     return ERR_NONE;
 }

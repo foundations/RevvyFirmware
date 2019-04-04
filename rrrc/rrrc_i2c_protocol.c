@@ -9,16 +9,10 @@
 #include "rrrc_sensors.h"
 #include "rrrc_motors.h"
 #include "rrrc_indication.h"
+#include "converter.h"
 #include <utils_assert.h>
 
-static uint32_t request_port=0;
-
-static int32_t get_int32(uint8_t* buffer)
-{
-    uint32_t bytes = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3] << 0;
-
-    return (int32_t) (bytes);
-}
+static uint32_t request_port = 0;
 
 //*********************************************************************************************
 uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
@@ -102,20 +96,18 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 			}
 			break;
 		}
-		case RRRC_I2C_CMD_MOTOR_SET_STEPS:
+		case RRRC_I2C_CMD_MOTOR_SET_CONFIG:
 		{
-			if (buff->data_length != 5)
-				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			else
-			{
-				uint8_t port = buff->data[0];
-				uint32_t steps = buff->data[1]<<24 | buff->data[2]<<16 | buff->data[3]<<8 | buff->data[4] ;
-				uint32_t status = MotoPortSetSteps(port, steps);
-				if (status == ERR_NONE)
-					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-				else
-					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			}
+    		uint8_t port = buff->data[0];
+    		uint32_t status = MotorPortSetConfig(port, &buff->data[1], buff->data_length - 1);
+    		if (status == ERR_NONE)
+    		{
+                ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+            }
+    		else
+    		{
+                ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+            }
 			break;
 		}
 		case RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO:
@@ -275,7 +267,7 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 		case RRRC_I2C_CMD_SENSOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_SET_CONTROL:
-		case RRRC_I2C_CMD_MOTOR_SET_STEPS:
+		case RRRC_I2C_CMD_MOTOR_SET_CONFIG:
 		default:
 		{
 			respose->command = RRRC_I2C_CMD_STATUS_ERROR;
