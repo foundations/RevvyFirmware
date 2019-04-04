@@ -16,9 +16,6 @@
 #include "sensors/sensor_HC_SR05.h"
 #include "sensors/sensor_i2chub.h"
 
-
-
-
 p_sensor_lib_entry_t sensor_libs[] =
 {
 	&sensor_dummy,
@@ -265,20 +262,6 @@ static void SensorPort_gpio0_ext_cb(const void* port)
 }
 
 //*********************************************************************************************
-static void SensorPort_gpio1_ext_cb(const void* port)
-{
-	p_hw_sensor_port_t sensport = port;
-	if (sensport == NULL)
-		return;
-
-	uint32_t val = gpio_get_pin_level(sensport->gpio1_num);
-	if (sensport->sensor_lib && sensport->sensor_lib->gpio1_callback)
-		sensport->sensor_lib->gpio1_callback(sensport, val);
-
-	return;
-}
-
-//*********************************************************************************************
 uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size)
 {
 	p_hw_sensor_port_t sensport = port;
@@ -317,8 +300,6 @@ int32_t SensorPortInit(uint32_t port_idx)
 
 	if (sensor_ports[port_idx].gpio0_num >= 0)
 		ext_irq_register(sensor_ports[port_idx].gpio0_num, SensorPort_gpio0_ext_cb, &sensor_ports[port_idx]);
-	if (sensor_ports[port_idx].gpio1_num >= 0)
-		ext_irq_register(sensor_ports[port_idx].gpio1_num, SensorPort_gpio1_ext_cb, &sensor_ports[port_idx]);
 
 	//*****************************
 	//I2C_init(sensor_ports[port].I2C)
@@ -347,8 +328,6 @@ int32_t SensorPortDeInit(uint32_t port_idx)
 
 	if (sensor_ports[port_idx].gpio0_num >= 0)
 		ext_irq_disable(sensor_ports[port_idx].gpio0_num);
-	if (sensor_ports[port_idx].gpio1_num >= 0)
-		ext_irq_disable(sensor_ports[port_idx].gpio1_num);
 
 	return result;
 }

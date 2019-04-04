@@ -97,5 +97,8 @@ motor_lib_entry_t motor_openloop =
     .motor_get_position = &MOTOR_OPENLOOP_get_position,
 
     .motor_set_control = &MOTOR_OPENLOOP_set_control,
-    .motor_get_control = &MOTOR_OPENLOOP_get_control
+    .motor_get_control = &MOTOR_OPENLOOP_get_control,
+
+    .gpio0_callback = NULL,
+    .gpio1_callback = NULL
 };

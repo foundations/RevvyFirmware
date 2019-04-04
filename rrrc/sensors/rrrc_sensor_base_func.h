@@ -77,17 +77,6 @@ static int32_t SensorPort_gpio1_set_as_gpio(const p_hw_sensor_port_t sensport, e
 }
 
 //*********************************************************************************************
-static int32_t SensorPort_gpio1_set_as_extint(const p_hw_sensor_port_t sensport, enum gpio_direction dir)
-{
-	if (sensport == NULL)
-		return 0;
-	gpio_set_pin_pull_mode(sensport->gpio1_num, GPIO_PULL_OFF);
-	gpio_set_pin_direction(sensport->gpio1_num, GPIO_DIRECTION_IN);
-	gpio_set_pin_function(sensport->gpio1_num, GPIO_PIN_FUNCTION_A);
-	return 0;		
-}
-
-//*********************************************************************************************
 static int32_t SensorPort_gpio1_get_state(const p_hw_sensor_port_t sensport)
 {
 	if (sensport == NULL)

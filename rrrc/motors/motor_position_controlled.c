@@ -72,6 +72,16 @@ static uint32_t MOTOR_POSITION_CONTROLLED_get_control(void* hw_port, int32_t* da
     return sizeof(int32_t);
 }
 
+static void MOTOR_POSITION_CONTROLLED_gpio0_callback(void* hw_port, uint32_t state) 
+{
+
+}
+
+static void MOTOR_POSITION_CONTROLLED_gpio1_callback(void* hw_port, uint32_t state) 
+{
+
+}
+
 motor_lib_entry_t motor_position_controlled =
 {
     .type_id = MOTOR_POSITION_CONTROLLED,
@@ -86,5 +96,8 @@ motor_lib_entry_t motor_position_controlled =
     .motor_get_position = &MOTOR_POSITION_CONTROLLED_get_position,
 
     .motor_set_control = &MOTOR_POSITION_CONTROLLED_set_control,
-    .motor_get_control = &MOTOR_POSITION_CONTROLLED_get_control
+    .motor_get_control = &MOTOR_POSITION_CONTROLLED_get_control,
+
+    .gpio0_callback = &MOTOR_POSITION_CONTROLLED_gpio0_callback,
+    .gpio1_callback = &MOTOR_POSITION_CONTROLLED_gpio1_callback
 };

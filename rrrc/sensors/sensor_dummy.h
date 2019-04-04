@@ -13,7 +13,6 @@ extern "C" {
 int32_t SENSOR_DUMMY_Init(void* hw_port);
 void SENSOR_DUMMY_Thread(void* hw_port);
 void SENSOR_DUMMY_gpio0_callback(void* hw_port, uint32_t data);
-void SENSOR_DUMMY_gpio1_callback(void* hw_port, uint32_t data);
 void SENSOR_DUMMY_adc_callback(void* hw_port, uint32_t data);
 void SENSOR_DUMMY_timer_callback(void* hw_port, uint32_t data);
 
@@ -31,7 +30,6 @@ static sensor_lib_entry_t sensor_dummy =
     .timer_callback = SENSOR_DUMMY_timer_callback,
     .adc_callback = SENSOR_DUMMY_adc_callback,
     .gpio0_callback = SENSOR_DUMMY_gpio0_callback,
-    .gpio1_callback = SENSOR_DUMMY_gpio1_callback,
 };
 
 #ifdef __cplusplus

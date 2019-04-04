@@ -27,13 +27,6 @@
 #define CONF_TC0_PRESCALER 0x4
 #endif
 
-// <o> Length of one timer tick in uS <0-4294967295>
-// <id> timer_tick
-#ifndef CONF_TC0_TIMER_TICK
-#define CONF_TC0_TIMER_TICK 1000
-#endif
-// </h>
-
 // <e> Advanced configuration
 // <id> timer_advanced_configuration
 #ifndef CONF_TC0__ADVANCED_CONFIGURATION_ENABLE
@@ -90,7 +83,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC0_MCEO1
-#define CONF_TC0_MCEO1 1
+#define CONF_TC0_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -132,7 +125,7 @@
 
 // Default values which the driver needs in order to work correctly
 
-// Mode set to 32-bit
+// Mode set to 16-bit
 #ifndef CONF_TC0_MODE
 #define CONF_TC0_MODE TC_CTRLA_MODE_COUNT16_Val
 #endif
@@ -160,8 +153,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC0_CC1
-#define CONF_TC0_CC1                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC0_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC0_FREQUENCY / CONF_TC0_PRESCALE)))
+#define CONF_TC0_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC0_ALOCK
@@ -172,8 +164,7 @@
 #define CONF_TC0_PER 0
 
 #ifndef CONF_TC0_CC0
-#define CONF_TC0_CC0                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC0_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC0_FREQUENCY / CONF_TC0_PRESCALE)))
+#define CONF_TC0_CC0 0xFFFF
 #endif
 
 
@@ -194,7 +185,7 @@
 #endif
 
 #ifndef CONF_TC0_DRVCTRLEN0
-#define CONF_TC0_DRVCTRLEN0 1
+#define CONF_TC0_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC0_DRVCTRLEN1
@@ -1582,20 +1573,20 @@
 
 
 #ifndef CONF_TC0_CAPTMODE0
-#define CONF_TC0_CAPTMODE0 2
+#define CONF_TC0_CAPTMODE0 0
 #endif
 
 #ifndef CONF_TC0_CAPTMODE1
-#define CONF_TC0_CAPTMODE1 2
+#define CONF_TC0_CAPTMODE1 0
 #endif
 
 
 #ifndef CONF_TC1_CAPTMODE0
-#define CONF_TC1_CAPTMODE0 2
+#define CONF_TC1_CAPTMODE0 0
 #endif
 
 #ifndef CONF_TC1_CAPTMODE1
-#define CONF_TC1_CAPTMODE1 2
+#define CONF_TC1_CAPTMODE1 0
 #endif
 
 
@@ -1609,47 +1600,47 @@
 
 
 #ifndef CONF_TC3_CAPTMODE0
-#define CONF_TC3_CAPTMODE0 2
+#define CONF_TC3_CAPTMODE0 0
 #endif
 
 #ifndef CONF_TC3_CAPTMODE1
-#define CONF_TC3_CAPTMODE1 2
+#define CONF_TC3_CAPTMODE1 0
 #endif
 
 
 #ifndef CONF_TC4_CAPTMODE0
-#define CONF_TC4_CAPTMODE0 2
+#define CONF_TC4_CAPTMODE0 0
 #endif
 
 #ifndef CONF_TC4_CAPTMODE1
-#define CONF_TC4_CAPTMODE1 2
+#define CONF_TC4_CAPTMODE1 0
 #endif
 
 
 #ifndef CONF_TC5_CAPTMODE0
-#define CONF_TC5_CAPTMODE0 2
+#define CONF_TC5_CAPTMODE0 0
 #endif
 
 #ifndef CONF_TC5_CAPTMODE1
-#define CONF_TC5_CAPTMODE1 2
+#define CONF_TC5_CAPTMODE1 0
 #endif
 
 
 #ifndef CONF_TC6_CAPTMODE0
-#define CONF_TC6_CAPTMODE0 2
+#define CONF_TC6_CAPTMODE0 0
 #endif
 
 #ifndef CONF_TC6_CAPTMODE1
-#define CONF_TC6_CAPTMODE1 2
+#define CONF_TC6_CAPTMODE1 0
 #endif
 
 
 #ifndef CONF_TC7_CAPTMODE0
-#define CONF_TC7_CAPTMODE0 2
+#define CONF_TC7_CAPTMODE0 0
 #endif
 
 #ifndef CONF_TC7_CAPTMODE1
-#define CONF_TC7_CAPTMODE1 2
+#define CONF_TC7_CAPTMODE1 0
 #endif
 
 

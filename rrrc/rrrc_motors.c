@@ -208,7 +208,13 @@ uint32_t MotorPortSetType(uint32_t port_idx, motor_type_t type)
             MotorPort_led0_off(&motor_ports[port_idx]);
             if (motor_ports[port_idx].motor_lib->MotorDeInit)
             {
-			    motor_ports[port_idx].motor_lib->MotorDeInit(&motor_ports[port_idx]);
+	            /*if (motor_ports[port_idx].enc0_gpio >= 0)
+		            ext_irq_disable(motor_ports[port_idx].enc0_gpio);
+	            if (motor_ports[port_idx].enc1_gpio >= 0)
+		            ext_irq_disable(motor_ports[port_idx].enc1_gpio);*/
+                    
+                timer_stop(motor_ports[port_idx].enc_timer);
+                motor_ports[port_idx].motor_lib->MotorDeInit(&motor_ports[port_idx]);
             }
         }
 
@@ -218,6 +224,12 @@ uint32_t MotorPortSetType(uint32_t port_idx, motor_type_t type)
 		if ((result == ERR_NONE) && (type != MOTOR_NOT_SET))
 		{
 			MotorPort_led0_on(&motor_ports[port_idx]);
+
+	        /*if (motor_ports[port_idx].enc0_gpio >= 0 && motor_ports[port_idx].motor_lib->gpio0_callback)
+		        ext_irq_enable(motor_ports[port_idx].enc0_gpio);
+	        if (motor_ports[port_idx].enc1_gpio >= 0 && motor_ports[port_idx].motor_lib->gpio1_callback)
+		        ext_irq_enable(motor_ports[port_idx].enc1_gpio);*/
+            timer_start(motor_ports[port_idx].enc_timer);
 		}
 		else
 		{
@@ -283,26 +295,75 @@ uint32_t MotoPortSetSteps(uint32_t port_idx, uint32_t steps)
 }
 
 //*********************************************************************************************
-uint32_t MotorPortGetCount(uint32_t port_idx, uint32_t* data)
+uint32_t MotorPortGetPosition(uint32_t port_idx, uint32_t* data)
 {
 	uint32_t result = 0;
-	/*if (port_idx < ARRAY_SIZE(motor_ports) && motor_ports[port_idx].motor_lib && motor_ports[port_idx].motor_lib->motor_get_counter)
+	if (port_idx < ARRAY_SIZE(motor_ports) && motor_ports[port_idx].motor_lib && motor_ports[port_idx].motor_lib->motor_get_position)
 	{
-		result = motor_ports[port_idx].motor_lib->motor_get_counter(&motor_ports[port_idx], data, 12);
-	}*/
+		result = motor_ports[port_idx].motor_lib->motor_get_position(&motor_ports[port_idx], data, 12);
+	}
 	return result;
+}
+
+//*********************************************************************************************
+static void MotorPort_gpio0_ext_cb(uint32_t data, void* port)
+{
+	p_hw_motor_port_t motport = port;
+	if (motport == NULL)
+		return;
+
+	if (motport->motor_lib && motport->motor_lib->gpio0_callback)
+    {
+        uint32_t val = MotorPort_gpio0_get_state(motport);
+        motport->motor_lib->gpio0_callback(motport, val);
+    }
+
+	return;
+}
+
+//*********************************************************************************************
+static void MotorPort_gpio1_ext_cb(uint32_t data, void* port)
+{
+	p_hw_motor_port_t motport = port;
+	if (motport == NULL)
+		return;
+
+	if (motport->motor_lib && motport->motor_lib->gpio1_callback)
+	{
+    	uint32_t val = MotorPort_gpio1_get_state(motport);
+    	motport->motor_lib->gpio1_callback(motport, val);
+	}
+
+	return;
 }
 
 //*********************************************************************************************
 int32_t MotorPortInit(uint32_t port_idx)
 {
-	uint32_t result = ERR_NONE;
-	if (port_idx >= ARRAY_SIZE(motor_ports))
-		return ERR_INVALID_DATA;
-		
-	result = MotorPortSetType(port_idx, MOTOR_NOT_SET);
+    if (port_idx >= ARRAY_SIZE(motor_ports))
+    {
+        return ERR_INVALID_DATA;
+    }
 
-	return result;
+    if (motor_ports[port_idx].enc0_gpio >= 0)
+    {
+        gpio_set_pin_direction(motor_ports[port_idx].enc0_gpio, GPIO_DIRECTION_IN);
+        gpio_set_pin_function(motor_ports[port_idx].enc0_gpio, GPIO_PIN_FUNCTION_E);
+        //int32_t result = ext_irq_register(motor_ports[port_idx].enc0_gpio, MotorPort_gpio0_ext_cb, &motor_ports[port_idx]);
+        int32_t result = timer_register_cb(motor_ports[port_idx].enc_timer,TIMER_MC0, MotorPort_gpio0_ext_cb, &motor_ports[port_idx]);
+        ASSERT(result == ERR_NONE);
+    }
+
+    if (motor_ports[port_idx].enc1_gpio >= 0)
+    {
+        gpio_set_pin_direction(motor_ports[port_idx].enc1_gpio, GPIO_DIRECTION_IN);
+        gpio_set_pin_function(motor_ports[port_idx].enc1_gpio, GPIO_PIN_FUNCTION_E);
+        //int32_t result = ext_irq_register(motor_ports[port_idx].enc1_gpio, MotorPort_gpio1_ext_cb, &motor_ports[port_idx]);
+        int32_t result = timer_register_cb(motor_ports[port_idx].enc_timer,TIMER_MC1, MotorPort_gpio1_ext_cb, &motor_ports[port_idx]);
+        ASSERT(result == ERR_NONE);
+    }
+    
+    return MotorPortSetType(port_idx, MOTOR_NOT_SET);
 }
 
 //*********************************************************************************************

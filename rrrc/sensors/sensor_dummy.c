@@ -24,14 +24,6 @@ void SENSOR_DUMMY_Thread(void* hw_port)
 //*********************************************************************************************
 void SENSOR_DUMMY_gpio0_callback(void* hw_port, uint32_t data)
 {
-
-	p_hw_sensor_port_t sensport = hw_port;
-
-	return;
-}
-
-void SENSOR_DUMMY_gpio1_callback(void* hw_port, uint32_t data)
-{
 	p_hw_sensor_port_t sensport = hw_port;
 
 	return;

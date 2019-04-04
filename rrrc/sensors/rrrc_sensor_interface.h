@@ -67,10 +67,7 @@ typedef struct _sensor_lib_entry_t
     void (*timer_callback)(void* hw_port, uint32_t time);
     void (*adc_callback)(void* hw_port, uint32_t time);
     void (*gpio0_callback)(void* hw_port, uint32_t state);
-    void (*gpio1_callback)(void* hw_port, uint32_t state);
 }sensor_lib_entry_t, *p_sensor_lib_entry_t;
-
-
 
 typedef uint8_t gpio_num;
 

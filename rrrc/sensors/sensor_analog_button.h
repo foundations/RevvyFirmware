@@ -37,7 +37,6 @@ static sensor_lib_entry_t sensor_analog_button =
 	.timer_callback = NULL,
 	.adc_callback = ABUTTON_adc_callback,
 	.gpio0_callback = NULL,
-	.gpio1_callback = NULL,
 };
 
 typedef struct _abutton_data_t

@@ -36,7 +36,6 @@ static sensor_lib_entry_t sensor_i2chub =
 	.timer_callback = NULL,
 	.adc_callback = NULL,
 	.gpio0_callback = NULL,
-	.gpio1_callback = NULL,
 };
 
 #ifdef __cplusplus

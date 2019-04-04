@@ -32,7 +32,6 @@ static sensor_lib_entry_t sensor_hc_sr_05 =
     .timer_callback = NULL,
     .adc_callback = NULL,
     .gpio0_callback = HC_SR05_gpio0_callback,
-    .gpio1_callback = NULL,
 };
 
 #define HCSR05_MEDIAN_FITLER_SIZE   3

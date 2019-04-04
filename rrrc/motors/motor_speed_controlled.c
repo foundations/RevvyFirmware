@@ -8,6 +8,7 @@
 #include "motor_speed_controlled.h"
 #include "controller/pid.h"
 #include "converter.h"
+#include "rrrc_motor_base_function.h"
 
 #include <math.h>
 
@@ -16,6 +17,9 @@ typedef struct {
     TaskHandle_t task;
 
     float refSpeed;
+
+    int64_t position;
+    int64_t lastPosition;
 } *p_motor_speed_ctrl_data_t;
 
 static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
@@ -26,7 +30,14 @@ static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for(;;)
     {
-        float measuredSpeed = 0;
+        int64_t position;
+        CRITICAL_SECTION_ENTER();
+        position = data->position;
+        CRITICAL_SECTION_LEAVE();
+
+        float measuredSpeed = position - data->lastPosition; // todo more sensible (less arbitrary) unit of speed
+        data->lastPosition = position;
+
         int8_t speed = (int8_t) lroundf(pid_update(&data->controller, data->refSpeed, measuredSpeed));
         motport->motor_driver_lib->set_speed(motport, speed);
 
@@ -86,9 +97,15 @@ static uint32_t MOTOR_SPEED_CONTROLLED_get_config(void* hw_port, uint8_t* data, 
     return 0;
 }
 
-static uint32_t MOTOR_SPEED_CONTROLLED_get_position(void* hw_port, uint8_t* data, uint32_t max_size)
+static uint32_t MOTOR_SPEED_CONTROLLED_get_position(void* hw_port, uint8_t* dst, uint32_t max_size)
 {
-    return 0;
+    p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
+    p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
+    
+    uint32_t src = SwapEndian((uint32_t) (data->position & 0xFFFFFFFFu));
+    memcpy(dst, &src, 4);
+    
+    return 4;
 }
 
 static uint32_t MOTOR_SPEED_CONTROLLED_set_control(void* hw_port, int32_t value)
@@ -115,6 +132,74 @@ static uint32_t MOTOR_SPEED_CONTROLLED_get_control(void* hw_port, int32_t* data,
     return sizeof(int32_t);
 }
 
+static void MOTOR_SPEED_CONTROLLED_gpio0_callback(void* hw_port, uint32_t state) 
+{
+    int32_t delta = 0;
+    if (state)
+    {
+        // rising edge
+        if (MotorPort_gpio1_get_state(hw_port))
+        {
+            delta = -1;
+        }
+        else
+        {
+            delta = 1;
+        }
+    }
+    else
+    {
+        // falling edge
+        if (MotorPort_gpio1_get_state(hw_port))
+        {
+            delta = 1;
+        }
+        else
+        {
+            delta = -1;
+        }
+    }
+
+    p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
+    p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
+
+    data->position += delta;
+}
+
+static void MOTOR_SPEED_CONTROLLED_gpio1_callback(void* hw_port, uint32_t state) 
+{
+    int32_t delta = 0;
+    if (state)
+    {
+        // rising edge
+        if (MotorPort_gpio0_get_state(hw_port))
+        {
+            delta = 1;
+        }
+        else
+        {
+            delta = -1;
+        }
+    }
+    else
+    {
+        // falling edge
+        if (MotorPort_gpio0_get_state(hw_port))
+        {
+            delta = -1;
+        }
+        else
+        {
+            delta = 1;
+        }
+    }
+
+    p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
+    p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
+
+    data->position += delta;
+}
+
 motor_lib_entry_t motor_speed_controlled =
 {
     .type_id = MOTOR_SPEED_CONTROLLED,
@@ -129,5 +214,8 @@ motor_lib_entry_t motor_speed_controlled =
     .motor_get_position = &MOTOR_SPEED_CONTROLLED_get_position,
 
     .motor_set_control = &MOTOR_SPEED_CONTROLLED_set_control,
-    .motor_get_control = &MOTOR_SPEED_CONTROLLED_get_control
+    .motor_get_control = &MOTOR_SPEED_CONTROLLED_get_control,
+
+    .gpio0_callback = &MOTOR_SPEED_CONTROLLED_gpio0_callback,
+    .gpio1_callback = &MOTOR_SPEED_CONTROLLED_gpio1_callback
 };

@@ -318,7 +318,6 @@ void _tc_timer_set_irq(struct _timer_device *const device)
  */
 static void tc_interrupt_handler(struct _timer_device *device)
 {
-/*	while(1);*/
 	void *const hw = device->hw;
 
 	if (hri_tc_get_interrupt_ERR_bit(hw)) {

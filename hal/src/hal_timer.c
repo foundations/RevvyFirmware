@@ -341,6 +341,8 @@ int32_t timer_register_cb(struct timer_descriptor *const descr, enum TIMER_CB_FU
 		return ERR_INVALID_ARG;
 	descr->cbs[type].func = func;
 	descr->cbs[type].user_data = user_data;
+
+    return 0;
 };
 
 int32_t timer_unregister_cb(struct timer_descriptor *const descr, enum TIMER_CB_FUNC_TUPE type)
@@ -349,4 +351,6 @@ int32_t timer_unregister_cb(struct timer_descriptor *const descr, enum TIMER_CB_
 		return ERR_INVALID_ARG;
 	descr->cbs[type].func = NULL;
 	descr->cbs[type].user_data = NULL;
+
+    return 0;
 };

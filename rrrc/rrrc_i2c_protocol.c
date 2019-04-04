@@ -37,7 +37,7 @@ uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
 		case RRRC_I2C_CMD_SENSOR_GET_VALUE:
 		case RRRC_I2C_CMD_MOTOR_GET_TYPE:
 		case RRRC_I2C_CMD_MOTOR_GET_STATE:
-		case RRRC_I2C_CMD_MOTOR_GET_COUNT:
+		case RRRC_I2C_CMD_MOTOR_GET_POSITION:
 			if (buff->data_length)
 				request_port = buff->data[0];
 		case RRRC_I2C_CMD_DUMMY:
@@ -242,9 +242,9 @@ uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose)
 			respose->data_length = 1;
 			break;
 		};
-		case RRRC_I2C_CMD_MOTOR_GET_COUNT:
+		case RRRC_I2C_CMD_MOTOR_GET_POSITION:
 		{
-			respose->data_length = MotorPortGetCount(request_port, respose->data) * 4;
+			respose->data_length = MotorPortGetPosition(request_port, respose->data);
 			break;
 		};
 		case RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT:
