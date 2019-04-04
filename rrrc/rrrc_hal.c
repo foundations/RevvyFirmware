@@ -42,8 +42,7 @@ trans_buffer_t tx_buffer;
  static inline void rrrc_i2c_send_stop(void *const hw)
 {
 #define CMD_STOP 0x03
-	hri_sercomi2cm_set_CTRLB_ACKACT_bit(hw);
-	hri_sercomi2cm_set_CTRLB_CMD_bf(hw, CMD_STOP);
+    hri_sercomi2cs_set_CTRLB_CMD_bf(hw, CMD_STOP);
 }
 
 //*****************************************************************************************************

@@ -316,7 +316,7 @@
 // <i> Defines the SDA hold time with respect to the negative edge of SCL
 // <id> i2c_slave_sdahold
 #ifndef CONF_SERCOM_2_I2CS_SDAHOLD
-#define CONF_SERCOM_2_I2CS_SDAHOLD 0x2
+#define CONF_SERCOM_2_I2CS_SDAHOLD 0
 #endif
 
 // <q> Slave SCL Low Extend Time-Out (SEXTTOEN)
@@ -337,7 +337,7 @@
 // <i> Enables SCL stretching.
 // <id> i2c_slave_sclsm
 #ifndef CONF_SERCOM_2_I2CS_SCLSM
-#define CONF_SERCOM_2_I2CS_SCLSM 0
+#define CONF_SERCOM_2_I2CS_SCLSM 1
 #endif
 
 // <q> General call addressing (GENCEN)
