@@ -7,6 +7,8 @@
 
 #include "rrrc_tb6612fng.h"
 
+#define MOTOR_SPEED_RESOLUTION ((uint8_t) 100u)
+
 const motor_driver_lib_entry_t motor_driver_tb6612fng = 
 {
     .init      = &tb6612fng_init,
@@ -42,6 +44,11 @@ static void tb6612fng_drv_set_speed(p_tb6612fng_t drv, int8_t speed)
     drv->speed = speed;
     uint8_t duty = (speed < 0) ? -speed : speed;
 
+    if (duty > MOTOR_SPEED_RESOLUTION)
+    {
+        duty = MOTOR_SPEED_RESOLUTION;
+    }
+
     timer_stop(drv->pwm);
     timer_set_chan_compare_value(drv->pwm, drv->pwm_ch, duty);
     timer_start(drv->pwm);
@@ -74,6 +81,7 @@ void tb6612fng_init(hw_motor_port_t* hw_port)
     p_tb6612fng_t drv = (p_tb6612fng_t) hw_port->motorDriverConfig;
 
     // start pwm timer
+    timer_set_clock_cycles_per_tick(drv->pwm, MOTOR_SPEED_RESOLUTION);
     tb6612fng_drv_set_speed(drv, 0);
 }
 
