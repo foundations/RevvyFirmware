@@ -199,8 +199,14 @@ uint32_t MotorPortSetType(uint32_t port_idx, motor_type_t type)
 
 	if (port_idx < ARRAY_SIZE(motor_ports) && type < ARRAY_SIZE(motor_libs))
 	{
-		if (motor_ports[port_idx].motor_lib && motor_ports[port_idx].motor_lib->MotorDeInit)
-			motor_ports[port_idx].motor_lib->MotorDeInit(&motor_ports[port_idx]);
+		if (motor_ports[port_idx].motor_lib)
+        {
+            MotorPort_led0_off(&motor_ports[port_idx]);
+            if (motor_ports[port_idx].motor_lib->MotorDeInit)
+            {
+			    motor_ports[port_idx].motor_lib->MotorDeInit(&motor_ports[port_idx]);
+            }
+        }
 
 		motor_ports[port_idx].motor_lib = motor_libs[type];
 

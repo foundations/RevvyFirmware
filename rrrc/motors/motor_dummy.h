@@ -16,22 +16,10 @@
 extern "C" {
 #endif
 
-int32_t MOTOR_DUMMY_Init(void* hw_port);
-
-static motor_lib_entry_t motor_dummy =
-{
-	.type_id = MOTOR_NOT_SET,
-	.name = "MOTOR_NO_SET",
-	.MotorInit = MOTOR_DUMMY_Init,
-	.MotorDeInit = NULL,
-};
-
-
+extern motor_lib_entry_t motor_dummy;
 
 #ifdef __cplusplus
 }
 #endif
-
-
 
 #endif /* MOTOR_DUMMY_H_ */

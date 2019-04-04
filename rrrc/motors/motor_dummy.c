@@ -10,24 +10,13 @@
 //*********************************************************************************************
 int32_t MOTOR_DUMMY_Init(void* hw_port)
 {
-	int32_t result = ERR_NONE;
-	return result;
+	return ERR_NONE;
 }
 
-//*********************************************************************************************
-void MOTOR_DUMMY_Thread(void* hw_port)
+motor_lib_entry_t motor_dummy =
 {
-
-}
-
-//*********************************************************************************************
-void MOTOR_DUMMY_enc0_callback(void* hw_port, uint32_t data)
-{
-
-}
-
-//*********************************************************************************************
-void MOTOR_DUMMY_enc1_callback(void* hw_port, uint32_t data)
-{
-
-}
+    .type_id = MOTOR_NOT_SET,
+    .name = "MOTOR_NO_SET",
+    .MotorInit = MOTOR_DUMMY_Init,
+    .MotorDeInit = NULL,
+};
