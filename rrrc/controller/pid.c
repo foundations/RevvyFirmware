@@ -39,7 +39,7 @@ void pid_initialize(PID_t* controller)
 float pid_update(PID_t* controller, float refSignal, float feedback)
 {
     float error = refSignal - feedback;
-    float dError = error - controller->state.previousError;
+    float dError = controller->state.previousError - error;
 
     float p = error * controller->config.P;
     float d = dError * controller->config.D;
@@ -47,7 +47,7 @@ float pid_update(PID_t* controller, float refSignal, float feedback)
 
     controller->state.previousError = error;
     controller->state.previousFeedback = feedback;
-    controller->state.integratorFeedback = controller->config.I * controller->state.integratorFeedback + (1 - controller->config.I) * u;
+    controller->state.integratorFeedback = (1 - controller->config.I) * controller->state.integratorFeedback + controller->config.I * u;
 
     return u;
 }
