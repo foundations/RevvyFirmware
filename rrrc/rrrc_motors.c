@@ -10,6 +10,8 @@
 #include "motors/rrrc_motor_base_function.h"
 #include "motors/motor_dummy.h"
 #include "motors/motor_openloop.h"
+#include "motors/motor_position_controlled.h"
+#include "motors/motor_speed_controlled.h"
 #include "rrrc_tb6612fng.h"
 
 tb6612fng_t motor_driver_configs[] =
@@ -79,7 +81,9 @@ tb6612fng_t motor_driver_configs[] =
 p_motor_lib_entry_t motor_libs[] =
 {
 	&motor_dummy,
-	&motor_openloop
+	&motor_openloop,
+    &motor_position_controlled,
+    &motor_speed_controlled
 };
 
 hw_motor_port_t motor_ports[] =

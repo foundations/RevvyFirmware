@@ -1212,22 +1212,34 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\motors\motor_dc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_dc.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\motors\motor_dummy.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\motors\motor_dummy.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\motors\motor_openloop.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_openloop.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_position_controlled.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_position_controlled.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\motors\motor_servo.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\motors\motor_servo.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_speed_controlled.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\motors\motor_speed_controlled.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\motors\rrrc_motor_base_function.h">
@@ -1273,6 +1285,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_sysmon.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_tb6612fng.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\rrrc_tb6612fng.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_worklogic.c">

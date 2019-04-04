@@ -13,7 +13,6 @@
 #include "err_codes.h"
 #include "rrrc_hal.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,6 +23,8 @@ typedef enum _motor_type_t
 {
 	MOTOR_NOT_SET,
     MOTOR_OPENLOOP,
+    MOTOR_POSITION_CONTROLLED,
+    MOTOR_SPEED_CONTROLLED,
 	MOTOR_SERVO
 }motor_type_t;
 
