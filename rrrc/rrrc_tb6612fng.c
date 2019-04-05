@@ -99,4 +99,8 @@ void tb6612fng_deinit(hw_motor_port_t* hw_port)
 
     // stop pwm timer
     timer_stop(drv->pwm);
+
+    // let go of the motors
+    gpio_set_pin_level(drv->dir0_gpio, false);
+    gpio_set_pin_level(drv->dir1_gpio, false);
 }

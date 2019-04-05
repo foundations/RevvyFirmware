@@ -35,8 +35,11 @@ static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
         position = data->position;
         CRITICAL_SECTION_LEAVE();
 
-        float measuredSpeed = position - data->lastPosition; // todo more sensible (less arbitrary) unit of speed
+        int32_t measuredSpeed = position - data->lastPosition; // todo more sensible (less arbitrary) unit of speed
         data->lastPosition = position;
+        
+        jscope_update(0, measuredSpeed);
+        jscope_update(1, data->refSpeed);
 
         int8_t speed = (int8_t) lroundf(pid_update(&data->controller, data->refSpeed, measuredSpeed));
         motport->motor_driver_lib->set_speed(motport, speed);

@@ -1221,6 +1221,12 @@
     <Compile Include="rrrc\converter.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\jscope\jscope.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\jscope\jscope.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\motors\motor_dummy.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1344,6 +1350,21 @@
     <Compile Include="rrrc\sensors\sensor_i2chub.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="third_party\segger\SEGGER_RTT.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\segger\SEGGER_RTT.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\segger\SEGGER_RTT_ASM_ARMv7M.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\segger\SEGGER_RTT_Conf.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\segger\SEGGER_RTT_printf.c">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Config\" />
@@ -1377,6 +1398,8 @@
     <Folder Include="hpl\usb\" />
     <Folder Include="hpl\wdt\" />
     <Folder Include="hri\" />
+    <Folder Include="rrrc\jscope" />
+    <Folder Include="third_party" />
     <Folder Include="rrrc" />
     <Folder Include="rrrc\motors" />
     <Folder Include="rrrc\controller" />
@@ -1390,6 +1413,7 @@
     <Folder Include="freertos\FreeRTOSV10.0.0\Source\portable\GCC" />
     <Folder Include="freertos\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F" />
     <Folder Include="freertos\FreeRTOSV10.0.0\Source\portable\MemMang" />
+    <Folder Include="third_party\segger" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\samd51p19a_flash.ld">

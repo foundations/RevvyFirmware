@@ -13,6 +13,8 @@
 #include "rrrc_indication.h"
 #include "rrrc_sysmon.h"
 
+#include "jscope/jscope.h"
+
 static TaskHandle_t      xRRRC_Main_xTask;
 
 extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
@@ -159,6 +161,9 @@ void SystemMonitorPinsInit(void)
 int32_t RRRC_Init(void)
 {
 	int32_t result = ERR_NONE;
+
+    jscope_init();
+
 	MotorsPinsInit();
 	SensorsPinsInit();
 	SystemMonitorPinsInit();
@@ -198,7 +203,6 @@ int32_t RRRC_Init(void)
 
 int32_t RRRC_DeInit(void)
 {
-
 	RRRC_Comminicationc_DeInit();
 	
 	adc_convertion_stop(0);

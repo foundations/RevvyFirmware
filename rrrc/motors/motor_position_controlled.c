@@ -10,6 +10,8 @@
 #include "converter.h"
 #include "rrrc_motor_base_function.h"
 
+#include "jscope/jscope.h"
+
 #include <math.h>
 
 typedef struct {
@@ -29,6 +31,7 @@ static void MOTOR_POSITION_CONTROLLED_Task(void* userData)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for(;;)
     {
+        jscope_update(0, data->position);
         int8_t speed = (int8_t) lroundf(pid_update(&data->controller, data->refPosition, data->position));
         motport->motor_driver_lib->set_speed(motport, speed);
 
