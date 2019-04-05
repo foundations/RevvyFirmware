@@ -16,7 +16,7 @@
 
 #define LEDS_USER_MAX_FRAMES 100
 
-enum INDICATON_RING_TYPE
+typedef enum INDICATON_RING_TYPE
 {
 	RING_LED_OFF,
 	RING_LED_USER,
@@ -26,7 +26,7 @@ enum INDICATON_RING_TYPE
 	RING_LED_PREDEF_4,
 
 	RING_LED_PREDEF_MAX //Must be last
-};
+} indication_type_t;
 
 // 
 // /* some RGB color definitions                                                 */
@@ -64,8 +64,6 @@ typedef struct _led_val_t
 	uint8_t G;
 	uint8_t B;	
 }led_val_t, *p_led_val_t, led_status_t[STATUS_LEDS_AMOUNT], led_ring_frame_t[RING_LEDS_AMOUNT];
-
-
 
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();

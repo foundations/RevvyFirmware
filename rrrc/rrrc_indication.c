@@ -9,8 +9,6 @@
 #include "rrrc_indication.h"
 #include "rrrc_indication_predefined.h"
 
-
-
 led_status_t status_leds = 
 {
 	{LED_OFF},
@@ -19,17 +17,57 @@ led_status_t status_leds =
 	{LED_RED}
 };
 
-uint32_t frame_max = 0;
-uint32_t frame_curr = 0;
-enum INDICATON_RING_TYPE led_ring_mode = RING_LED_OFF;
-
-static led_ring_frame_t led_ring_userframes[LEDS_USER_MAX_FRAMES] = {0x00};
+typedef struct {
+    uint32_t frame_max;
+    led_ring_frame_t* frames;
+} frame_data_t, *p_frame_data_t;
 
 static led_ring_frame_t* Led_ring_curr_buff = NULL;
 static bool led_ring_busy;
 
-#define LED_RESET_SIZE 50 
-uint8_t frame_leds[LED_RESET_SIZE+(sizeof(led_val_t)*(STATUS_LEDS_AMOUNT+RING_LEDS_AMOUNT)*8)];
+struct _indication_handler_t;
+
+typedef void (*ledRingInitializer)(struct _indication_handler_t* data);
+typedef void (*ledRingWriter)(uint8_t* frame_leds, uint32_t* frame_idx, struct _indication_handler_t* data);
+
+typedef struct _indication_handler_t
+{
+    ledRingInitializer init;
+    ledRingWriter handler;
+    frame_data_t* userData;
+    uint32_t period;
+    uint32_t periodCounter;
+    uint32_t frame_curr;
+} indication_handler_t;
+
+static void ledRingOffWriter(uint8_t* frame_leds, uint32_t* frame_idx, indication_handler_t* data);
+static void ledRingFrameWriter(uint8_t* frame_leds, uint32_t* frame_idx, indication_handler_t* data);
+
+static void initUserFrameWriter(indication_handler_t* data);
+static void initFrameWriter(indication_handler_t* data);
+
+#define LED_RESET_SIZE 50
+uint8_t frame_leds[LED_RESET_SIZE + (sizeof(led_val_t) * (STATUS_LEDS_AMOUNT + RING_LEDS_AMOUNT) * 8)];
+
+enum INDICATON_RING_TYPE led_ring_mode = RING_LED_OFF;
+
+static led_ring_frame_t led_ring_userframes[LEDS_USER_MAX_FRAMES] = {0x00};
+static frame_data_t user_frame = { .frames = led_ring_userframes };
+
+static frame_data_t predefined_frame_1 = { .frames = &ring_leds_round_red         , .frame_max = ARRAY_SIZE(ring_leds_round_red) };
+static frame_data_t predefined_frame_2 = { .frames = &ring_leds_round_green       , .frame_max = ARRAY_SIZE(ring_leds_round_green) };
+static frame_data_t predefined_frame_3 = { .frames = &ring_leds_round_blue        , .frame_max = ARRAY_SIZE(ring_leds_round_blue) };
+static frame_data_t predefined_frame_4 = { .frames = &ring_leds_running_fire_blue , .frame_max = ARRAY_SIZE(ring_leds_running_fire_blue) };
+
+static indication_handler_t indication_handlers[RING_LED_PREDEF_MAX] = 
+{
+    [RING_LED_OFF]      = { .period = 0,  .init = NULL,                 .handler = &ledRingOffWriter,   .userData = NULL },
+    [RING_LED_USER]     = { .period = 10, .init = &initUserFrameWriter, .handler = &ledRingFrameWriter, .userData = &user_frame },
+    [RING_LED_PREDEF_1] = { .period = 10, .init = &initFrameWriter,     .handler = &ledRingFrameWriter, .userData = &predefined_frame_1 },
+    [RING_LED_PREDEF_2] = { .period = 10, .init = &initFrameWriter,     .handler = &ledRingFrameWriter, .userData = &predefined_frame_2 },
+    [RING_LED_PREDEF_3] = { .period = 10, .init = &initFrameWriter,     .handler = &ledRingFrameWriter, .userData = &predefined_frame_3 },
+    [RING_LED_PREDEF_4] = { .period = 10, .init = &initFrameWriter,     .handler = &ledRingFrameWriter, .userData = &predefined_frame_4 },
+};
 
 static TaskHandle_t      xIndicationTask;
 //*********************************************************************************************
@@ -55,6 +93,58 @@ static inline uint8_t getLedBitPattern(uint8_t bitValue)
 	}
 }
 
+static void add_frame_byte(uint8_t* frame_leds, uint32_t* frame_idx, uint8_t byte)
+{
+    for (int32_t bit=7; bit >= 0; bit--)
+    {
+        frame_leds[(*frame_idx)++] = getLedBitPattern(byte >> bit);
+    }
+}
+
+static void initUserFrameWriter(indication_handler_t* data)
+{
+    memset(&data->userData->frames[0], 0, ARRAY_SIZE(led_ring_userframes));
+    data->userData->frame_max = 1;
+    data->frame_curr = 0;
+}
+
+static void initFrameWriter(indication_handler_t* data)
+{
+    data->frame_curr = 0;
+    data->periodCounter = 0;
+}
+
+static void ledRingOffWriter(uint8_t* frame_leds, uint32_t* frame_idx, indication_handler_t* data)
+{
+    for(uint32_t idx=0; idx<RING_LEDS_AMOUNT; idx++)
+    {
+        add_frame_byte(frame_leds, frame_idx, 0);
+        add_frame_byte(frame_leds, frame_idx, 0);
+        add_frame_byte(frame_leds, frame_idx, 0);
+    }
+}
+
+static void ledRingFrameWriter(uint8_t* frame_leds, uint32_t* frame_idx, indication_handler_t* frameData)
+{
+    for(uint32_t idx=0; idx<RING_LEDS_AMOUNT; idx++)
+    {
+        add_frame_byte(frame_leds, frame_idx, frameData->userData->frames[frameData->frame_curr][idx].G);
+        add_frame_byte(frame_leds, frame_idx, frameData->userData->frames[frameData->frame_curr][idx].R);
+        add_frame_byte(frame_leds, frame_idx, frameData->userData->frames[frameData->frame_curr][idx].B);
+    }
+
+    frameData->periodCounter++;
+    if (frameData->periodCounter >= frameData->period)
+    {
+        frameData->periodCounter = 0u;
+        frameData->frame_curr++;
+        if (frameData->frame_curr >= frameData->userData->frame_max)
+        {
+            frameData->frame_curr = 0;
+        }
+    }
+}
+
 //*********************************************************************************************
 static void MakeLedBuffer()
 {
@@ -64,47 +154,14 @@ static void MakeLedBuffer()
 	for (int32_t idx=0; idx<LED_RESET_SIZE; idx++)
 	frame_leds[frame_idx++] = LED_VAL_RES;
 	
-	for(uint32_t idx=0; idx<STATUS_LEDS_AMOUNT; idx++)
+	for (uint32_t idx=0; idx<STATUS_LEDS_AMOUNT; idx++)
 	{
-		for(int32_t bit=7; bit>=0; bit--)
-		{
-			uint8_t bit_val = status_leds[idx].G>>bit;
-			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
-		}
-		for(int32_t bit=7; bit>=0; bit--)
-		{
-			uint8_t bit_val = status_leds[idx].R>>bit;
-			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
-		}
-		for(int32_t bit=7; bit>=0; bit--)
-		{
-			uint8_t bit_val = status_leds[idx].B>>bit;
-			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
-		}
+    	add_frame_byte(frame_leds, &frame_idx, status_leds[idx].G);
+    	add_frame_byte(frame_leds, &frame_idx, status_leds[idx].R);
+    	add_frame_byte(frame_leds, &frame_idx, status_leds[idx].B);
 	}
 
-	for(uint32_t idx=0; idx<RING_LEDS_AMOUNT; idx++)
-	{
-		for(int32_t bit=7; bit>=0; bit--)
-		{
-			uint8_t bit_val = Led_ring_curr_buff[frame_curr][idx].G>>bit;
-			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
-		}
-		for(int32_t bit=7; bit>=0; bit--)
-		{
-			uint8_t bit_val = Led_ring_curr_buff[frame_curr][idx].R>>bit;
-			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
-		}
-		for(int32_t bit=7; bit>=0; bit--)
-		{
-			uint8_t bit_val = Led_ring_curr_buff[frame_curr][idx].B>>bit;
-			frame_leds[frame_idx++] = getLedBitPattern(bit_val);
-		}
-	}
-	
-	frame_curr++;
-	if (frame_curr>=frame_max)
-		frame_curr = 0;
+    indication_handlers[led_ring_mode].handler(frame_leds, &frame_idx, &indication_handlers[led_ring_mode]);
 }
 
 static void Indication_xTask(const void* user_data)
@@ -124,7 +181,7 @@ static void Indication_xTask(const void* user_data)
 			led_ring_busy = true;
 			io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
 		}
-		vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(200u));
+		vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(20u));
 	}
 	return;
 }
@@ -132,16 +189,19 @@ static void Indication_xTask(const void* user_data)
 //*********************************************************************************************
 int32_t IndicationUpdateUserFrame(uint32_t frame_idx, led_ring_frame_t* frame)
 {
-	if (frame_idx<LEDS_USER_MAX_FRAMES && frame && led_ring_mode==RING_LED_USER)
+	if (frame_idx < LEDS_USER_MAX_FRAMES && frame && led_ring_mode == RING_LED_USER)
 	{
 		memcpy(&led_ring_userframes[frame_idx], frame, sizeof(led_ring_frame_t));
-		if (frame_idx>=frame_max)
-			frame_max = frame_idx+1;
+		if (frame_idx >= user_frame.frame_max)
+		{
+            user_frame.frame_max = frame_idx + 1;
+        }
 		return ERR_NONE;
-	}else
-		return ERR_INVALID_ARG;
-
-	return ERR_NONE;
+	}
+    else
+	{
+        return ERR_INVALID_ARG;
+    }
 }
 
 //*********************************************************************************************
@@ -160,50 +220,21 @@ int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val)
 int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type)
 {
 	int32_t status = ERR_NONE;
-	switch (type)
-	{
-	case RING_LED_USER:
-		Led_ring_curr_buff = led_ring_userframes;
-		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
-		frame_curr = 0;
-		frame_max = 1;
-		led_ring_mode = RING_LED_USER;
-		break;
-	case RING_LED_PREDEF_1:
-		Led_ring_curr_buff = ring_leds_round_red;
-		frame_curr = 0;
-		frame_max = ARRAY_SIZE(ring_leds_round_red);
-		led_ring_mode = RING_LED_PREDEF_1;
-		break;
-	case RING_LED_PREDEF_2:
-		Led_ring_curr_buff = ring_leds_round_green;
-		frame_curr = 0;
-		frame_max = ARRAY_SIZE(ring_leds_round_green);
-		led_ring_mode = RING_LED_PREDEF_2;
-		break;
-	case RING_LED_PREDEF_3:
-		Led_ring_curr_buff = ring_leds_round_blue;
-		frame_curr = 0;
-		led_ring_mode = RING_LED_PREDEF_3;
-		frame_max = ARRAY_SIZE(ring_leds_round_blue);
-		break;
-	case RING_LED_PREDEF_4:
-		Led_ring_curr_buff = ring_leds_running_fire_blue;
-		frame_curr = 0;
-		frame_max = ARRAY_SIZE(ring_leds_running_fire_blue);
-		led_ring_mode = RING_LED_PREDEF_4;
-		break;
-	case RING_LED_OFF:
-	default:
-		Led_ring_curr_buff = led_ring_userframes;
-		memset(Led_ring_curr_buff, 0, ARRAY_SIZE(led_ring_userframes));
-		frame_curr = 0;
-		frame_max = 1;
-		led_ring_mode = RING_LED_OFF;
-		if (type!=RING_LED_OFF)
-			status = ERR_INVALID_DATA;
-		break;
-	}
+
+    if (type < RING_LED_PREDEF_MAX)
+    {
+        led_ring_mode = type;
+        if (indication_handlers[led_ring_mode].init)
+        {
+            indication_handlers[led_ring_mode].init(&indication_handlers[led_ring_mode]);
+        }
+    }
+    else
+    {
+        led_ring_mode = RING_LED_OFF;
+        status = ERR_INVALID_DATA;
+    }
+
 	return status;
 }
 
@@ -222,7 +253,7 @@ uint32_t IndicationGetStatusLedsAmount()
 //*********************************************************************************************
 int32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
-	IndicationSetRingType(RING_LED_OFF);
+	IndicationSetRingType(RING_LED_PREDEF_4);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
 	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, 5, &xIndicationTask) != pdPASS) 
