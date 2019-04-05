@@ -24,6 +24,7 @@ typedef enum INDICATON_RING_TYPE
 	RING_LED_PREDEF_2,
 	RING_LED_PREDEF_3,
 	RING_LED_PREDEF_4,
+	RING_LED_COLORWHEEL_1,
 
 	RING_LED_PREDEF_MAX //Must be last
 } indication_type_t;
@@ -50,13 +51,17 @@ typedef enum INDICATON_RING_TYPE
 // #define GreenYellow     0xAFE5      /* 173, 255,  47 */
 // #define Pink                        0xF81F
 
-#define LED_RED		0x00,0x30,0x00
-#define LED_GREEN	0x30,0x00,0x00
-#define LED_BLUE	0x00,0x00,0x30
-#define LED_YELLOW	0x30,0x30,0x00
-#define LED_CYAN	0x30,0x00,0x30
-#define LED_WHITE	0x30,0x30,0x30
-#define LED_OFF		0x00,0x00,0x00
+#define LED_BRIGHT  0x10
+
+#define LED_RED		0x00,       LED_BRIGHT, 0x00
+#define LED_GREEN	0x00,       LED_BRIGHT, 0x00
+#define LED_BLUE	0x00,       0x00,       LED_BRIGHT
+#define LED_YELLOW	LED_BRIGHT, LED_BRIGHT, 0x00
+#define LED_CYAN	LED_BRIGHT, 0x00,       LED_BRIGHT
+#define LED_WHITE	LED_BRIGHT / 4, LED_BRIGHT / 4, LED_BRIGHT / 4
+#define LED_OFF		0x00,       0x00,       0x00
+
+#define LED_HSV_CYAN    0, 100, 10
 
 typedef struct _led_val_t
 {
@@ -64,6 +69,13 @@ typedef struct _led_val_t
 	uint8_t G;
 	uint8_t B;	
 }led_val_t, *p_led_val_t, led_status_t[STATUS_LEDS_AMOUNT], led_ring_frame_t[RING_LEDS_AMOUNT];
+
+typedef struct 
+{
+    uint16_t h;
+    uint8_t s;
+    uint8_t v;
+} hsv_t;
 
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();
