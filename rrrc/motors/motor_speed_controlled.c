@@ -16,10 +16,13 @@ typedef struct {
     PID_t controller;
     TaskHandle_t task;
 
-    float refSpeed;
+    int32_t refSpeed;
 
-    int64_t position;
-    int64_t lastPosition;
+    int32_t position;
+    int32_t lastPosition;
+
+    float alpha;
+    float y0;
 } *p_motor_speed_ctrl_data_t;
 
 static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
@@ -30,19 +33,23 @@ static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for(;;)
     {
-        int64_t position;
+        int32_t position;
         CRITICAL_SECTION_ENTER();
         position = data->position;
         CRITICAL_SECTION_LEAVE();
 
         int32_t measuredSpeed = position - data->lastPosition; // todo more sensible (less arbitrary) unit of speed
+
+        data->y0 = data->alpha * measuredSpeed + (1 - data->alpha) * data->y0;
+
         data->lastPosition = position;
         
-        jscope_update(0, measuredSpeed);
-        jscope_update(1, data->refSpeed);
-
-        int8_t speed = (int8_t) lroundf(pid_update(&data->controller, data->refSpeed, measuredSpeed));
-        motport->motor_driver_lib->set_speed(motport, speed);
+        float fref = (float) data->refSpeed;
+        float u = pid_update(&data->controller, fref, data->y0);
+        motport->motor_driver_lib->set_speed(motport, lroundf(u));
+        
+        jscope_update((3 * (motport->index) + 0), &data->y0);
+        jscope_update((3 * (motport->index) + 1), &fref);
 
         vTaskDelay(rtos_ms_to_ticks(20));
 	}
@@ -55,6 +62,9 @@ static int32_t MOTOR_SPEED_CONTROLLED_Init(void* hw_port)
 
     ASSERT(motport && motport->motor_driver_lib);
     motport->motor_driver_lib->init(motport);
+
+    data->y0 = 0.0f;
+    data->alpha = 0.2f;
 
     pid_initialize(&data->controller);
 

@@ -31,9 +31,18 @@ static void MOTOR_POSITION_CONTROLLED_Task(void* userData)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for(;;)
     {
-        jscope_update(0, data->position);
-        int8_t speed = (int8_t) lroundf(pid_update(&data->controller, data->refPosition, data->position));
-        motport->motor_driver_lib->set_speed(motport, speed);
+        int32_t pos;
+        CRITICAL_SECTION_ENTER();
+        pos = data->position;
+        CRITICAL_SECTION_LEAVE();
+        float u = pid_update(&data->controller, data->refPosition, pos);
+        motport->motor_driver_lib->set_speed(motport, lroundf(u));
+        
+        float fpos = (float)pos;
+        float fref = (float)data->refPosition;
+
+        jscope_update(3 * (motport->index) + 0, &fpos);
+        jscope_update(3 * (motport->index) + 1, &fref);
 
         vTaskDelay(rtos_ms_to_ticks(20));
 	}
