@@ -37,12 +37,9 @@ static void MOTOR_POSITION_CONTROLLED_Task(void* userData)
         CRITICAL_SECTION_LEAVE();
         float u = pid_update(&data->controller, data->refPosition, pos);
         motport->motor_driver_lib->set_speed(motport, lroundf(u));
-        
-        float fpos = (float)pos;
-        float fref = (float)data->refPosition;
 
-        jscope_update(3 * (motport->index) + 0, &fpos);
-        jscope_update(3 * (motport->index) + 1, &fref);
+        jscope_update(2 * (motport->index) + 0, pos);
+        jscope_update(2 * (motport->index) + 1, data->refPosition);
 
         vTaskDelay(rtos_ms_to_ticks(20));
 	}

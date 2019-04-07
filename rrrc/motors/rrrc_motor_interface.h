@@ -34,7 +34,6 @@ typedef struct _motor_lib_entry_t
 {
     motor_type_t type_id;
     char* name;
-    void* port;
 
     int32_t (*MotorInit)(void* hw_port);
     int32_t (*MotorDeInit)(void* hw_port);

@@ -48,8 +48,8 @@ static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
         float u = pid_update(&data->controller, fref, data->y0);
         motport->motor_driver_lib->set_speed(motport, lroundf(u));
         
-        jscope_update((3 * (motport->index) + 0), &data->y0);
-        jscope_update((3 * (motport->index) + 1), &fref);
+        jscope_update((2 * (motport->index) + 0), (int32_t) data->y0);
+        jscope_update((2 * (motport->index) + 1), data->refSpeed);
 
         vTaskDelay(rtos_ms_to_ticks(20));
 	}

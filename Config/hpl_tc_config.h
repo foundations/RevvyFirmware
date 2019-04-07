@@ -218,13 +218,6 @@
 #define CONF_TC1_PRESCALER 0x4
 #endif
 
-// <o> Length of one timer tick in uS <0-4294967295>
-// <id> timer_tick
-#ifndef CONF_TC1_TIMER_TICK
-#define CONF_TC1_TIMER_TICK 1000
-#endif
-// </h>
-
 // <e> Advanced configuration
 // <id> timer_advanced_configuration
 #ifndef CONF_TC1__ADVANCED_CONFIGURATION_ENABLE
@@ -281,7 +274,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC1_MCEO1
-#define CONF_TC1_MCEO1 1
+#define CONF_TC1_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -330,8 +323,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC1_CC1
-#define CONF_TC1_CC1                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
+#define CONF_TC1_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC1_ALOCK
@@ -363,8 +355,7 @@
 #endif
 
 #ifndef CONF_TC1_CC0
-#define CONF_TC1_CC0                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC1_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC1_FREQUENCY / CONF_TC1_PRESCALE)))
+#define CONF_TC1_CC0 0xFFFF
 #endif
 
 #ifndef CONF_TC1_COPEN0
@@ -384,7 +375,7 @@
 #endif
 
 #ifndef CONF_TC1_DRVCTRLEN0
-#define CONF_TC1_DRVCTRLEN0 1
+#define CONF_TC1_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC1_DRVCTRLEN1
@@ -520,7 +511,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC2_CC1
-#define CONF_TC2_CC1 0xFFFFFFFF
+#define CONF_TC2_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC2_ALOCK
@@ -552,7 +543,7 @@
 #endif
 
 #ifndef CONF_TC2_CC0
-#define CONF_TC2_CC0 0xFFFFFFFF
+#define CONF_TC2_CC0 0xFFFF
 #endif
 
 
@@ -603,13 +594,6 @@
 #ifndef CONF_TC3_PRESCALER
 #define CONF_TC3_PRESCALER 0x4
 #endif
-
-// <o> Length of one timer tick in uS <0-4294967295>
-// <id> timer_tick
-#ifndef CONF_TC3_TIMER_TICK
-#define CONF_TC3_TIMER_TICK 1000
-#endif
-// </h>
 
 // <e> Advanced configuration
 // <id> timer_advanced_configuration
@@ -667,7 +651,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC3_MCEO1
-#define CONF_TC3_MCEO1 1
+#define CONF_TC3_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -716,8 +700,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC3_CC1
-#define CONF_TC3_CC1                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
+#define CONF_TC3_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC3_ALOCK
@@ -749,8 +732,7 @@
 #endif
 
 #ifndef CONF_TC3_CC0
-#define CONF_TC3_CC0                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC3_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC3_FREQUENCY / CONF_TC3_PRESCALE)))
+#define CONF_TC3_CC0 0xFFFF
 #endif
 
 
@@ -771,7 +753,7 @@
 #endif
 
 #ifndef CONF_TC3_DRVCTRLEN0
-#define CONF_TC3_DRVCTRLEN0 1
+#define CONF_TC3_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC3_DRVCTRLEN1
@@ -865,7 +847,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC4_MCEO1
-#define CONF_TC4_MCEO1 1
+#define CONF_TC4_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -914,8 +896,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC4_CC1
-#define CONF_TC4_CC1                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
+#define CONF_TC4_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC4_ALOCK
@@ -947,8 +928,7 @@
 #endif
 
 #ifndef CONF_TC4_CC0
-#define CONF_TC4_CC0                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC4_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC4_FREQUENCY / CONF_TC4_PRESCALE)))
+#define CONF_TC4_CC0 0xFFFF
 #endif
 
 
@@ -969,7 +949,7 @@
 #endif
 
 #ifndef CONF_TC4_DRVCTRLEN0
-#define CONF_TC4_DRVCTRLEN0 1
+#define CONF_TC4_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC4_DRVCTRLEN1
@@ -1063,7 +1043,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC5_MCEO1
-#define CONF_TC5_MCEO1 1
+#define CONF_TC5_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -1112,8 +1092,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC5_CC1
-#define CONF_TC5_CC1                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC5_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC5_FREQUENCY / CONF_TC5_PRESCALE)))
+#define CONF_TC5_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC5_ALOCK
@@ -1145,8 +1124,7 @@
 #endif
 
 #ifndef CONF_TC5_CC0
-#define CONF_TC5_CC0                                                                                                   \
-	0//(uint32_t)(((float)CONF_TC5_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC5_FREQUENCY / CONF_TC5_PRESCALE)))
+#define CONF_TC5_CC0 0xFFFF
 #endif
 
 
@@ -1167,7 +1145,7 @@
 #endif
 
 #ifndef CONF_TC5_DRVCTRLEN0
-#define CONF_TC5_DRVCTRLEN0 1
+#define CONF_TC5_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC5_DRVCTRLEN1
@@ -1199,13 +1177,6 @@
 #ifndef CONF_TC6_PRESCALER
 #define CONF_TC6_PRESCALER 0x4
 #endif
-
-// <o> Length of one timer tick in uS <0-4294967295>
-// <id> timer_tick
-#ifndef CONF_TC6_TIMER_TICK
-#define CONF_TC6_TIMER_TICK 1000
-#endif
-// </h>
 
 // <e> Advanced configuration
 // <id> timer_advanced_configuration
@@ -1263,7 +1234,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC6_MCEO1
-#define CONF_TC6_MCEO1 1
+#define CONF_TC6_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -1312,7 +1283,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC6_CC1
-#define CONF_TC6_CC1 0
+#define CONF_TC6_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC6_ALOCK
@@ -1344,8 +1315,7 @@
 #endif
 
 #ifndef CONF_TC6_CC0
-#define CONF_TC6_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC6_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC6_FREQUENCY / CONF_TC6_PRESCALE)))
+#define CONF_TC6_CC0 0xFFFF
 #endif
 
 
@@ -1366,7 +1336,7 @@
 #endif
 
 #ifndef CONF_TC6_DRVCTRLEN0
-#define CONF_TC6_DRVCTRLEN0 1
+#define CONF_TC6_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC6_DRVCTRLEN1
@@ -1460,7 +1430,7 @@
 // <i> Enable output of event on timer tick
 // <id> tc_arch_mceo1
 #ifndef CONF_TC7_MCEO1
-#define CONF_TC7_MCEO1 1
+#define CONF_TC7_MCEO1 0
 #endif
 
 // <q> Output Event On Timer Tick
@@ -1509,7 +1479,7 @@
 
 // CC 1 register set to 0
 #ifndef CONF_TC7_CC1
-#define CONF_TC7_CC1 0
+#define CONF_TC7_CC1 0xFFFF
 #endif
 
 #ifndef CONF_TC7_ALOCK
@@ -1541,8 +1511,7 @@
 #endif
 
 #ifndef CONF_TC7_CC0
-#define CONF_TC7_CC0                                                                                                   \
-	(uint32_t)(((float)CONF_TC7_TIMER_TICK / 1000000.f) / (1.f / (CONF_GCLK_TC7_FREQUENCY / CONF_TC7_PRESCALE)))
+#define CONF_TC7_CC0 0xFFFF
 #endif
 
 #ifndef CONF_TC7_COPEN0
@@ -1562,7 +1531,7 @@
 #endif
 
 #ifndef CONF_TC7_DRVCTRLEN0
-#define CONF_TC7_DRVCTRLEN0 1
+#define CONF_TC7_DRVCTRLEN0 0
 #endif
 
 #ifndef CONF_TC7_DRVCTRLEN1

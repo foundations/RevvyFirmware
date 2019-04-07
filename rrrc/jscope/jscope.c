@@ -7,19 +7,23 @@
 
 #include "jscope.h"
 #include "third_party/segger/SEGGER_RTT.h"
+#include "utils.h"
+#include "utils_assert.h"
  
 static uint8_t JS_RTT_UpBuffer[7200];    // J-Scope RTT Buffer
 static uint32_t JS_RTT_Channel = 1;       // J-Scope RTT Channel
 
-static float jscope_sample[2];
+static int32_t jscope_sample[2 * 6];
 
 void jscope_init(void)
 {
-    SEGGER_RTT_ConfigUpBuffer(JS_RTT_Channel, "JScope_f4f4", &JS_RTT_UpBuffer[0], sizeof(JS_RTT_UpBuffer), SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+    SEGGER_RTT_ConfigUpBuffer(JS_RTT_Channel, "JScope_I4I4I4I4I4I4I4I4I4I4I4I4", &JS_RTT_UpBuffer[0], sizeof(JS_RTT_UpBuffer), SEGGER_RTT_MODE_NO_BLOCK_SKIP);
 }
 
-void jscope_update(uint32_t channel, void* v)
+void jscope_update(uint32_t channel, int32_t v)
 {
-    memcpy(&jscope_sample[channel], v, 4);
+    ASSERT(channel < ARRAY_SIZE(jscope_sample));
+
+    jscope_sample[channel] = v;
     SEGGER_RTT_Write(JS_RTT_Channel, &jscope_sample[0], sizeof(jscope_sample));
 }
