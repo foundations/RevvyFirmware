@@ -182,7 +182,7 @@ static void initUserFrameWriter(indication_handler_t* data)
 {
     p_frame_data_t userData = (p_frame_data_t) data->userData;
     memset(&userData->frames[0], 0, ARRAY_SIZE(led_ring_userframes));
-    userData->frame_max = 1;
+    userData->frame_max = 0;
     userData->frame_curr = 0;
 }
 
@@ -213,21 +213,24 @@ static void ledRingOffWriter(uint8_t* frame_leds, uint32_t* frame_idx, indicatio
 static void ledRingFrameWriter(uint8_t* frame_leds, uint32_t* frame_idx, indication_handler_t* frameData)
 {
     p_frame_data_t userData = (p_frame_data_t) frameData->userData;
-    for(uint32_t idx=0; idx<RING_LEDS_AMOUNT; idx++)
+    if (userData->frame_max != 0)
     {
-        add_frame_byte(frame_leds, frame_idx, userData->frames[userData->frame_curr][idx].G);
-        add_frame_byte(frame_leds, frame_idx, userData->frames[userData->frame_curr][idx].R);
-        add_frame_byte(frame_leds, frame_idx, userData->frames[userData->frame_curr][idx].B);
-    }
-
-    userData->periodCounter++;
-    if (userData->periodCounter >= userData->period)
-    {
-        userData->periodCounter = 0u;
-        userData->frame_curr++;
-        if (userData->frame_curr >= userData->frame_max)
+        for(uint32_t idx=0; idx<RING_LEDS_AMOUNT; idx++)
         {
-            userData->frame_curr = 0;
+            add_frame_byte(frame_leds, frame_idx, userData->frames[userData->frame_curr][idx].G);
+            add_frame_byte(frame_leds, frame_idx, userData->frames[userData->frame_curr][idx].R);
+            add_frame_byte(frame_leds, frame_idx, userData->frames[userData->frame_curr][idx].B);
+        }
+
+        userData->periodCounter++;
+        if (userData->periodCounter >= userData->period)
+        {
+            userData->periodCounter = 0u;
+            userData->frame_curr++;
+            if (userData->frame_curr >= userData->frame_max)
+            {
+                userData->frame_curr = 0;
+            }
         }
     }
 }
@@ -253,7 +256,7 @@ static void colorWheelWriter1(uint8_t* frame_leds, uint32_t* frame_idx, indicati
 }
 
 //*********************************************************************************************
-static void MakeLedBuffer()
+static bool MakeLedBuffer()
 {
 #define LED_VAL_RES 0x00
 
@@ -279,7 +282,10 @@ static void Indication_xTask(const void* user_data)
 	{
 		if (!led_ring_busy)
 		{
+            CRITICAL_SECTION_ENTER();
 			MakeLedBuffer();
+            CRITICAL_SECTION_LEAVE();
+
 			struct io_descriptor *io;
 			spi_m_dma_get_io_descriptor(&SPI_0, &io);
 
@@ -299,7 +305,7 @@ int32_t IndicationUpdateUserFrame(uint32_t frame_idx, led_ring_frame_t* frame)
 	if (frame_idx < LEDS_USER_MAX_FRAMES && frame && led_ring_mode == RING_LED_USER)
 	{
 		memcpy(&led_ring_userframes[frame_idx], frame, sizeof(led_ring_frame_t));
-		if (frame_idx >= user_frame.frame_max)
+		if (frame_idx > user_frame.frame_max)
 		{
             user_frame.frame_max = frame_idx + 1;
         }
@@ -360,7 +366,7 @@ uint32_t IndicationGetStatusLedsAmount()
 //*********************************************************************************************
 int32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
-	IndicationSetRingType(RING_LED_COLORWHEEL_1);
+	IndicationSetRingType(RING_LED_OFF);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
 	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, 5, &xIndicationTask) != pdPASS) 
