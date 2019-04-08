@@ -16,7 +16,7 @@ led_status_t status_leds =
 	{LED_GREEN},
 	{LED_GREEN},
 	{LED_BLUE},
-	{LED_WHITE}
+	{LED_RED}
 };
 
 typedef struct {

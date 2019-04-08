@@ -51,7 +51,7 @@ static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
         jscope_update((2 * (motport->index) + 0), (int32_t) data->y0);
         jscope_update((2 * (motport->index) + 1), data->refSpeed);
 
-        vTaskDelay(rtos_ms_to_ticks(20));
+        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(20));
 	}
 }
 
@@ -95,11 +95,15 @@ static int32_t MOTOR_SPEED_CONTROLLED_set_config(void* hw_port, const uint8_t* p
     p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
 
     CRITICAL_SECTION_ENTER();
+    pid_initialize(&data->controller);
     data->controller.config.P = get_float(&pData[0]);
     data->controller.config.I = get_float(&pData[4]);
     data->controller.config.D = get_float(&pData[8]);
     data->controller.config.LowerLimit = get_float(&pData[12]);
     data->controller.config.UpperLimit = get_float(&pData[16]);
+
+    data->lastPosition = 0;
+    data->position = 0;
     CRITICAL_SECTION_LEAVE();
 
     return ERR_NONE;

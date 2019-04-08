@@ -53,7 +53,7 @@ typedef enum INDICATON_RING_TYPE
 
 #define LED_BRIGHT  0x10
 
-#define LED_RED		0x00,       LED_BRIGHT, 0x00
+#define LED_RED		LED_BRIGHT, 0x00,       0x00
 #define LED_GREEN	0x00,       LED_BRIGHT, 0x00
 #define LED_BLUE	0x00,       0x00,       LED_BRIGHT
 #define LED_YELLOW	LED_BRIGHT, LED_BRIGHT, 0x00
