@@ -235,31 +235,21 @@ static void ledRingFrameWriter(uint8_t* frame_leds, uint32_t* frame_idx, indicat
 static void colorWheelWriter1(uint8_t* frame_leds, uint32_t* frame_idx, indication_handler_t* data)
 {
     p_colorwheel_data_t userData = (p_colorwheel_data_t) data->userData;
-    float t = userData->time;
-    const float f = 1;
+    
     for (uint8_t i = 0; i < 12; i++)
     {
         float phase = i * M_PI / 12;
-        float brightness = 0.3;// (sinf(M_PI * f * t + phase) + 1.01f);
 
         hsv_t hsv = userData->color;
-        hsv.s = ((200 + ((hsv.s + 8 * i) % 100)) / 3);
-        hsv.v *= brightness;
+        hsv.h = hsv.h + i * 30;
         led_val_t rgb = hsv_to_rgb(hsv);
         
         add_frame_byte(frame_leds, frame_idx, rgb.G);
         add_frame_byte(frame_leds, frame_idx, rgb.R);
         add_frame_byte(frame_leds, frame_idx, rgb.B);
     }
-    userData->periodCounter++;
-    if (userData->periodCounter >= 4)
-    {
-        userData->periodCounter = 0u;
-        userData->color.s = (userData->color.s + 8) % 100;
-    }
-
-    float dt = 0.02f;
-    userData->time = t + dt;
+    userData->periodCounter = 0u;
+    userData->color.h = (userData->color.h + 6) % 360;
 }
 
 //*********************************************************************************************
@@ -370,7 +360,7 @@ uint32_t IndicationGetStatusLedsAmount()
 //*********************************************************************************************
 int32_t IndicationInit(){
 	uint32_t result = ERR_NONE;
-	IndicationSetRingType(RING_LED_OFF);
+	IndicationSetRingType(RING_LED_COLORWHEEL_1);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
 	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, 5, &xIndicationTask) != pdPASS) 
