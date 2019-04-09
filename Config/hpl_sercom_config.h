@@ -305,7 +305,7 @@
 // <i> Determine if the module shall run in standby sleep mode
 // <id> i2c_slave_runstdby
 #ifndef CONF_SERCOM_2_I2CS_RUNSTDBY
-#define CONF_SERCOM_2_I2CS_RUNSTDBY 0
+#define CONF_SERCOM_2_I2CS_RUNSTDBY 1
 #endif
 
 // <o> SDA Hold Time (SDAHOLD)
@@ -374,7 +374,7 @@
 // </e>
 
 #ifndef CONF_SERCOM_2_I2CS_SPEED
-#define CONF_SERCOM_2_I2CS_SPEED 0x00 // Speed: Standard/Fast mode
+#define CONF_SERCOM_2_I2CS_SPEED 1 // Speed: Standard/Fast mode
 #endif
 
 #include <peripheral_clk_config.h>
