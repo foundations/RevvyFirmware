@@ -45,6 +45,8 @@ enum RRRC_I2C_CMD
 	RRRC_I2C_CMD_STATUS_ERROR		= 0x01,		//As status
 	RRRC_I2C_CMD_STATUS_BUSY		= 0x02,		//As status
 	RRRC_I2C_CMD_STATUS_READY		= 0x03,		//As status
+	RRRC_I2C_CMD_ECHO_WR            = 0x07,		//Use for debug
+	RRRC_I2C_CMD_ECHO_RD            = 0x08,		//Use for debug
 	RRRC_I2C_CMD_DUMMY				= 0x09,		//Use for PING
 	RRRC_I2C_CMD_PING	=	RRRC_I2C_CMD_DUMMY,
 	RRRC_I2C_CMD_RESET				= 0x0A,

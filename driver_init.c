@@ -336,8 +336,13 @@ static void IT_init(void)
     // Set everything to 1, interrupts must not be at priority 0
     for (uint8_t i = 0; i < 138; i++)
     {
-        NVIC_SetPriority(i, 1);
+        NVIC_SetPriority(i, 3);
     }
+
+    NVIC_SetPriority(SERCOM2_0_IRQn, 1);
+    NVIC_SetPriority(SERCOM2_1_IRQn, 1);
+    NVIC_SetPriority(SERCOM2_2_IRQn, 1);
+    NVIC_SetPriority(SERCOM2_3_IRQn, 1);
 }
 
 //*********************************************************************************************
