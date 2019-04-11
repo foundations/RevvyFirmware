@@ -326,11 +326,9 @@ static void tc_interrupt_handler(struct _timer_device *device)
 	}else if (hri_tc_get_interrupt_MC0_bit(hw)) {
 		device->timer_cb.capture_chan0(device);
 		hri_tc_clear_interrupt_MC0_bit(hw);
-		//hri_tccount16_write_CC_reg(hw, 0, 0);
 	}else if (hri_tc_get_interrupt_MC1_bit(hw)) {
 		device->timer_cb.capture_chan1(device);
 		hri_tc_clear_interrupt_MC1_bit(hw);
-		//hri_tccount16_write_CC_reg(hw, 1, 0);
  	}else if (hri_tc_get_interrupt_OVF_bit(hw)) {
  		device->timer_cb.period_expired(device);
  		hri_tc_clear_interrupt_OVF_bit(hw);
