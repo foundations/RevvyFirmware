@@ -119,7 +119,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC0_EVACT
-#define CONF_TC0_EVACT 4
+#define CONF_TC0_EVACT 2
 #endif
 // </e>
 
@@ -310,7 +310,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC1_EVACT
-#define CONF_TC1_EVACT 4
+#define CONF_TC1_EVACT 2
 #endif
 // </e>
 
@@ -687,7 +687,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC3_EVACT
-#define CONF_TC3_EVACT 4
+#define CONF_TC3_EVACT 2
 #endif
 // </e>
 
@@ -883,7 +883,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC4_EVACT
-#define CONF_TC4_EVACT 4
+#define CONF_TC4_EVACT 2
 #endif
 // </e>
 
@@ -1079,7 +1079,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC5_EVACT
-#define CONF_TC5_EVACT 4
+#define CONF_TC5_EVACT 2
 #endif
 // </e>
 
@@ -1270,7 +1270,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC6_EVACT
-#define CONF_TC6_EVACT 4
+#define CONF_TC6_EVACT 2
 #endif
 // </e>
 
