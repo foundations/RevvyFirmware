@@ -15,13 +15,6 @@ int32_t I2CHUB_Init(void* hw_port)
 }
 
 //*********************************************************************************************
-void I2CHUB_Thread(void* hw_port)
-{
-	p_hw_sensor_port_t sensport = hw_port;
-	return;
-}
-
-//*********************************************************************************************
 uint32_t I2CHUB_write_data(void* hw_port, void* data, uint32_t size)
 {
 	int32_t result = ERR_NONE;

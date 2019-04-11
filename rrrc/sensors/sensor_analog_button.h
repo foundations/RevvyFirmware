@@ -29,7 +29,6 @@ static sensor_lib_entry_t sensor_analog_button =
 	.SensorInit = ABUTTON_Init,
 	.SensorDeInit = ABUTTON_DeInit,
 	.sensor_get_values = ABUTTON_get_value,
-	.sensor_thread = ABUTTON_Thread,
 	.write_data = NULL,
 	.read_data = NULL,
 

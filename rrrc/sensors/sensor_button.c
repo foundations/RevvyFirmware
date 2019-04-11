@@ -51,12 +51,6 @@ uint32_t BUTTON_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 }
 
 //*********************************************************************************************
-void BUTTON_Thread(void* hw_port)
-{
-	return;
-}
-
-//*********************************************************************************************
 void BUTTON_gpio0_callback(void* hw_port, uint32_t data)
 {
 	p_hw_sensor_port_t sensport = hw_port;
@@ -73,6 +67,4 @@ void BUTTON_gpio0_callback(void* hw_port, uint32_t data)
             SensorPort_led1_off(sensport);
         }
 	}
-
-	return;
 }

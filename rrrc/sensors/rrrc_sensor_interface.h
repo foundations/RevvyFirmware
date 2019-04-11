@@ -57,7 +57,6 @@ typedef struct _sensor_lib_entry_t
 
     int32_t (*SensorInit)(void* hw_port);
 	int32_t (*SensorDeInit)(void* hw_port);
-    void (*sensor_thread)(void* hw_port);
 	uint32_t (*write_data)(void* hw_port, void* data, uint32_t size);
 	uint32_t (*read_data)(void* hw_port, void* data, uint32_t size);
 
@@ -77,8 +76,6 @@ typedef struct _hw_sensor_port_t
 	p_sensor_lib_entry_t sensor_lib;
 
 	uint8_t lib_data[SENSOR_PORT_LIBDATA];
-
-	TaskHandle_t      xSensorPortTask;
 
 	struct i2c_m_sync_desc		*I2C;
 	gpio_num i2c_sda;

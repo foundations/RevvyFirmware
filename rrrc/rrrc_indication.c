@@ -369,7 +369,7 @@ int32_t IndicationInit(){
 	IndicationSetRingType(RING_LED_OFF);
 
 	char task_name[configMAX_TASK_NAME_LEN+1] = "Indication";
-	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, 5, &xIndicationTask) != pdPASS) 
+	if (xTaskCreate(Indication_xTask, task_name, 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY, &xIndicationTask) != pdPASS) 
 		return ERR_FAILURE;
 
 	return result;}

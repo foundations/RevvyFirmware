@@ -31,7 +31,6 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 0,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.xSensorPortTask = NULL,
 
 		.I2C = &I2C_4,
 		.i2c_sda = S0I2Csda,
@@ -53,7 +52,6 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 1,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.xSensorPortTask = NULL,
 
 		.I2C = &I2C_1,
 		.i2c_sda = S1I2Csda,
@@ -75,7 +73,6 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 2,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.xSensorPortTask = NULL,
 
 		.I2C = &I2C_2,
 		.i2c_sda = S2I2Csda,
@@ -98,7 +95,6 @@ hw_sensor_port_t sensor_ports[] =
 		.index = 3,
 		.sensor_lib = NULL,
 		.lib_data = {0},
-		.xSensorPortTask = NULL,
 			
 		.I2C = &I2C_3,
 		.i2c_sda = S3I2Csda,
@@ -217,23 +213,6 @@ uint32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
 }
 
 //*********************************************************************************************
-static void SensorPort_xTask(const void* user_data)
-{
-	TickType_t xLastWakeTime = xTaskGetTickCount();
-	p_hw_sensor_port_t sensport = user_data;
-	if (sensport == NULL)
-		return;
-	for(;;)
-	{
-		if (sensport->sensor_lib && sensport->sensor_lib->sensor_thread)
-		{
-			sensport->sensor_lib->sensor_thread(sensport);
-		}
-		vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(200u));
-	}
-}
-
-//*********************************************************************************************
 static void SensorPort_adc_cb(const uint8_t adc_data, void* port)
 {
 	p_hw_sensor_port_t sensport = port;
@@ -307,11 +286,6 @@ int32_t SensorPortInit(uint32_t port_idx)
 	//But in future will be Async mode
 	//*****************************
 
-	char task_name[configMAX_TASK_NAME_LEN+1];
-	snprintf(task_name, configMAX_TASK_NAME_LEN, "sensorport%01d", port_idx);
-	if (xTaskCreate(SensorPort_xTask, task_name, 256 / sizeof(portSTACK_TYPE), &sensor_ports[port_idx], tskIDLE_PRIORITY+1, &sensor_ports[port_idx].xSensorPortTask) != pdPASS) 
-		return ERR_FAILURE;
-
 	return result;
 }
 
@@ -321,8 +295,6 @@ int32_t SensorPortDeInit(uint32_t port_idx)
 	uint32_t result = ERR_NONE;
 
 	SensorPortSetType(port_idx, SENSOR_NOT_SET);
-
-	vTaskDelete(sensor_ports[port_idx].xSensorPortTask);
 
 	RRRC_channel_adc_unregister_cb(0, sensor_ports[port_idx].index);
 

@@ -28,7 +28,7 @@ void RRRC_Comunication_xTask(void* user_data)
 int32_t RRRC_Comminicationc_Init()
 {
 	int32_t ret = ERR_NONE;
-	if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY, &xCommunicationTask) != pdPASS)
+	if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY + 2, &xCommunicationTask) != pdPASS)
 		ret = ERR_FAILURE;
 	else
 		i2c_s_async_enable(&I2C_0);

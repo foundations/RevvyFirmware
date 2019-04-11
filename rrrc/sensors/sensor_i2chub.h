@@ -28,7 +28,6 @@ static sensor_lib_entry_t sensor_i2chub =
 	.SensorInit = I2CHUB_Init,
 	.SensorDeInit = NULL,
 	.sensor_get_values = NULL,
-	.sensor_thread = I2CHUB_Thread,
 	.write_data = I2CHUB_write_data,
 	.read_data = I2CHUB_read_data,
 

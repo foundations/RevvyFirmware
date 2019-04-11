@@ -7,6 +7,7 @@
 #define MAX_SENSOR_VALUES 1
 
 static void HCSR05_xTask(void* hw_port);
+static void HC_SR05_CheckerThread(void* hw_port);
 
 //*********************************************************************************************
 int32_t HC_SR05_Init(void* hw_port)
@@ -29,7 +30,15 @@ int32_t HC_SR05_Init(void* hw_port)
 	snprintf(task_name, configMAX_TASK_NAME_LEN, "hcsr05_p%01d", sensport->index);
 
 	if (xTaskCreate(HCSR05_xTask, task_name, 256 / sizeof(portSTACK_TYPE), sensport, tskIDLE_PRIORITY+1, &(sens_data->xHCSR05Task)) != pdPASS)
-		return ERR_FAILURE;
+	{
+        return ERR_FAILURE;
+    }
+
+    snprintf(task_name, configMAX_TASK_NAME_LEN, "ch_hcsr05_p%01d", sensport->index);
+	if (xTaskCreate(HC_SR05_CheckerThread, task_name, 256 / sizeof(portSTACK_TYPE), sensport, tskIDLE_PRIORITY+1, &(sens_data->xHCSR05CheckerTask)) != pdPASS)
+	{
+    	return ERR_FAILURE;
+	}
 
 	return result;
 }
@@ -43,6 +52,7 @@ int32_t HC_SR05_DeInit(void* hw_port)
 
     SensorPort_led1_off(sensport);
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
+	vTaskDelete(sens_data->xHCSR05CheckerTask);
 	vTaskDelete(sens_data->xHCSR05Task);
 
 	return result;
@@ -111,14 +121,13 @@ static void HCSR05_xTask(void* hw_port)
 		return;
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
 
-    TickType_t xLastWakeTime = xTaskGetTickCount();
 	for(;;)
 	{
-    	CRITICAL_SECTION_ENTER();
+
         SensorPort_gpio1_set_state(sensport, 1);
         delay_us(30);
         SensorPort_gpio1_set_state(sensport, 0);
-        CRITICAL_SECTION_LEAVE();
+
         sens_data->self_curr_count++;
 
         (void) ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
@@ -130,32 +139,35 @@ static void HCSR05_xTask(void* hw_port)
 	}
 }
 
-void HC_SR05_Thread(void* hw_port)
+void HC_SR05_CheckerThread(void* hw_port)
 {
 	p_hw_sensor_port_t sensport = hw_port;
 	if (sensport == NULL)
 		return;
 	p_hc_sr05_data_t sens_data = sensport->lib_data;
-
-	if (sens_data->self_curr_count == sens_data->self_prev_count)
-	{
-		if (sens_data->err_wait_counter == 9)
-		{
-            xTaskNotifyGive(sens_data->xHCSR05Task);
-            sens_data->err_wait_counter = 0;
-		}
-        else
-		{
-            sens_data->err_wait_counter++;
-        }
-	}
-    else
+    
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    for (;;)
     {
-        sens_data->self_prev_count = sens_data->self_curr_count;
-        sens_data->err_wait_counter = 0u;
+	    if (sens_data->self_curr_count == sens_data->self_prev_count)
+	    {
+    	    if (sens_data->err_wait_counter == 9)
+    	    {
+        	    xTaskNotifyGive(sens_data->xHCSR05Task);
+        	    sens_data->err_wait_counter = 0;
+    	    }
+    	    else
+    	    {
+        	    sens_data->err_wait_counter++;
+    	    }
+	    }
+	    else
+	    {
+    	    sens_data->self_prev_count = sens_data->self_curr_count;
+    	    sens_data->err_wait_counter = 0u;
+	    }
+        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(200));
     }
-
-	return;
 }
 
 //*********************************************************************************************
@@ -182,7 +194,7 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
         {
             sens_data->distance_tick = dist;
         }
-		
+
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 		vTaskNotifyGiveFromISR(sens_data->xHCSR05Task, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

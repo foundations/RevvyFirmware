@@ -35,12 +35,6 @@ uint32_t ABUTTON_get_value(void* hw_port, uint32_t* data, uint32_t max_size)
 }
 
 //*********************************************************************************************
-void ABUTTON_Thread(void* hw_port)
-{
-	return;
-}
-
-//*********************************************************************************************
 void ABUTTON_adc_callback(void* hw_port, uint32_t data)
 {
     p_hw_sensor_port_t sensport = hw_port;
