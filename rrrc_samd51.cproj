@@ -1212,6 +1212,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\communication\command_handler.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\communication\command_handler.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\controller\pid.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1399,6 +1405,7 @@
     <Folder Include="hpl\wdt\" />
     <Folder Include="hri\" />
     <Folder Include="rrrc\jscope" />
+    <Folder Include="rrrc\communication" />
     <Folder Include="third_party" />
     <Folder Include="rrrc" />
     <Folder Include="rrrc\motors" />

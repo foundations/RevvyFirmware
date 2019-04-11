@@ -82,6 +82,7 @@ enum RRRC_I2C_CMD
 	//system monitor
 	RRRC_I2C_CMD_SYSMON_GET_STAT		= 0x94,
 	
+	RRRC_I2C_COMMAND_COUNT	
 };
 
 
@@ -161,6 +162,7 @@ uint8_t CommandHandler(ptransaction_t buff, uint8_t size);
 uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t respose);
 int32_t RRRC_Comminicationc_Init();
 int32_t RRRC_Comminicationc_DeInit();
+void CommunicationTask_NotifyRxCompleteFromISR(void);
 
 #ifdef __cplusplus
 }

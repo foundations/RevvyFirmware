@@ -55,7 +55,6 @@ void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device)
     }
     else
     {
-		rrrc_i2c_send_stop(device);
 		_i2c_s_async_write_byte(device, 0xFF);
 		
         tx_buffer.index = 0;
@@ -63,7 +62,6 @@ void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device)
     }
 }
 
-extern TaskHandle_t    xCommunicationTask;
 //*****************************************************************************************************
 void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
 {
@@ -85,9 +83,7 @@ void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8
         tx_buffer.size = 0;
     }else
     { //rx
-		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-		xTaskNotifyFromISR(xCommunicationTask, 0x01, eSetBits, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        CommunicationTask_NotifyRxCompleteFromISR();
     }
 }
 
@@ -99,7 +95,7 @@ void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const
     if (!dir)
     { //tx
         if (tx_buffer.size == 0)
-            rrrc_i2c_send_stop(device);
+            _i2c_s_async_write_byte(device, 0xFF);
     }else
     { // rx
         if (rx_buffer.size >= MAX_TRANSACTION_SIZE)
