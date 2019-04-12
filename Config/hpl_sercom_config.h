@@ -664,7 +664,7 @@
 // <i> Enable receive buffer to receive data from slave (RXEN)
 // <id> spi_master_rx_enable
 #ifndef CONF_SERCOM_4_SPI_RXEN
-#define CONF_SERCOM_4_SPI_RXEN 0x1
+#define CONF_SERCOM_4_SPI_RXEN 0x0
 #endif
 
 // <o> Character Size

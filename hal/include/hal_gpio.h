@@ -189,6 +189,12 @@ static inline bool gpio_get_pin_level(const uint8_t pin)
 {
 	return (bool)(_gpio_get_level((enum gpio_port)GPIO_PORT(pin)) & (0x01U << GPIO_PIN(pin)));
 }
+
+static inline void gpio_set_pin_drive(const uint8_t pin, const enum gpio_drive_mode drive_mode)
+{
+    _gpio_set_drive_mode((enum gpio_port)GPIO_PORT(pin), GPIO_PIN(pin), drive_mode);
+}
+
 /**
  * \brief Get current driver version
  */

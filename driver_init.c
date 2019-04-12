@@ -198,7 +198,9 @@ void SPI_0_Init(void)
 
     gpio_set_pin_level(WS2812pin,false);
     gpio_set_pin_direction(WS2812pin, GPIO_DIRECTION_OUT);
+    gpio_set_pin_pull_mode(WS2812pin, GPIO_PULL_OFF);
     gpio_set_pin_function(WS2812pin, WS2812pin_function);
+    gpio_set_pin_drive(WS2812pin, GPIO_DRIVE_STRONG);
 }
 
 //*********************************************************************************************

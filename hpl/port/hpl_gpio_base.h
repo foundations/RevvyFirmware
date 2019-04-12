@@ -163,6 +163,24 @@ static inline void _gpio_set_pin_function(const uint32_t gpio, const uint32_t fu
 	}
 }
 
+static inline void _gpio_set_drive_mode(const enum gpio_port port, const uint8_t pin,
+                                        const enum gpio_drive_mode drive_mode)
+{
+    switch (drive_mode) {
+        case GPIO_DRIVE_NORMAL:
+            hri_port_clear_PINCFG_DRVSTR_bit(PORT, port, pin);
+            break;
+
+        case GPIO_DRIVE_STRONG:
+            hri_port_set_PINCFG_DRVSTR_bit(PORT, port, pin);
+            break;
+
+        default:
+            ASSERT(false);
+            break;
+    }
+}
+
 static inline void _port_event_init()
 {
 	hri_port_set_EVCTRL_reg(PORT, 0, CONF_PORTA_EVCTRL);

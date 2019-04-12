@@ -58,6 +58,8 @@ extern "C" {
 #define GPIO(port, pin) ((((port)&0x7u) << 5) + ((pin)&0x1Fu))
 #define GPIO_PIN_FUNCTION_OFF 0xffffffff
 
+enum gpio_drive_mode {GPIO_DRIVE_NORMAL, GPIO_DRIVE_STRONG};
+
 /**
  * \brief PORT pull mode settings
  */
@@ -174,6 +176,9 @@ static inline void _gpio_set_pin_pull_mode(const enum gpio_port port, const uint
  *
  */
 static inline void _gpio_set_pin_function(const uint32_t gpio, const uint32_t function);
+
+static inline void _gpio_set_drive_mode(const enum gpio_port port, const uint8_t pin,
+                                        const enum gpio_drive_mode drive_mode);
 
 #include <hpl_gpio_base.h>
 //@}
