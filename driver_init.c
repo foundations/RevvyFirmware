@@ -76,6 +76,12 @@ struct spi_m_dma_descriptor  SPI_0;
 
 struct wdt_descriptor WDT_0;
 
+extern void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device);
+extern void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data);
+extern void rrrc_i2c_s_async_error(struct _i2c_s_async_device *const device);
+extern void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir);
+extern void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir);
+
 //*********************************************************************************************
 void ADC_0_init(void)
 {
@@ -125,6 +131,12 @@ void I2C_0_init(void)
     gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
 
     i2c_s_async_init(&I2C_0, I2C0_SERCOM);
+
+	I2C_0.device.cb.addrm_cb   = rrrc_i2c_s_async_addr_match;
+	I2C_0.device.cb.tx_cb      = rrrc_i2c_s_async_tx;
+	I2C_0.device.cb.rx_done_cb = rrrc_i2c_s_async_byte_received;
+	I2C_0.device.cb.stop_cb    = rrrc_i2c_s_async_stop;
+	I2C_0.device.cb.error_cb   = rrrc_i2c_s_async_error;
 }
 
 //*********************************************************************************************
@@ -200,7 +212,7 @@ void SPI_0_Init(void)
     gpio_set_pin_direction(WS2812pin, GPIO_DIRECTION_OUT);
     gpio_set_pin_pull_mode(WS2812pin, GPIO_PULL_OFF);
     gpio_set_pin_function(WS2812pin, WS2812pin_function);
-    gpio_set_pin_drive(WS2812pin, GPIO_DRIVE_STRONG);
+    //gpio_set_pin_drive(WS2812pin, GPIO_DRIVE_STRONG);
 }
 
 //*********************************************************************************************

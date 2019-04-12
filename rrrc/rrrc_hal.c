@@ -33,32 +33,41 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 //*****************************************************************************************************
 //*****************************************************************************************************
 
-
-
 trans_buffer_t rx_buffer;
 trans_buffer_t tx_buffer;
-
+static bool tx_first;
+static bool tx_stopped;/* < hacky solution to allow partially reading the tx buffer */
 //*****************************************************************************************************
- static inline void rrrc_i2c_send_stop(void *const hw)
+void rrrc_i2c_transmit(size_t size)
 {
-#define CMD_STOP 0x03
-    hri_sercomi2cs_set_CTRLB_CMD_bf(hw, CMD_STOP);
+    tx_buffer.index = 0;
+    tx_buffer.size = size;
+    tx_first = true;
+    tx_stopped = false;
 }
 
-//*****************************************************************************************************
 void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device)
 {
     if ( tx_buffer.index < tx_buffer.size )
     {
-        _i2c_s_async_write_byte(device, tx_buffer.buff[tx_buffer.index]);
-		tx_buffer.index++;
+        if (tx_stopped)
+        {
+            tx_stopped = false;
+            _i2c_s_async_write_byte(device, tx_buffer.buff[tx_buffer.index]);
+        }
+        else if (tx_first)
+        {
+            tx_first = false;
+            _i2c_s_async_write_byte(device, tx_buffer.buff[tx_buffer.index]);
+        }
+        else
+        {
+            _i2c_s_async_write_byte(device, tx_buffer.buff[++tx_buffer.index]);
+        }
     }
     else
     {
-		_i2c_s_async_write_byte(device, 0xFF);
-		
-        tx_buffer.index = 0;
-        tx_buffer.size = 0;
+        _i2c_s_async_write_byte(device, 0xFF);
     }
 }
 
@@ -77,13 +86,19 @@ void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, co
 //*****************************************************************************************************
 void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir)
 {
-    if (dir)
-    { //tx
-        tx_buffer.index = 0;
-        tx_buffer.size = 0;
-    }else
-    { //rx
-        CommunicationTask_NotifyRxCompleteFromISR();
+    if (!dir)
+    {
+        // master write
+        if (rx_buffer.size > 0)
+        {
+            CommunicationTask_NotifyRxCompleteFromISR();
+        }
+    }
+    else
+    {
+        // master read
+        hri_sercomi2cs_clear_STATUS_RXNACK_bit(device->hw);
+        tx_stopped = true;
     }
 }
 
@@ -93,13 +108,14 @@ void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const
     struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
 
     if (!dir)
-    { //tx
-        if (tx_buffer.size == 0)
-            _i2c_s_async_write_byte(device, 0xFF);
-    }else
-    { // rx
-        if (rx_buffer.size >= MAX_TRANSACTION_SIZE)
-            rrrc_i2c_send_stop(device);
+    {
+        // master write
+    }
+    else
+    { 
+        // master read
+        hri_sercomi2cs_clear_INTFLAG_DRDY_bit(device->hw);
+        tx_stopped = false;
     }
 }
 

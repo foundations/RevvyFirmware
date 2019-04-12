@@ -11,16 +11,18 @@
 TaskHandle_t xCommunicationTask;
 extern trans_buffer_t rx_buffer;
 extern trans_buffer_t tx_buffer;
+
+extern void rrrc_i2c_transmit(size_t size);
+
 void RRRC_Comunication_xTask(void* user_data)
 {
-	uint32_t ulNotifiedValue;
-
-	for(;;)
-	{
+    for(;;)
+    {
         (void) ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         size_t size = CommandHandler_Handle(rx_buffer.buff, rx_buffer.size, tx_buffer.buff, MAX_TRANSACTION_SIZE);
-        tx_buffer.size = size;
+        
+        rrrc_i2c_transmit(size);
         rx_buffer.size = 0u;
 	}
 }
