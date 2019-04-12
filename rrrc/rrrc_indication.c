@@ -157,8 +157,8 @@ static void tx_complete_cb_SPI_0(struct _dma_resource *resource)
 //*********************************************************************************************
 static inline uint8_t getLedBitPattern(uint8_t bitValue)
 {
-#define LED_VAL_ZERO 0xC0
-#define LED_VAL_ONE  0xFC
+#define LED_VAL_ZERO 0x3F//C0
+#define LED_VAL_ONE  0x03//FC
 	
 	if (bitValue)
 	{
@@ -258,7 +258,7 @@ static void colorWheelWriter1(uint8_t* frame_leds, uint32_t* frame_idx, indicati
 //*********************************************************************************************
 static bool MakeLedBuffer()
 {
-#define LED_VAL_RES 0x00
+#define LED_VAL_RES 0xFF//00
 
 	uint32_t frame_idx = 0;
 	for (int32_t idx=0; idx<LED_RESET_SIZE; idx++)
