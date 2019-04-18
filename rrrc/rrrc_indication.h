@@ -10,6 +10,7 @@
 #define RRRC_INDICATION_H_
 
 #include <stdint.h>
+#include "utils/color.h"
 
 #define STATUS_LEDS_AMOUNT 4
 #define RING_LEDS_AMOUNT 12
@@ -63,19 +64,7 @@ typedef enum INDICATON_RING_TYPE
 
 #define LED_HSV_CYAN    0, 100, 10
 
-typedef struct _led_val_t
-{
-	uint8_t R;
-	uint8_t G;
-	uint8_t B;	
-}led_val_t, *p_led_val_t, led_status_t[STATUS_LEDS_AMOUNT], led_ring_frame_t[RING_LEDS_AMOUNT];
-
-typedef struct 
-{
-    uint16_t h;
-    uint8_t s;
-    uint8_t v;
-} hsv_t;
+typedef rgb_t led_val_t, *p_led_val_t, led_status_t[STATUS_LEDS_AMOUNT], led_ring_frame_t[RING_LEDS_AMOUNT];
 
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();

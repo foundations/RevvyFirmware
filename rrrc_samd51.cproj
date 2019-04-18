@@ -1356,6 +1356,12 @@
     <Compile Include="rrrc\sensors\sensor_i2chub.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\utils\color.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\utils\color.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="third_party\segger\SEGGER_RTT.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1406,6 +1412,7 @@
     <Folder Include="hri\" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\communication" />
+    <Folder Include="rrrc\utils" />
     <Folder Include="third_party" />
     <Folder Include="rrrc" />
     <Folder Include="rrrc\motors" />
