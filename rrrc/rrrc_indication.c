@@ -13,10 +13,10 @@
 
 led_status_t status_leds = 
 {
-	{LED_GREEN},
-	{LED_GREEN},
-	{LED_BLUE},
-	{LED_RED}
+	{LED_GREEN}, // main battery
+	{LED_GREEN}, // motor battery
+	{LED_OFF},   // bluetooth status
+	{LED_RED}    // raspberry status
 };
 
 typedef struct {
