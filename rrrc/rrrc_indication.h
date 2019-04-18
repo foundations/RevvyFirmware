@@ -54,17 +54,28 @@ typedef enum INDICATON_RING_TYPE
 
 #define LED_BRIGHT  0x10
 
-#define LED_RED		LED_BRIGHT, 0x00,       0x00
-#define LED_GREEN	0x00,       LED_BRIGHT, 0x00
-#define LED_BLUE	0x00,       0x00,       LED_BRIGHT
-#define LED_YELLOW	LED_BRIGHT, LED_BRIGHT, 0x00
-#define LED_CYAN	LED_BRIGHT, 0x00,       LED_BRIGHT
-#define LED_WHITE	LED_BRIGHT / 4, LED_BRIGHT / 4, LED_BRIGHT / 4
-#define LED_OFF		0x00,       0x00,       0x00
+#define LED_RED     { LED_BRIGHT,     0x00,           0x00           }
+#define LED_GREEN   { 0x00,           LED_BRIGHT,     0x00           }
+#define LED_BLUE    { 0x00,           0x00,           LED_BRIGHT     }
+#define LED_YELLOW  { LED_BRIGHT,     LED_BRIGHT,     0x00           }
+#define LED_ORANGE  { LED_BRIGHT,     LED_BRIGHT / 2, 0x00           }
+#define LED_CYAN    { 0x00,           LED_BRIGHT,     LED_BRIGHT     }
+#define LED_MAGENTA { LED_BRIGHT,     0x00,           LED_BRIGHT     }
+#define LED_WHITE   { LED_BRIGHT / 4, LED_BRIGHT / 4, LED_BRIGHT / 4 }
+#define LED_OFF     { 0x00,           0x00,           0x00           }
 
 #define LED_HSV_CYAN    0, 100, 10
 
-typedef rgb_t led_val_t, *p_led_val_t, led_status_t[STATUS_LEDS_AMOUNT], led_ring_frame_t[RING_LEDS_AMOUNT];
+typedef rgb_t led_val_t, *p_led_val_t, led_ring_frame_t[RING_LEDS_AMOUNT];
+
+typedef struct 
+{
+    led_val_t base_color;
+    led_val_t blink_color;
+    uint32_t blink_period;
+    uint32_t blink_length;
+    uint32_t blink_counter;
+} led_t, led_status_t[STATUS_LEDS_AMOUNT];
 
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();

@@ -59,10 +59,34 @@ static void colorWheelWriter1(uint8_t* frame_leds, uint32_t* frame_idx, indicati
 
 static led_status_t status_leds = 
 {
-    {LED_GREEN}, // main battery
-    {LED_GREEN}, // motor battery
-    {LED_OFF},   // bluetooth status
-    {LED_RED}    // raspberry status
+    {   // main battery
+        .base_color = LED_GREEN,
+        .blink_color = LED_OFF,
+        .blink_period = 0,
+        .blink_length = 0,
+        .blink_counter = 0
+    },
+    {   // motor battery
+        .base_color = LED_GREEN,
+        .blink_color = LED_OFF,
+        .blink_period = 0,
+        .blink_length = 0,
+        .blink_counter = 0
+    },
+    {   // bluetooth status
+        .base_color = LED_OFF,
+        .blink_color = LED_CYAN,
+        .blink_period = 200,
+        .blink_length = 3,
+        .blink_counter = 0
+    },
+    {   // raspberry status
+        .base_color = LED_RED,
+        .blink_color = LED_OFF,
+        .blink_period = 0,
+        .blink_length = 0,
+        .blink_counter = 0
+    }
 };
 
 static bool led_ring_busy;
@@ -201,6 +225,34 @@ static void colorWheelWriter1(uint8_t* frame_leds, uint32_t* frame_idx, indicati
 }
 
 //*********************************************************************************************
+static void handle_status_led(uint8_t* frame_leds, uint32_t* frame_idx, led_t* led)
+{
+    if (led->blink_length == 0)
+    {
+        add_frame_color(frame_leds, frame_idx, led->base_color);
+    }
+    else
+    {
+        if (led->blink_counter < led->blink_length)
+        {
+            add_frame_color(frame_leds, frame_idx, led->blink_color);
+        }
+        else
+        {
+            add_frame_color(frame_leds, frame_idx, led->base_color);
+        }
+
+        if (led->blink_counter == led->blink_period - 1u)
+        {
+            led->blink_counter = 0u;
+        }
+        else
+        {
+            led->blink_counter++;
+        }
+    }
+}
+
 static bool MakeLedBuffer()
 {
     uint32_t frame_idx = 0u;
@@ -211,7 +263,7 @@ static bool MakeLedBuffer()
 
     for (uint32_t idx = 0u; idx < STATUS_LEDS_AMOUNT; idx++)
     {
-        add_frame_color(frame_leds, &frame_idx, status_leds[idx]);
+        handle_status_led(frame_leds, &frame_idx, &status_leds[idx]);
     }
 
     indication_handlers[led_ring_mode].handler(frame_leds, &frame_idx, &indication_handlers[led_ring_mode]);
@@ -269,7 +321,7 @@ int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val)
     int32_t status = ERR_NONE;
     if (stled_idx < STATUS_LEDS_AMOUNT && led_val)
     {
-        status_leds[stled_idx] = *led_val;
+        status_leds[stled_idx].base_color = *led_val;
     }
     else
     {
@@ -317,7 +369,7 @@ uint32_t IndicationGetStatusLedsAmount()
 int32_t IndicationInit(){
     int32_t result = ERR_NONE;
     IndicationSetRingType(RING_LED_OFF);
-
+    
     if (xTaskCreate(&Indication_xTask, "Indication", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY, &xIndicationTask) != pdPASS)
     {
         result = ERR_FAILURE;
