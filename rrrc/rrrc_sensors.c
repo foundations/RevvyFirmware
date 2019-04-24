@@ -161,13 +161,9 @@ uint32_t SensorPortGetTypes(uint8_t *data, uint32_t max_size)
 		{
     		return 0u;
 		}
-		*(data + size) = sensor_libs[idx]->type_id;
-        size++;
-
-		*(data + size) = len;
-        size++;
-
-		strncpy( (data + size), sensor_libs[idx]->name, len);
+        data[size++] = sensor_libs[idx]->type_id;
+        data[size++] = len;
+        strncpy( &data[size], sensor_libs[idx]->name, len);
 		size += len;
 	}
 	return size;

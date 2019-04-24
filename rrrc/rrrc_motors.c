@@ -191,13 +191,9 @@ uint32_t MotorPortGetTypes(uint8_t *data, uint32_t max_size)
         {
             return 0u;
         }
-        *(data + size) = motor_libs[idx]->type_id;
-        size++;
-
-        *(data + size) = len;
-        size++;
-
-        strncpy( (data + size), motor_libs[idx]->name, len);
+        data[size++] = motor_libs[idx]->type_id;
+        data[size++] = len;
+        strncpy( &data[size], motor_libs[idx]->name, len);
         size += len;
     }
     return size;
