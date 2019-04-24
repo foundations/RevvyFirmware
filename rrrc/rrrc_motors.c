@@ -182,14 +182,21 @@ uint8_t MotorPortGetTypeId(uint32_t idx)
 uint32_t MotorPortGetTypes(uint8_t *data, uint32_t max_size)
 {
     int motor_types = ARRAY_SIZE(motor_libs);
-    uint32_t size = 0;
+    uint32_t size = 0u;
     
-    for (int idx=0; idx<motor_types; idx++)
+    for (uint32_t idx = 0u; idx < motor_types; idx++)
     {
         uint32_t len = strlen(motor_libs[idx]->name);
-        ASSERT( (size+len+2)<max_size );
-        *(data + size) = motor_libs[idx]->type_id; size++;
-        *(data + size) = len; size++;
+        if ( (size + len + 2u) >= max_size )
+        {
+            return 0u;
+        }
+        *(data + size) = motor_libs[idx]->type_id;
+        size++;
+
+        *(data + size) = len;
+        size++;
+
         strncpy( (data + size), motor_libs[idx]->name, len);
         size += len;
     }
