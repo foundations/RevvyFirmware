@@ -9,14 +9,14 @@
 #ifndef CONVERTER_H_
 #define CONVERTER_H_
 
-static int32_t get_int32(uint8_t* buffer)
+static int32_t get_int32(const uint8_t* buffer)
 {
     uint32_t bytes = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3] << 0;
 
     return (int32_t) (bytes);
 }
 
-static float get_float(uint8_t* buffer)
+static float get_float(const uint8_t* buffer)
 {
     uint32_t bytes = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3] << 0;
 

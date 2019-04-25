@@ -15,305 +15,360 @@
 #include "../rrrc_indication.h"
 #include "../converter.h"
 
-static uint32_t request_port = 0;
+#include <string.h>
 
-static uint8_t echoData[MAX_TRANSACTION_SIZE - MIN_TRANSACTION_SIZE];
-static uint8_t echoLength;
+/* Misc */
+static RRRC_I2C_Status_t Command_Dummy(const request_t* request, response_t* response)
+{
+    return RRRC_I2C_STATUS_OK;
+}
 
-//*********************************************************************************************
-uint8_t CommandHandler (ptransaction_t buff, uint8_t size)
- {
-	 uint8_t ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+static RRRC_I2C_Status_t Command_Echo(const request_t* request, response_t* response)
+{
+    if (request->bufferSize <= response->bufferSize)
+    {
+        memcpy(response->buffer, request->buffer, request->bufferSize);
+        return RRRC_I2C_STATUS_OK;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+}
 
-	 if ( (buff == NULL) || (size < MIN_TRANSACTION_SIZE) )
-		return ret_cmd;
+static RRRC_I2C_Status_t Command_SysMon_GetStatus(const request_t* request, response_t* response)
+{
+    response->bufferCount = SysMonGetValues(response->buffer);
 
-	 if( !checkCRC(buff) )
-		return ret_cmd;
-	 
-	switch (buff->command)
-	{
-		case RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT:
-		case RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT:
-		case RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT:
-		case RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT:
-		case RRRC_I2C_CMD_SENSOR_GET_TYPES:
-		case RRRC_I2C_CMD_MOTOR_GET_TYPES:
-		case RRRC_I2C_CMD_SENSOR_GET_TYPE:
-		case RRRC_I2C_CMD_SENSOR_GET_VALUE:
-		case RRRC_I2C_CMD_MOTOR_GET_TYPE:
-		case RRRC_I2C_CMD_MOTOR_GET_STATE:
-		case RRRC_I2C_CMD_MOTOR_GET_POSITION:
-			if (buff->data_length)
-				request_port = buff->data[0];
-		case RRRC_I2C_CMD_DUMMY:
-		case RRRC_I2C_CMD_ECHO_RD:
-			ret_cmd = buff->command;
-			break;
-		{//*****
-		//fix VS bug of show 
-		}//*****
+    return RRRC_I2C_STATUS_OK;
+}
 
-        case RRRC_I2C_CMD_ECHO_WR:
+/* Sensor */
+static RRRC_I2C_Status_t Command_Sensor_GetPortAmount(const request_t* request, response_t* response)
+{
+    response->buffer[0] = SensorPortGetPortsAmount();
+    response->bufferCount = 1u;
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Sensor_GetTypes(const request_t* request, response_t* response)
+{
+    response->bufferCount = SensorPortGetTypes(response->buffer, response->bufferSize);
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Sensor_GetType(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    if (portIdx >= SENSOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+    response->buffer[0] = SensorPortGetType(portIdx);
+    response->bufferCount = 1u;
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Sensor_SetType(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    uint8_t type    = request->buffer[1];
+    if (portIdx >= SENSOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+
+    int32_t status = SensorPortSetType(portIdx, type);
+    if (status != ERR_NONE)
+    {
+        return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_OK;
+    }
+}
+
+static RRRC_I2C_Status_t Command_Sensor_GetValue(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    if (portIdx >= SENSOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+    uint32_t valueCount = SensorPortGetValues(portIdx, response->buffer);
+    response->bufferCount = valueCount * sizeof(uint32_t);
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+/* Motor */
+static RRRC_I2C_Status_t Command_Motor_GetPortAmount(const request_t* request, response_t* response)
+{
+    response->buffer[0] = MotorPortGetPortsAmount();
+    response->bufferCount = 1u;
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Motor_GetTypes(const request_t* request, response_t* response)
+{
+    response->bufferCount = MotorPortGetTypes(response->buffer, response->bufferSize);
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Motor_GetType(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    if (portIdx >= MOTOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+    response->buffer[0] = MotorPortGetType(portIdx);
+    response->bufferCount = 1u;
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Motor_SetType(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    uint8_t type    = request->buffer[1];
+    if (portIdx >= MOTOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+
+    int32_t status = MotorPortSetType(portIdx, type);
+    if (status != ERR_NONE)
+    {
+        return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_OK;
+    }
+}
+
+static RRRC_I2C_Status_t Command_Motor_GetState(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    if (portIdx >= MOTOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+    response->buffer[0] = MotorPortGetState(portIdx);
+    response->bufferCount = 1u;
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Motor_GetPosition(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    if (portIdx >= MOTOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+    response->bufferCount = MotorPortGetPosition(portIdx, response->buffer);
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Motor_SetControl(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    if (portIdx >= MOTOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+    int32_t state = get_int32(&request->buffer[1]);
+    int32_t status = MotorPortSetControl(portIdx, state);
+    if (status != ERR_NONE)
+    {
+        return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_OK;
+    }
+}
+
+static RRRC_I2C_Status_t Command_Motor_SetConfig(const request_t* request, response_t* response)
+{
+    uint8_t portIdx = request->buffer[0];
+    if (portIdx >= MOTOR_PORT_AMOUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
+    }
+    int32_t status = MotorPortSetConfig(portIdx, &request->buffer[1], request->bufferSize - 1u);
+    if (status != ERR_NONE)
+    {
+        return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_OK;
+    }
+}
+
+/* Indication */
+static RRRC_I2C_Status_t Command_Indication_GetRingLedAmount(const request_t* request, response_t* response)
+{
+    response->buffer[0] = IndicationGetRingLedsAmount();
+    response->bufferCount = 1u;
+    
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Indication_GetStatusLedAmount(const request_t* request, response_t* response)
+{
+    response->buffer[0] = IndicationGetStatusLedsAmount();
+    response->bufferCount = 1u;
+
+    return RRRC_I2C_STATUS_OK;
+}
+
+static RRRC_I2C_Status_t Command_Indication_SetRingScenario(const request_t* request, response_t* response)
+{
+    uint8_t scenarioIdx = request->buffer[0];
+    int32_t status = IndicationSetRingType(scenarioIdx);
+    if (status != ERR_NONE)
+    {
+        return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_OK;
+    }
+}
+
+static RRRC_I2C_Status_t Command_Indication_SetRingUserFrame(const request_t* request, response_t* response)
+{
+    uint32_t frame_idx = request->buffer[0];
+    led_ring_frame_t* led_frame = &request->buffer[1];
+    uint32_t status = IndicationUpdateUserFrame(frame_idx, led_frame);
+
+    if (status != ERR_NONE)
+    {
+        return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_OK;
+    }
+}
+
+static RRRC_I2C_Status_t Command_Indication_SetStatusLed(const request_t* request, response_t* response)
+{
+    uint32_t led_idx = request->buffer[0];
+    p_led_val_t led_rgb = &request->buffer[1];
+    uint32_t status = IndicationSetStatusLed(led_idx, led_rgb);
+    
+    if (status != ERR_NONE)
+    {
+        return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+    else
+    {
+        return RRRC_I2C_STATUS_OK;
+    }
+}
+
+static const CommandHandler_t commandHandlers[RRRC_I2C_COMMAND_COUNT] = 
+{
+    /* Misc commands */
+    [RRRC_I2C_CMD_DUMMY]           = { .handler = &Command_Dummy,            .minPayloadLength = 0u, .maxPayloadLength = 255u },
+    [RRRC_I2C_CMD_ECHO]            = { .handler = &Command_Echo,             .minPayloadLength = 0u, .maxPayloadLength = 255u },
+    [RRRC_I2C_CMD_SYSMON_GET_STAT] = { .handler = &Command_SysMon_GetStatus, .minPayloadLength = 0u, .maxPayloadLength = 0u },
+
+    /* Sensors */
+    [RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT] = { .handler = &Command_Sensor_GetPortAmount, .minPayloadLength = 0u, .maxPayloadLength = 0u },
+    [RRRC_I2C_CMD_SENSOR_GET_TYPES]       = { .handler = &Command_Sensor_GetTypes,      .minPayloadLength = 0u, .maxPayloadLength = 0u },
+    [RRRC_I2C_CMD_SENSOR_SET_TYPE]        = { .handler = &Command_Sensor_SetType,       .minPayloadLength = 2u, .maxPayloadLength = 2u },
+    [RRRC_I2C_CMD_SENSOR_GET_TYPE]        = { .handler = &Command_Sensor_GetType,       .minPayloadLength = 1u, .maxPayloadLength = 1u },
+    [RRRC_I2C_CMD_SENSOR_GET_VALUE]       = { .handler = &Command_Sensor_GetValue,      .minPayloadLength = 1u, .maxPayloadLength = 1u },
+
+    /* Motors */
+    [RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT] = { .handler = &Command_Motor_GetPortAmount, .minPayloadLength = 0u, .maxPayloadLength = 0u },
+    [RRRC_I2C_CMD_MOTOR_GET_TYPES]       = { .handler = &Command_Motor_GetTypes,      .minPayloadLength = 0u, .maxPayloadLength = 0u },
+    [RRRC_I2C_CMD_MOTOR_GET_TYPE]        = { .handler = &Command_Motor_GetType,       .minPayloadLength = 1u, .maxPayloadLength = 1u },
+    [RRRC_I2C_CMD_MOTOR_SET_TYPE]        = { .handler = &Command_Motor_SetType,       .minPayloadLength = 2u, .maxPayloadLength = 2u },
+    [RRRC_I2C_CMD_MOTOR_SET_CONTROL]     = { .handler = &Command_Motor_SetControl,    .minPayloadLength = 5u, .maxPayloadLength = 5u },
+    [RRRC_I2C_CMD_MOTOR_GET_STATE]       = { .handler = &Command_Motor_GetState,      .minPayloadLength = 1u, .maxPayloadLength = 1u },
+    [RRRC_I2C_CMD_MOTOR_GET_POSITION]    = { .handler = &Command_Motor_GetPosition,   .minPayloadLength = 1u, .maxPayloadLength = 1u },
+    [RRRC_I2C_CMD_MOTOR_SET_CONFIG]      = { .handler = &Command_Motor_SetConfig,     .minPayloadLength = 1u, .maxPayloadLength = 255u },
+
+    /* Indication */
+    [RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT]   = { .handler = &Command_Indication_GetRingLedAmount,   .minPayloadLength = 0u, .maxPayloadLength = 0u },
+    [RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT] = { .handler = &Command_Indication_GetStatusLedAmount, .minPayloadLength = 0u, .maxPayloadLength = 0u },
+    [RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO]      = { .handler = &Command_Indication_SetRingScenario,    .minPayloadLength = 1u, .maxPayloadLength = 1u },
+    [RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME]    = { .handler = &Command_Indication_SetRingUserFrame,   .minPayloadLength = 1u + sizeof(led_ring_frame_t), .maxPayloadLength = 1u + sizeof(led_ring_frame_t) },
+    [RRRC_I2C_CMD_INDICATION_SET_STATUS_LED]         = { .handler = &Command_Indication_SetStatusLed,       .minPayloadLength = 1u + sizeof(led_val_t),        .maxPayloadLength = 1u + sizeof(led_val_t) }
+};
+
+static bool isCommandChecksumValid(const commandBuffer_t* commandBuffer)
+{
+    /* TODO: implement */
+    return true;
+}
+
+static bool isValidCommand(uint8_t command)
+{
+    return command < RRRC_I2C_COMMAND_COUNT && commandHandlers[command].handler != NULL;
+}
+
+static bool isPayloadLengthCorrect(const commandBuffer_t* commandBuffer, const CommandHandler_t* handler)
+{
+    return handler->minPayloadLength <= commandBuffer->header.payloadLength && commandBuffer->header.payloadLength <= handler->maxPayloadLength;
+}
+
+size_t CommandHandler_Handle(const commandBuffer_t* commandBuffer, responseBuffer_t* responseBuffer)
+{
+    request_t request   = {
+        .buffer      = commandBuffer->payload,
+        .bufferSize  = commandBuffer->header.payloadLength
+    };
+    
+    response_t response = {
+        .buffer      = responseBuffer->payload,
+        .bufferSize  = ARRAY_SIZE(responseBuffer->payload),
+        .bufferCount = 0u
+    };
+
+    RRRC_I2C_Status_t responseStatus = RRRC_I2C_STATUS_ERROR_OTHER;
+    if (isCommandChecksumValid(commandBuffer))
+    {
+        if (isValidCommand(commandBuffer->header.command))
         {
-            if (buff->data_length > MAX_TRANSACTION_SIZE - MIN_TRANSACTION_SIZE)
+            const CommandHandler_t* handler = &commandHandlers[commandBuffer->header.command];
+            if (isPayloadLengthCorrect(commandBuffer, handler))
             {
-                ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
+                responseStatus = handler->handler(&request, &response);
             }
             else
             {
-                echoLength = buff->data_length;
-                memcpy(echoData, buff->data, echoLength);
-                ret_cmd = RRRC_I2C_CMD_STATUS_OK;
+                responseStatus = RRRC_I2C_STATUS_ERROR_PAYLOAD_LENGTH;
             }
-            break;
         }
-
-//sensors setter
-		case RRRC_I2C_CMD_SENSOR_SET_TYPE:
-		{
-			if (buff->data_length != 2)
-				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			else
-			{
-				uint8_t port = buff->data[0];
-				uint8_t type = buff->data[1];
-				uint32_t status = SensorPortSetType(port, type);
-				if (status == 0)
-					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-				else
-					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			}
-			break;
-		}
-//motors setter
-		case RRRC_I2C_CMD_MOTOR_SET_TYPE:
-		{
-			if (buff->data_length != 2)
-				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			else
-			{
-				uint8_t port = buff->data[0];
-				uint8_t type = buff->data[1];
-				uint32_t status = MotorPortSetType(port, type);
-				if (status == 0)
-					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-				else
-					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			}
-			break;
-		}
-		case RRRC_I2C_CMD_MOTOR_SET_CONTROL:
-		{
-			if (buff->data_length != 5)
-				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			else
-			{
-				uint8_t port = buff->data[0];
-				int32_t state = get_int32(&buff->data[1]);
-				uint32_t status = MotorPortSetControl(port, state);
-				if (status == ERR_NONE)
-					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-				else
-					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			}
-			break;
-		}
-		case RRRC_I2C_CMD_MOTOR_SET_CONFIG:
-		{
-    		uint8_t port = buff->data[0];
-    		uint32_t status = MotorPortSetConfig(port, &buff->data[1], buff->data_length - 1);
-    		if (status == ERR_NONE)
-    		{
-                ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-            }
-    		else
-    		{
-                ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-            }
-			break;
-		}
-		case RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO:
-		{
-			if (buff->data_length != 1)
-				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			else
-			{
-				uint32_t scenario_idx = buff->data[0];
-				uint32_t status = IndicationSetRingType(scenario_idx);
-				if (status == ERR_NONE)
-					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-				else
-					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			}
-			break;
-		}
-		case RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME:
-		{
-			if ( buff->data_length != (1+sizeof(led_ring_frame_t)))
-				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			else
-			{
-				uint32_t frame_idx = buff->data[0];
-				led_ring_frame_t* led_frame = &buff->data[1];
-				uint32_t status = IndicationUpdateUserFrame(frame_idx, led_frame);
-				if (status == ERR_NONE)
-					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-				else
-					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			}
-			break;
-		}
-		case RRRC_I2C_CMD_INDICATION_SET_STATUS_LEDS:
-		{
-			if (buff->data_length != (1+sizeof(led_val_t)))
-				ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			else
-			{
-				uint32_t led_idx = buff->data[0];
-				p_led_val_t led_rgb = &buff->data[1];
-				uint32_t status = IndicationSetStatusLed(led_idx, led_rgb);
-				if (status == ERR_NONE)
-					ret_cmd = RRRC_I2C_CMD_STATUS_OK;
-				else
-					ret_cmd = RRRC_I2C_CMD_STATUS_ERROR;
-			}
-			break;
-		}
-		
-// int32_t IndicationUpdateUserFrame(uint32_t frame_id, led_ring_frame_t* frame);
-// int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val);
-// int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type);
-		default:
-		{
-			break;
-		};
-	}
-
-	return ret_cmd;
-}
-
-//*********************************************************************************************
-uint8_t MakeResponse(enum RRRC_I2C_CMD cmd, ptransaction_t response)
-{
-	uint8_t size = 0;
-	uint32_t max_buff_size = MAX_TRANSACTION_SIZE-MIN_TRANSACTION_SIZE;
-
-	if (response==NULL)
-		return size;
-
-	response->command = cmd;
-	response->data_length = 0;
-	
-	switch (cmd)
-	{
-		case RRRC_I2C_CMD_DUMMY:
-		case RRRC_I2C_CMD_STATUS_OK:
-		case RRRC_I2C_CMD_STATUS_ERROR:
-		case RRRC_I2C_CMD_STATUS_UNKNOWN:
-		case RRRC_I2C_CMD_STATUS_BUSY:
-		case RRRC_I2C_CMD_STATUS_READY:
-			break;
-		{//*****
-		//fix VS bug of show 
-		}//*****
-        case RRRC_I2C_CMD_ECHO_RD:
-            response->data_length = echoLength;
-            memcpy(response->data, echoData, echoLength);
-            break;
-
-		case RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT:
-		{
-			response->data[0] = SensorPortGetPortsAmount();
-			response->data_length = 1;
-			break;
-		};
-		case RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT:
-		{
-			response->data[0] = MotorPortGetPortsAmount();
-			response->data_length = 1;
-			break;
-		}
-		case RRRC_I2C_CMD_SENSOR_GET_TYPES:
-		{
-			response->data_length = SensorPortGetTypes(response->data, max_buff_size);
-			break;
-		};
-		case RRRC_I2C_CMD_MOTOR_GET_TYPES:
-		{	
-			response->data_length = MotorPortGetTypes(response->data, max_buff_size);
-			break;
-		};
-		//sensors
-		case RRRC_I2C_CMD_SENSOR_GET_TYPE:
-		{
-			response->data[0] = SensorPortGetType(request_port);
-			response->data_length = 1;
-			break;
-		};
-		case RRRC_I2C_CMD_SENSOR_GET_VALUE:
-		{
-			response->data_length = SensorPortGetValues(request_port, response->data) * 4;
-			break;
-		};
-		//motors
-		case RRRC_I2C_CMD_MOTOR_GET_TYPE:
-		{
-			response->data[0] = MotorPortGetType(request_port);
-			response->data_length = 1;
-			break;
-		};
-		case RRRC_I2C_CMD_MOTOR_GET_STATE:
-		{
-			//response->data[0] = GetMotorState(port);
-			response->data[0] = MotorPortGetState(request_port);
-			response->data_length = 1;
-			break;
-		};
-		case RRRC_I2C_CMD_MOTOR_GET_POSITION:
-		{
-			response->data_length = MotorPortGetPosition(request_port, response->data);
-			break;
-		};
-		case RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT:
-		{
-			response->data[0] = IndicationGetRingLedsAmount();
-			response->data_length = 1;
-			break;
-		}
-		case RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT:
-		{
-			response->data[0] = IndicationGetStatusLedsAmount();
-			response->data_length = 1;
-			break;
-		}
-		case RRRC_I2C_CMD_SYSMON_GET_STAT:
-		{
-			response->data_length = SysMonGetValues(response->data);
-			break;
-		}
-		case RRRC_I2C_CMD_SENSOR_SET_TYPE:
-		case RRRC_I2C_CMD_MOTOR_SET_TYPE:
-		case RRRC_I2C_CMD_MOTOR_SET_CONTROL:
-		case RRRC_I2C_CMD_MOTOR_SET_CONFIG:
-		default:
-		{
-			response->command = RRRC_I2C_CMD_STATUS_ERROR;
-			break;
-		}
-	}
-	response->data_crc = calcCRC(response->data, response->data_length);
-	size = MIN_TRANSACTION_SIZE+response->data_length;
-	return size;
-}
-
-static CommandHandler_t commandHandlers[RRRC_I2C_COMMAND_COUNT] = 
-{
+        else
+        {
+            /* respond with unknown command */
+            responseStatus = RRRC_I2C_STATUS_ERROR_UNKNOWN_COMMAND;
+        }
+    }
+    else
+    {
+        responseStatus = RRRC_I2C_STATUS_ERROR_CHECKSUM;
+    }
     
-};
+    responseBuffer->header.status        = responseStatus;
+    responseBuffer->header.payloadLength = response.bufferCount;
+    responseBuffer->header.crc           = 0u; /* CRC  */
 
-size_t CommandHandler_Handle(const uint8_t* command, size_t commandSize, uint8_t* pData, size_t bufSize)
-{    
-    uint8_t response = CommandHandler(command, commandSize);
-    return MakeResponse(response, pData);
+    return response.bufferCount + sizeof(responseBuffer->header);
 }

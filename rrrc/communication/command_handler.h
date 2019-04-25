@@ -11,14 +11,29 @@
 
 #include <stdio.h>
 
-typedef int32_t (*CommandHandlerFunc_t)(const uint8_t* pData, size_t size);
-typedef size_t (*CommandResponseFunc_t)(uint8_t command, uint8_t* pData, size_t bufSize);
+#include "rrrc_i2c_protocol.h"
+
 typedef struct 
 {
-	CommandHandlerFunc_t commandHandler;
-	CommandResponseFunc_t responseHandler;
+    const uint8_t* buffer;
+    uint8_t bufferSize;
+} request_t;
+
+typedef struct 
+{
+    uint8_t* buffer;
+    const uint8_t bufferSize;
+    uint8_t bufferCount;
+} response_t;
+
+typedef RRRC_I2C_Status_t (*CommandHandlerFn_t)(const request_t* request, response_t* response);
+typedef struct 
+{
+    CommandHandlerFn_t handler;
+    uint8_t minPayloadLength;
+    uint8_t maxPayloadLength;
 } CommandHandler_t;
 
-size_t CommandHandler_Handle(const uint8_t* command, size_t commandSize, uint8_t* pData, size_t bufSize);
+size_t CommandHandler_Handle(const commandBuffer_t* commandBuffer, responseBuffer_t* responseBuffer);
 
 #endif /* COMMAND_HANDLER_H_ */

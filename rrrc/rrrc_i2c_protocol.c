@@ -8,7 +8,7 @@
 #include "rrrc_i2c_protocol.h"
 #include <utils_assert.h>
 
-TaskHandle_t xCommunicationTask;
+static TaskHandle_t xCommunicationTask;
 extern trans_buffer_t rx_buffer;
 extern trans_buffer_t tx_buffer;
 
@@ -18,32 +18,42 @@ void RRRC_Comunication_xTask(void* user_data)
 {
     for(;;)
     {
-        (void) ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-
-        size_t size = CommandHandler_Handle(rx_buffer.buff, rx_buffer.size, tx_buffer.buff, MAX_TRANSACTION_SIZE);
+        if (ulTaskNotifyTake(pdTRUE, rtos_ms_to_ticks(100u)) == 0u)
+        {
+            // TODO handle communication fault
+        }
+        else
+        {
+            size_t size = CommandHandler_Handle((const commandBuffer_t*) rx_buffer.buff, (responseBuffer_t*) tx_buffer.buff);
         
-        rrrc_i2c_transmit(size);
-        rx_buffer.size = 0u;
-	}
+            rrrc_i2c_transmit(size);
+            rx_buffer.size = 0u;
+        }
+    }
 }
 
-int32_t RRRC_Comminicationc_Init()
+int32_t RRRC_Comminicationc_Init(void)
 {
-	int32_t ret = ERR_NONE;
-	if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY + 2, &xCommunicationTask) != pdPASS)
-		ret = ERR_FAILURE;
-	else
-		i2c_s_async_enable(&I2C_0);
-	return ret;
+    int32_t ret = ERR_NONE;
+    if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY + 2, &xCommunicationTask) != pdPASS)
+    {
+        ret = ERR_FAILURE;
+    }
+    else
+    {
+        i2c_s_async_enable(&I2C_0);
+    }
+
+    return ret;
 }
 
-int32_t RRRC_Comminicationc_DeInit()
+int32_t RRRC_Comminicationc_DeInit(void)
 {
-	int32_t ret = ERR_NONE;
-	i2c_s_async_disable(&I2C_0);
+    int32_t ret = ERR_NONE;
+    i2c_s_async_disable(&I2C_0);
 
-	vTaskDelete(xCommunicationTask);
-	return ret;
+    vTaskDelete(xCommunicationTask);
+    return ret;
 }
 
 void CommunicationTask_NotifyRxCompleteFromISR(void)
