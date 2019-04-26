@@ -26,7 +26,7 @@ uint32_t MotorPortGetTypes(uint8_t *data, uint32_t max_size);
 uint32_t MotorPortSetType(uint32_t port, motor_type_t type);
 uint32_t MotorPortGetType(uint32_t port);
 uint32_t MotorPortSetControl(uint32_t port, int32_t value);
-int32_t MotorPortSetConfig(uint32_t port, uint8_t *data, uint32_t size);
+int32_t MotorPortSetConfig(uint32_t port, const uint8_t *data, uint32_t size);
 int8_t MotorPortGetState(uint32_t port);
 uint32_t MotoPortSetSteps(uint32_t port, uint32_t steps); // run steps
 uint32_t MotorPortGetPosition(uint32_t port_idx, uint32_t* data);

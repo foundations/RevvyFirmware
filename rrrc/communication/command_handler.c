@@ -12,8 +12,9 @@
 
 #include "../rrrc_sensors.h"
 #include "../rrrc_motors.h"
+#include "../rrrc_sysmon.h"
 #include "../rrrc_indication.h"
-#include "../converter.h"
+#include "../utils/converter.h"
 
 #include <string.h>
 
@@ -38,7 +39,7 @@ static RRRC_I2C_Status_t Command_Echo(const request_t* request, response_t* resp
 
 static RRRC_I2C_Status_t Command_SysMon_GetStatus(const request_t* request, response_t* response)
 {
-    response->bufferCount = SysMonGetValues(response->buffer);
+    response->bufferCount = SysMonGetValues((uint32_t*) response->buffer);
 
     return RRRC_I2C_STATUS_OK;
 }
@@ -99,7 +100,7 @@ static RRRC_I2C_Status_t Command_Sensor_GetValue(const request_t* request, respo
     {
         return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
     }
-    uint32_t valueCount = SensorPortGetValues(portIdx, response->buffer);
+    uint32_t valueCount = SensorPortGetValues(portIdx, (uint32_t*) response->buffer);
     response->bufferCount = valueCount * sizeof(uint32_t);
 
     return RRRC_I2C_CMD_SENSOR_GET_VALUE;//RRRC_I2C_STATUS_OK;
@@ -174,7 +175,7 @@ static RRRC_I2C_Status_t Command_Motor_GetPosition(const request_t* request, res
     {
         return RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT;
     }
-    response->bufferCount = MotorPortGetPosition(portIdx, response->buffer);
+    response->bufferCount = MotorPortGetPosition(portIdx, (uint32_t*) response->buffer);
 
     return RRRC_I2C_CMD_MOTOR_GET_POSITION;//RRRC_I2C_STATUS_OK;
 }
@@ -250,7 +251,7 @@ static RRRC_I2C_Status_t Command_Indication_SetRingScenario(const request_t* req
 static RRRC_I2C_Status_t Command_Indication_SetRingUserFrame(const request_t* request, response_t* response)
 {
     uint32_t frame_idx = request->buffer[0];
-    led_ring_frame_t* led_frame = &request->buffer[1];
+    led_ring_frame_t* led_frame = (led_ring_frame_t*) &request->buffer[1];
     uint32_t status = IndicationUpdateUserFrame(frame_idx, led_frame);
 
     if (status != ERR_NONE)
@@ -266,7 +267,7 @@ static RRRC_I2C_Status_t Command_Indication_SetRingUserFrame(const request_t* re
 static RRRC_I2C_Status_t Command_Indication_SetStatusLed(const request_t* request, response_t* response)
 {
     uint32_t led_idx = request->buffer[0];
-    p_led_val_t led_rgb = &request->buffer[1];
+    p_led_val_t led_rgb = (p_led_val_t) &request->buffer[1];
     uint32_t status = IndicationSetStatusLed(led_idx, led_rgb);
     
     if (status != ERR_NONE)
@@ -277,6 +278,154 @@ static RRRC_I2C_Status_t Command_Indication_SetStatusLed(const request_t* reques
     {
         return RRRC_I2C_STATUS_OK;
     }
+}
+
+typedef struct 
+{
+    bool hasData;
+    uint8_t delay;
+    uint8_t count;
+    uint8_t data[253];
+} LongEcho_Ctx_t;
+
+static LongEcho_Ctx_t longEchoData;
+
+LongCommand_Start_Status_t LongCommand_Echo_Start(const request_t* request, void* privateData)
+{
+    LongEcho_Ctx_t* data = (LongEcho_Ctx_t*) privateData;
+
+    if (request->bufferSize > sizeof(data->data))
+    {
+        return LongCommand_Start_InputError;
+    }
+    else
+    {
+        /* store data and delay */
+        data->delay = request->buffer[0];
+        memcpy(data->data, &request->buffer[1], request->bufferSize - 1u);
+        data->count = request->bufferSize - 1u;
+        data->hasData = true;
+
+        return LongCommand_Start_Successful;
+    }
+}
+
+LongCommand_GetResult_Status_t LongCommand_Echo_GetResult(response_t* response, void* privateData)
+{
+    LongEcho_Ctx_t* data = (LongEcho_Ctx_t*) privateData;
+
+    if (!data->hasData)
+    {
+        return LongCommand_GetResult_Error_NotStarted;
+    }
+    else if (data->delay > 0u)
+    {
+        data->delay--;
+        return LongCommand_GetResult_Pending;
+    }
+    else
+    {
+        memcpy(response->buffer, data->data, data->count);
+        response->bufferCount = data->count;
+
+        // data->hasData = false; // behaviour depends on interpretation: allow multiple reading? yes -> don't set to false
+
+        return LongCommand_GetResult_Done;
+    }
+}
+
+void LongCommand_Echo_Cancel(void* privateData)
+{
+    LongEcho_Ctx_t* data = (LongEcho_Ctx_t*) privateData;
+    
+    data->hasData = false;
+}
+
+/* Long commands */
+static const LongCommandHandler_t longCommandHandlers[RRRC_I2C_LONG_COMMAND_COUNT] = 
+{
+    [RRRC_I2C_LONG_CMD_ECHO] = { .privateData = &longEchoData, .start = &LongCommand_Echo_Start, .getResult = &LongCommand_Echo_GetResult, .cancel = &LongCommand_Echo_Cancel }
+};
+
+static RRRC_I2C_Status_t LongCommand_Start(const request_t* request, response_t* response)
+{
+    uint8_t commandIdx = request->buffer[0];
+    if (commandIdx >= RRRC_I2C_LONG_COMMAND_COUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_UNKNOWN_COMMAND;
+    }
+
+    const LongCommandHandler_t* command = &longCommandHandlers[commandIdx];
+    if (command->start == NULL)
+    {
+        return RRRC_I2C_STATUS_ERROR_UNKNOWN_COMMAND;
+    }
+
+    const uint8_t offset = 1u;
+    request_t subrequest = {
+        .buffer = &request->buffer[offset],
+        .bufferSize = request->bufferSize - offset
+    };
+    LongCommand_Start_Status_t status = command->start(&subrequest, command->privateData);
+    switch (status)
+    {
+        case LongCommand_Start_Successful:
+            return RRRC_I2C_CMD_LONG_COMMAND_START;
+    
+        default:
+            return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+}
+
+static RRRC_I2C_Status_t LongCommand_GetResult(const request_t* request, response_t* response)
+{
+    uint8_t commandIdx = request->buffer[0];
+    if (commandIdx >= RRRC_I2C_LONG_COMMAND_COUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_UNKNOWN_COMMAND;
+    }
+
+    const LongCommandHandler_t* command = &longCommandHandlers[commandIdx];
+    if (command->getResult == NULL)
+    {
+        return RRRC_I2C_STATUS_ERROR_UNKNOWN_COMMAND;
+    }
+
+    LongCommand_GetResult_Status_t status = command->getResult(response, command->privateData);
+    switch (status)
+    {
+        case LongCommand_GetResult_Pending:
+            response->bufferCount = 0u;
+            return RRRC_I2C_STATUS_PENDING;
+
+        case LongCommand_GetResult_Done:
+            return RRRC_I2C_CMD_LONG_COMMAND_GET_RESULT;
+        
+        default:
+            response->bufferCount = 0u;
+            return RRRC_I2C_STATUS_ERROR_OTHER;
+    }
+}
+
+static RRRC_I2C_Status_t LongCommand_Cancel(const request_t* request, response_t* response)
+{
+    uint8_t commandIdx = request->buffer[0];
+    if (commandIdx >= RRRC_I2C_LONG_COMMAND_COUNT)
+    {
+        return RRRC_I2C_STATUS_ERROR_UNKNOWN_COMMAND;
+    }
+
+    const LongCommandHandler_t* command = &longCommandHandlers[commandIdx];
+    if (command->cancel == NULL)
+    {
+        return RRRC_I2C_STATUS_ERROR_UNKNOWN_COMMAND;
+    }
+
+    command->cancel(command->privateData);
+
+    response->bufferCount = 0u;
+
+    return RRRC_I2C_STATUS_OK;
 }
 
 static const CommandHandler_t commandHandlers[RRRC_I2C_COMMAND_COUNT] = 
@@ -308,7 +457,12 @@ static const CommandHandler_t commandHandlers[RRRC_I2C_COMMAND_COUNT] =
     [RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT] = { .handler = &Command_Indication_GetStatusLedAmount, .minPayloadLength = 0u, .maxPayloadLength = 0u },
     [RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO]      = { .handler = &Command_Indication_SetRingScenario,    .minPayloadLength = 1u, .maxPayloadLength = 1u },
     [RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME]    = { .handler = &Command_Indication_SetRingUserFrame,   .minPayloadLength = 1u + sizeof(led_ring_frame_t), .maxPayloadLength = 1u + sizeof(led_ring_frame_t) },
-    [RRRC_I2C_CMD_INDICATION_SET_STATUS_LED]         = { .handler = &Command_Indication_SetStatusLed,       .minPayloadLength = 1u + sizeof(led_val_t),        .maxPayloadLength = 1u + sizeof(led_val_t) }
+    [RRRC_I2C_CMD_INDICATION_SET_STATUS_LED]         = { .handler = &Command_Indication_SetStatusLed,       .minPayloadLength = 1u + sizeof(led_val_t),        .maxPayloadLength = 1u + sizeof(led_val_t) },
+
+    /* Long commands */
+    [RRRC_I2C_CMD_LONG_COMMAND_START]      = { .handler = &LongCommand_Start,     .minPayloadLength = 1u, .maxPayloadLength = 255u },
+    [RRRC_I2C_CMD_LONG_COMMAND_GET_RESULT] = { .handler = &LongCommand_GetResult, .minPayloadLength = 1u, .maxPayloadLength =   1u },
+    [RRRC_I2C_CMD_LONG_COMMAND_CANCEL]     = { .handler = &LongCommand_Cancel,    .minPayloadLength = 1u, .maxPayloadLength =   1u },
 };
 
 static bool isCommandChecksumValid(const commandBuffer_t* commandBuffer)

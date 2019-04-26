@@ -28,8 +28,6 @@ typedef enum _motor_type_t
 	MOTOR_SERVO
 }motor_type_t;
 
-typedef struct _hw_motor_port_t;
-
 typedef struct _motor_lib_entry_t
 {
     motor_type_t type_id;
@@ -49,6 +47,8 @@ typedef struct _motor_lib_entry_t
     void (*gpio0_callback)(void* hw_port, uint32_t state);
     void (*gpio1_callback)(void* hw_port, uint32_t state);
 }motor_lib_entry_t, *p_motor_lib_entry_t;
+
+struct _hw_motor_port_t;
 
 typedef struct 
 {

@@ -7,12 +7,13 @@
 
 #include "motor_speed_controlled.h"
 #include "controller/pid.h"
-#include "converter.h"
+#include "utils/converter.h"
 #include "rrrc_motor_base_function.h"
 
 #include "jscope/jscope.h"
 
 #include <math.h>
+#include <string.h>
 
 typedef struct {
     PID_t controller;
@@ -41,7 +42,7 @@ static void MOTOR_POSITION_CONTROLLED_Task(void* userData)
         jscope_update(2 * (motport->index) + 0, pos);
         jscope_update(2 * (motport->index) + 1, data->refPosition);
 
-        vTaskDelay(rtos_ms_to_ticks(20));
+        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(20));
 	}
 }
 
@@ -61,14 +62,16 @@ static int32_t MOTOR_POSITION_CONTROLLED_Init(void* hw_port)
     return ERR_NONE;
 }
 
-static void MOTOR_POSITION_CONTROLLED_DeInit(void* hw_port)
+static int32_t MOTOR_POSITION_CONTROLLED_DeInit(void* hw_port)
 {
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_pos_ctrl_data_t data = (p_motor_pos_ctrl_data_t) motport->lib_data;
 
-	vTaskDelete(data->task);
+    vTaskDelete(data->task);
 
     motport->motor_driver_lib->deinit(motport);
+
+    return ERR_NONE;
 }
 
 static int32_t MOTOR_POSITION_CONTROLLED_set_config(void* hw_port, const uint8_t* pData, uint32_t size)
@@ -121,7 +124,7 @@ static uint32_t MOTOR_POSITION_CONTROLLED_set_control(void* hw_port, int32_t val
     return 0;
 }
 
-static uint32_t MOTOR_POSITION_CONTROLLED_get_control(void* hw_port, int32_t* dst, uint32_t max_size)
+static uint32_t MOTOR_POSITION_CONTROLLED_get_control(void* hw_port, uint8_t* dst, uint32_t max_size)
 {
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_pos_ctrl_data_t data = (p_motor_pos_ctrl_data_t) motport->lib_data;
@@ -131,7 +134,7 @@ static uint32_t MOTOR_POSITION_CONTROLLED_get_control(void* hw_port, int32_t* ds
         return 0;
     }
 
-    *dst = data->refPosition;
+    *(int32_t*) dst = data->refPosition;
 
     return sizeof(int32_t);
 }

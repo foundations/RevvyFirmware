@@ -66,11 +66,17 @@ typedef enum
     RRRC_I2C_CMD_ECHO                = 0x07,        //Use for debug
     RRRC_I2C_CMD_DUMMY               = 0x09,
     RRRC_I2C_CMD_RESET               = 0x0A,
+
     //about device
     RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT = 0x10,
     RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT  = 0x11,
     RRRC_I2C_CMD_SENSOR_GET_TYPES       = 0x12,
     RRRC_I2C_CMD_MOTOR_GET_TYPES        = 0x13,
+    
+    // long command control
+    RRRC_I2C_CMD_LONG_COMMAND_START      = 0x20u,
+    RRRC_I2C_CMD_LONG_COMMAND_GET_RESULT = 0x21u,
+    RRRC_I2C_CMD_LONG_COMMAND_CANCEL     = 0x22u,
 
     //need testing...
     RRRC_I2C_CMD_SENSOR_GET_TYPES_AMOUNT = 0x14,
@@ -97,11 +103,18 @@ typedef enum
     RRRC_I2C_CMD_INDICATION_SET_STATUS_LED         = 0x92,
     RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO      = 0x93,
     RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME    = 0x94,
+
     //system monitor
     RRRC_I2C_CMD_SYSMON_GET_STAT        = 0x95,
-    
+
     RRRC_I2C_COMMAND_COUNT
 } RRRC_I2C_Command_t;
+
+typedef enum {
+    RRRC_I2C_LONG_CMD_ECHO = 0x00,
+
+    RRRC_I2C_LONG_COMMAND_COUNT
+} RRRC_I2C_LongCommand_t;
 
 typedef enum
 {

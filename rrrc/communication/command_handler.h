@@ -36,4 +36,31 @@ typedef struct
 
 size_t CommandHandler_Handle(const commandBuffer_t* commandBuffer, responseBuffer_t* responseBuffer);
 
+typedef enum
+{
+    LongCommand_Start_Successful,
+    LongCommand_Start_InputError,
+    LongCommand_Start_InternalError,
+} LongCommand_Start_Status_t;
+
+typedef enum 
+{
+    LongCommand_GetResult_Pending,
+    LongCommand_GetResult_Error_NotStarted,
+    LongCommand_GetResult_Error_InternalError,
+    LongCommand_GetResult_Done,
+} LongCommand_GetResult_Status_t;
+
+typedef LongCommand_Start_Status_t (*LongCommandHandler_StartFn_t)(const request_t* request, void* privateData);
+typedef LongCommand_GetResult_Status_t (*LongCommandHandler_GetResultFn_t)(response_t* response, void* privateData);
+typedef void (*LongCommandHandler_CancelFn_t)(void* privateData);
+
+typedef struct
+{
+    void* privateData;
+    LongCommandHandler_StartFn_t start;
+    LongCommandHandler_GetResultFn_t getResult;
+    LongCommandHandler_CancelFn_t cancel;
+} LongCommandHandler_t;
+
 #endif /* COMMAND_HANDLER_H_ */

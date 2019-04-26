@@ -7,10 +7,12 @@
 
 #include "motor_speed_controlled.h"
 #include "controller/pid.h"
-#include "converter.h"
+#include "utils/converter.h"
 #include "rrrc_motor_base_function.h"
+#include "jscope/jscope.h"
 
 #include <math.h>
+#include <string.h>
 
 typedef struct {
     PID_t controller;
@@ -74,14 +76,16 @@ static int32_t MOTOR_SPEED_CONTROLLED_Init(void* hw_port)
     return ERR_NONE;
 }
 
-static void MOTOR_SPEED_CONTROLLED_DeInit(void* hw_port)
+static int32_t MOTOR_SPEED_CONTROLLED_DeInit(void* hw_port)
 {
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
 
-	vTaskDelete(data->task);
+    vTaskDelete(data->task);
 
     motport->motor_driver_lib->deinit(motport);
+
+    return ERR_NONE;
 }
 
 static int32_t MOTOR_SPEED_CONTROLLED_set_config(void* hw_port, const uint8_t* pData, uint32_t size)
@@ -135,7 +139,7 @@ static uint32_t MOTOR_SPEED_CONTROLLED_set_control(void* hw_port, int32_t value)
     return 0;
 }
 
-static uint32_t MOTOR_SPEED_CONTROLLED_get_control(void* hw_port, int32_t* data, uint32_t max_size)
+static uint32_t MOTOR_SPEED_CONTROLLED_get_control(void* hw_port, uint8_t* data, uint32_t max_size)
 {
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
 
@@ -144,7 +148,7 @@ static uint32_t MOTOR_SPEED_CONTROLLED_get_control(void* hw_port, int32_t* data,
         return 0;
     }
 
-    *data = motport->motor_driver_lib->get_speed(motport);
+    *(int32_t*) data = motport->motor_driver_lib->get_speed(motport);
 
     return sizeof(int32_t);
 }

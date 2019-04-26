@@ -1224,9 +1224,6 @@
     <Compile Include="rrrc\controller\pid.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\converter.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\jscope\jscope.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1360,6 +1357,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\utils\color.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\utils\converter.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\utils\converter.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="third_party\segger\SEGGER_RTT.c">
