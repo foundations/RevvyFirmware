@@ -49,14 +49,14 @@ static RRRC_I2C_Status_t Command_Sensor_GetPortAmount(const request_t* request, 
     response->buffer[0] = SensorPortGetPortsAmount();
     response->bufferCount = 1u;
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_SENSOR_GET_PORT_AMOUNT;//return RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Sensor_GetTypes(const request_t* request, response_t* response)
 {
     response->bufferCount = SensorPortGetTypes(response->buffer, response->bufferSize);
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_SENSOR_GET_TYPES;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Sensor_GetType(const request_t* request, response_t* response)
@@ -69,7 +69,7 @@ static RRRC_I2C_Status_t Command_Sensor_GetType(const request_t* request, respon
     response->buffer[0] = SensorPortGetType(portIdx);
     response->bufferCount = 1u;
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_SENSOR_GET_TYPE;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Sensor_SetType(const request_t* request, response_t* response)
@@ -102,7 +102,7 @@ static RRRC_I2C_Status_t Command_Sensor_GetValue(const request_t* request, respo
     uint32_t valueCount = SensorPortGetValues(portIdx, response->buffer);
     response->bufferCount = valueCount * sizeof(uint32_t);
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_SENSOR_GET_VALUE;//RRRC_I2C_STATUS_OK;
 }
 
 /* Motor */
@@ -111,14 +111,14 @@ static RRRC_I2C_Status_t Command_Motor_GetPortAmount(const request_t* request, r
     response->buffer[0] = MotorPortGetPortsAmount();
     response->bufferCount = 1u;
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_MOTOR_GET_PORT_AMOUNT;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Motor_GetTypes(const request_t* request, response_t* response)
 {
     response->bufferCount = MotorPortGetTypes(response->buffer, response->bufferSize);
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_MOTOR_GET_TYPES;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Motor_GetType(const request_t* request, response_t* response)
@@ -131,7 +131,7 @@ static RRRC_I2C_Status_t Command_Motor_GetType(const request_t* request, respons
     response->buffer[0] = MotorPortGetType(portIdx);
     response->bufferCount = 1u;
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_MOTOR_GET_TYPE;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Motor_SetType(const request_t* request, response_t* response)
@@ -164,7 +164,7 @@ static RRRC_I2C_Status_t Command_Motor_GetState(const request_t* request, respon
     response->buffer[0] = MotorPortGetState(portIdx);
     response->bufferCount = 1u;
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_MOTOR_GET_STATE;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Motor_GetPosition(const request_t* request, response_t* response)
@@ -176,7 +176,7 @@ static RRRC_I2C_Status_t Command_Motor_GetPosition(const request_t* request, res
     }
     response->bufferCount = MotorPortGetPosition(portIdx, response->buffer);
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_MOTOR_GET_POSITION;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Motor_SetControl(const request_t* request, response_t* response)
@@ -222,7 +222,7 @@ static RRRC_I2C_Status_t Command_Indication_GetRingLedAmount(const request_t* re
     response->buffer[0] = IndicationGetRingLedsAmount();
     response->bufferCount = 1u;
     
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_INDICATION_GET_RING_LEDS_AMOUNT;//RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Indication_GetStatusLedAmount(const request_t* request, response_t* response)
@@ -230,7 +230,7 @@ static RRRC_I2C_Status_t Command_Indication_GetStatusLedAmount(const request_t* 
     response->buffer[0] = IndicationGetStatusLedsAmount();
     response->bufferCount = 1u;
 
-    return RRRC_I2C_STATUS_OK;
+    return RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT; //RRRC_I2C_STATUS_OK;
 }
 
 static RRRC_I2C_Status_t Command_Indication_SetRingScenario(const request_t* request, response_t* response)
