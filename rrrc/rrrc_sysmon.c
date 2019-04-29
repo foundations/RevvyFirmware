@@ -11,33 +11,34 @@
 #include "rrrc_motors.h"
 #include <math.h>
 
-#define adc_to_mv(x)      ((3300.0f / 255) * x)
-#define adc_to_celsius(x) ((3300.0f / 255) * x)
+#define ADC_MAX 255
+#define adc_to_mv(x)      ((3300.0f / ADC_MAX) * x)
+#define adc_to_celsius(x) ((3300.0f / ADC_MAX) * x)
 static TaskHandle_t      xRRRC_SysMon_xTask;
 void RRRC_SysMom_xTask(void* user_data);
 
 static rrrc_sysmot_t sysmon_val = {0};
 
-static void SysMon_adc_mot_volt_cb(const uint8_t adc_data, void* user_data)
+static void SysMon_adc_mot_volt_cb(const uint16_t adc_data, void* user_data)
 {
 //R1=100K
 //R2=30K
 	sysmon_val.motor_voltage = (uint32_t) lroundf(adc_to_mv(adc_data) * (130.0f / 30.0f));
 }
 
-static void SysMon_adc_bat_volt_cb(const uint8_t adc_data, void* user_data)
+static void SysMon_adc_bat_volt_cb(const uint16_t adc_data, void* user_data)
 {
 //R1=100K
 //R2=240K
 	sysmon_val.battery_voltage = (uint32_t) lroundf(adc_to_mv(adc_data) * (340.0f / 240.0f));
 }
 
-static void SysMon_adc_mot_current_cb(const uint8_t adc_data, void* user_data)
+static void SysMon_adc_mot_current_cb(const uint16_t adc_data, void* user_data)
 {
 	sysmon_val.motor_current = (uint32_t) lroundf(adc_to_mv(adc_data));
 }
 
-static void SysMon_adc_temperature_cb(const uint8_t adc_data, void* user_data)
+static void SysMon_adc_temperature_cb(const uint16_t adc_data, void* user_data)
 {
 	sysmon_val.temperature = (uint32_t) lroundf(adc_to_celsius(adc_data));
 }

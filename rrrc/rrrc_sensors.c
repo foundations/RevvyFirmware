@@ -216,7 +216,7 @@ uint32_t SensorPortGetValues(uint32_t port_idx, uint32_t* data)
 }
 
 //*********************************************************************************************
-static void SensorPort_adc_cb(const uint8_t adc_data, void* port)
+static void SensorPort_adc_cb(const uint16_t adc_data, void* port)
 {
 	p_hw_sensor_port_t sensport = port;
 	if (sensport == NULL)

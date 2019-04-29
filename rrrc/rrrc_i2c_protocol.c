@@ -14,7 +14,7 @@ extern trans_buffer_t tx_buffer;
 
 extern void rrrc_i2c_transmit(size_t size);
 
-void RRRC_Comunication_xTask(void* user_data)
+void RRRC_Communication_xTask(void* user_data)
 {
     for(;;)
     {
@@ -32,10 +32,10 @@ void RRRC_Comunication_xTask(void* user_data)
     }
 }
 
-int32_t RRRC_Comminicationc_Init(void)
+int32_t RRRC_Communication_Init(void)
 {
     int32_t ret = ERR_NONE;
-    if (xTaskCreate(RRRC_Comunication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY + 2, &xCommunicationTask) != pdPASS)
+    if (xTaskCreate(&RRRC_Communication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY + 2, &xCommunicationTask) != pdPASS)
     {
         ret = ERR_FAILURE;
     }
@@ -47,7 +47,7 @@ int32_t RRRC_Comminicationc_Init(void)
     return ret;
 }
 
-int32_t RRRC_Comminicationc_DeInit(void)
+int32_t RRRC_Communication_DeInit(void)
 {
     int32_t ret = ERR_NONE;
     i2c_s_async_disable(&I2C_0);

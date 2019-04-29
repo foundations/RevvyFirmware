@@ -29,7 +29,7 @@ typedef struct _trans_buffer_t
     uint32_t index;
 }trans_buffer_t, *p_trans_buffer_t;
 
-typedef void (*channel_adc_data_cb_t)(const uint8_t adc_data, void* user_data);
+typedef void (*channel_adc_data_cb_t)(const uint16_t adc_data, void* user_data);
 
 int32_t adc_convertion_start(uint32_t adc_idx);
 int32_t adc_convertion_stop(uint32_t adc_idx);

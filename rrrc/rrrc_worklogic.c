@@ -186,7 +186,7 @@ int32_t RRRC_Init(void)
 
     result = SysMon_Init();
 
-    result = RRRC_Comminicationc_Init();
+    result = RRRC_Communication_Init();
 
     adc_convertion_start(0);
     adc_convertion_start(1);
@@ -203,7 +203,7 @@ int32_t RRRC_Init(void)
 
 int32_t RRRC_DeInit(void)
 {
-    RRRC_Comminicationc_DeInit();
+    RRRC_Communication_DeInit();
     
     adc_convertion_stop(0);
     adc_convertion_stop(1);

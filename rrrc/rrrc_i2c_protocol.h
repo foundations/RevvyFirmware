@@ -208,8 +208,8 @@ static  std::ostream& operator<<(std::ostream& os, ptransaction_t data)
 }
 #endif
 
-int32_t RRRC_Comminicationc_Init();
-int32_t RRRC_Comminicationc_DeInit();
+int32_t RRRC_Communication_Init();
+int32_t RRRC_Communication_DeInit();
 void CommunicationTask_NotifyRxCompleteFromISR(void);
 
 #ifdef __cplusplus
