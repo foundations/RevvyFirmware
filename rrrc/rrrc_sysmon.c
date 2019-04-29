@@ -19,6 +19,19 @@ void RRRC_SysMom_xTask(void* user_data);
 
 static rrrc_sysmot_t sysmon_val = {0};
 
+typedef struct 
+{
+    uint8_t tli;
+    uint8_t tld:4;
+    uint8_t thi;
+    uint8_t thd:4;
+    uint16_t res1;
+    uint16_t vpl:12;
+    uint16_t vph:12;
+    uint16_t vcl:12;
+    uint16_t vch:12;
+} temp_cal;
+
 static void SysMon_adc_mot_volt_cb(const uint16_t adc_data, void* user_data)
 {
 //R1=100K
@@ -38,9 +51,27 @@ static void SysMon_adc_mot_current_cb(const uint16_t adc_data, void* user_data)
 	sysmon_val.motor_current = (uint32_t) lroundf(adc_to_mv(adc_data));
 }
 
-static void SysMon_adc_temperature_cb(const uint16_t adc_data, void* user_data)
+static void SysMon_adc_temperatureC_cb(const uint16_t adc_data, void* user_data)
 {
-	sysmon_val.temperature = (uint32_t) lroundf(adc_to_celsius(adc_data));
+	sysmon_val.temperature1 = adc_to_mv(adc_data); //TODO
+}
+
+static void SysMon_adc_temperatureP_cb(const uint16_t adc_data, void* user_data)
+{
+	sysmon_val.temperature2 = adc_to_mv(adc_data); //TODO
+}
+
+float get_temp(float tp, float tc)
+{
+    const temp_cal* tempc = (temp_cal*)NVMCTRL_TEMP_LOG;
+    
+    const float tl = tempc->tli + tempc->tld * 0.0625f;
+    const float th = tempc->thi + tempc->thd * 0.0625f;
+
+    float t = (tl * tempc->vph * tc - tempc->vpl * th * tc - tl * tempc->vch * tp + th * tempc->vcl * tp) /
+        (tempc->vcl * tp - tempc->vch * tp - tempc->vpl * tc + tempc->vph * tc);
+
+    return t;
 }
 
 int32_t SysMonGetValues(uint32_t* data)
@@ -64,6 +95,8 @@ void RRRC_SysMom_xTask(void* user_data)
 		uint32_t bat_status = gpio_get_pin_level(SM_BAT_CHG);
 		uint32_t bat_bg = gpio_get_pin_level(SM_BAT_PG);
 		uint32_t motor_current_fault = gpio_get_pin_level(SM_MOT_CURRENT_FAULT);
+
+        float temp = get_temp(sysmon_val.temperature1, sysmon_val.temperature2);
 		
 // 		if (motor_current_fault)
 // 			for(uint32_t mot_idx=0; mot_idx<MotorPortGetPortsAmount(); mot_idx++)
@@ -79,9 +112,10 @@ int32_t SysMon_Init()
 	RRRC_channel_adc_register_cb(1, 0, SysMon_adc_mot_current_cb, NULL);
 	RRRC_channel_adc_register_cb(1, 1, SysMon_adc_bat_volt_cb, NULL);
 	RRRC_channel_adc_register_cb(1, 2, SysMon_adc_mot_volt_cb, NULL);
-	RRRC_channel_adc_register_cb(1, 3, SysMon_adc_temperature_cb, NULL);
+	RRRC_channel_adc_register_cb(1, 3, SysMon_adc_temperatureP_cb, NULL);
+	RRRC_channel_adc_register_cb(1, 4, SysMon_adc_temperatureC_cb, NULL);
 	
-	if (pdPASS != xTaskCreate(RRRC_SysMom_xTask, "RRRC_SysMon", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+2, &xRRRC_SysMon_xTask))
+	if (pdPASS != xTaskCreate(RRRC_SysMom_xTask, "RRRC_SysMon", 512 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+2, &xRRRC_SysMon_xTask))
 		return ERR_FAILURE;
 
 	return result;
@@ -94,6 +128,7 @@ int32_t SysMon_DeInit()
 	RRRC_channel_adc_unregister_cb(1, 1);
 	RRRC_channel_adc_unregister_cb(1, 2);
 	RRRC_channel_adc_unregister_cb(1, 3);
+	RRRC_channel_adc_unregister_cb(1, 4);
 	
 	vTaskDelete(xRRRC_SysMon_xTask);
 	

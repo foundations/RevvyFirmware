@@ -138,14 +138,24 @@ static volatile int adc1_ch = 0;
 
 typedef struct _adc_channel_callback
 {
-    uint32_t chan;
-    channel_adc_data_cb_t  channel_cb_s;
+    adc_pos_input_t chan;
+    channel_adc_data_cb_t channel_cb_s;
     void* user_data;
 } adc_channel_callback;
 
-#define ADC_INTERNAL_GND_ch 0x18
-adc_channel_callback adc0_channel_callback[] = {{0, NULL,NULL},{13, NULL,NULL},{12, NULL,NULL},{1, NULL,NULL}};
-adc_channel_callback adc1_channel_callback[] = {{4, NULL,NULL},{10, NULL,NULL},{11, NULL,NULL},{0x1D, NULL,NULL}};
+adc_channel_callback adc0_channel_callback[] = {
+    { ADC_CH_SEN_0, NULL, NULL },
+    { ADC_CH_SEN_1, NULL, NULL },
+    { ADC_CH_SEN_2, NULL, NULL },
+    { ADC_CH_SEN_3, NULL, NULL }
+};
+adc_channel_callback adc1_channel_callback[] = {
+    { ADC_CH_MOT_CURRENT, NULL,NULL },
+    { ADC_CH_BAT_VOLTAGE, NULL,NULL },
+    { ADC_CH_MOT_VOLTAGE, NULL,NULL },
+    { ADC_CH_TEMP_SENSOR_P, NULL,NULL },
+    { ADC_CH_TEMP_SENSOR_C, NULL,NULL }
+};
 
 static struct adc_async_descriptor* get_adc_descriptor(uint32_t adc_idx)
 {
@@ -242,7 +252,8 @@ static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, con
         adc0_ch = 0;
     }
 
-    adc_async_set_inputs(descr, adc0_channel_callback[adc0_ch].chan, ADC_INTERNAL_GND_ch, 0);
+    adc_async_set_inputs(descr, adc0_channel_callback[adc0_ch].chan, ADC_CHN_INT_GND, 0);
+    adc_async_start_conversion(&ADC_0);
 }
 
 //*********************************************************************************************
@@ -260,7 +271,8 @@ static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, con
         adc1_ch = 0;
     }
 
-    adc_async_set_inputs(descr, adc1_channel_callback[adc1_ch].chan, ADC_INTERNAL_GND_ch, 0);
+    adc_async_set_inputs(descr, adc1_channel_callback[adc1_ch].chan, ADC_CHN_INT_GND, 0);
+    adc_async_start_conversion(&ADC_1);
 }
 
 int32_t adc_convertion_start(uint32_t adc_idx)
@@ -291,7 +303,7 @@ int32_t adc_convertion_start(uint32_t adc_idx)
     {
         adc_async_enable_channel(adc, 0);
         adc_async_register_callback(adc, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
-        adc_async_set_inputs(adc, callback->chan, ADC_INTERNAL_GND_ch, 0);
+        adc_async_set_inputs(adc, callback->chan, ADC_CHN_INT_GND, 0);
         adc_async_start_conversion(adc);
     }
     

@@ -365,7 +365,11 @@ void system_init(void)
     init_mcu();
 
     hri_mclk_set_APBAMASK_SUPC_bit(MCLK);
-    hri_supc_write_VREF_SEL_bf(SUPC, 1<<SUPC_VREF_TSEN_Pos | 1<< SUPC_VREF_TSSEL);
+    hri_supc_write_VREF_SEL_bf(SUPC, SUPC_VREF_SEL_2V5_Val);
+
+    /* ondemand mode so the proper temp channel will always be selected */
+    hri_supc_set_VREF_ONDEMAND_bit(SUPC);
+    hri_supc_set_VREF_TSEN_bit(SUPC);
 
     IT_init();
     

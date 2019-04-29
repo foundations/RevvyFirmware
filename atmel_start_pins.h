@@ -335,4 +335,17 @@
 #define SM_MOT_CURRENT	PC00
 #define SM_BAT_VOLTAGE	PC01
 
+#define ADC_CH_SEN_0  0
+#define ADC_CH_SEN_1  13
+#define ADC_CH_SEN_2  12
+#define ADC_CH_SEN_3  1
+
+#define ADC_CH_MOT_VOLTAGE  11
+#define ADC_CH_BAT_VOLTAGE  10
+#define ADC_CH_MOT_CURRENT  04
+#define ADC_CH_TEMP_SENSOR_P  0x1C
+#define ADC_CH_TEMP_SENSOR_C  0x1D
+
+#define ADC_CHN_INT_GND 0x18
+
 #endif // ATMEL_START_PINS_H_INCLUDED

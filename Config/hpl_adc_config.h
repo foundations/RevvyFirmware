@@ -53,7 +53,7 @@
 // <i> When enabled, the ADC is in free running mode and a new conversion will be initiated when a previous conversion completes. (FREERUN)
 // <id> adc_freerunning_mode
 #ifndef CONF_ADC_0_FREERUN
-#define CONF_ADC_0_FREERUN 1
+#define CONF_ADC_0_FREERUN 0
 #endif
 
 // <q> Differential Mode
@@ -346,7 +346,7 @@
 // <i> When enabled, the ADC is in free running mode and a new conversion will be initiated when a previous conversion completes. (FREERUN)
 // <id> adc_freerunning_mode
 #ifndef CONF_ADC_1_FREERUN
-#define CONF_ADC_1_FREERUN 1
+#define CONF_ADC_1_FREERUN 0
 #endif
 
 // <q> Differential Mode
@@ -502,7 +502,7 @@
 // <i> These bits control the ADC sampling time in number of half CLK_ADC cycles, depending of the prescaler value, thus controlling the ADC input impedance. (SAMPLEN)
 // <id> adc_arch_samplen
 #ifndef CONF_ADC_1_SAMPLEN
-#define CONF_ADC_1_SAMPLEN 0
+#define CONF_ADC_1_SAMPLEN 63
 #endif
 
 // <o> Window Monitor Mode
