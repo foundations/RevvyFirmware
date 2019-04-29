@@ -132,11 +132,11 @@ void I2C_0_init(void)
 
     i2c_s_async_init(&I2C_0, I2C0_SERCOM);
 
-	I2C_0.device.cb.addrm_cb   = rrrc_i2c_s_async_addr_match;
-	I2C_0.device.cb.tx_cb      = rrrc_i2c_s_async_tx;
-	I2C_0.device.cb.rx_done_cb = rrrc_i2c_s_async_byte_received;
-	I2C_0.device.cb.stop_cb    = rrrc_i2c_s_async_stop;
-	I2C_0.device.cb.error_cb   = rrrc_i2c_s_async_error;
+    I2C_0.device.cb.addrm_cb   = rrrc_i2c_s_async_addr_match;
+    I2C_0.device.cb.tx_cb      = rrrc_i2c_s_async_tx;
+    I2C_0.device.cb.rx_done_cb = rrrc_i2c_s_async_byte_received;
+    I2C_0.device.cb.stop_cb    = rrrc_i2c_s_async_stop;
+    I2C_0.device.cb.error_cb   = rrrc_i2c_s_async_error;
 }
 
 //*********************************************************************************************

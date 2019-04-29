@@ -9,8 +9,10 @@
 
 #include "rrrc_sysmon.h"
 #include "rrrc_motors.h"
-#define adc_to_volt(x)    ((uint32_t)((3300.0f/255) * x))
-#define adc_to_celsius(x) ((uint32_t)((3300.0f/255) * x))
+#include <math.h>
+
+#define adc_to_mv(x)      ((3300.0f / 255) * x)
+#define adc_to_celsius(x) ((3300.0f / 255) * x)
 static TaskHandle_t      xRRRC_SysMon_xTask;
 void RRRC_SysMom_xTask(void* user_data);
 
@@ -20,34 +22,30 @@ static void SysMon_adc_mot_volt_cb(const uint8_t adc_data, void* user_data)
 {
 //R1=100K
 //R2=30K
-	sysmon_val.motor_voltage = adc_to_volt(adc_data);
-	return;
+	sysmon_val.motor_voltage = (uint32_t) lroundf(adc_to_mv(adc_data) * (130.0f / 30.0f));
 }
 
 static void SysMon_adc_bat_volt_cb(const uint8_t adc_data, void* user_data)
 {
 //R1=100K
 //R2=240K
-	sysmon_val.battery_voltage = adc_to_volt(adc_data);
-	return;
+	sysmon_val.battery_voltage = (uint32_t) lroundf(adc_to_mv(adc_data) * (340.0f / 240.0f));
 }
 
 static void SysMon_adc_mot_current_cb(const uint8_t adc_data, void* user_data)
 {
-	sysmon_val.motor_current= adc_to_volt(adc_data);
-	return;
+	sysmon_val.motor_current = (uint32_t) lroundf(adc_to_mv(adc_data));
 }
 
 static void SysMon_adc_temperature_cb(const uint8_t adc_data, void* user_data)
 {
-	sysmon_val.temperature= adc_to_celsius(adc_data);
-	return;
+	sysmon_val.temperature = (uint32_t) lroundf(adc_to_celsius(adc_data));
 }
 
 int32_t SysMonGetValues(uint32_t* data)
 {
 	sysmon_val.systicks = get_system_tick();
-	uint32_t sz = sizeof (rrrc_sysmot_t);
+	const uint32_t sz = sizeof (rrrc_sysmot_t);
 	memcpy(data, &sysmon_val, sz );
 	return sz;
 }
