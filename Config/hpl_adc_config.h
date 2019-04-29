@@ -31,7 +31,7 @@
 // <i> Select the reference for the ADC (REFSEL)
 // <id> adc_reference
 #ifndef CONF_ADC_0_REFSEL
-#define CONF_ADC_0_REFSEL 0x03
+#define CONF_ADC_0_REFSEL 0x02
 #endif
 
 // <o> Prescaler configuration
