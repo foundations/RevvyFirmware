@@ -747,7 +747,7 @@ static void _adc_interrupt_handler(struct _adc_async_device *device)
 	uint8_t     intflag = hri_adc_read_INTFLAG_reg(hw);
 	intflag &= hri_adc_read_INTEN_reg(hw);
 	if (intflag & ADC_INTFLAG_RESRDY) {
-		hri_adc_clear_interrupt_RESRDY_bit(hw);
+//		hri_adc_clear_interrupt_RESRDY_bit(hw); // not necessary
 		device->adc_async_ch_cb.convert_done(device, 0, hri_adc_read_RESULT_reg(hw));
 	} else if (intflag & ADC_INTFLAG_OVERRUN) {
 		hri_adc_clear_interrupt_OVERRUN_bit(hw);

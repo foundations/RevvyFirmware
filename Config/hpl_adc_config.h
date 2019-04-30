@@ -311,7 +311,7 @@
 // <i>  Defines the bit resolution for the ADC sample values (RESSEL)
 // <id> adc_resolution
 #ifndef CONF_ADC_1_RESSEL
-#define CONF_ADC_1_RESSEL 0x03
+#define CONF_ADC_1_RESSEL 0x0
 #endif
 
 // <o> Reference Selection
@@ -339,7 +339,7 @@
 // <i> These bits define the ADC clock relative to the peripheral clock (PRESCALER)
 // <id> adc_prescaler
 #ifndef CONF_ADC_1_PRESCALER
-#define CONF_ADC_1_PRESCALER 0x7
+#define CONF_ADC_1_PRESCALER 0x07
 #endif
 
 // <q> Free Running Mode
@@ -502,7 +502,7 @@
 // <i> These bits control the ADC sampling time in number of half CLK_ADC cycles, depending of the prescaler value, thus controlling the ADC input impedance. (SAMPLEN)
 // <id> adc_arch_samplen
 #ifndef CONF_ADC_1_SAMPLEN
-#define CONF_ADC_1_SAMPLEN 63
+#define CONF_ADC_1_SAMPLEN 0
 #endif
 
 // <o> Window Monitor Mode

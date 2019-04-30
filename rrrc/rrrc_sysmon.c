@@ -11,9 +11,8 @@
 #include "rrrc_motors.h"
 #include <math.h>
 
-#define ADC_MAX 255
-#define adc_to_mv(x)      ((3300.0f / ADC_MAX) * x)
-#define adc_to_celsius(x) ((3300.0f / ADC_MAX) * x)
+#define ADC_MAX 4095
+#define adc_to_mv(x)     ((3300.0f / ADC_MAX) * x)
 static TaskHandle_t      xRRRC_SysMon_xTask;
 void RRRC_SysMom_xTask(void* user_data);
 

@@ -340,9 +340,9 @@
 #define ADC_CH_SEN_2  12
 #define ADC_CH_SEN_3  1
 
-#define ADC_CH_MOT_VOLTAGE  11
-#define ADC_CH_BAT_VOLTAGE  10
-#define ADC_CH_MOT_CURRENT  04
+#define ADC_CH_MOT_VOLTAGE      04
+#define ADC_CH_BAT_VOLTAGE      11
+#define ADC_CH_MOT_CURRENT      10
 #define ADC_CH_TEMP_SENSOR_P  0x1C
 #define ADC_CH_TEMP_SENSOR_C  0x1D
 

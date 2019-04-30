@@ -19,7 +19,7 @@ typedef struct _rrrc_sysmon_t
 	uint32_t temperature2;
 	uint32_t motor_voltage;
 	uint32_t motor_current;
-	uint32_t battery_voltage;	
+	uint32_t battery_voltage;
 	uint32_t battery_status;
 	
 }rrrc_sysmot_t, *p_rrrc_sysmot_t;
