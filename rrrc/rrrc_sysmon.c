@@ -52,20 +52,23 @@ static void SysMon_adc_mot_current_cb(const uint16_t adc_data, void* user_data)
 
 static void SysMon_adc_temperatureC_cb(const uint16_t adc_data, void* user_data)
 {
-	sysmon_val.temperature1 = adc_to_mv(adc_data); //TODO
+	sysmon_val.temperatureC = adc_data;
 }
 
 static void SysMon_adc_temperatureP_cb(const uint16_t adc_data, void* user_data)
 {
-	sysmon_val.temperature2 = adc_to_mv(adc_data); //TODO
+	sysmon_val.temperatureP = adc_data;
 }
 
-float get_temp(float tp, float tc)
+float get_temp(uint16_t tp_i, uint16_t tc_i)
 {
-    const temp_cal* tempc = (temp_cal*)NVMCTRL_TEMP_LOG;
+    const temp_cal* tempc = (const temp_cal*)NVMCTRL_TEMP_LOG;
     
     const float tl = tempc->tli + tempc->tld * 0.0625f;
     const float th = tempc->thi + tempc->thd * 0.0625f;
+    
+    float tc = tc_i / 1000.0f;
+    float tp = tp_i / 1000.0f;
 
     float t = (tl * tempc->vph * tc - tempc->vpl * th * tc - tl * tempc->vch * tp + th * tempc->vcl * tp) /
         (tempc->vcl * tp - tempc->vch * tp - tempc->vpl * tc + tempc->vph * tc);
@@ -95,7 +98,7 @@ void RRRC_SysMom_xTask(void* user_data)
 		uint32_t bat_bg = gpio_get_pin_level(SM_BAT_PG);
 		uint32_t motor_current_fault = gpio_get_pin_level(SM_MOT_CURRENT_FAULT);
 
-        float temp = get_temp(sysmon_val.temperature1, sysmon_val.temperature2);
+        sysmon_val.temperature = get_temp(sysmon_val.temperatureP, sysmon_val.temperatureC);
 		
 // 		if (motor_current_fault)
 // 			for(uint32_t mot_idx=0; mot_idx<MotorPortGetPortsAmount(); mot_idx++)
