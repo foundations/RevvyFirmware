@@ -15,6 +15,8 @@
 
 #include "jscope/jscope.h"
 
+#include "components/BatteryCharger/BatteryCharger.h"
+
 static TaskHandle_t xRRRC_Main_xTask;
 
 extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
@@ -127,21 +129,6 @@ static void MotorsPinsInit()
 //*********************************************************************************************
 void SystemMonitorPinsInit(void)
 {
-    gpio_set_pin_direction(SM_BAT_EN, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(SM_BAT_EN, GPIO_PIN_FUNCTION_OFF);
-
-    gpio_set_pin_direction(SM_BAT_CHG, GPIO_DIRECTION_IN);
-    gpio_set_pin_pull_mode(SM_BAT_CHG, GPIO_PULL_UP);
-    gpio_set_pin_function(SM_BAT_CHG, GPIO_PIN_FUNCTION_OFF);
-
-    gpio_set_pin_direction(SM_BAT_PG, GPIO_DIRECTION_IN);
-    gpio_set_pin_pull_mode(SM_BAT_PG, GPIO_PULL_UP);
-    gpio_set_pin_function(SM_BAT_PG, GPIO_PIN_FUNCTION_OFF);
-
-    gpio_set_pin_direction(SM_BAT_ISET2, GPIO_DIRECTION_OUT);
-    gpio_set_pin_function(SM_BAT_ISET2, GPIO_PIN_FUNCTION_OFF);
-    gpio_set_pin_level(SM_BAT_ISET2, false); //100mA
-
     gpio_set_pin_direction(SM_MOT_CURRENT_FAULT, GPIO_DIRECTION_IN);
     gpio_set_pin_pull_mode(SM_MOT_CURRENT_FAULT, GPIO_PULL_UP);
     gpio_set_pin_function(SM_MOT_CURRENT_FAULT, GPIO_PIN_FUNCTION_OFF);
@@ -191,9 +178,11 @@ int32_t RRRC_Init(void)
     adc_convertion_start(0);
     adc_convertion_start(1);
 
-//     if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 256 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
-//         return ERR_FAILURE;
-    
+     if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
+     {
+         return ERR_FAILURE;
+     }
+
 //     SensorPortSetType(0,SENSOR_HC_SR05);
 //     SensorPortSetType(1,SENSOR_ANALOG_SWITCH);
 //    IndicationSetRingType(RING_LED_PREDEF_4);
@@ -223,13 +212,17 @@ int32_t RRRC_DeInit(void)
 }
 
 //*********************************************************************************************
-void RRRC_ProcessLogic_xTask(void* user    )
+void RRRC_ProcessLogic_xTask(void* user)
 {
+    BatteryCharger_Run_OnInit();
 
-    while (1)
+    BatteryCharger_Run_EnableFastCharge();
+
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    for (;;)
     {
-         os_sleep(200*rtos_get_ticks_in_ms());
+        BatteryCharger_Run_Update();
+
+        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(10));
     }
-
 }
-

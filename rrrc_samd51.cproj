@@ -1218,6 +1218,12 @@
     <Compile Include="rrrc\communication\command_handler.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\BatteryCharger\BatteryCharger.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\BatteryCharger\BatteryCharger.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\controller\pid.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1413,8 +1419,10 @@
     <Folder Include="hpl\usb\" />
     <Folder Include="hpl\wdt\" />
     <Folder Include="hri\" />
+    <Folder Include="rrrc\components\BatteryCharger" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\communication" />
+    <Folder Include="rrrc\components" />
     <Folder Include="rrrc\utils" />
     <Folder Include="third_party" />
     <Folder Include="rrrc" />
