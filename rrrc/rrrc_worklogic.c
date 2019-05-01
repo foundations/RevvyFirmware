@@ -211,6 +211,21 @@ int32_t RRRC_DeInit(void)
     return ERR_NONE;
 }
 
+static void ProcessTasks_10ms(void)
+{
+    BatteryCharger_Run_Update();
+}
+
+static void ProcessTasks_20ms(void)
+{
+
+}
+
+static void ProcessTasks_100ms(void)
+{
+
+}
+
 //*********************************************************************************************
 void RRRC_ProcessLogic_xTask(void* user)
 {
@@ -219,9 +234,23 @@ void RRRC_ProcessLogic_xTask(void* user)
     BatteryCharger_Run_EnableFastCharge();
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    for (;;)
+    for (uint8_t cycleCounter = 0u;;)
     {
-        BatteryCharger_Run_Update();
+        ProcessTasks_10ms();
+        
+        if (cycleCounter % 2 == 0)
+        {
+            ProcessTasks_20ms();
+        }
+        if (cycleCounter == 9u)
+        {
+            ProcessTasks_100ms();
+            cycleCounter = 0u;
+        }
+        else
+        {
+            cycleCounter++;
+        }
 
         vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(10));
     }
