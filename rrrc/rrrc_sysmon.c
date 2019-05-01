@@ -31,6 +31,19 @@ typedef struct
     uint16_t vch:12;
 } temp_cal;
 
+float get_temp(uint16_t tp, uint16_t tc)
+{
+    const temp_cal* tempc = (const temp_cal*)NVMCTRL_TEMP_LOG;
+    
+    const float tl = tempc->tli + tempc->tld * 0.0625f;
+    const float th = tempc->thi + tempc->thd * 0.0625f;
+    
+    float num = tl * tempc->vph * tc - tempc->vpl * th * tc - tl * tempc->vch * tp + th * tempc->vcl * tp;
+    float den = tempc->vcl * tp - tempc->vch * tp - tempc->vpl * tc + tempc->vph * tc;
+
+    return num / den;
+}
+
 static void SysMon_adc_mot_volt_cb(const uint16_t adc_data, void* user_data)
 {
 //R1=100K
@@ -52,28 +65,13 @@ static void SysMon_adc_mot_current_cb(const uint16_t adc_data, void* user_data)
 
 static void SysMon_adc_temperatureC_cb(const uint16_t adc_data, void* user_data)
 {
-	sysmon_val.temperatureC = adc_data;
+    sysmon_val.temperatureC = adc_data;
+    sysmon_val.temperature = get_temp(sysmon_val.temperatureP, sysmon_val.temperatureC);
 }
 
 static void SysMon_adc_temperatureP_cb(const uint16_t adc_data, void* user_data)
 {
 	sysmon_val.temperatureP = adc_data;
-}
-
-float get_temp(uint16_t tp_i, uint16_t tc_i)
-{
-    const temp_cal* tempc = (const temp_cal*)NVMCTRL_TEMP_LOG;
-    
-    const float tl = tempc->tli + tempc->tld * 0.0625f;
-    const float th = tempc->thi + tempc->thd * 0.0625f;
-    
-    float tc = tc_i / 1000.0f;
-    float tp = tp_i / 1000.0f;
-
-    float t = (tl * tempc->vph * tc - tempc->vpl * th * tc - tl * tempc->vch * tp + th * tempc->vcl * tp) /
-        (tempc->vcl * tp - tempc->vch * tp - tempc->vpl * tc + tempc->vph * tc);
-
-    return t;
 }
 
 int32_t SysMonGetValues(uint32_t* data)
@@ -97,8 +95,6 @@ void RRRC_SysMom_xTask(void* user_data)
 		uint32_t bat_status = gpio_get_pin_level(SM_BAT_CHG);
 		uint32_t bat_bg = gpio_get_pin_level(SM_BAT_PG);
 		uint32_t motor_current_fault = gpio_get_pin_level(SM_MOT_CURRENT_FAULT);
-
-        sysmon_val.temperature = get_temp(sysmon_val.temperatureP, sysmon_val.temperatureC);
 		
 // 		if (motor_current_fault)
 // 			for(uint32_t mot_idx=0; mot_idx<MotorPortGetPortsAmount(); mot_idx++)
