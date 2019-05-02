@@ -15,7 +15,11 @@
 
 #include "jscope/jscope.h"
 
+#include "components/ADC/adc.h"
 #include "components/BatteryCharger/BatteryCharger.h"
+#include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
+
+#include <math.h>
 
 static TaskHandle_t xRRRC_Main_xTask;
 
@@ -171,17 +175,12 @@ int32_t RRRC_Init(void)
 
     result = IndicationInit();
 
-    result = SysMon_Init();
-
     result = RRRC_Communication_Init();
 
-    adc_convertion_start(0);
-    adc_convertion_start(1);
-
-     if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
-     {
-         return ERR_FAILURE;
-     }
+    if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
+    {
+        return ERR_FAILURE;
+    }
 
 //     SensorPortSetType(0,SENSOR_HC_SR05);
 //     SensorPortSetType(1,SENSOR_ANALOG_SWITCH);
@@ -194,9 +193,6 @@ int32_t RRRC_DeInit(void)
 {
     RRRC_Communication_DeInit();
     
-    adc_convertion_stop(0);
-    adc_convertion_stop(1);
-
     vTaskDelete(xRRRC_Main_xTask);
 
     for (uint32_t idx=0; idx<SENSOR_PORT_AMOUNT; idx++ )
@@ -206,13 +202,12 @@ int32_t RRRC_DeInit(void)
 
     IndicationDeInit();
 
-    SysMon_DeInit();
-
     return ERR_NONE;
 }
 
 static void ProcessTasks_10ms(void)
 {
+    ADC_Run_Update();
     BatteryCharger_Run_Update();
 }
 
@@ -229,6 +224,7 @@ static void ProcessTasks_100ms(void)
 //*********************************************************************************************
 void RRRC_ProcessLogic_xTask(void* user)
 {
+    ADC_Run_OnInit();
     BatteryCharger_Run_OnInit();
 
     BatteryCharger_Run_EnableFastCharge();
@@ -254,4 +250,30 @@ void RRRC_ProcessLogic_xTask(void* user)
 
         vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(10));
     }
+}
+
+#define SYSMON_ADC_MOTOR_VOLTAGE   ADC_BUFFER_ADC1_04
+#define SYSMON_ADC_MOTOR_CURRENT   ADC_BUFFER_ADC1_10
+#define SYSMON_ADC_BATTERY_VOLTAGE ADC_BUFFER_ADC1_11
+#define SYSMON_ADC_TEMPERATURE_P   ADC_BUFFER_ADC1_28
+#define SYSMON_ADC_TEMPERATURE_C   ADC_BUFFER_ADC1_29
+
+void ADC_Write_RawSamples_ADC0(uint16_t samples[4])
+{
+    for (uint32_t i = 0u; i < 4u; i++)
+    {
+        SensorPort_Adc_Update(i, samples[i]);
+    }
+}
+
+void ADC_Write_Samples_ADC1(float samples[5])
+{
+    rrrc_sysmon_t sysmon;
+    sysmon.systicks = xTaskGetTickCount();
+    sysmon.motor_voltage   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_VOLTAGE] * (130.0f / 30.0f));
+    sysmon.battery_voltage = (uint32_t) lroundf(samples[SYSMON_ADC_BATTERY_VOLTAGE] * (340.0f / 240.0f));
+    sysmon.motor_current   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_CURRENT]);
+    InternalTemperatureSensor_Run_Convert(samples[SYSMON_ADC_TEMPERATURE_P], samples[SYSMON_ADC_TEMPERATURE_C], &sysmon.temperature);
+
+    SystemMonitor_Update(&sysmon);
 }

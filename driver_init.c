@@ -11,30 +11,7 @@
 #include <utils.h>
 #include <hal_init.h>
 
-#include <hpl_adc_base.h>
 #include <hpl_rtc_base.h>
-
-/* The channel amount for ADC */
-#define ADC_0_CH_AMOUNT 1
-#define ADC_1_CH_AMOUNT 1
-
-/* The buffer size for ADC */
-#define ADC_0_BUFFER_SIZE 16
-#define ADC_1_BUFFER_SIZE 16
-
-/* The maximal channel number of enabled channels */
-#define ADC_0_CH_MAX 15
-#define ADC_1_CH_MAX 0x1D
-
-struct adc_async_descriptor         ADC_0;
-struct adc_async_descriptor         ADC_1;
-struct adc_async_channel_descriptor ADC_0_ch[ADC_0_CH_AMOUNT];
-struct adc_async_channel_descriptor ADC_1_ch[ADC_1_CH_AMOUNT];
-
-static uint8_t ADC_0_buffer[ADC_0_BUFFER_SIZE];
-static uint8_t ADC_1_buffer[ADC_1_BUFFER_SIZE];
-static uint8_t ADC_0_map[ADC_0_CH_MAX + 1];
-static uint8_t ADC_1_map[ADC_1_CH_MAX + 1];
 
 
 
@@ -81,26 +58,6 @@ extern void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const dev
 extern void rrrc_i2c_s_async_error(struct _i2c_s_async_device *const device);
 extern void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir);
 extern void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir);
-
-//*********************************************************************************************
-void ADC_0_init(void)
-{
-    hri_mclk_set_APBDMASK_ADC0_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, ADC0_GCLK_ID, CONF_GCLK_ADC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    adc_async_init(&ADC_0, ADC0, ADC_0_map, ADC_0_CH_MAX, ADC_0_CH_AMOUNT, &ADC_0_ch[0], (void *)NULL);
-    adc_async_register_channel_buffer(&ADC_0, 0, ADC_0_buffer, ADC_0_BUFFER_SIZE);
-}
-
-//*********************************************************************************************
-void ADC_1_init(void)
-{
-    hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, &ADC_1_ch[0], (void *)NULL);
-    adc_async_register_channel_buffer(&ADC_1, 0, ADC_1_buffer, ADC_1_BUFFER_SIZE);
-}
 
 //*********************************************************************************************
 void EXTERNAL_IRQ_0_init(void)
@@ -372,10 +329,6 @@ void system_init(void)
     hri_supc_set_VREF_TSEN_bit(SUPC);
 
     IT_init();
-    
-    ADC_0_init();
-
-    ADC_1_init();
 
     EXTERNAL_IRQ_0_init();
 

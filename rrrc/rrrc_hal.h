@@ -29,12 +29,6 @@ typedef struct _trans_buffer_t
     uint32_t index;
 }trans_buffer_t, *p_trans_buffer_t;
 
-typedef void (*channel_adc_data_cb_t)(const uint16_t adc_data, void* user_data);
-
-int32_t adc_convertion_start(uint32_t adc_idx);
-int32_t adc_convertion_stop(uint32_t adc_idx);
-int32_t RRRC_channel_adc_register_cb(uint32_t adc_idx, uint32_t chan_idx, channel_adc_data_cb_t func, void* user_data);
-int32_t RRRC_channel_adc_unregister_cb(uint32_t adc_idx, uint32_t chan_idx);
 int32_t RRRC_add_task(struct timer_task *const task, timer_task_cb_t func, uint32_t interval, void* user_data, bool oneshot);
 int32_t RRRC_remove_task(struct timer_task const* task);
 

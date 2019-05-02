@@ -12,22 +12,16 @@
 #include <stdint.h>
 #include "rrrc_hal.h"
 
-typedef struct _rrrc_sysmon_t
+typedef struct
 {
-	uint32_t systicks;
-	uint16_t temperatureP;
-	uint16_t temperatureC;
-	uint32_t motor_voltage;
-	uint32_t motor_current;
-	uint32_t battery_voltage;
+    uint32_t systicks;
+    float motor_voltage;
+    float motor_current;
+    float battery_voltage;
     float temperature;
-	uint32_t battery_status;
-	
-}rrrc_sysmot_t, *p_rrrc_sysmot_t;
+} rrrc_sysmon_t;
 
-
-int32_t SysMon_Init();
-int32_t SysMon_DeInit();
 int32_t SysMonGetValues(uint32_t* data);
+void SystemMonitor_Update(const rrrc_sysmon_t* value);
 
 #endif /* RRRC_SYSMON_H_ */

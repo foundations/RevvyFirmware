@@ -1218,10 +1218,22 @@
     <Compile Include="rrrc\communication\command_handler.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\ADC\adc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\ADC\adc.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\BatteryCharger\BatteryCharger.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\BatteryCharger\BatteryCharger.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\InternalTemperatureSensor\InternalTemperatureSensor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\InternalTemperatureSensor\InternalTemperatureSensor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\controller\pid.c">
@@ -1420,6 +1432,8 @@
     <Folder Include="hpl\wdt\" />
     <Folder Include="hri\" />
     <Folder Include="rrrc\components\BatteryCharger" />
+    <Folder Include="rrrc\components\ADC" />
+    <Folder Include="rrrc\components\InternalTemperatureSensor" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\communication" />
     <Folder Include="rrrc\components" />

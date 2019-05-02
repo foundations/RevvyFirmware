@@ -36,6 +36,8 @@ uint32_t SensorPortReadUserData(uint32_t port, uint32_t* data, uint32_t size);
 int32_t SensorPortInit(uint32_t port);
 int32_t SensorPortDeInit(uint32_t port);
 
+void SensorPort_Adc_Update(uint32_t port_idx, uint16_t adc_data);
+
 #ifdef __cplusplus
 }
 #endif

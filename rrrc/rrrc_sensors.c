@@ -228,6 +228,14 @@ static void SensorPort_adc_cb(const uint16_t adc_data, void* port)
 	return;
 }
 
+void SensorPort_Adc_Update(uint32_t port_idx, uint16_t adc_data)
+{
+    if (port_idx < ARRAY_SIZE(sensor_ports))
+	{
+		SensorPort_adc_cb(adc_data, &sensor_ports[port_idx]);
+	}
+}
+
 //*********************************************************************************************
 static void SensorPort_gpio0_ext_cb(const void* port)
 {
@@ -278,7 +286,7 @@ int32_t SensorPortInit(uint32_t port_idx)
 
 	result = SensorPortSetType(port_idx, SENSOR_NOT_SET);
 
-	RRRC_channel_adc_register_cb(0, sensor_ports[port_idx].index, SensorPort_adc_cb, &sensor_ports[port_idx]);
+	//RRRC_channel_adc_register_cb(0, sensor_ports[port_idx].index, SensorPort_adc_cb, &sensor_ports[port_idx]);
 
 	if (sensor_ports[port_idx].gpio0_num >= 0)
 		ext_irq_register(sensor_ports[port_idx].gpio0_num, SensorPort_gpio0_ext_cb, &sensor_ports[port_idx]);
@@ -299,7 +307,7 @@ int32_t SensorPortDeInit(uint32_t port_idx)
 
 	SensorPortSetType(port_idx, SENSOR_NOT_SET);
 
-	RRRC_channel_adc_unregister_cb(0, sensor_ports[port_idx].index);
+	//RRRC_channel_adc_unregister_cb(0, sensor_ports[port_idx].index);
 
 	if (sensor_ports[port_idx].gpio0_num >= 0)
 		ext_irq_disable(sensor_ports[port_idx].gpio0_num);
