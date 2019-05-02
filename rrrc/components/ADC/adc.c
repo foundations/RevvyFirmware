@@ -169,7 +169,7 @@ void ADC_Run_OnInit(void)
 {
     adc[0].conversionRunning = false;
     adc[1].conversionRunning = false;
-    
+
     ADC_0_init();
     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
     adc_async_enable_channel(&ADC_0, 0);

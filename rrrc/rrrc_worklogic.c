@@ -213,7 +213,14 @@ static void ProcessTasks_10ms(void)
 
 static void ProcessTasks_20ms(void)
 {
-
+    /* TODO: Different ports may be handled with a time offset from each other to decrease jitter */
+    for (uint32_t i = 0u; i < MOTOR_PORT_AMOUNT; i++)
+    {
+        /* Critical section (temporarily) necessary because motor ports can be confiured in a different thread */
+        taskENTER_CRITICAL();
+        MotorPort_Update(i);
+        taskEXIT_CRITICAL();
+    }
 }
 
 static void ProcessTasks_100ms(void)

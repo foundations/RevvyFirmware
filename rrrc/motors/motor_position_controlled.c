@@ -17,33 +17,23 @@
 
 typedef struct {
     PID_t controller;
-    TaskHandle_t task;
 
     int32_t refPosition;
 
     int32_t position;
 } *p_motor_pos_ctrl_data_t;
 
-static void MOTOR_POSITION_CONTROLLED_Task(void* userData)
+static void MOTOR_POSITION_CONTROLLED_Update(void* hw_port)
 {
-    p_hw_motor_port_t motport = (p_hw_motor_port_t) userData;
+    p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_pos_ctrl_data_t data = (p_motor_pos_ctrl_data_t) motport->lib_data;
 
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    for(;;)
-    {
-        int32_t pos;
-        CRITICAL_SECTION_ENTER();
-        pos = data->position;
-        CRITICAL_SECTION_LEAVE();
-        float u = pid_update(&data->controller, data->refPosition, pos);
-        motport->motor_driver_lib->set_speed(motport, lroundf(u));
+    int32_t pos = data->position;
+    float u = pid_update(&data->controller, data->refPosition, pos);
+    motport->motor_driver_lib->set_speed(motport, lroundf(u));
 
-        jscope_update(2 * (motport->index) + 0, pos);
-        jscope_update(2 * (motport->index) + 1, data->refPosition);
-
-        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(20));
-	}
+    jscope_update(2 * (motport->index) + 0, pos);
+    jscope_update(2 * (motport->index) + 1, data->refPosition);
 }
 
 static int32_t MOTOR_POSITION_CONTROLLED_Init(void* hw_port)
@@ -56,9 +46,6 @@ static int32_t MOTOR_POSITION_CONTROLLED_Init(void* hw_port)
 
     pid_initialize(&data->controller);
 
-    if (xTaskCreate(MOTOR_POSITION_CONTROLLED_Task, "SPD_CTRL", 1024 / sizeof(portSTACK_TYPE), motport, tskIDLE_PRIORITY + 1, &data->task) != pdPASS)
-        return ERR_FAILURE;
-
     return ERR_NONE;
 }
 
@@ -66,8 +53,6 @@ static int32_t MOTOR_POSITION_CONTROLLED_DeInit(void* hw_port)
 {
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_pos_ctrl_data_t data = (p_motor_pos_ctrl_data_t) motport->lib_data;
-
-    vTaskDelete(data->task);
 
     motport->motor_driver_lib->deinit(motport);
 
@@ -108,9 +93,9 @@ static uint32_t MOTOR_POSITION_CONTROLLED_get_position(void* hw_port, uint8_t* d
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_pos_ctrl_data_t data = (p_motor_pos_ctrl_data_t) motport->lib_data;
     
-    uint32_t src = SwapEndian((uint32_t) (data->position & 0xFFFFFFFFu));
+    uint32_t src = SwapEndian((uint32_t) data->position);
     memcpy(dst, &src, 4);
-    
+
     return 4;
 }
 
@@ -214,6 +199,7 @@ motor_lib_entry_t motor_position_controlled =
 
     .MotorInit   = &MOTOR_POSITION_CONTROLLED_Init,
     .MotorDeInit = &MOTOR_POSITION_CONTROLLED_DeInit,
+    .update      = &MOTOR_POSITION_CONTROLLED_Update,
 
     .motor_set_config = &MOTOR_POSITION_CONTROLLED_set_config,
     .motor_get_config = &MOTOR_POSITION_CONTROLLED_get_config,

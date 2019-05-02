@@ -44,6 +44,11 @@ static void MOTOR_OPENLOOP_DeInit(void* hw_port)
     motport->motor_driver_lib->deinit(motport);
 }
 
+static void MOTOR_OPENLOOP_Update(void* hw_port)
+{
+
+}
+
 static int32_t MOTOR_OPENLOOP_set_config(void* hw_port, const uint8_t* pData, uint32_t size)
 {
     return ERR_NONE;
@@ -64,6 +69,10 @@ static uint32_t MOTOR_OPENLOOP_set_control(void* hw_port, int32_t value)
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_openloop_data_t data = (p_motor_openloop_data_t) motport->lib_data;
 
+    /* Note: even though the motor drivers internally limit the speed, 
+     * saturation is done because of the int32->int8 conversion */
+
+    // TODO: configurable limits?
     motport->motor_driver_lib->set_speed(motport, saturate_int32(value, -100, 100));
 
     return 0;
@@ -90,6 +99,7 @@ motor_lib_entry_t motor_openloop =
 
     .MotorInit   = &MOTOR_OPENLOOP_Init,
     .MotorDeInit = &MOTOR_OPENLOOP_DeInit,
+    .update      = &MOTOR_OPENLOOP_Update,
 
     .motor_set_config = &MOTOR_OPENLOOP_set_config,
     .motor_get_config = &MOTOR_OPENLOOP_get_config,

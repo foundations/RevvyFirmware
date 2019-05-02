@@ -144,7 +144,7 @@ uint8_t SensorPortGetTypeId(uint32_t idx)
 	{
 		p_sensor_lib_entry_t sensor = sensor_libs[idx];
 		return sensor->type_id;
-	}	
+	}
 	return 0xFF;
 }
 
@@ -159,7 +159,8 @@ uint32_t SensorPortGetTypes(uint8_t *data, uint32_t max_size)
 		uint32_t len = strlen(sensor_libs[idx]->name);
 		if ( (size + len + 2u) >= max_size )
 		{
-    		return 0u;
+            /* return with as much data as we can */
+            break;
 		}
         data[size++] = sensor_libs[idx]->type_id;
         data[size++] = len;

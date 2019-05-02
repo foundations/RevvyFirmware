@@ -30,6 +30,7 @@ int32_t MotorPortSetConfig(uint32_t port, const uint8_t *data, uint32_t size);
 int8_t MotorPortGetState(uint32_t port);
 uint32_t MotoPortSetSteps(uint32_t port, uint32_t steps); // run steps
 uint32_t MotorPortGetPosition(uint32_t port_idx, uint32_t* data);
+void MotorPort_Update(uint32_t port_idx);
 
 int32_t MotorPortInit(uint32_t port);
 int32_t MotorPortDeInit(uint32_t port);

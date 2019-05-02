@@ -35,6 +35,7 @@ typedef struct _motor_lib_entry_t
 
     int32_t (*MotorInit)(void* hw_port);
     int32_t (*MotorDeInit)(void* hw_port);
+    void (*update)(void* hw_port);
 
     int32_t (*motor_set_config)(void* hw_port, const uint8_t* data, uint32_t size);
     uint32_t (*motor_get_config)(void* hw_port, uint8_t* data, uint32_t max_size);

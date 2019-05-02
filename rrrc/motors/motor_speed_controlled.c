@@ -16,7 +16,6 @@
 
 typedef struct {
     PID_t controller;
-    TaskHandle_t task;
 
     int32_t refSpeed;
 
@@ -26,36 +25,6 @@ typedef struct {
     float alpha;
     float y0;
 } *p_motor_speed_ctrl_data_t;
-
-static void MOTOR_SPEED_CONTROLLED_Task(void* userData)
-{
-    p_hw_motor_port_t motport = (p_hw_motor_port_t) userData;
-    p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
-
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    for(;;)
-    {
-        int32_t position;
-        CRITICAL_SECTION_ENTER();
-        position = data->position;
-        CRITICAL_SECTION_LEAVE();
-
-        int32_t measuredSpeed = position - data->lastPosition; // todo more sensible (less arbitrary) unit of speed
-
-        data->y0 = data->alpha * measuredSpeed + (1 - data->alpha) * data->y0;
-
-        data->lastPosition = position;
-        
-        float fref = (float) data->refSpeed;
-        float u = pid_update(&data->controller, fref, data->y0);
-        motport->motor_driver_lib->set_speed(motport, lroundf(u));
-        
-        jscope_update((2 * (motport->index) + 0), (int32_t) data->y0);
-        jscope_update((2 * (motport->index) + 1), data->refSpeed);
-
-        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(20));
-	}
-}
 
 static int32_t MOTOR_SPEED_CONTROLLED_Init(void* hw_port)
 {
@@ -70,9 +39,6 @@ static int32_t MOTOR_SPEED_CONTROLLED_Init(void* hw_port)
 
     pid_initialize(&data->controller);
 
-    if (xTaskCreate(MOTOR_SPEED_CONTROLLED_Task, "SPD_CTRL", 1024 / sizeof(portSTACK_TYPE), motport, tskIDLE_PRIORITY + 1, &data->task) != pdPASS)
-        return ERR_FAILURE;
-
     return ERR_NONE;
 }
 
@@ -80,12 +46,30 @@ static int32_t MOTOR_SPEED_CONTROLLED_DeInit(void* hw_port)
 {
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
-
-    vTaskDelete(data->task);
-
+    
     motport->motor_driver_lib->deinit(motport);
 
     return ERR_NONE;
+}
+
+static void MOTOR_SPEED_CONTROLLED_Update(void* hw_port)
+{
+    p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
+    p_motor_speed_ctrl_data_t data = (p_motor_speed_ctrl_data_t) motport->lib_data;
+
+    int32_t position = data->position;
+    int32_t measuredSpeed = position - data->lastPosition; // todo more sensible (less arbitrary) unit of speed
+
+    data->y0 = data->alpha * measuredSpeed + (1 - data->alpha) * data->y0;
+
+    data->lastPosition = position;
+        
+    float fref = (float) data->refSpeed;
+    float u = pid_update(&data->controller, fref, data->y0);
+    motport->motor_driver_lib->set_speed(motport, lroundf(u));
+        
+    jscope_update((2 * (motport->index) + 0), (int32_t) data->y0);
+    jscope_update((2 * (motport->index) + 1), data->refSpeed);
 }
 
 static int32_t MOTOR_SPEED_CONTROLLED_set_config(void* hw_port, const uint8_t* pData, uint32_t size)
@@ -228,6 +212,7 @@ motor_lib_entry_t motor_speed_controlled =
 
     .MotorInit   = &MOTOR_SPEED_CONTROLLED_Init,
     .MotorDeInit = &MOTOR_SPEED_CONTROLLED_DeInit,
+    .update      = &MOTOR_SPEED_CONTROLLED_Update,
 
     .motor_set_config = &MOTOR_SPEED_CONTROLLED_set_config,
     .motor_get_config = &MOTOR_SPEED_CONTROLLED_get_config,

@@ -151,7 +151,7 @@ uint8_t MotorPortGetPortsAmount()
 }
 
 //*********************************************************************************************
-uint8_t    MotorPortGetTypesAmount()
+uint8_t MotorPortGetTypesAmount()
 {
     return ARRAY_SIZE(motor_libs);
 }
@@ -189,7 +189,8 @@ uint32_t MotorPortGetTypes(uint8_t *data, uint32_t max_size)
         uint32_t len = strlen(motor_libs[idx]->name);
         if ( (size + len + 2u) >= max_size )
         {
-            return 0u;
+            /* return with as much data as we can */
+            break;
         }
         data[size++] = motor_libs[idx]->type_id;
         data[size++] = len;
@@ -251,6 +252,14 @@ uint32_t MotorPortGetType(uint32_t port_idx)
         result = motor_ports[port_idx].motor_lib->type_id;
     }
     return result;
+}
+
+void MotorPort_Update(uint32_t port_idx)
+{
+    /* This should only be called by the main task so we can assert here to catch programmer error */
+    ASSERT (port_idx < ARRAY_SIZE(motor_ports) && motor_ports[port_idx].motor_lib && motor_ports[port_idx].motor_lib->update);
+
+    motor_ports[port_idx].motor_lib->update(&motor_ports[port_idx]);
 }
 
 //*********************************************************************************************
