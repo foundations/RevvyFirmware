@@ -49,7 +49,6 @@ struct i2c_m_sync_desc        I2C_3;
 struct i2c_m_sync_desc        I2C_4;
 
 //struct spi_m_sync_descriptor SPI_0;
-struct spi_m_dma_descriptor  SPI_0;
 
 struct wdt_descriptor WDT_0;
 
@@ -154,22 +153,6 @@ void I2C_4_init(void)
     gpio_set_pin_function(I2C4_SDApin, I2C4_SDApin_function);
     gpio_set_pin_pull_mode(I2C4_SCLpin, GPIO_PULL_OFF);
     gpio_set_pin_function(I2C4_SCLpin, I2C4_SCLpin_function);
-}
-
-//*********************************************************************************************
-void SPI_0_Init(void)
-{
-    hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_CORE, CONF_GCLK_SERCOM4_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_SLOW, CONF_GCLK_SERCOM4_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    hri_mclk_set_APBDMASK_SERCOM4_bit(MCLK);
-
-    spi_m_dma_init(&SPI_0, SERCOM4);
-
-    gpio_set_pin_level(WS2812pin,false);
-    gpio_set_pin_direction(WS2812pin, GPIO_DIRECTION_OUT);
-    gpio_set_pin_pull_mode(WS2812pin, GPIO_PULL_OFF);
-    gpio_set_pin_function(WS2812pin, WS2812pin_function);
-    //gpio_set_pin_drive(WS2812pin, GPIO_DRIVE_STRONG);
 }
 
 //*********************************************************************************************
@@ -343,8 +326,6 @@ void system_init(void)
     I2C_3_init();
     
     I2C_4_init();
-
-    SPI_0_Init();
 
     delay_driver_init();
 

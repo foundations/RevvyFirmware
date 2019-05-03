@@ -1230,6 +1230,12 @@
     <Compile Include="rrrc\components\InternalTemperatureSensor\InternalTemperatureSensor.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\LEDController\LEDController.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\LEDController\LEDController.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\controller\pid.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1427,6 +1433,7 @@
     <Folder Include="rrrc\components\BatteryCharger" />
     <Folder Include="rrrc\components\ADC" />
     <Folder Include="rrrc\components\InternalTemperatureSensor" />
+    <Folder Include="rrrc\components\LEDController" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\communication" />
     <Folder Include="rrrc\components" />

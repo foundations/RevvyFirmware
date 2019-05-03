@@ -18,6 +18,7 @@
 #include "components/ADC/adc.h"
 #include "components/BatteryCharger/BatteryCharger.h"
 #include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
+#include "components/LEDController/LEDController.h"
 
 #include <math.h>
 
@@ -173,7 +174,7 @@ int32_t RRRC_Init(void)
             return result;
     }
 
-    result = IndicationInit();
+    //result = IndicationInit();
 
     result = RRRC_Communication_Init();
 
@@ -200,7 +201,7 @@ int32_t RRRC_DeInit(void)
     for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
         MotorPortDeInit(idx);
 
-    IndicationDeInit();
+    //IndicationDeInit();
 
     return ERR_NONE;
 }
@@ -216,11 +217,13 @@ static void ProcessTasks_20ms(void)
     /* TODO: Different ports may be handled with a time offset from each other to decrease jitter */
     for (uint32_t i = 0u; i < MOTOR_PORT_AMOUNT; i++)
     {
-        /* Critical section (temporarily) necessary because motor ports can be confiured in a different thread */
+        /* Critical section (temporarily) necessary because motor ports can be configured in a different thread */
         taskENTER_CRITICAL();
         MotorPort_Update(i);
         taskEXIT_CRITICAL();
     }
+
+    LEDController_Run_Update();
 }
 
 static void ProcessTasks_100ms(void)
@@ -233,6 +236,7 @@ void RRRC_ProcessLogic_xTask(void* user)
 {
     ADC_Run_OnInit();
     BatteryCharger_Run_OnInit();
+    LEDController_Run_OnInit();
 
     BatteryCharger_Run_EnableFastCharge();
 
@@ -283,4 +287,14 @@ void ADC_Write_Samples_ADC1(float samples[5])
     InternalTemperatureSensor_Run_Convert(samples[SYSMON_ADC_TEMPERATURE_P], samples[SYSMON_ADC_TEMPERATURE_C], &sysmon.temperature);
 
     SystemMonitor_Update(&sysmon);
+}
+
+rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
+{
+    return (rgb_t) LED_GREEN;
+}
+
+rgb_t LEDController_Read_RingLED(uint32_t led_idx)
+{
+    return (rgb_t){0, 0, 0};
 }

@@ -271,32 +271,6 @@ static bool MakeLedBuffer()
     return true;
 }
 
-static void Indication_xTask(const void* user_data)
-{
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    led_ring_busy = false;
-
-    struct io_descriptor *io;
-    spi_m_dma_get_io_descriptor(&SPI_0, &io);
-    spi_m_dma_register_callback(&SPI_0, SPI_M_DMA_CB_TX_DONE, &tx_complete_cb_SPI_0);
-    spi_m_dma_enable(&SPI_0);
-
-    for(;;)
-    {
-        if (!led_ring_busy)
-        {
-            CRITICAL_SECTION_ENTER();
-            MakeLedBuffer();
-            CRITICAL_SECTION_LEAVE();
-
-            led_ring_busy = true;
-            io_write(io, frame_leds, ARRAY_SIZE(frame_leds));
-        }
-        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(20u));
-    }
-    return;
-}
-
 //*********************************************************************************************
 int32_t IndicationUpdateUserFrame(uint32_t frame_idx, led_ring_frame_t* frame)
 {
@@ -369,11 +343,6 @@ uint32_t IndicationGetStatusLedsAmount()
 int32_t IndicationInit(){
     int32_t result = ERR_NONE;
     IndicationSetRingType(RING_LED_OFF);
-    
-    if (xTaskCreate(&Indication_xTask, "Indication", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY, &xIndicationTask) != pdPASS)
-    {
-        result = ERR_FAILURE;
-    }
 
     return result;}
 //*********************************************************************************************
