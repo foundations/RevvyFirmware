@@ -23,6 +23,7 @@
 #include "components/BrainStatusIndicator/BrainStatusIndicator.h"
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryIndicator/BatteryIndicator.h"
+#include "components/RingLedDisplay/RingLedDisplay.h"
 
 #include <math.h>
 
@@ -191,8 +192,6 @@ int32_t RRRC_Init(void)
             return result;
     }
 
-    //result = IndicationInit();
-
     result = RRRC_Communication_Init();
 
     if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
@@ -218,8 +217,6 @@ int32_t RRRC_DeInit(void)
     for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
         MotorPortDeInit(idx);
 
-    //IndicationDeInit();
-
     return ERR_NONE;
 }
 
@@ -240,6 +237,7 @@ static void ProcessTasks_20ms(void)
         taskEXIT_CRITICAL();
     }
 
+    RingLedDisplay_Run_Update();
     LEDController_Run_Update();
 }
 
@@ -279,6 +277,8 @@ void RRRC_ProcessLogic_xTask(void* user)
 
     BatteryCalculator_Run_OnInit(&motorBattery);
     BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
+
+    RingLedDisplay_Run_OnInit();
 
     BatteryCharger_Run_EnableFastCharge();
 
@@ -335,6 +335,7 @@ void ADC_Write_Samples_ADC1(float samples[5])
 }
 
 static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
+static rgb_t ringLeds[RING_LEDS_AMOUNT] = { 0 };
 
 rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
 {
@@ -350,7 +351,14 @@ rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
 
 rgb_t LEDController_Read_RingLED(uint32_t led_idx)
 {
-    return (rgb_t){0, 0, 0};
+    if (led_idx >= ARRAY_SIZE(ringLeds))
+    {
+        return (rgb_t) LED_OFF;
+    }
+    else
+    {
+        return ringLeds[led_idx];
+    }
 }
 
 #define MAIN_BATTERY_INDICATOR_LED  0
@@ -464,6 +472,8 @@ BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context
     {
         ASSERT(0);
     }
+
+    return BatteryStatus_NotPresent;
 }
 
 void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t color)
@@ -480,4 +490,10 @@ void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t 
     {
         ASSERT(0);
     }
+}
+
+void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
+{
+    ASSERT(led_idx < RING_LEDS_AMOUNT);
+    ringLeds[led_idx] = color;
 }

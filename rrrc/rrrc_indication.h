@@ -66,25 +66,9 @@ typedef enum INDICATON_RING_TYPE
 
 #define LED_HSV_CYAN    0, 100, 10
 
-typedef rgb_t led_val_t, *p_led_val_t, led_ring_frame_t[RING_LEDS_AMOUNT];
-
-typedef struct 
-{
-    led_val_t base_color;
-    led_val_t blink_color;
-    uint32_t blink_period;
-    uint32_t blink_length;
-    uint32_t blink_counter;
-} led_t, led_status_t[STATUS_LEDS_AMOUNT];
-
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();
 
-int32_t IndicationUpdateUserFrame(uint32_t frame_idx, led_ring_frame_t* frame);
-int32_t IndicationSetStatusLed(uint32_t stled_idx, p_led_val_t led_val);
 int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type);
-
-int32_t IndicationInit();
-int32_t IndicationDeInit();
 
 #endif /* RRRC_INDICATION_H_ */

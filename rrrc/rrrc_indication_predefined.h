@@ -10,6 +10,7 @@
 #define RRRC_INDICATION_PREDEFINED_H_
 
 #include "rrrc_indication.h"
+#include "components/RingLedDisplay/RingLedDisplay.h"
 
 static led_ring_frame_t ring_leds_round_red[] =
 {

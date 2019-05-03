@@ -16,6 +16,8 @@
 #include "../rrrc_indication.h"
 #include "../utils/converter.h"
 
+#include "../components/RingLedDisplay/RingLedDisplay.h"
+
 #include <string.h>
 
 /* Misc */
@@ -252,23 +254,23 @@ static RRRC_I2C_Status_t Command_Indication_SetRingUserFrame(const request_t* re
 {
     uint32_t frame_idx = request->buffer[0];
     led_ring_frame_t* led_frame = (led_ring_frame_t*) &request->buffer[1];
-    uint32_t status = IndicationUpdateUserFrame(frame_idx, led_frame);
+    bool success = RingLedDisplay_Run_AddUserFrame(led_frame, RING_LEDS_AMOUNT);
 
-    if (status != ERR_NONE)
+    if (success)
     {
-        return RRRC_I2C_STATUS_ERROR_OTHER;
+        return RRRC_I2C_STATUS_OK;
     }
     else
     {
-        return RRRC_I2C_STATUS_OK;
+        return RRRC_I2C_STATUS_ERROR_OTHER;
     }
 }
 
 static RRRC_I2C_Status_t Command_Indication_SetStatusLed(const request_t* request, response_t* response)
 {
     uint32_t led_idx = request->buffer[0];
-    p_led_val_t led_rgb = (p_led_val_t) &request->buffer[1];
-    uint32_t status = IndicationSetStatusLed(led_idx, led_rgb);
+    //p_led_val_t led_rgb = (p_led_val_t) &request->buffer[1];
+    int32_t status = ERR_NONE;//IndicationSetStatusLed(led_idx, led_rgb);
     
     if (status != ERR_NONE)
     {
@@ -457,7 +459,7 @@ static const CommandHandler_t commandHandlers[RRRC_I2C_COMMAND_COUNT] =
     [RRRC_I2C_CMD_INDICATION_GET_STATUS_LEDS_AMOUNT] = { .handler = &Command_Indication_GetStatusLedAmount, .minPayloadLength = 0u, .maxPayloadLength = 0u },
     [RRRC_I2C_CMD_INDICATION_SET_RING_SCENARIO]      = { .handler = &Command_Indication_SetRingScenario,    .minPayloadLength = 1u, .maxPayloadLength = 1u },
     [RRRC_I2C_CMD_INDICATION_SET_RING_USER_FRAME]    = { .handler = &Command_Indication_SetRingUserFrame,   .minPayloadLength = 1u + sizeof(led_ring_frame_t), .maxPayloadLength = 1u + sizeof(led_ring_frame_t) },
-    [RRRC_I2C_CMD_INDICATION_SET_STATUS_LED]         = { .handler = &Command_Indication_SetStatusLed,       .minPayloadLength = 1u + sizeof(led_val_t),        .maxPayloadLength = 1u + sizeof(led_val_t) },
+    [RRRC_I2C_CMD_INDICATION_SET_STATUS_LED]         = { .handler = &Command_Indication_SetStatusLed,       .minPayloadLength = 1u/* + sizeof(led_val_t)*/,        .maxPayloadLength = 1u/* + sizeof(led_val_t)*/ },
 
     /* Long commands */
     [RRRC_I2C_CMD_LONG_COMMAND_START]      = { .handler = &LongCommand_Start,     .minPayloadLength = 1u, .maxPayloadLength = 255u },
