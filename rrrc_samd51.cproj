@@ -1224,6 +1224,12 @@
     <Compile Include="rrrc\components\BatteryCharger\BatteryCharger.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\BluetoothIndicator\BluetoothIndicator.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\BluetoothIndicator\BluetoothIndicator.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\InternalTemperatureSensor\InternalTemperatureSensor.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1434,6 +1440,7 @@
     <Folder Include="rrrc\components\ADC" />
     <Folder Include="rrrc\components\InternalTemperatureSensor" />
     <Folder Include="rrrc\components\LEDController" />
+    <Folder Include="rrrc\components\BluetoothIndicator" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\communication" />
     <Folder Include="rrrc\components" />

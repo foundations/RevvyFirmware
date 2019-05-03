@@ -19,6 +19,7 @@
 #include "components/BatteryCharger/BatteryCharger.h"
 #include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
 #include "components/LEDController/LEDController.h"
+#include "components/BluetoothIndicator/BluetoothIndicator.h"
 
 #include <math.h>
 
@@ -228,7 +229,7 @@ static void ProcessTasks_20ms(void)
 
 static void ProcessTasks_100ms(void)
 {
-
+    BluetoothIndicator_Run_Update();
 }
 
 //*********************************************************************************************
@@ -237,6 +238,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     ADC_Run_OnInit();
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
+    BluetoothIndicator_Run_OnInit();
 
     BatteryCharger_Run_EnableFastCharge();
 
@@ -289,12 +291,28 @@ void ADC_Write_Samples_ADC1(float samples[5])
     SystemMonitor_Update(&sysmon);
 }
 
+static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
+
 rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
 {
-    return (rgb_t) LED_GREEN;
+    if (led_idx >= ARRAY_SIZE(statusLeds))
+    {
+        return (rgb_t) LED_OFF;
+    }
+    else
+    {
+        return statusLeds[led_idx];
+    }
 }
 
 rgb_t LEDController_Read_RingLED(uint32_t led_idx)
 {
     return (rgb_t){0, 0, 0};
+}
+
+#define BLUETOOTH_INDICATOR_LED 2
+
+void BluetoothIndicator_Write_LedColor(rgb_t color)
+{
+    statusLeds[BLUETOOTH_INDICATOR_LED] = color;
 }
