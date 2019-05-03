@@ -58,7 +58,7 @@ typedef enum INDICATON_RING_TYPE
 #define LED_GREEN   { 0x00,           LED_BRIGHT,     0x00           }
 #define LED_BLUE    { 0x00,           0x00,           LED_BRIGHT     }
 #define LED_YELLOW  { LED_BRIGHT,     LED_BRIGHT,     0x00           }
-#define LED_ORANGE  { LED_BRIGHT,     LED_BRIGHT / 2, 0x00           }
+#define LED_ORANGE  { LED_BRIGHT,     LED_BRIGHT / 3, 0x00           }
 #define LED_CYAN    { 0x00,           LED_BRIGHT,     LED_BRIGHT     }
 #define LED_MAGENTA { LED_BRIGHT,     0x00,           LED_BRIGHT     }
 #define LED_WHITE   { LED_BRIGHT / 4, LED_BRIGHT / 4, LED_BRIGHT / 4 }

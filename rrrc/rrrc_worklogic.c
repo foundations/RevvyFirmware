@@ -20,10 +20,26 @@
 #include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
 #include "components/LEDController/LEDController.h"
 #include "components/BluetoothIndicator/BluetoothIndicator.h"
+#include "components/BrainStatusIndicator/BrainStatusIndicator.h"
+#include "components/BatteryCalculator/BatteryCalculator.h"
+#include "components/BatteryIndicator/BatteryIndicator.h"
 
 #include <math.h>
 
 static TaskHandle_t xRRRC_Main_xTask;
+
+static BatteryCalculator_Context_t mainBattery;
+static BatteryCalculator_Context_t motorBattery;
+
+static BatteryIndicator_Context_t mainBatteryIndicator;
+static BatteryIndicator_Context_t motorBatteryIndicator;
+
+static bool mainBatteryDetected;
+static bool motorBatteryDetected;
+static float mainBatteryVoltage;
+static float motorBatteryVoltage;
+static uint8_t mainBatteryPercentage;
+static uint8_t motorBatteryPercentage;
 
 extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
 extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
@@ -52,7 +68,7 @@ static void SensorsPinsInit()
     {
         gpio_set_pin_pull_mode(sensor_ports[idx].gpio0_num, GPIO_PULL_OFF);
         gpio_set_pin_direction(sensor_ports[idx].gpio0_num, GPIO_DIRECTION_IN);
-        gpio_set_pin_function(sensor_ports[idx].gpio0_num, GPIO_PIN_FUNCTION_A);        
+        gpio_set_pin_function(sensor_ports[idx].gpio0_num, GPIO_PIN_FUNCTION_A);
     }
 
     //gpio1 - out
@@ -229,7 +245,14 @@ static void ProcessTasks_20ms(void)
 
 static void ProcessTasks_100ms(void)
 {
+    BatteryCalculator_Run_Update(&mainBattery);
+    BatteryCalculator_Run_Update(&motorBattery);
+
+    BatteryIndicator_Run_Update(&mainBatteryIndicator);
+    BatteryIndicator_Run_Update(&motorBatteryIndicator);
+
     BluetoothIndicator_Run_Update();
+    BrainStatusIndicator_Run_Update();
 }
 
 //*********************************************************************************************
@@ -239,6 +262,23 @@ void RRRC_ProcessLogic_xTask(void* user)
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
     BluetoothIndicator_Run_OnInit();
+    BrainStatusIndicator_Run_OnInit();
+    
+    /* 1 cell LiPoly */
+    mainBattery.detectionVoltage = 2000.0f;
+    mainBattery.minVoltage = 3100.0f;
+    mainBattery.maxVoltage = 4100.0f;
+
+    BatteryCalculator_Run_OnInit(&mainBattery);
+    BatteryIndicator_Run_OnInit(&mainBatteryIndicator);
+    
+    /* 6xAAA rechargable */
+    motorBattery.detectionVoltage = 4000.0f;
+    motorBattery.minVoltage = 5400.0f;
+    motorBattery.maxVoltage = 7000.0f;
+
+    BatteryCalculator_Run_OnInit(&motorBattery);
+    BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
 
     BatteryCharger_Run_EnableFastCharge();
 
@@ -287,6 +327,9 @@ void ADC_Write_Samples_ADC1(float samples[5])
     sysmon.battery_voltage = (uint32_t) lroundf(samples[SYSMON_ADC_BATTERY_VOLTAGE] * (340.0f / 240.0f));
     sysmon.motor_current   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_CURRENT]);
     InternalTemperatureSensor_Run_Convert(samples[SYSMON_ADC_TEMPERATURE_P], samples[SYSMON_ADC_TEMPERATURE_C], &sysmon.temperature);
+    
+    mainBatteryVoltage = sysmon.battery_voltage;
+    motorBatteryVoltage = sysmon.motor_voltage;
 
     SystemMonitor_Update(&sysmon);
 }
@@ -310,9 +353,131 @@ rgb_t LEDController_Read_RingLED(uint32_t led_idx)
     return (rgb_t){0, 0, 0};
 }
 
-#define BLUETOOTH_INDICATOR_LED 2
+#define MAIN_BATTERY_INDICATOR_LED  0
+#define MOTOR_BATTERY_INDICATOR_LED 1
+#define BLUETOOTH_INDICATOR_LED     2
+#define STATUS_INDICATOR_LED        3
 
 void BluetoothIndicator_Write_LedColor(rgb_t color)
 {
     statusLeds[BLUETOOTH_INDICATOR_LED] = color;
+}
+
+void BrainStatusIndicator_Write_LedColor(rgb_t color)
+{
+    statusLeds[STATUS_INDICATOR_LED] = color;
+}
+
+float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
+{
+    if (context == &mainBattery)
+    {
+        return mainBatteryVoltage;
+    }
+    else if (context == &motorBattery)
+    {
+        return motorBatteryVoltage;
+    }
+    else
+    {
+        ASSERT(0);
+    }
+
+    return 0.0f;
+}
+
+void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, uint8_t percent)
+{
+    if (context == &mainBattery)
+    {
+        mainBatteryPercentage = percent;
+    }
+    else if (context == &motorBattery)
+    {
+        motorBatteryPercentage = percent;
+    }
+    else
+    {
+        ASSERT(0);
+    }
+}
+
+void BatteryCalculator_Write_BatteryPresent(BatteryCalculator_Context_t* context, bool present)
+{
+    if (context == &mainBattery)
+    {
+        mainBatteryDetected = present;
+    }
+    else if (context == &motorBattery)
+    {
+        motorBatteryDetected = present;
+    }
+    else
+    {
+        ASSERT(0);
+    }
+}
+
+uint8_t BatteryIndicator_Read_Percentage(BatteryIndicator_Context_t* context)
+{
+    if (context == &mainBatteryIndicator)
+    {
+        return mainBatteryPercentage;
+    }
+    else if (context == &motorBatteryIndicator)
+    {
+        return motorBatteryPercentage;
+    }
+    else
+    {
+        ASSERT(0);
+    }
+
+    return 0u;
+}
+
+BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context)
+{
+    if (context == &mainBatteryIndicator)
+    {
+        if (mainBatteryDetected)
+        {
+            if (BatteryCharger_Run_GetChargerState() == ChargerState_Charging)
+            {
+                return BatteryStatus_Charging;
+            }
+            else
+            {
+                return BatteryStatus_Present;
+            }
+        }
+        else
+        {
+            return BatteryStatus_NotPresent;
+        }
+    }
+    else if (context == &motorBatteryIndicator)
+    {
+        return motorBatteryDetected ? BatteryStatus_Present : BatteryStatus_NotPresent;
+    }
+    else
+    {
+        ASSERT(0);
+    }
+}
+
+void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t color)
+{
+    if (context == &mainBatteryIndicator)
+    {
+        statusLeds[MAIN_BATTERY_INDICATOR_LED] = color;
+    }
+    else if (context == &motorBatteryIndicator)
+    {
+        statusLeds[MOTOR_BATTERY_INDICATOR_LED] = color;
+    }
+    else
+    {
+        ASSERT(0);
+    }
 }
