@@ -44,9 +44,6 @@ extern "C" {
 
 #define SERCOM2_I2CS_BUFFER_SIZE 128
 
-extern struct adc_async_descriptor ADC_0;
-extern struct adc_async_descriptor ADC_1;
-
 extern struct i2c_s_async_descriptor I2C_0;
 // extern struct i2c_m_async_desc I2C_1;
 // extern struct i2c_m_async_desc I2C_2;
@@ -75,8 +72,6 @@ extern struct timer_descriptor TIMER_TCC3;
 extern struct timer_descriptor TIMER_TCC4;
 
 extern struct wdt_descriptor WDT_0;
-
-extern struct spi_m_dma_descriptor  SPI_0;
 
 
 void system_init(void);

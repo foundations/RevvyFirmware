@@ -26,10 +26,10 @@
 #define ADC_0_CH_MAX 15
 #define ADC_1_CH_MAX 0x1D
 
-struct adc_async_descriptor         ADC_0;
-struct adc_async_descriptor         ADC_1;
-struct adc_async_channel_descriptor ADC_0_ch[ADC_0_CH_AMOUNT];
-struct adc_async_channel_descriptor ADC_1_ch[ADC_1_CH_AMOUNT];
+static struct adc_async_descriptor         ADC_0;
+static struct adc_async_descriptor         ADC_1;
+static struct adc_async_channel_descriptor ADC_0_ch[ADC_0_CH_AMOUNT];
+static struct adc_async_channel_descriptor ADC_1_ch[ADC_1_CH_AMOUNT];
 
 //static uint8_t ADC_0_buffer[ADC_0_BUFFER_SIZE];
 //static uint8_t ADC_1_buffer[ADC_1_BUFFER_SIZE];

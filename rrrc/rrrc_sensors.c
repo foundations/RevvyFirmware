@@ -16,6 +16,8 @@
 #include "sensors/sensor_HC_SR05.h"
 #include "sensors/sensor_i2chub.h"
 
+#include <string.h>
+
 p_sensor_lib_entry_t sensor_libs[] =
 {
 	&sensor_dummy,
@@ -36,7 +38,7 @@ hw_sensor_port_t sensor_ports[] =
 		.i2c_sda = S0I2Csda,
 		.i2c_scl = S0I2Cscl,
 
-		.ADC = &ADC_0,
+		.ADC = 0,
 		.adc_chan_idx = 0,
 		.adc_gpio = S0ADC,
 
@@ -57,7 +59,7 @@ hw_sensor_port_t sensor_ports[] =
 		.i2c_sda = S1I2Csda,
 		.i2c_scl = S1I2Cscl,
 
-		.ADC = &ADC_0,
+		.ADC = 0,
 		.adc_chan_idx = 1,
 		.adc_gpio = S1ADC,
 
@@ -78,7 +80,7 @@ hw_sensor_port_t sensor_ports[] =
 		.i2c_sda = S2I2Csda,
 		.i2c_scl = S2I2Cscl,
 
-		.ADC = &ADC_0,
+		.ADC = 0,
 		.adc_chan_idx = 10,
 		.adc_gpio = S2ADC,
 
@@ -100,7 +102,7 @@ hw_sensor_port_t sensor_ports[] =
 		.i2c_sda = S3I2Csda,
 		.i2c_scl = S3I2Cscl,
 
-		.ADC = &ADC_0,
+		.ADC = 0,
 		.adc_chan_idx = 11,
 		.adc_gpio = S3ADC,
 		
@@ -255,14 +257,18 @@ static void SensorPort_gpio0_ext_cb(const void* port)
 //*********************************************************************************************
 uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size)
 {
-	p_hw_sensor_port_t sensport = port;
-	if (sensport == NULL)
-		return;
+    int32_t result = ERR_INVALID_ARG;
 
-	if (sensport->sensor_lib && sensport->sensor_lib->write_data)
-		sensport->sensor_lib->write_data(sensport, data, size);
+    p_hw_sensor_port_t sensport = port;
+    if (sensport != NULL)
+    {
+        if (sensport->sensor_lib && sensport->sensor_lib->write_data)
+        {
+            result = sensport->sensor_lib->write_data(sensport, data, size);
+        }
+    }
 
-	return;
+    return result;
 }
 
 //*********************************************************************************************
