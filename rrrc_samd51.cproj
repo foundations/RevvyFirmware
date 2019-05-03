@@ -612,12 +612,6 @@
     <Compile Include="driver_init.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="examples\driver_examples.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="examples\driver_examples.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="freertos\FreeRTOSV10.0.0\hal_rtos.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1402,7 +1396,6 @@
   <ItemGroup>
     <Folder Include="Config\" />
     <Folder Include="Device_Startup\" />
-    <Folder Include="examples\" />
     <Folder Include="hal\" />
     <Folder Include="hal\include\" />
     <Folder Include="hal\src\" />
