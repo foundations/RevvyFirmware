@@ -1991,12 +1991,16 @@ static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
 
 	if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
 		hri_sercomi2cs_clear_INTFLAG_ERROR_bit(hw);
- 		if (device->cb.error_cb);
- 			device->cb.error_cb(device);
+ 		if (device->cb.error_cb)
+ 		{
+            device->cb.error_cb(device);
+        }
 	} else if (flags & SERCOM_I2CS_INTFLAG_PREC) {
         if (device->cb.stop_cb)
+        {
             device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
-		hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
+        }
+        hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
 	} else if (flags & SERCOM_I2CS_INTFLAG_AMATCH) {
         if (device->cb.addrm_cb)
         {
