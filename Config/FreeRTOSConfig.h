@@ -13,6 +13,10 @@ void assert_triggered(const char *file, uint32_t line);
 
 #include <peripheral_clk_config.h>
 
+/* Higher number means higher priority */
+#define taskPriority_Main           1
+#define taskPriority_Communication  2
+
 // <h> Basic
 
 #ifndef configCPU_CLOCK_HZ

@@ -31,11 +31,6 @@ struct timer_descriptor TIMER_TCC2;
 struct timer_descriptor TIMER_TCC3;
 struct timer_descriptor TIMER_TCC4;
 
-
-struct adc_async_descriptor ADC_0;
-struct adc_async_descriptor ADC_1;
-
-
 struct i2c_s_async_descriptor I2C_0;
 uint8_t                       SERCOM2_i2c_s_buffer[SERCOM2_I2CS_BUFFER_SIZE];
 // struct i2c_m_async_desc I2C_1;

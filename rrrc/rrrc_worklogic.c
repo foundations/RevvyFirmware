@@ -194,7 +194,7 @@ int32_t RRRC_Init(void)
 
     result = RRRC_Communication_Init();
 
-    if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, tskIDLE_PRIORITY+1, &xRRRC_Main_xTask))
+    if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, taskPriority_Main, &xRRRC_Main_xTask))
     {
         return ERR_FAILURE;
     }

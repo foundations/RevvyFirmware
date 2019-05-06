@@ -16,6 +16,7 @@ extern void rrrc_i2c_transmit(size_t size);
 
 void RRRC_Communication_xTask(void* user_data)
 {
+    i2c_s_async_enable(&I2C_0);
     for(;;)
     {
         if (ulTaskNotifyTake(pdTRUE, rtos_ms_to_ticks(100u)) == 0u)
@@ -35,13 +36,9 @@ void RRRC_Communication_xTask(void* user_data)
 int32_t RRRC_Communication_Init(void)
 {
     int32_t ret = ERR_NONE;
-    if (xTaskCreate(&RRRC_Communication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, tskIDLE_PRIORITY + 2, &xCommunicationTask) != pdPASS)
+    if (xTaskCreate(&RRRC_Communication_xTask, "RPiComm", 1024 / sizeof(portSTACK_TYPE), NULL, taskPriority_Communication, &xCommunicationTask) != pdPASS)
     {
         ret = ERR_FAILURE;
-    }
-    else
-    {
-        i2c_s_async_enable(&I2C_0);
     }
 
     return ret;
