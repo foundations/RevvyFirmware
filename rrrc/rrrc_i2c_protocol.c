@@ -26,7 +26,7 @@ void RRRC_Communication_xTask(void* user_data)
         else
         {
             size_t size = CommandHandler_Handle((const commandBuffer_t*) rx_buffer.buff, (responseBuffer_t*) tx_buffer.buff);
-        
+
             rrrc_i2c_transmit(size);
             rx_buffer.size = 0u;
         }
