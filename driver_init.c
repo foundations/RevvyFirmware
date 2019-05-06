@@ -31,7 +31,6 @@ struct timer_descriptor TIMER_TCC2;
 struct timer_descriptor TIMER_TCC3;
 struct timer_descriptor TIMER_TCC4;
 
-struct i2c_s_async_descriptor I2C_0;
 uint8_t                       SERCOM2_i2c_s_buffer[SERCOM2_I2CS_BUFFER_SIZE];
 // struct i2c_m_async_desc I2C_1;
 // struct i2c_m_async_desc I2C_2;
@@ -47,12 +46,6 @@ struct i2c_m_sync_desc        I2C_4;
 
 struct wdt_descriptor WDT_0;
 
-extern void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device);
-extern void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data);
-extern void rrrc_i2c_s_async_error(struct _i2c_s_async_device *const device);
-extern void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir);
-extern void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir);
-
 //*********************************************************************************************
 void EXTERNAL_IRQ_0_init(void)
 {
@@ -67,27 +60,6 @@ static void TIMER_RTC_init(void)
 {
     hri_mclk_set_APBAMASK_RTC_bit(MCLK);
     timer_init(&TIMER_RTC, RTC, _rtc_get_timer());
-}
-
-//*********************************************************************************************
-void I2C_0_init(void)
-{
-    hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_CORE, CONF_GCLK_SERCOM2_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_SLOW, CONF_GCLK_SERCOM2_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    hri_mclk_set_APBBMASK_SERCOM2_bit(MCLK);
-
-    gpio_set_pin_pull_mode(I2C0_SDApin, GPIO_PULL_OFF);
-    gpio_set_pin_function(I2C0_SDApin, I2C0_SDApin_function);
-    gpio_set_pin_pull_mode(I2C0_SCLpin, GPIO_PULL_OFF);
-    gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
-
-    i2c_s_async_init(&I2C_0, I2C0_SERCOM);
-
-    I2C_0.device.cb.addrm_cb   = rrrc_i2c_s_async_addr_match;
-    I2C_0.device.cb.tx_cb      = rrrc_i2c_s_async_tx;
-    I2C_0.device.cb.rx_done_cb = rrrc_i2c_s_async_byte_received;
-    I2C_0.device.cb.stop_cb    = rrrc_i2c_s_async_stop;
-    I2C_0.device.cb.error_cb   = rrrc_i2c_s_async_error;
 }
 
 //*********************************************************************************************
@@ -312,8 +284,6 @@ void system_init(void)
 
     TIMER_RTC_init();
     
-    I2C_0_init();
-
     I2C_1_init();
 
     I2C_2_init();
