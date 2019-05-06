@@ -1212,6 +1212,12 @@
     <Compile Include="rrrc\communication\command_handler.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\communication\CommunicationManager.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\communication\CommunicationManager.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\ADC\adc.c">
       <SubType>compile</SubType>
     </Compile>
