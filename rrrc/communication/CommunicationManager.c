@@ -105,7 +105,7 @@ size_t Comm_Handle(const Comm_Command_t* command, Comm_Response_t* response, siz
         switch (command->operation)
         {
             case Comm_Operation_Cancel:
-                resultStatus = _handleOperation_Cancel();
+                resultStatus = _handleOperation_Cancel(command);
                 break;
 
             case Comm_Operation_Start:
@@ -113,7 +113,7 @@ size_t Comm_Handle(const Comm_Command_t* command, Comm_Response_t* response, siz
                 break;
 
             case Comm_Operation_Restart:
-                (void) _handleOperation_Cancel();
+                (void) _handleOperation_Cancel(command);
                 resultStatus = _handleOperation_Start(command, (uint8_t*) response->payload, payloadBufferSize, &payloadSize);
                 break;
 
