@@ -136,55 +136,6 @@ typedef enum
     RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT  = RRRC_I2C_STATUS_ERROR
 } RRRC_I2C_Status_t;
 
-// typedef union _port_config_t
-// {
-//     struct sensor
-//     {
-//         uint8_t port_num;
-//         uint8_t dev_type;
-//     }
-//     struct motor
-//     {
-//         uint8_t port_num;
-//         uint8_t dev_type;
-//     }
-//     uint16_t config;
-// }sensport_config_t, *psensport_config_t, motorport_config_t, *pmotorport_config_t;
-
-static uint8_t calcCRC(uint8_t* buff, uint8_t size)
-{
-    if ( (buff==NULL) )
-        return 0;
-
-    return 0;
-
-//     uint8_t crc = 0;
-//     for (uint8_t idx=0;idx<size;idx++)
-//     {
-//         crc += buff[idx];
-//     }
-// 
-//     crc ^= 0x55;
-// 
-//     return crc;
-}
-
-//=============================================================================================
-static uint8_t checkCRC(uint8_t* buff)
-{
-    if (buff==NULL)
-        return 0;
-
-    return 1;
-//     if ( calcCRC(buff->data, buff->data_length) ==  buff->data_crc)
-//     return 1; //OK
-//     else
-//     return 0; //BAD
-}
-
-
-
-
 #ifdef __cplusplus
 
 #include <iostream>

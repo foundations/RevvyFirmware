@@ -9,8 +9,10 @@
 #ifndef UTILS_FUNCTIONS_H_
 #define UTILS_FUNCTIONS_H_
 
+#include <stdio.h>
 #include <float.h>
 
 float map(float in, float min_in, float max_in, float min_out, float max_out);
+uint32_t SwapEndian(uint32_t dig);
 
 #endif /* UTILS_FUNCTIONS_H_ */

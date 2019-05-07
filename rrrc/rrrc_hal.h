@@ -36,12 +36,6 @@ void high_res_timer_init(struct timer_descriptor* timer);
 uint32_t high_res_timer_get_count(void);
 uint32_t high_res_timer_ticks_per_ms(void);
 
-static uint32_t SwapEndian(uint32_t dig)
-{
-    uint8_t *c = (uint8_t *) &dig;
-    return * (uint32_t *) (uint8_t[]) {c[3], c[2], c[1], c[0] };
-}
-
 static inline uint32_t rtos_get_ticks_in_ms()
 {
 	//uint32_t ticks = xTaskGetTickCount();
