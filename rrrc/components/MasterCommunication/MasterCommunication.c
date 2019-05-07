@@ -9,6 +9,21 @@
 
 static uint8_t responseBuffer[256];
 
+static const uint8_t defaultResponse[] = {};
+static const uint8_t longRxErrorResponse[] = {};
+
+void MasterCommunication_Run_GetDefaultResponse(uint8_t** defaultResponseBuffer, size_t* defaultResponseLength)
+{
+    *defaultResponseBuffer = defaultResponse;
+    *defaultResponseLength = sizeof(defaultResponse);
+}
+
+void MasterCommunication_Run_GetLongRxErrorResponse(uint8_t** longRxErrorResponseBuffer, size_t* longRxErrorResponseLength)
+{
+    *longRxErrorResponseBuffer = longRxErrorResponse;
+    *longRxErrorResponseLength = sizeof(longRxErrorResponse);
+}
+
 void MasterCommunication_Run_OnInit(const Comm_CommandHandler_t* commandTable, size_t commandTableSize)
 {
     Comm_Init(commandTable, commandTableSize);
