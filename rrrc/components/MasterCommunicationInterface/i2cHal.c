@@ -6,6 +6,7 @@
  */ 
 
 #include "i2cHal.h"
+#include "utils_assert.h"
 
 #define I2C_DIR_MASTER_TX  0u
 #define I2C_DIR_MASTER_RX  1u
@@ -34,8 +35,6 @@ int32_t i2c_hal_init(i2c_hal_descriptor* descr, void* hw)
         descr->rxBuffer = NULL;
         descr->rxBufferSize = 0u;
         descr->rxBufferCount = 0u;
-
-        ASSERT(descr);
 
         result = _i2c_s_async_enable(&descr->device);
         if (result == ERR_NONE)
@@ -71,6 +70,12 @@ void i2c_hal_set_tx_buffer(i2c_hal_descriptor* descr, const uint8_t* buffer, siz
     descr->nextTxBufferSize = 0u;
     descr->nextTxBuffer = buffer;
     descr->nextTxBufferSize = bufferSize;
+}
+
+__attribute__((weak))
+void i2c_hal_rx_started(i2c_hal_descriptor* descr)
+{
+
 }
 
 __attribute__((weak))

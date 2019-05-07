@@ -31,6 +31,8 @@ typedef struct
 int32_t i2c_hal_init(i2c_hal_descriptor* descr, void* hw);
 void i2c_hal_receive(i2c_hal_descriptor* descr, uint8_t* buffer, size_t bufferSize);
 void i2c_hal_set_tx_buffer(i2c_hal_descriptor* descr, const uint8_t* buffer, size_t bufferSize);
+
+void i2c_hal_rx_started(i2c_hal_descriptor* descr);
 void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_t bufferSize, size_t bytesReceived);
 
 #endif /* I2CHAL_H_ */

@@ -48,6 +48,7 @@ extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
 extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
 
 static const Comm_CommandHandler_t communicationHandlers[] = {};
+static const MasterCommunicationInterface_Config_t communicationConfig = {};
 
 void RRRC_ProcessLogic_xTask(void* user_data);
 
@@ -266,6 +267,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     BluetoothIndicator_Run_OnInit();
     BrainStatusIndicator_Run_OnInit();
 
+    MasterCommunicationInterface_Run_OnInit(&communicationConfig);
     MasterCommunication_Run_OnInit(&communicationHandlers[0], ARRAY_SIZE(communicationHandlers));
     
     /* 1 cell LiPoly */

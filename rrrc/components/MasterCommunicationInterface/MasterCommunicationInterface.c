@@ -25,7 +25,7 @@ static i2c_hal_descriptor I2C_0;
 const MasterCommunicationInterface_Config_t* config;
 
 //*********************************************************************************************
-static void I2C_0_init(i2c_hal_descriptor* descriptor)
+static int32_t I2C_0_init(i2c_hal_descriptor* descriptor)
 {
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_CORE, CONF_GCLK_SERCOM2_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_SLOW, CONF_GCLK_SERCOM2_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
@@ -36,14 +36,14 @@ static void I2C_0_init(i2c_hal_descriptor* descriptor)
     gpio_set_pin_pull_mode(I2C0_SCLpin, GPIO_PULL_OFF);
     gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
 
-    i2c_hal_init(descriptor, I2C0_SERCOM);
+    return i2c_hal_init(descriptor, I2C0_SERCOM);
 }
 
 static void CommunicationTask(void* user_data)
 {
-    config = user_data;
+    config = (const MasterCommunicationInterface_Config_t*) user_data;
 
-    I2C_0_init(&I2C_0);
+    (void) I2C_0_init(&I2C_0);
 
     for(;;)
     {
