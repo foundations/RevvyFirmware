@@ -15,7 +15,7 @@
 typedef enum 
 {
     Comm_Status_Ok,      /* operation executed successfully, response may contain payload */
-    Comm_Status_Busy,    /* a command is currently pending, can't start a new one */
+    Comm_Status_Busy,    /* command handler is not ready with a response yet */
     Comm_Status_Pending, /* command execution is in progress, no data supplied */
     
     Comm_Status_Error_UnknownOperation,
@@ -50,6 +50,14 @@ typedef struct
     Comm_Status_t status;
     uint8_t payloadLength;
     uint16_t checksum;
+}
+__attribute__((packed)) Comm_ResponseHeader_t;
+
+typedef struct
+{
+    Comm_Status_t status;
+    uint8_t payloadLength;
+    uint16_t checksum;
     uint8_t payload[];
 }
 __attribute__((packed)) Comm_Response_t;
@@ -59,16 +67,16 @@ __attribute__((packed)) Comm_Response_t;
  *
  * Command handlers are called by Comm_Handle and run in the communication thread context, in parallel with other application logic
  */
- typedef Comm_Status_t (*Comm_CommandHandler_Start_t)(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
- typedef Comm_Status_t (*Comm_CommandHandler_GetResult_t)(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
- typedef void (*Comm_CommandHandler_Cancel_t)(void);
+typedef Comm_Status_t (*Comm_CommandHandler_Start_t)(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+typedef Comm_Status_t (*Comm_CommandHandler_GetResult_t)(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+typedef void (*Comm_CommandHandler_Cancel_t)(void);
 
- typedef struct 
- {
-     Comm_CommandHandler_Start_t Start;         /* may be NULL in case of an unimplemented command */
-     Comm_CommandHandler_GetResult_t GetResult; /* may be NULL when command processing is short */
-     Comm_CommandHandler_Cancel_t Cancel;       /* may be NULL */
- } Comm_CommandHandler_t;
+typedef struct 
+{
+    Comm_CommandHandler_Start_t Start;         /* may be NULL in case of an unimplemented command */
+    Comm_CommandHandler_GetResult_t GetResult; /* may be NULL when command processing is short */
+    Comm_CommandHandler_Cancel_t Cancel;       /* may be NULL */
+} Comm_CommandHandler_t;
 
 /**
  * Initialize the communication handler

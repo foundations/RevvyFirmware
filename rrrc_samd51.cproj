@@ -1242,6 +1242,12 @@
     <Compile Include="rrrc\components\BrainStatusIndicator\BrainStatusIndicator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\CommunicationObserver\CommunicationObserver.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\CommunicationObserver\CommunicationObserver.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\InternalTemperatureSensor\InternalTemperatureSensor.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1276,6 +1282,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\MasterCommunication\MasterCommunication.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MasterStatusObserver\MasterStatusObserver.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MasterStatusObserver\MasterStatusObserver.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\RingLedDisplay\RingLedDisplay.c">
@@ -1494,6 +1506,8 @@
     <Folder Include="rrrc\components\BatteryIndicator" />
     <Folder Include="rrrc\components\MasterCommunication" />
     <Folder Include="rrrc\components\MasterCommunicationInterface" />
+    <Folder Include="rrrc\components\CommunicationObserver" />
+    <Folder Include="rrrc\components\MasterStatusObserver" />
     <Folder Include="rrrc\components\RingLedDisplay" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\components" />

@@ -6,26 +6,39 @@
  */ 
 
 #include "MasterCommunication.h"
+#include "utils/crc.h"
 
 static uint8_t responseBuffer[256];
 
-static const uint8_t defaultResponse[] = {};
-static const uint8_t longRxErrorResponse[] = {};
+static Comm_ResponseHeader_t defaultResponse = 
+{
+    .status = Comm_Status_Busy,
+    .payloadLength = 0u
+};
+
+static Comm_ResponseHeader_t longRxErrorResponse = 
+{
+    .status = Comm_Status_Error_PayloadLengthError,
+    .payloadLength = 0u
+};
 
 void MasterCommunication_Run_GetDefaultResponse(uint8_t** defaultResponseBuffer, size_t* defaultResponseLength)
 {
-    *defaultResponseBuffer = defaultResponse;
+    *defaultResponseBuffer = (uint8_t*) &defaultResponse;
     *defaultResponseLength = sizeof(defaultResponse);
 }
 
 void MasterCommunication_Run_GetLongRxErrorResponse(uint8_t** longRxErrorResponseBuffer, size_t* longRxErrorResponseLength)
 {
-    *longRxErrorResponseBuffer = longRxErrorResponse;
+    *longRxErrorResponseBuffer = (uint8_t*) &longRxErrorResponse;
     *longRxErrorResponseLength = sizeof(longRxErrorResponse);
 }
 
 void MasterCommunication_Run_OnInit(const Comm_CommandHandler_t* commandTable, size_t commandTableSize)
 {
+    defaultResponse.checksum     = CRC16_Calculate(0xFFFFu, (uint8_t*) &defaultResponse, sizeof(Comm_ResponseHeader_t) - sizeof(uint16_t));
+    longRxErrorResponse.checksum = CRC16_Calculate(0xFFFFu, (uint8_t*) &longRxErrorResponse, sizeof(Comm_ResponseHeader_t) - sizeof(uint16_t));
+
     Comm_Init(commandTable, commandTableSize);
 }
 

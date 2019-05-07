@@ -27,6 +27,7 @@
 #include "components/MasterCommunicationInterface/MasterCommunicationInterface.h"
 #include "components/MasterCommunication/MasterCommunication.h"
 #include "components/CommunicationObserver/CommunicationObserver.h"
+#include "components/MasterStatusObserver/MasterStatusObserver.h"
 
 #include <math.h>
 
@@ -45,10 +46,30 @@ static float motorBatteryVoltage;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
+/* TODO these are extern */
 extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
 extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
 
-static const Comm_CommandHandler_t communicationHandlers[] = {};
+static MasterStatus_t masterStatus;
+
+/*
+ 0x0X: basic messages, e.g. dummy ping
+ 0x1X: status messages, e.g. master status, ble status
+*/
+
+Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    return Comm_Status_Ok;
+}
+
+static const Comm_CommandHandler_t communicationHandlers[] = 
+{
+    [0x00u] = { .Start = &PingMessageHandler_Start, .GetResult = NULL, .Cancel = NULL },
+
+    [0x10u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x11u] = { .Start = NULL/*&BluetoothStatusObserver_SetBluetoothStatus_Start*/, .GetResult = NULL, .Cancel = NULL },
+};
+
 static MasterCommunicationInterface_Config_t communicationConfig = 
 {
     .rxTimeout = 100u, /* ms */
@@ -270,12 +291,15 @@ void RRRC_ProcessLogic_xTask(void* user)
     LEDController_Run_OnInit();
     BluetoothIndicator_Run_OnInit();
     BrainStatusIndicator_Run_OnInit();
+    
+    MasterStatusObserver_Run_OnInit();
+
+    MasterCommunication_Run_OnInit(&communicationHandlers[0], ARRAY_SIZE(communicationHandlers));
 
     MasterCommunication_Run_GetDefaultResponse(&communicationConfig.defaultResponseBuffer, &communicationConfig.defaultResponseLength);
     MasterCommunication_Run_GetLongRxErrorResponse(&communicationConfig.longRxErrorResponseBuffer, &communicationConfig.longRxErrorResponseLength);
 
     MasterCommunicationInterface_Run_OnInit(&communicationConfig);
-    MasterCommunication_Run_OnInit(&communicationHandlers[0], ARRAY_SIZE(communicationHandlers));
     
     /* 1 cell LiPoly */
     mainBattery.detectionVoltage = 2000.0f;
@@ -534,4 +558,32 @@ void CommunicationObserver_Call_ErrorThresholdReached(void)
 {
     /* don't try to be clever */
     NVIC_SystemReset();
+}
+
+void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
+{
+    masterStatus = status;
+
+    /* TODO this should be moved to a separate component, probably */
+    switch (status)
+    {
+        default:
+        case MasterStatus_Unknown:
+            portENTER_CRITICAL();
+            statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_RED;
+            portEXIT_CRITICAL();
+            break;
+
+        case MasterStatus_Operational:
+            portENTER_CRITICAL();
+            statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_ORANGE;
+            portEXIT_CRITICAL();
+            break;
+
+        case MasterStatus_Controlled:
+            portENTER_CRITICAL();
+            statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_GREEN;
+            portEXIT_CRITICAL();
+            break;
+    }
 }
