@@ -49,7 +49,7 @@ static const uint8_t crc7_table[256] =
     0x46, 0x4f, 0x54, 0x5d, 0x62, 0x6b, 0x70, 0x79
 };
 
-/* Precomputed CRC16 table with polynomial */
+/* Precomputed CRC16 table with polynomial 0x1021 (CRC-16-CCITT) */
 static const uint16_t crc16_table[256] =
 {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
