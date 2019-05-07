@@ -337,7 +337,7 @@
 // <i> Enables SCL stretching.
 // <id> i2c_slave_sclsm
 #ifndef CONF_SERCOM_2_I2CS_SCLSM
-#define CONF_SERCOM_2_I2CS_SCLSM 1
+#define CONF_SERCOM_2_I2CS_SCLSM 0
 #endif
 
 // <q> General call addressing (GENCEN)
