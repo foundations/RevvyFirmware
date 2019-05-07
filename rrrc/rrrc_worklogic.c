@@ -266,7 +266,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     BluetoothIndicator_Run_OnInit();
     BrainStatusIndicator_Run_OnInit();
 
-    MasterCommunication_Run_OnInit(&communicationHandlers, ARRAY_SIZE(communicationHandlers));
+    MasterCommunication_Run_OnInit(&communicationHandlers[0], ARRAY_SIZE(communicationHandlers));
     
     /* 1 cell LiPoly */
     mainBattery.detectionVoltage = 2000.0f;
@@ -276,7 +276,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     BatteryCalculator_Run_OnInit(&mainBattery);
     BatteryIndicator_Run_OnInit(&mainBatteryIndicator);
     
-    /* 6xAAA rechargable */
+    /* 6xAAA rechargeable */
     motorBattery.detectionVoltage = 4000.0f;
     motorBattery.minVoltage = 5400.0f;
     motorBattery.maxVoltage = 7000.0f;
@@ -506,9 +506,10 @@ void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
 {
+    MasterCommunication_Run_HandleCommand(buffer, bufferSize);
+}
 
-            size_t size = CommandHandler_Handle((const commandBuffer_t*) rx_buffer.buff, (responseBuffer_t*) tx_buffer.buff);
-
-            rrrc_i2c_transmit(size);
-            rx_buffer.size = 0u;
+void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize)
+{
+    MasterCommunicationInterface_Run_SetResponse(responseBuffer, responseSize);
 }

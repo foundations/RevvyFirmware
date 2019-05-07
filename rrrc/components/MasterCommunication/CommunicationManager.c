@@ -14,7 +14,6 @@
 static const Comm_CommandHandler_t* comm_commandTable = NULL;
 static size_t comm_commandTableSize = 0u;
 
-/* private helpers */
 static bool _checkChecksum(const Comm_Command_t* command)
 {
     /* calculate CRC, skipping the CRC field */
@@ -142,12 +141,15 @@ size_t Comm_Handle(const Comm_Command_t* command, Comm_Response_t* response, siz
     /* fill header */
     response->status = resultStatus;
     response->payloadLength = payloadSize;
-    
+
+    return payloadSize + responseHeaderSize;
+}
+
+void Comm_Protect(Comm_Response_t* response)
+{
     /* calculate CRC, skipping the CRC field */
     uint16_t headerCrc = CRC16_Calculate(0xFFFFu, (const uint8_t*) response, sizeof(Comm_Status_t) + sizeof(uint8_t));
     uint16_t messageCrc = CRC16_Calculate(headerCrc, (const uint8_t*) response->payload, response->payloadLength);
 
     response->checksum = messageCrc;
-
-    return payloadSize + responseHeaderSize;
 }

@@ -9,8 +9,10 @@
 #ifndef MASTER_COMMUNICATION_H_
 #define MASTER_COMMUNICATION_H_
 
-#include "../communication/CommunicationManager.h"
+#include "CommunicationManager.h"
 
 void MasterCommunication_Run_OnInit(const Comm_CommandHandler_t* commandTable, size_t commandTableSize);
+void MasterCommunication_Run_HandleCommand(const uint8_t* buffer, size_t bufferSize);
+void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize);
 
 #endif /* MASTER_COMMUNICATION_H_ */

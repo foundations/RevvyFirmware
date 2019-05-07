@@ -12,10 +12,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MAX_TRANSACTION_SIZE 127 /* TODO: do not define twice */
 
 typedef struct
@@ -135,36 +131,5 @@ typedef enum
     RRRC_I2C_STATUS_ERROR_PAYLOAD_LENGTH    = RRRC_I2C_STATUS_ERROR,
     RRRC_I2C_STATUS_ERROR_INVALID_ARGUMENT  = RRRC_I2C_STATUS_ERROR
 } RRRC_I2C_Status_t;
-
-#ifdef __cplusplus
-
-#include <iostream>
-#include <iomanip>
-
-static  std::ostream& operator<<(std::ostream& os, ptransaction_t data)
-{
-    os << std::endl << "  command 0x"  << std::setfill('0') << std::setw(2) << std::hex <<(size_t)data.command;
-    os << std::endl << "  data size "  << std::dec <<(size_t)data.data_length << "bytes";
-    os << std::endl << "  data crc 0x" << std::setfill('0') << std::setw(2) << std::hex <<(size_t)data.data_crc;
-    if (data.data_length && (data.data_length<(MAX_TRANSACTION_SIZE - MIN_TRANSACTION_SIZE)) && checkCRC(&data))
-    {
-        for (size_t high_idx=0; high_idx<data.data_length; high_idx+=8)
-        {
-            os << std::endl << "data: ";
-            for (size_t low_idx=0; low_idx<8 && ((low_idx+high_idx)<data.data_length); low_idx++)
-            os <<" 0x" << std::setfill('0') << std::setw(2) << std::hex << (size_t)data.data[low_idx+high_idx];
-        }
-    }
-    return os;
-}
-#endif
-
-int32_t RRRC_Communication_Init();
-int32_t RRRC_Communication_DeInit();
-void CommunicationTask_NotifyRxCompleteFromISR(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* RRRC_I2C_PROTOCOL_H_ */

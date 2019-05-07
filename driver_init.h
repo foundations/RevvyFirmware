@@ -31,7 +31,6 @@ extern "C" {
 
 #include <hal_i2c_m_sync.h>
 #include <hal_i2c_m_async.h>
-#include <hal_i2c_s_async.h>
 #include <hal_spi_m_dma.h>
 #include <hal_spi_m_sync.h>
 
@@ -44,7 +43,6 @@ extern "C" {
 
 #define SERCOM2_I2CS_BUFFER_SIZE 128
 
-extern struct i2c_s_async_descriptor I2C_0;
 // extern struct i2c_m_async_desc I2C_1;
 // extern struct i2c_m_async_desc I2C_2;
 // extern struct i2c_m_async_desc I2C_3;

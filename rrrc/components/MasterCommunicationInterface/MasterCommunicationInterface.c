@@ -8,25 +8,24 @@
 #include "MasterCommunicationInterface.h"
 
 #include "i2cHal.h"
-
 #include "rrrc_hal.h"
-#include "rrrc_i2c_protocol.h"
-#include "driver_init.h"
-#include <peripheral_clk_config.h>
 
-extern void rrrc_i2c_s_async_tx(struct _i2c_s_async_device *const device);
-extern void rrrc_i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data);
-extern void rrrc_i2c_s_async_error(struct _i2c_s_async_device *const device);
-extern void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, const uint8_t dir);
-extern void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir);
+#include "driver_init.h"
+#include "utils_assert.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include <peripheral_clk_config.h>
+#include <limits.h>
 
 static TaskHandle_t communicationTaskHandle;
 
-static uint8_t* nextTransmittedBuffer;
-static size_t nextTransmittedBufferSize;
+static uint8_t rxBuffer[255 + 4];
+
+static i2c_hal_descriptor I2C_0;
+const MasterCommunicationInterface_Config_t* config;
 
 //*********************************************************************************************
-static void I2C_0_init(struct i2c_s_async_descriptor* descriptor)
+static void I2C_0_init(i2c_hal_descriptor* descriptor)
 {
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_CORE, CONF_GCLK_SERCOM2_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_SLOW, CONF_GCLK_SERCOM2_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
@@ -37,45 +36,56 @@ static void I2C_0_init(struct i2c_s_async_descriptor* descriptor)
     gpio_set_pin_pull_mode(I2C0_SCLpin, GPIO_PULL_OFF);
     gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
 
-    i2c_s_async_init(descriptor, I2C0_SERCOM);
-
-    descriptor->device.cb.addrm_cb   = rrrc_i2c_s_async_addr_match;
-    descriptor->device.cb.tx_cb      = rrrc_i2c_s_async_tx;
-    descriptor->device.cb.rx_done_cb = rrrc_i2c_s_async_byte_received;
-    descriptor->device.cb.stop_cb    = rrrc_i2c_s_async_stop;
-    descriptor->device.cb.error_cb   = rrrc_i2c_s_async_error;
+    i2c_hal_init(descriptor, I2C0_SERCOM);
 }
 
 static void CommunicationTask(void* user_data)
 {
-    const MasterCommunicationInterface_Config_t* config = user_data;
-
-    struct i2c_s_async_descriptor I2C_0;
+    config = user_data;
 
     I2C_0_init(&I2C_0);
-    i2c_s_async_enable(&I2C_0);
 
     for(;;)
     {
-        if (ulTaskNotifyTake(pdTRUE, rtos_ms_to_ticks(config->rxTimeout)) == 0u)
+        uint32_t bytesReceived;
+        i2c_hal_receive(&I2C_0, &rxBuffer[0], sizeof(rxBuffer));
+        BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, rtos_ms_to_ticks(config->rxTimeout));
+
+        if (!notified)
         {
             MasterCommunicationInterface_Call_RxTimeout();
         }
         else
         {
-            /* setup a default response in case processing is slow */
-            MasterCommunicationInterface_Run_SetResponse(config->defaultResponseBuffer, config->defaultResponseLength);
-            MasterCommunicationInterface_Call_OnMessageReceived(rx_buffer.buff, rx_buffer.size);
+            if (bytesReceived <= sizeof(rxBuffer))
+            {
+                MasterCommunicationInterface_Call_OnMessageReceived(&rxBuffer[0], bytesReceived);
+            }
+            else
+            {
+                MasterCommunicationInterface_Run_SetResponse(config->longRxErrorResponseBuffer, config->longRxErrorResponseLength);
+            }
         }
     }
 }
 
+void i2c_hal_rx_started(i2c_hal_descriptor* descr)
+{
+    /* setup a default response in case processing is slow */
+    i2c_hal_set_tx_buffer(descr, config->defaultResponseBuffer, config->defaultResponseLength);
+}
+
+void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_t bufferSize, size_t bytesReceived)
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xTaskNotifyFromISR(communicationTaskHandle, bytesReceived, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
 void MasterCommunicationInterface_Run_OnInit(const MasterCommunicationInterface_Config_t* config)
-{    
-    if (xTaskCreate(&CommunicationTask, "RPiComm", 1024, config, taskPriority_Communication, &communicationTaskHandle) != pdPASS)
-    {
-        ASSERT(0);
-    }
+{
+    BaseType_t success = xTaskCreate(&CommunicationTask, "RPiComm", 1024, config, taskPriority_Communication, &communicationTaskHandle);
+    ASSERT(success == pdPASS);
 }
 
 __attribute__((weak))
@@ -92,8 +102,5 @@ void MasterCommunicationInterface_Call_RxTimeout(void)
 
 void MasterCommunicationInterface_Run_SetResponse(const uint8_t* buffer, size_t bufferSize)
 {
-    portENTER_CRITICAL();
-    nextTransmittedBuffer = buffer;
-    nextTransmittedBufferSize = bufferSize;
-    portEXIT_CRITICAL();
+    i2c_hal_set_tx_buffer(&I2C_0, buffer, bufferSize);
 }

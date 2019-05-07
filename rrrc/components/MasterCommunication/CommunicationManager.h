@@ -85,4 +85,9 @@ void Comm_Init(const Comm_CommandHandler_t* commandTable, size_t commandTableSiz
  */
 size_t Comm_Handle(const Comm_Command_t* command, Comm_Response_t* response, size_t responseBufferSize);
 
+/**
+ * Calculate and set response checksum
+ */
+void Comm_Protect(Comm_Response_t* response);
+
 #endif /* COMMUNICATION_MANAGER_H_ */
