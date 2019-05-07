@@ -3,6 +3,7 @@
 #include "sensor_HC_SR05.h"
 #include <hal_delay.h>
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 
 #define MAX_SENSOR_VALUES 1
@@ -206,5 +207,4 @@ void HC_SR05_gpio0_callback(void* hw_port, uint32_t data)
         vTaskNotifyGiveFromISR(sens_data->xHCSR05Task, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
-    return;
 }
