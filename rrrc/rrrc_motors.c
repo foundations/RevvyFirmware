@@ -14,6 +14,8 @@
 #include "motors/motor_speed_controlled.h"
 #include "rrrc_tb6612fng.h"
 
+#include <string.h>
+
 tb6612fng_t motor_driver_configs[] =
 {
     {
@@ -194,7 +196,7 @@ uint32_t MotorPortGetTypes(uint8_t *data, uint32_t max_size)
         }
         data[size++] = motor_libs[idx]->type_id;
         data[size++] = len;
-        strncpy( &data[size], motor_libs[idx]->name, len);
+        strncpy( (char*)&data[size], motor_libs[idx]->name, len);
         size += len;
     }
     return size;

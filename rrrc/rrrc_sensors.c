@@ -166,7 +166,7 @@ uint32_t SensorPortGetTypes(uint8_t *data, uint32_t max_size)
 		}
         data[size++] = sensor_libs[idx]->type_id;
         data[size++] = len;
-        strncpy( &data[size], sensor_libs[idx]->name, len);
+        strncpy( (char*) &data[size], sensor_libs[idx]->name, len);
 		size += len;
 	}
 	return size;
@@ -240,7 +240,7 @@ void SensorPort_Adc_Update(uint32_t port_idx, uint16_t adc_data)
 }
 
 //*********************************************************************************************
-static void SensorPort_gpio0_ext_cb(const void* port)
+static void SensorPort_gpio0_ext_cb(void* port)
 {
 	p_hw_sensor_port_t sensport = port;
 	if (sensport == NULL)
@@ -255,16 +255,19 @@ static void SensorPort_gpio0_ext_cb(const void* port)
 }
 
 //*********************************************************************************************
-uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size)
+uint32_t SensorPortWriteUserData(uint32_t port_idx, uint32_t* data, uint32_t size)
 {
     int32_t result = ERR_INVALID_ARG;
 
-    p_hw_sensor_port_t sensport = port;
-    if (sensport != NULL)
+    if (port_idx < ARRAY_SIZE(sensor_ports))
     {
-        if (sensport->sensor_lib && sensport->sensor_lib->write_data)
+        p_hw_sensor_port_t sensport = &sensor_ports[port_idx];
+        if (sensport != NULL)
         {
-            result = sensport->sensor_lib->write_data(sensport, data, size);
+            if (sensport->sensor_lib && sensport->sensor_lib->write_data)
+            {
+                result = sensport->sensor_lib->write_data(sensport, data, size);
+            }
         }
     }
 
@@ -272,16 +275,22 @@ uint32_t SensorPortWriteUserData(uint32_t port, uint32_t* data, uint32_t size)
 }
 
 //*********************************************************************************************
-uint32_t SensorPortReadUserData(uint32_t port, uint32_t* data, uint32_t size)
+uint32_t SensorPortReadUserData(uint32_t port_idx, uint32_t* data, uint32_t size)
 {
-	p_hw_sensor_port_t sensport = port;
-	if (sensport == NULL)
-		return;
+    uint32_t resultSize = 0u;
+    if (port_idx < ARRAY_SIZE(sensor_ports))
+    {
+        p_hw_sensor_port_t sensport = &sensor_ports[port_idx];
+        if (sensport != NULL)
+        {
+            if (sensport->sensor_lib && sensport->sensor_lib->read_data)
+            {
+                resultSize = sensport->sensor_lib->read_data(sensport, data, size);
+            }
+        }
+    }
 
-	if (sensport->sensor_lib && sensport->sensor_lib->read_data)
-		sensport->sensor_lib->read_data(sensport, data, size);
-
-	return;
+    return resultSize;
 }
 
 //*********************************************************************************************

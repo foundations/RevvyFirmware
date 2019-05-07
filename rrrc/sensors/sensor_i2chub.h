@@ -16,26 +16,7 @@
 extern "C" {
 #endif
 
-int32_t I2CHUB_Init(void* hw_port);
-void I2CHUB_Thread(void* hw_port);
-uint32_t I2CHUB_write_data(void* hw_port, void* data, uint32_t size);
-uint32_t I2CHUB_read_data(void* hw_port, void* data, uint32_t size);
-
-static sensor_lib_entry_t sensor_i2chub =
-{
-	.type_id = SENSOR_I2CHUB,
-	.name = "I2CHUB",
-	.SensorInit = I2CHUB_Init,
-	.SensorDeInit = NULL,
-	.sensor_get_values = NULL,
-	.write_data = I2CHUB_write_data,
-	.read_data = I2CHUB_read_data,
-
-	//callback from sensor port
-	.timer_callback = NULL,
-	.adc_callback = NULL,
-	.gpio0_callback = NULL,
-};
+sensor_lib_entry_t sensor_i2chub;
 
 #ifdef __cplusplus
 }

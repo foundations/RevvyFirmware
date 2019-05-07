@@ -6,6 +6,7 @@
  */ 
 
 #include "rrrc_sysmon.h"
+#include <string.h>
 
 static rrrc_sysmon_t sysmon_val = {0};
 

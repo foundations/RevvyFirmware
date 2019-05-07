@@ -36,12 +36,14 @@ static int32_t MOTOR_OPENLOOP_Init(void* hw_port)
     return ERR_NONE;
 }
 
-static void MOTOR_OPENLOOP_DeInit(void* hw_port)
+static int32_t MOTOR_OPENLOOP_DeInit(void* hw_port)
 {
     p_hw_motor_port_t motport = (p_hw_motor_port_t) hw_port;
     p_motor_openloop_data_t data = (p_motor_openloop_data_t) motport->lib_data;
 
     motport->motor_driver_lib->deinit(motport);
+    
+    return ERR_NONE;
 }
 
 static void MOTOR_OPENLOOP_Update(void* hw_port)

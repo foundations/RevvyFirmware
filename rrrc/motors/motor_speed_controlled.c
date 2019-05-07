@@ -8,6 +8,7 @@
 #include "motor_speed_controlled.h"
 #include "controller/pid.h"
 #include "utils/converter.h"
+#include "utils/functions.h"
 #include "rrrc_motor_base_function.h"
 #include "jscope/jscope.h"
 
