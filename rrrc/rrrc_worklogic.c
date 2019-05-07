@@ -26,6 +26,7 @@
 #include "components/RingLedDisplay/RingLedDisplay.h"
 #include "components/MasterCommunicationInterface/MasterCommunicationInterface.h"
 #include "components/MasterCommunication/MasterCommunication.h"
+#include "components/CommunicationObserver/CommunicationObserver.h"
 
 #include <math.h>
 
@@ -293,6 +294,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
 
     RingLedDisplay_Run_OnInit();
+    CommunicationObserver_Run_OnInit();
 
     BatteryCharger_Run_EnableFastCharge();
 
@@ -514,10 +516,22 @@ void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
 {
+    CommunicationObserver_Run_OnMessageReceived();
     MasterCommunication_Run_HandleCommand(buffer, bufferSize);
+}
+
+void MasterCommunicationInterface_Call_RxTimeout(void)
+{
+    CommunicationObserver_Run_OnMessageMissed();
 }
 
 void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize)
 {
     MasterCommunicationInterface_Run_SetResponse(responseBuffer, responseSize);
+}
+
+void CommunicationObserver_Call_ErrorThresholdReached(void)
+{
+    /* don't try to be clever */
+    NVIC_SystemReset();
 }
