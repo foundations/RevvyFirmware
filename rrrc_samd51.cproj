@@ -1266,6 +1266,12 @@
     <Compile Include="rrrc\components\LEDController\LEDController.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MasterCommunicationInterface\MasterCommunicationInterface.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MasterCommunicationInterface\MasterCommunicationInterface.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MasterCommunication\MasterCommunication.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1490,6 +1496,7 @@
     <Folder Include="rrrc\components\BatteryCalculator" />
     <Folder Include="rrrc\components\BatteryIndicator" />
     <Folder Include="rrrc\components\MasterCommunication" />
+    <Folder Include="rrrc\components\MasterCommunicationInterface" />
     <Folder Include="rrrc\components\RingLedDisplay" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\communication" />

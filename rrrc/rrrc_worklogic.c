@@ -24,6 +24,7 @@
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryIndicator/BatteryIndicator.h"
 #include "components/RingLedDisplay/RingLedDisplay.h"
+#include "components/MasterCommunicationInterface/MasterCommunicationInterface.h"
 #include "components/MasterCommunication/MasterCommunication.h"
 
 #include <math.h>
@@ -501,4 +502,13 @@ void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 {
     ASSERT(led_idx < RING_LEDS_AMOUNT);
     ringLeds[led_idx] = color;
+}
+
+void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
+{
+
+            size_t size = CommandHandler_Handle((const commandBuffer_t*) rx_buffer.buff, (responseBuffer_t*) tx_buffer.buff);
+
+            rrrc_i2c_transmit(size);
+            rx_buffer.size = 0u;
 }
