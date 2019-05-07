@@ -1266,6 +1266,12 @@
     <Compile Include="rrrc\components\LEDController\LEDController.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MasterCommunicationInterface\i2cHal.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MasterCommunicationInterface\i2cHal.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MasterCommunicationInterface\MasterCommunicationInterface.c">
       <SubType>compile</SubType>
     </Compile>

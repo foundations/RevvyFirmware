@@ -3,7 +3,7 @@
  *
  * Created: 07/05/2019 10:34:21
  *  Author: Dániel Buga
- */ 
+ */
 
 #include "MasterCommunicationInterface.h"
 
@@ -21,13 +21,12 @@ extern void rrrc_i2c_s_async_stop(struct _i2c_s_async_device *const device, cons
 extern void rrrc_i2c_s_async_addr_match(struct _i2c_s_async_device *const device, const uint8_t dir);
 
 static TaskHandle_t communicationTaskHandle;
-struct i2c_s_async_descriptor I2C_0;
 
 static uint8_t* nextTransmittedBuffer;
 static size_t nextTransmittedBufferSize;
 
 //*********************************************************************************************
-static void I2C_0_init(void)
+static void I2C_0_init(struct i2c_s_async_descriptor* descriptor)
 {
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_CORE, CONF_GCLK_SERCOM2_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_SLOW, CONF_GCLK_SERCOM2_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
@@ -38,27 +37,33 @@ static void I2C_0_init(void)
     gpio_set_pin_pull_mode(I2C0_SCLpin, GPIO_PULL_OFF);
     gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
 
-    i2c_s_async_init(&I2C_0, I2C0_SERCOM);
+    i2c_s_async_init(descriptor, I2C0_SERCOM);
 
-    I2C_0.device.cb.addrm_cb   = rrrc_i2c_s_async_addr_match;
-    I2C_0.device.cb.tx_cb      = rrrc_i2c_s_async_tx;
-    I2C_0.device.cb.rx_done_cb = rrrc_i2c_s_async_byte_received;
-    I2C_0.device.cb.stop_cb    = rrrc_i2c_s_async_stop;
-    I2C_0.device.cb.error_cb   = rrrc_i2c_s_async_error;
+    descriptor->device.cb.addrm_cb   = rrrc_i2c_s_async_addr_match;
+    descriptor->device.cb.tx_cb      = rrrc_i2c_s_async_tx;
+    descriptor->device.cb.rx_done_cb = rrrc_i2c_s_async_byte_received;
+    descriptor->device.cb.stop_cb    = rrrc_i2c_s_async_stop;
+    descriptor->device.cb.error_cb   = rrrc_i2c_s_async_error;
 }
 
 static void CommunicationTask(void* user_data)
 {
     const MasterCommunicationInterface_Config_t* config = user_data;
+
+    struct i2c_s_async_descriptor I2C_0;
+
+    I2C_0_init(&I2C_0);
     i2c_s_async_enable(&I2C_0);
+
     for(;;)
     {
-        if (ulTaskNotifyTake(pdTRUE, rtos_ms_to_ticks(100u)) == 0u)
+        if (ulTaskNotifyTake(pdTRUE, rtos_ms_to_ticks(config->rxTimeout)) == 0u)
         {
-            // TODO handle communication fault
+            MasterCommunicationInterface_Call_RxTimeout();
         }
         else
         {
+            /* setup a default response in case processing is slow */
             MasterCommunicationInterface_Run_SetResponse(config->defaultResponseBuffer, config->defaultResponseLength);
             MasterCommunicationInterface_Call_OnMessageReceived(rx_buffer.buff, rx_buffer.size);
         }
@@ -66,9 +71,7 @@ static void CommunicationTask(void* user_data)
 }
 
 void MasterCommunicationInterface_Run_OnInit(const MasterCommunicationInterface_Config_t* config)
-{
-    I2C_0_init();
-    
+{    
     if (xTaskCreate(&CommunicationTask, "RPiComm", 1024, config, taskPriority_Communication, &communicationTaskHandle) != pdPASS)
     {
         ASSERT(0);
@@ -77,6 +80,12 @@ void MasterCommunicationInterface_Run_OnInit(const MasterCommunicationInterface_
 
 __attribute__((weak))
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
+{
+    /* nothing to do */
+}
+
+__attribute__((weak))
+void MasterCommunicationInterface_Call_RxTimeout(void)
 {
     /* nothing to do */
 }

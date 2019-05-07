@@ -17,10 +17,14 @@ typedef struct
 
     uint8_t* longRxErrorResponseBuffer;
     size_t longRxErrorResponseLength;
+
+    uint32_t rxTimeout;
 } MasterCommunicationInterface_Config_t;
 
 void MasterCommunicationInterface_Run_OnInit(const MasterCommunicationInterface_Config_t* config);
-void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize);
 void MasterCommunicationInterface_Run_SetResponse(const uint8_t* buffer, size_t bufferSize);
+
+void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize);
+void MasterCommunicationInterface_Call_RxTimeout(void);
 
 #endif /* MASTER_COMMUNICATION_INTERFACE_H_ */
