@@ -18,7 +18,7 @@ void BrainStatusIndicator_Run_Update(void)
     switch (BrainStatusIndicator_Read_SystemState())
     {
         case SystemState_Startup:
-            BrainStatusIndicator_Write_LedColor((rgb_t) LED_ORANGE);
+            BrainStatusIndicator_Write_LedColor((rgb_t) LED_RED);
             break;
 
         case SystemState_Operational:

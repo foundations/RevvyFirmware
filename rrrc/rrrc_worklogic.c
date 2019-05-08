@@ -587,3 +587,26 @@ void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
             break;
     }
 }
+
+SystemState_t BrainStatusIndicator_Read_SystemState(void)
+{
+    SystemState_t systemState = SystemState_Error;
+    switch (masterStatus)
+    {
+        default:
+        case MasterStatus_Unknown:
+            systemState = SystemState_Startup;
+            break;
+
+        case MasterStatus_Operational:
+        case MasterStatus_Controlled:
+            systemState = SystemState_Operational;
+            break;
+    }
+    return systemState;
+}
+
+bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
+{
+    return masterStatus == MasterStatus_Controlled;
+}
