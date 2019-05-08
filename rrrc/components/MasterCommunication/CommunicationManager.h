@@ -40,7 +40,8 @@ typedef struct
     Comm_Operation_t operation;
     uint8_t command;
     uint8_t payloadLength;
-    uint16_t checksum;
+    uint16_t payloadChecksum;
+    uint8_t headerChecksum;
 }
 __attribute__((packed)) Comm_CommandHeader_t;
 

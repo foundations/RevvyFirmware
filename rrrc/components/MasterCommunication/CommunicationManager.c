@@ -16,11 +16,10 @@ static size_t comm_commandTableSize = 0u;
 
 static bool _checkChecksum(const Comm_Command_t* command)
 {
-    /* calculate CRC, skipping the CRC field */
-    uint16_t headerCrc = CRC16_Calculate(0xFFFFu, (const uint8_t*) command, sizeof(Comm_Operation_t) + sizeof(uint8_t) + sizeof(uint8_t));
-    uint16_t messageCrc = CRC16_Calculate(headerCrc, (const uint8_t*) command->payload, command->header.payloadLength);
+    uint8_t headerChecksum = CRC7_Calculate(0xFFu, (uint8_t*) &command->header, sizeof(Comm_CommandHeader_t) - sizeof(uint8_t));
+    uint16_t payloadChecksum = CRC16_Calculate(0xFFFFu, command->payload, command->header.payloadLength);
 
-    return command->header.checksum == messageCrc;
+    return command->header.headerChecksum == headerChecksum && command->header.payloadChecksum == payloadChecksum;
 }
 
 void Comm_Init(const Comm_CommandHandler_t* commandTable, size_t commandTableSize)
