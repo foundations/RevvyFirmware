@@ -44,11 +44,11 @@ static void CommunicationTask(void* user_data)
     config = (const MasterCommunicationInterface_Config_t*) user_data;
 
     (void) I2C_0_init(&I2C_0);
-
+    
+    i2c_hal_receive(&I2C_0, &rxBuffer[0], sizeof(rxBuffer));
     for(;;)
     {
         uint32_t bytesReceived;
-        i2c_hal_receive(&I2C_0, &rxBuffer[0], sizeof(rxBuffer));
         BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, rtos_ms_to_ticks(config->rxTimeout));
 
         if (!notified)

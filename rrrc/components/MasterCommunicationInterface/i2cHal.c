@@ -90,14 +90,14 @@ static void i2c_hal_on_address_matched(struct _i2c_s_async_device *const device,
     i2c_hal_descriptor *descr = CONTAINER_OF(device, i2c_hal_descriptor, device);
     if (dir == I2C_DIR_MASTER_TX)
     {
-        descr->txBuffer = descr->nextTxBuffer;
-        descr->txBufferSize = descr->nextTxBufferSize;
-        descr->txBufferIndex = 0u;
+        descr->rxBufferCount = 0u;
+        i2c_hal_rx_started(descr);
     }
     else
     {
-        descr->rxBufferCount = 0u;
-        i2c_hal_rx_started(descr);
+        descr->txBuffer = descr->nextTxBuffer;
+        descr->txBufferSize = descr->nextTxBufferSize;
+        descr->txBufferIndex = 0u;
     }
 }
 
@@ -148,10 +148,10 @@ static void i2c_hal_on_stop(struct _i2c_s_async_device *const device, const uint
     i2c_hal_descriptor *descr = CONTAINER_OF(device, i2c_hal_descriptor, device);
     if (dir == I2C_DIR_MASTER_TX)
     {
-        /* nothing to do (yet) */
+        i2c_hal_rx_complete(descr, descr->rxBuffer, descr->rxBufferSize, descr->rxBufferCount);
     }
     else
     {
-        i2c_hal_rx_complete(descr, descr->rxBuffer, descr->rxBufferSize, descr->rxBufferCount);
+        /* nothing to do (yet) */
     }
 }
