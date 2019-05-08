@@ -1692,7 +1692,7 @@ static int32_t _i2c_m_sync_init_impl(struct _i2c_m_service *const service, void 
 		        | (CONF_SERCOM_##n##_I2CS_SPEED << SERCOM_I2CS_CTRLA_SPEED_Pos)                                        \
 		        | (CONF_SERCOM_##n##_I2CS_SCLSM << SERCOM_I2CS_CTRLA_SCLSM_Pos)                                        \
 		        | (CONF_SERCOM_##n##_I2CS_LOWTOUT << SERCOM_I2CS_CTRLA_LOWTOUTEN_Pos),                                 \
-		    SERCOM_I2CS_CTRLB_SMEN | SERCOM_I2CS_CTRLB_AACKEN | SERCOM_I2CS_CTRLB_AMODE(CONF_SERCOM_##n##_I2CS_AMODE), \
+		    SERCOM_I2CS_CTRLB_SMEN | /*SERCOM_I2CS_CTRLB_AACKEN |*/ SERCOM_I2CS_CTRLB_AMODE(CONF_SERCOM_##n##_I2CS_AMODE), \
 		    (CONF_SERCOM_##n##_I2CS_GENCEN << SERCOM_I2CS_ADDR_GENCEN_Pos)                                             \
 		        | SERCOM_I2CS_ADDR_ADDR(CONF_SERCOM_##n##_I2CS_ADDRESS)                                                \
 		        | (CONF_SERCOM_##n##_I2CS_TENBITEN << SERCOM_I2CS_ADDR_TENBITEN_Pos)                                   \
