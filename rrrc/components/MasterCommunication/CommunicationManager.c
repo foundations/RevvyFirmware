@@ -14,12 +14,18 @@
 static const Comm_CommandHandler_t* comm_commandTable = NULL;
 static size_t comm_commandTableSize = 0u;
 
-static bool _checkChecksum(const Comm_Command_t* command)
+static bool _commandValid(const Comm_Command_t* command)
 {
     uint8_t headerChecksum = CRC7_Calculate(0xFFu, (uint8_t*) &command->header, sizeof(Comm_CommandHeader_t) - sizeof(uint8_t));
+
+    return command->header.headerChecksum == headerChecksum;
+}
+
+static bool _payloadValid(const Comm_Command_t* command)
+{
     uint16_t payloadChecksum = CRC16_Calculate(0xFFFFu, command->payload, command->header.payloadLength);
 
-    return command->header.headerChecksum == headerChecksum && command->header.payloadChecksum == payloadChecksum;
+    return command->header.payloadChecksum == payloadChecksum;
 }
 
 void Comm_Init(const Comm_CommandHandler_t* commandTable, size_t commandTableSize)
@@ -87,11 +93,14 @@ size_t Comm_Handle(const Comm_Command_t* command, Comm_Response_t* response, siz
     uint8_t payloadBufferSize = responseBufferSize - responseHeaderSize;
     uint8_t payloadSize = 0u;
     Comm_Status_t resultStatus;
-
-    if (!_checkChecksum(command))
+    
+    if (!_commandValid(command))
     {
-        /* integrity error */
-        resultStatus = Comm_Status_Error_IntegrityError;
+        resultStatus = Comm_Status_Error_CommandIntegrityError;
+    }
+    else if (!_payloadValid(command))
+    {
+        resultStatus = Comm_Status_Error_PayloadIntegrityError;
     }
     else if (command->header.command >= comm_commandTableSize || comm_commandTable[command->header.command].Start == NULL)
     {

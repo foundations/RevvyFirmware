@@ -20,7 +20,8 @@ typedef enum
     
     Comm_Status_Error_UnknownOperation,
     Comm_Status_Error_InvalidOperation, /* in case GetResult is used but no command is pending */
-    Comm_Status_Error_IntegrityError,   /* checksum field and calculated checksum do not match */
+    Comm_Status_Error_CommandIntegrityError,
+    Comm_Status_Error_PayloadIntegrityError,
     Comm_Status_Error_PayloadLengthError, /* data lost because message was too long */
     Comm_Status_Error_UnknownCommand,
     Comm_Status_Error_CommandError, /* response contains additional command-specific error data */
