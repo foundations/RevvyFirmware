@@ -13,13 +13,15 @@ static uint8_t responseBuffer[256];
 static Comm_ResponseHeader_t defaultResponse = 
 {
     .status = Comm_Status_Busy,
-    .payloadLength = 0u
+    .payloadLength = 0u,
+    .payloadChecksum = 0xFFFFu
 };
 
 static Comm_ResponseHeader_t longRxErrorResponse = 
 {
     .status = Comm_Status_Error_PayloadLengthError,
-    .payloadLength = 0u
+    .payloadLength = 0u,
+    .payloadChecksum = 0xFFFFu
 };
 
 void MasterCommunication_Run_GetDefaultResponse(uint8_t** defaultResponseBuffer, size_t* defaultResponseLength)
@@ -36,8 +38,8 @@ void MasterCommunication_Run_GetLongRxErrorResponse(uint8_t** longRxErrorRespons
 
 void MasterCommunication_Run_OnInit(const Comm_CommandHandler_t* commandTable, size_t commandTableSize)
 {
-    defaultResponse.checksum     = CRC16_Calculate(0xFFFFu, (uint8_t*) &defaultResponse, sizeof(Comm_ResponseHeader_t) - sizeof(uint16_t));
-    longRxErrorResponse.checksum = CRC16_Calculate(0xFFFFu, (uint8_t*) &longRxErrorResponse, sizeof(Comm_ResponseHeader_t) - sizeof(uint16_t));
+    Comm_ProtectMessageHeader(&defaultResponse);
+    Comm_ProtectMessageHeader(&longRxErrorResponse);
 
     Comm_Init(commandTable, commandTableSize);
 }
@@ -45,15 +47,15 @@ void MasterCommunication_Run_OnInit(const Comm_CommandHandler_t* commandTable, s
 void MasterCommunication_Run_HandleCommand(const uint8_t* buffer, size_t bufferSize)
 {
     const Comm_Command_t* command = (const Comm_Command_t*) buffer;
-    const size_t headerSize = sizeof(Comm_Operation_t) + sizeof(uint8_t) + sizeof(uint8_t) + sizeof(uint16_t);
 
     size_t responseCount;
     Comm_Response_t* response = (Comm_Response_t*) responseBuffer;
 
-    if (command->payloadLength + headerSize != bufferSize)
+    if (sizeof(Comm_CommandHeader_t) + command->header.payloadLength != bufferSize)
     {
-        response->status = Comm_Status_Error_PayloadLengthError;
-        responseCount = sizeof(Comm_Status_t) + sizeof(uint8_t) + sizeof(uint16_t);
+        response->header.status = Comm_Status_Error_PayloadLengthError;
+        response->header.payloadLength = 0u;
+        responseCount = sizeof(Comm_ResponseHeader_t);
     }
     else
     {
