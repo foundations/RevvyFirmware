@@ -6,10 +6,14 @@
  */ 
 
 #include "SensorPortHandlerInternal.h"
+#include "SensorPortLibraries/Dummy/Dummy.h"
 #include "utils.h"
 #include <string.h>
 
-static const SensorLibrary_t* libraries[] = {};
+static const SensorLibrary_t* libraries[] = 
+{
+    &sensor_library_dummy
+};
 
 static size_t sensorPortCount = 0u;
 static SensorPort_t* sensorPorts = NULL;
@@ -28,6 +32,9 @@ static void _init_port(SensorPort_t* port)
     gpio_set_pin_level(port->led1, false);
 
     /* init gpios */
+
+    /* set dummy library */
+    port->library = &sensor_library_dummy;
 }
 
 Comm_Status_t SensorPortHandler_GetSensorPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -68,5 +75,21 @@ void SensorPortHandler_Run_OnInit(SensorPort_t* ports, size_t portCount)
     for (size_t i = 0u; i < portCount; i++)
     {
         _init_port(&sensorPorts[i]);
+    }
+}
+
+void SensorPortHandler_Run_Update(uint8_t port_idx)
+{
+    if (port_idx < sensorPortCount)
+    {
+        SensorPort_t* port = &sensorPorts[port_idx];
+
+        const SensorLibrary_t* requestedLibrary = port->requestedLibrary;
+        if (requestedLibrary != port->library)
+        {
+            port->library->DeInit(port);
+            port->library = requestedLibrary;
+            port->library->Init(port);
+        }
     }
 }

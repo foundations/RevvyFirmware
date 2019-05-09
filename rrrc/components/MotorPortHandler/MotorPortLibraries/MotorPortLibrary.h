@@ -17,7 +17,7 @@ typedef enum {
     MotorLibraryStatus_Ok
 } MotorLibraryStatus_t; 
 
-typedef struct
+typedef struct _MotorLibrary_t
 {
     const char* name;
     MotorLibraryStatus_t (*Init)(struct _MotorPort_t* motorPort);

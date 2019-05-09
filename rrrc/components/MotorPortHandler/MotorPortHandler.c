@@ -39,6 +39,9 @@ static void _init_port(MotorPort_t* port)
     gpio_set_pin_level(port->led1, false);
 
     /* init gpios */
+
+    /* set dummy library */
+    port->library = &motor_library_dummy;
 }
 
 Comm_Status_t MotorPortHandler_GetMotorPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -84,7 +87,18 @@ void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount)
 
 void MotorPortHandler_Run_Update(uint8_t port_idx)
 {
+    if (port_idx < motorPortCount)
+    {
+        MotorPort_t* port = &motorPorts[port_idx];
 
+        const MotorLibrary_t* requestedLibrary = port->requestedLibrary;
+        if (requestedLibrary != port->library)
+        {
+            port->library->DeInit(port);
+            port->library = requestedLibrary;
+            port->library->Init(port);
+        }
+    }
 }
 
 __attribute__((weak))

@@ -1305,6 +1305,12 @@
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandler.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\Dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\Dummy.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\SensorPortLibrary.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1493,6 +1499,7 @@
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
+    <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\" />
     <Folder Include="rrrc\components\VersionProvider" />
     <Folder Include="rrrc\components\BatteryStatusProvider" />
     <Folder Include="rrrc\components\RingLedDisplay" />

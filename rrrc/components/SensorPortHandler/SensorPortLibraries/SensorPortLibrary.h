@@ -9,9 +9,22 @@
 #ifndef SENSOR_PORT_LIBRARY_H_
 #define SENSOR_PORT_LIBRARY_H_
 
+struct _SensorLibrary_t;
+
+#include "../SensorPortHandler.h"
+
+typedef enum {
+    SensorLibraryStatus_Ok
+} SensorLibraryStatus_t; 
+
 typedef struct _SensorLibrary_t
 {
     const char* name;
+    SensorLibraryStatus_t (*Init)(struct _SensorPort_t* sensorPort);
+    SensorLibraryStatus_t (*DeInit)(struct _SensorPort_t* sensorPort);
+
+    SensorLibraryStatus_t (*SetConfig)(struct _SensorPort_t* sensorPort, const uint8_t* data, uint8_t size);
+    SensorLibraryStatus_t (*GetConfig)(struct _SensorPort_t* sensorPort, uint8_t* data, uint8_t* size, uint8_t max_size);
 } SensorLibrary_t;
 
 #endif /* SENSOR_PORT_LIBRARY_H_ */
