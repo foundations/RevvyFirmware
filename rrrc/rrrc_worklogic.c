@@ -30,6 +30,7 @@
 #include "components/MasterStatusObserver/MasterStatusObserver.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
 #include "components/FirmwareVersionProvider/FirmwareVersionProvider.h"
+#include "components/BatteryStatusProvider/BatteryStatusProvider.h"
 
 #include <math.h>
 
@@ -69,6 +70,7 @@ static const Comm_CommandHandler_t communicationHandlers[] =
 {
     [0x00u] = { .Start = &PingMessageHandler_Start, .GetResult = NULL, .Cancel = NULL },
     [0x01u] = { .Start = &FirmwareVersionProvider_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x02u] = { .Start = &BatteryStatusProvider_Start, .GetResult = NULL, .Cancel = NULL },
 
     [0x10u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
     [0x11u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
@@ -624,4 +626,32 @@ void BluetoothStatusObserver_Write_IsConnected(bool status)
 bool BluetoothIndicator_Read_IsConnected(void)
 {
     return isBleConnected;
+}
+
+BatteryStatusProvider_ChargerStatus_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
+{
+    switch (BatteryCharger_Run_GetChargerState())
+    {
+        case ChargerState_NotPluggedIn:
+            return BatteryStatusProvider_ChargerStatus_NotConnected;
+
+        case ChargerState_Charging:
+            return BatteryStatusProvider_ChargerStatus_Charging;
+
+        case ChargerState_Charged:
+            return BatteryStatusProvider_ChargerStatus_NotCharging;
+
+        default:
+            return BatteryStatusProvider_ChargerStatus_Error;
+    }
+}
+
+uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
+{
+    return mainBatteryPercentage;
+}
+
+uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
+{
+    return motorBatteryDetected ? motorBatteryPercentage : 0u;
 }

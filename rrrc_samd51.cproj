@@ -1230,6 +1230,12 @@
     <Compile Include="rrrc\components\BatteryIndicator\BatteryIndicator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\BatteryStatusProvider\BatteryStatusProvider.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\BatteryStatusProvider\BatteryStatusProvider.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\BluetoothIndicator\BluetoothIndicator.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1522,6 +1528,7 @@
     <Folder Include="rrrc\components\MasterStatusObserver" />
     <Folder Include="rrrc\components\BluetoothStatusObserver" />
     <Folder Include="rrrc\components\FirmwareVersionProvider" />
+    <Folder Include="rrrc\components\BatteryStatusProvider" />
     <Folder Include="rrrc\components\RingLedDisplay" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\components" />
