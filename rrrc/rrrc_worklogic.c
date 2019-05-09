@@ -29,7 +29,7 @@
 #include "components/CommunicationObserver/CommunicationObserver.h"
 #include "components/MasterStatusObserver/MasterStatusObserver.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
-#include "components/FirmwareVersionProvider/FirmwareVersionProvider.h"
+#include "components/VersionProvider/VersionProvider.h"
 #include "components/BatteryStatusProvider/BatteryStatusProvider.h"
 
 #include <math.h>
@@ -56,11 +56,6 @@ extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
 static MasterStatus_t masterStatus;
 static bool isBleConnected;
 
-/*
- 0x0X: basic messages, e.g. dummy ping
- 0x1X: status messages, e.g. master status, ble status
-*/
-
 Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
     return Comm_Status_Ok;
@@ -69,8 +64,9 @@ Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t co
 static const Comm_CommandHandler_t communicationHandlers[] = 
 {
     [0x00u] = { .Start = &PingMessageHandler_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x01u] = { .Start = &FirmwareVersionProvider_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x02u] = { .Start = &BatteryStatusProvider_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x01u] = { .Start = &VersionProvider_GetHardwareVersion_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x02u] = { .Start = &VersionProvider_GetFirmwareVersion_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x03u] = { .Start = &BatteryStatusProvider_Start, .GetResult = NULL, .Cancel = NULL },
 
     [0x10u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
     [0x11u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
