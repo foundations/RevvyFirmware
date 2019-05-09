@@ -29,6 +29,7 @@
 #include "components/CommunicationObserver/CommunicationObserver.h"
 #include "components/MasterStatusObserver/MasterStatusObserver.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
+#include "components/FirmwareVersionProvider/FirmwareVersionProvider.h"
 
 #include <math.h>
 
@@ -67,6 +68,7 @@ Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t co
 static const Comm_CommandHandler_t communicationHandlers[] = 
 {
     [0x00u] = { .Start = &PingMessageHandler_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x01u] = { .Start = &FirmwareVersionProvider_Start, .GetResult = NULL, .Cancel = NULL },
 
     [0x10u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
     [0x11u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
