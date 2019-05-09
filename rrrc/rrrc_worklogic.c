@@ -63,13 +63,17 @@ Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t co
 
 static const Comm_CommandHandler_t communicationHandlers[] = 
 {
+    /* other commands */
     [0x00u] = { .Start = &PingMessageHandler_Start, .GetResult = NULL, .Cancel = NULL },
     [0x01u] = { .Start = &VersionProvider_GetHardwareVersion_Start, .GetResult = NULL, .Cancel = NULL },
     [0x02u] = { .Start = &VersionProvider_GetFirmwareVersion_Start, .GetResult = NULL, .Cancel = NULL },
     [0x03u] = { .Start = &BatteryStatusProvider_Start, .GetResult = NULL, .Cancel = NULL },
-
-    [0x10u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x11u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x04u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x05u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
+    
+    /* motor commands */
+    /* sensor commands */
+    /* led ring commands */
 };
 
 static MasterCommunicationInterface_Config_t communicationConfig = 
