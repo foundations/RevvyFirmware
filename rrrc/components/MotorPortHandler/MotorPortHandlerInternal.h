@@ -10,10 +10,14 @@
 #define MOTOR_PORT_HANDLER_INTERNAL_H_
 
 #include "MotorPortHandler.h"
+
+struct _MotorPort_t;
+
 #include "MotorPortLibraries/MotorPortLibrary.h"
-#include "MotorPortLibraries/Dummy/Dummy.h"
-#include "MotorPortLibraries/SpeedControlled/SpeedControlled.h"
-#include "MotorPortLibraries/PositionControlled/PositionControlled.h"
-#include "MotorPortLibraries/OpenLoop/OpenLoop.h"
+
+typedef struct _MotorPort_t
+{
+    const struct _MotorLibrary_t* library;
+} MotorPort_t;
 
 #endif /* MOTOR_PORT_HANDLER_INTERNAL_H_ */

@@ -9,6 +9,11 @@
 #include "utils.h"
 #include <string.h>
 
+#include "MotorPortLibraries/Dummy/Dummy.h"
+#include "MotorPortLibraries/SpeedControlled/SpeedControlled.h"
+#include "MotorPortLibraries/PositionControlled/PositionControlled.h"
+#include "MotorPortLibraries/OpenLoop/OpenLoop.h"
+
 static const MotorLibrary_t* libraries[] = 
 {
     &motor_library_dummy,
