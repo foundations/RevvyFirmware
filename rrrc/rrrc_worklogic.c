@@ -28,6 +28,7 @@
 #include "components/MasterCommunication/MasterCommunication.h"
 #include "components/CommunicationObserver/CommunicationObserver.h"
 #include "components/MasterStatusObserver/MasterStatusObserver.h"
+#include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
 
 #include <math.h>
 
@@ -51,6 +52,7 @@ extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
 extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
 
 static MasterStatus_t masterStatus;
+static bool isBleConnected;
 
 /*
  0x0X: basic messages, e.g. dummy ping
@@ -67,7 +69,7 @@ static const Comm_CommandHandler_t communicationHandlers[] =
     [0x00u] = { .Start = &PingMessageHandler_Start, .GetResult = NULL, .Cancel = NULL },
 
     [0x10u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x11u] = { .Start = NULL/*&BluetoothStatusObserver_SetBluetoothStatus_Start*/, .GetResult = NULL, .Cancel = NULL },
+    [0x11u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
 };
 
 static MasterCommunicationInterface_Config_t communicationConfig = 
@@ -293,6 +295,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     BrainStatusIndicator_Run_OnInit();
     
     MasterStatusObserver_Run_OnInit();
+    BluetoothStatusObserver_Run_OnInit();
 
     MasterCommunication_Run_OnInit(&communicationHandlers[0], ARRAY_SIZE(communicationHandlers));
 
@@ -609,4 +612,14 @@ SystemState_t BrainStatusIndicator_Read_SystemState(void)
 bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
 {
     return masterStatus == MasterStatus_Controlled;
+}
+
+void BluetoothStatusObserver_Write_IsConnected(bool status)
+{
+    isBleConnected = status;
+}
+
+bool BluetoothIndicator_Read_IsConnected(void)
+{
+    return isBleConnected;
 }

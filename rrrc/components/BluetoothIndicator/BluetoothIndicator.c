@@ -7,7 +7,6 @@
 
 #include "BluetoothIndicator.h"
 
-#include "rrrc_hal.h" /* should be removed, needed by __WEAK */
 #include "rrrc_indication.h"
 #include <stdint.h>
 
@@ -60,12 +59,14 @@ void BluetoothIndicator_Run_Update(void)
     }
 }
 
-__WEAK bool BluetoothIndicator_Read_IsConnected(void)
+__attribute__((weak))
+bool BluetoothIndicator_Read_IsConnected(void)
 {
     return false;
 }
 
-__WEAK void BluetoothIndicator_Write_LedColor(rgb_t color)
+__attribute__((weak))
+void BluetoothIndicator_Write_LedColor(rgb_t color)
 {
     /* nothing to do */
 }
