@@ -31,6 +31,8 @@
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
 #include "components/VersionProvider/VersionProvider.h"
 #include "components/BatteryStatusProvider/BatteryStatusProvider.h"
+#include "components/MotorPortHandler/MotorPortHandler.h"
+#include "components/SensorPortHandler/SensorPortHandler.h"
 
 #include <math.h>
 
@@ -72,7 +74,13 @@ static const Comm_CommandHandler_t communicationHandlers[] =
     [0x05u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
     
     /* motor commands */
+    [0x10u] = { .Start = &MotorPortHandler_GetMotorPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x11u] = { .Start = &MotorPortHandler_GetMotorPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
+
     /* sensor commands */
+    [0x20u] = { .Start = &SensorPortHandler_GetSensorPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x21u] = { .Start = &SensorPortHandler_GetSensorPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
+
     /* led ring commands */
 };
 

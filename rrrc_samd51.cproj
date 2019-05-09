@@ -1260,6 +1260,54 @@
     <Compile Include="rrrc\components\CommunicationObserver\CommunicationObserver.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandler.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandler.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandlerInternal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\Dummy\Dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\Dummy\Dummy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\MotorPortLibrary.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop\OpenLoop.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop\OpenLoop.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled\PositionControlled.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled\PositionControlled.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled\SpeedControlled.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled\SpeedControlled.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandlerInternal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandler.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandler.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\SensorPortLibrary.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\VersionProvider\VersionProvider.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1527,6 +1575,14 @@
     <Folder Include="rrrc\components\CommunicationObserver" />
     <Folder Include="rrrc\components\MasterStatusObserver" />
     <Folder Include="rrrc\components\BluetoothStatusObserver" />
+    <Folder Include="rrrc\components\MotorPortHandler" />
+    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries" />
+    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\Dummy" />
+    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled" />
+    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled" />
+    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop" />
+    <Folder Include="rrrc\components\SensorPortHandler" />
+    <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
     <Folder Include="rrrc\components\VersionProvider" />
     <Folder Include="rrrc\components\BatteryStatusProvider" />
     <Folder Include="rrrc\components\RingLedDisplay" />
