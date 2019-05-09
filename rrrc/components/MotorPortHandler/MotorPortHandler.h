@@ -10,9 +10,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <hal_gpio.h>
 #include "../MasterCommunication/CommunicationManager.h"
 
+struct _MotorPort_t;
+
+#include "MotorPortLibraries/MotorPortLibrary.h"
+
+typedef struct _MotorPort_t
+{
+    const struct _MotorLibrary_t* library;
+    uint8_t led0;
+    uint8_t led1;
+} MotorPort_t;
+
+void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount);
+void MotorPortHandler_Run_Update(uint8_t port_idx);
 Comm_Status_t MotorPortHandler_GetMotorPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t MotorPortHandler_GetMotorPortTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+
+void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value);
+bool MotorPortHandler_Read_DriverFault(uint8_t port_idx);
 
 #endif /* MOTOR_PORT_HANDLER_H_ */

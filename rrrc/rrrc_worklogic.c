@@ -8,8 +8,6 @@
 #include "rrrc_hal.h"
 #include "rrrc_worklogic.h"
 #include "rrrc_i2c_protocol.h"
-#include "rrrc_sensors.h"
-#include "rrrc_motors.h"
 #include "rrrc_indication.h"
 #include "rrrc_sysmon.h"
 
@@ -51,9 +49,14 @@ static float motorBatteryVoltage;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
-/* TODO these are extern */
-extern hw_motor_port_t motor_ports[MOTOR_PORT_AMOUNT];
-extern hw_sensor_port_t sensor_ports[SENSOR_PORT_AMOUNT];
+static MotorPort_t motorPorts[] = 
+{
+    {
+        
+    }
+};
+
+static SensorPort_t sensorPorts[] = {};
 
 static MasterStatus_t masterStatus;
 static bool isBleConnected;
@@ -92,108 +95,6 @@ static MasterCommunicationInterface_Config_t communicationConfig =
 void RRRC_ProcessLogic_xTask(void* user_data);
 
 //*********************************************************************************************
-static void SensorsPinsInit()
-{
-    //led pins
-    for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-    {
-        gpio_set_pin_pull_mode(sensor_ports[idx].led0_gpio, GPIO_PULL_UP);
-        gpio_set_pin_function(sensor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_direction(sensor_ports[idx].led0_gpio, GPIO_DIRECTION_OUT);
-        gpio_set_pin_level(sensor_ports[idx].led0_gpio, false);
-
-        gpio_set_pin_pull_mode(sensor_ports[idx].led1_gpio, GPIO_PULL_UP);
-        gpio_set_pin_function(sensor_ports[idx].led1_gpio, GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_direction(sensor_ports[idx].led1_gpio, GPIO_DIRECTION_OUT);
-        gpio_set_pin_level(sensor_ports[idx].led1_gpio, false);
-    }
-
-    //gpio0 - in & extint
-    for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-    {
-        gpio_set_pin_pull_mode(sensor_ports[idx].gpio0_num, GPIO_PULL_OFF);
-        gpio_set_pin_direction(sensor_ports[idx].gpio0_num, GPIO_DIRECTION_IN);
-        gpio_set_pin_function(sensor_ports[idx].gpio0_num, GPIO_PIN_FUNCTION_A);
-    }
-
-    //gpio1 - out
-    for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-    {
-        gpio_set_pin_pull_mode(sensor_ports[idx].gpio1_num, GPIO_PULL_OFF);
-        gpio_set_pin_direction(sensor_ports[idx].gpio1_num, GPIO_DIRECTION_OUT);
-        gpio_set_pin_function(sensor_ports[idx].gpio1_num, GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_level(sensor_ports[idx].gpio1_num, false);
-    }
-
-    //adc pins
-    for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-    {
-        gpio_set_pin_direction(sensor_ports[idx].adc_gpio, GPIO_DIRECTION_OFF);
-        gpio_set_pin_function(sensor_ports[idx].adc_gpio, GPIO_PIN_FUNCTION_B);
-    }
-
-    // i2c pins - TODO now this pins init in driver_init()
-//     for  (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++)
-//     {
-//         gpio_set_pin_pull_mode(sensor_ports[idx].i2c_gpio0, GPIO_PULL_OFF);
-//         gpio_set_pin_direction(sensor_ports[idx].i2c_gpio0, GPIO_DIRECTION_OFF);
-//         gpio_set_pin_function(sensor_ports[idx].i2c_gpio0, GPIO_PIN_FUNCTION_C);
-//         gpio_set_pin_pull_mode(sensor_ports[idx].i2c_gpio1, GPIO_PULL_OFF);
-//         gpio_set_pin_direction(sensor_ports[idx].i2c_gpio1, GPIO_DIRECTION_OFF);
-//         gpio_set_pin_function(sensor_ports[idx].i2c_gpio1, GPIO_PIN_FUNCTION_C);
-//     }
-
-    for (int idx=0; idx<ARRAY_SIZE(sensor_ports); idx++) 
-    {
-        gpio_set_pin_pull_mode(sensor_ports[idx].vccio_pin, GPIO_PULL_UP);
-        gpio_set_pin_function(sensor_ports[idx].vccio_pin, GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_direction(sensor_ports[idx].vccio_pin, GPIO_DIRECTION_OUT);
-        gpio_set_pin_level(sensor_ports[idx].vccio_pin, false);//VCCIO_3V3
-    }
-}
-
-//*********************************************************************************************
-static void MotorsPinsInit()
-{
-    //led pins
-    for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-    {
-        gpio_set_pin_pull_mode(motor_ports[idx].led0_gpio, GPIO_PULL_UP);
-        gpio_set_pin_function(motor_ports[idx].led0_gpio, GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_direction(motor_ports[idx].led0_gpio, GPIO_DIRECTION_OUT);
-        gpio_set_pin_level(motor_ports[idx].led0_gpio, false);
-
-        gpio_set_pin_pull_mode(motor_ports[idx].led1_gpio, GPIO_PULL_UP);
-        gpio_set_pin_function(motor_ports[idx].led1_gpio, GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_direction(motor_ports[idx].led1_gpio, GPIO_DIRECTION_OUT);
-        gpio_set_pin_level(motor_ports[idx].led1_gpio, false);
-    }
-
-    for (int idx=0; idx<ARRAY_SIZE(motor_ports); idx++)
-    {
-        tb6612fng_one_time_init(&motor_ports[idx]);
-
-        // PWM
-        gpio_set_pin_direction(motor_ports[idx].pwm_pin, GPIO_DIRECTION_OFF);
-        gpio_set_pin_function(motor_ports[idx].pwm_pin, GPIO_PIN_FUNCTION_F);
-    }
-
-    uint8_t moto_stbypins[] = {M12STBY, M34STBY, M56STBY};
-    for (int idx=0; idx<ARRAY_SIZE(moto_stbypins); idx++) // chips always ON
-    {
-        gpio_set_pin_pull_mode(moto_stbypins[idx], GPIO_PULL_UP);
-        gpio_set_pin_function(moto_stbypins[idx], GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_direction(moto_stbypins[idx], GPIO_DIRECTION_OUT);
-        gpio_set_pin_level(moto_stbypins[idx], true);
-    }
-
-    gpio_set_pin_pull_mode(MOTPWEN, GPIO_PULL_UP);
-    gpio_set_pin_function(MOTPWEN, GPIO_PIN_FUNCTION_OFF);
-    gpio_set_pin_direction(MOTPWEN, GPIO_DIRECTION_OUT);
-    gpio_set_pin_level(MOTPWEN, true);
-}
-
-//*********************************************************************************************
 void SystemMonitorPinsInit(void)
 {
     gpio_set_pin_direction(SM_MOT_CURRENT_FAULT, GPIO_DIRECTION_IN);
@@ -218,50 +119,14 @@ int32_t RRRC_Init(void)
 
     jscope_init();
 
-    MotorsPinsInit();
-    SensorsPinsInit();
     SystemMonitorPinsInit();
-
-    for (uint32_t idx=0; idx<SENSOR_PORT_AMOUNT; idx++ )
-    {
-        result = SensorPortInit(idx);
-        if (result != ERR_NONE)
-            return result;
-    }
-
-    for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
-    {
-        result = MotorPortInit(idx);
-        if (result != ERR_NONE)
-            return result;
-    }
-
-//    result = RRRC_Communication_Init();
 
     if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, taskPriority_Main, &xRRRC_Main_xTask))
     {
-        return ERR_FAILURE;
+        result = ERR_FAILURE;
     }
 
-//     SensorPortSetType(0,SENSOR_HC_SR05);
-//     SensorPortSetType(1,SENSOR_ANALOG_SWITCH);
-//    IndicationSetRingType(RING_LED_PREDEF_4);
-
-    return ERR_NONE;
-}
-
-int32_t RRRC_DeInit(void)
-{
-//    RRRC_Communication_DeInit();
-    
-    vTaskDelete(xRRRC_Main_xTask);
-
-    for (uint32_t idx=0; idx<SENSOR_PORT_AMOUNT; idx++ )
-        SensorPortDeInit(idx);
-    for (uint32_t idx=0; idx<MOTOR_PORT_AMOUNT; idx++ )
-        MotorPortDeInit(idx);
-
-    return ERR_NONE;
+    return result;
 }
 
 static void ProcessTasks_10ms(void)
@@ -273,12 +138,9 @@ static void ProcessTasks_10ms(void)
 static void ProcessTasks_20ms(void)
 {
     /* TODO: Different ports may be handled with a time offset from each other to decrease jitter */
-    for (uint32_t i = 0u; i < MOTOR_PORT_AMOUNT; i++)
+    for (size_t i = 0u; i < ARRAY_SIZE(motorPorts); i++)
     {
-        /* Critical section (temporarily) necessary because motor ports can be configured in a different thread */
-        taskENTER_CRITICAL();
-        MotorPort_Update(i);
-        taskEXIT_CRITICAL();
+        MotorPortHandler_Run_Update(i);
     }
 
     RingLedDisplay_Run_Update();
@@ -334,6 +196,9 @@ void RRRC_ProcessLogic_xTask(void* user)
 
     RingLedDisplay_Run_OnInit();
     CommunicationObserver_Run_OnInit();
+    
+    MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
+    SensorPortHandler_Run_OnInit(&sensorPorts[0], ARRAY_SIZE(sensorPorts));
 
     BatteryCharger_Run_EnableFastCharge();
 
@@ -368,9 +233,9 @@ void RRRC_ProcessLogic_xTask(void* user)
 
 void ADC_Write_RawSamples_ADC0(uint16_t samples[4])
 {
-    for (uint32_t i = 0u; i < 4u; i++)
+    for (uint32_t i = 0u; i < ARRAY_SIZE(sensorPorts); i++)
     {
-        SensorPort_Adc_Update(i, samples[i]);
+        //SensorPort_Adc_Update(i, samples[i]);
     }
 }
 

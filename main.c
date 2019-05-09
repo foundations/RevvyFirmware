@@ -6,13 +6,10 @@
 
 int main(void)
 {
-
 	system_init();
 
 	if (ERR_NONE == RRRC_Init())
 		vTaskStartScheduler(); //main loop
-
-	RRRC_DeInit();
 
 	while (1) {
 		__BKPT(1);

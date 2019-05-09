@@ -22,9 +22,28 @@ static const MotorLibrary_t* libraries[] =
     &motor_library_position_controlled,
 };
 
+static size_t motorPortCount = 0u;
+static MotorPort_t* motorPorts = NULL;
+
+static void _init_port(MotorPort_t* port)
+{
+    /* init led pins */
+    gpio_set_pin_pull_mode(port->led0, GPIO_PULL_UP);
+    gpio_set_pin_function(port->led0, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(port->led0, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(port->led0, false);
+
+    gpio_set_pin_pull_mode(port->led1, GPIO_PULL_UP);
+    gpio_set_pin_function(port->led1, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(port->led1, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(port->led1, false);
+
+    /* init gpios */
+}
+
 Comm_Status_t MotorPortHandler_GetMotorPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
-    response[0] = 6;
+    response[0] = motorPortCount;
     *responseCount = 1u;
 
     return Comm_Status_Ok;
@@ -50,4 +69,32 @@ Comm_Status_t MotorPortHandler_GetMotorPortTypes_Start(const uint8_t* commandPay
     *responseCount = len;
 
     return Comm_Status_Ok;
+}
+
+void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount)
+{
+    motorPorts = ports;
+    motorPortCount = portCount;
+
+    for (size_t i = 0u; i < portCount; i++)
+    {
+        _init_port(&motorPorts[i]);
+    }
+}
+
+void MotorPortHandler_Run_Update(uint8_t port_idx)
+{
+
+}
+
+__attribute__((weak))
+void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value)
+{
+    /* nothing to do */
+}
+
+__attribute__((weak))
+bool MotorPortHandler_Read_DriverFault(uint8_t port_idx)
+{
+    return false;
 }

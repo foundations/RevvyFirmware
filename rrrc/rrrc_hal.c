@@ -3,28 +3,9 @@
  *
  * Created: 1/4/2019 6:56:55 PM
  *  Author: User
- */ 
-
- /*
-//=======================================================================================================
-void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-    //DBG_printf(DBG_LEVEL_DEBUG, "HAL_I2C_SlaveTxCpltCallback. %d bytes trasmitted\n", hi2c->XferCount);
-    //buff_i2c_to_tx_bytes = 0;
-}
-
-//=======================================================================================================
-void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-    //DBG_printf(DBG_LEVEL_DEBUG, "HAL_I2C_SlaveRxCpltCallback, %d bytes received \n", hi2c->XferCount);
-    //uint8_t ret = CommandHandler ( (ptransaction) hi2c->pBuffPtr, hi2c->XferCount);
-    //buff_i2c_to_tx_bytes = MakeResponse(ret, (ptransaction) &buff_i2c_tx);
-
-}*/
+ */
 
 #include "rrrc_hal.h"
-#include "rrrc_sensors.h"
-#include "rrrc_motors.h"
 
 //*****************************************************************************************************
 //*****************************************************************************************************

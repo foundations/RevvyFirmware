@@ -1374,42 +1374,6 @@
     <Compile Include="rrrc\jscope\jscope.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\motors\motor_dummy.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_dummy.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_openloop.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_openloop.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_position_controlled.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_position_controlled.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_servo.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_servo.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_speed_controlled.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\motor_speed_controlled.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\rrrc_motor_base_function.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\motors\rrrc_motor_interface.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\rrrc_hal.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1428,70 +1392,16 @@
     <Compile Include="rrrc\rrrc_indication_predefined.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\rrrc_motors.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\rrrc_motors.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\rrrc_sensors.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\rrrc_sensors.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\rrrc_sysmon.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_sysmon.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\rrrc_tb6612fng.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\rrrc_tb6612fng.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\rrrc_worklogic.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_worklogic.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\rrrc_sensor_base_func.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\rrrc_sensor_interface.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_analog_button.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_analog_button.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_button.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_button.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_dummy.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_dummy.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_HC_SR05.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_HC_SR05.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_i2chub.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\sensors\sensor_i2chub.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\utils\color.c">
@@ -1591,9 +1501,7 @@
     <Folder Include="rrrc\utils" />
     <Folder Include="third_party" />
     <Folder Include="rrrc" />
-    <Folder Include="rrrc\motors" />
     <Folder Include="rrrc\controller" />
-    <Folder Include="rrrc\sensors" />
     <Folder Include="freertos" />
     <Folder Include="freertos\FreeRTOSV10.0.0" />
     <Folder Include="freertos\FreeRTOSV10.0.0\License" />

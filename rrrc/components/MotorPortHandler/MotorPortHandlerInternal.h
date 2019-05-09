@@ -11,13 +11,4 @@
 
 #include "MotorPortHandler.h"
 
-struct _MotorPort_t;
-
-#include "MotorPortLibraries/MotorPortLibrary.h"
-
-typedef struct _MotorPort_t
-{
-    const struct _MotorLibrary_t* library;
-} MotorPort_t;
-
 #endif /* MOTOR_PORT_HANDLER_INTERNAL_H_ */

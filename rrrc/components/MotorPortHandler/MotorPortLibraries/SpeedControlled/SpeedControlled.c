@@ -56,7 +56,7 @@ MotorLibraryStatus_t SpeedControlled_GetControlReference(MotorPort_t* motorPort,
     return MotorLibraryStatus_Ok;
 }
 
-const MotorLibrary_t motor_library_dummy = 
+const MotorLibrary_t motor_library_speed_controlled = 
 {
     .name = "SpeedControlled",
     .Init                = &SpeedControlled_Init,

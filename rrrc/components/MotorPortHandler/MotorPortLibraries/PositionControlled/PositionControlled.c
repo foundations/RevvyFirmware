@@ -56,7 +56,7 @@ MotorLibraryStatus_t PositionControlled_GetControlReference(MotorPort_t* motorPo
     return MotorLibraryStatus_Ok;
 }
 
-const MotorLibrary_t motor_library_dummy = 
+const MotorLibrary_t motor_library_position_controlled = 
 {
     .name = "PositionControlled",
     .Init                = &PositionControlled_Init,

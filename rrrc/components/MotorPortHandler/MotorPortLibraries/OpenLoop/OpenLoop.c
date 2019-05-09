@@ -56,7 +56,7 @@ MotorLibraryStatus_t OpenLoop_GetControlReference(MotorPort_t* motorPort, uint8_
     return MotorLibraryStatus_Ok;
 }
 
-const MotorLibrary_t motor_library_dummy = 
+const MotorLibrary_t motor_library_open_loop = 
 {
     .name = "OpenLoop",
     .Init                = &OpenLoop_Init,
