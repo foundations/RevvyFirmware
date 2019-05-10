@@ -21,12 +21,12 @@ MotorLibraryStatus_t Dummy_Update(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t Dummy_Gpio0Callback(MotorPort_t* motorPort, uint32_t state)
+MotorLibraryStatus_t Dummy_Gpio0Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t Dummy_Gpio1Callback(MotorPort_t* motorPort, uint32_t state)
+MotorLibraryStatus_t Dummy_Gpio1Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
     return MotorLibraryStatus_Ok;
 }

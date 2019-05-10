@@ -43,12 +43,12 @@ MotorLibraryStatus_t OpenLoop_Update(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t OpenLoop_Gpio0Callback(MotorPort_t* motorPort, uint32_t state)
+MotorLibraryStatus_t OpenLoop_Gpio0Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t OpenLoop_Gpio1Callback(MotorPort_t* motorPort, uint32_t state)
+MotorLibraryStatus_t OpenLoop_Gpio1Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
     return MotorLibraryStatus_Ok;
 }

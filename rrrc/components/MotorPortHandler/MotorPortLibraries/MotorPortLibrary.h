@@ -25,8 +25,8 @@ typedef struct _MotorLibrary_t
     MotorLibraryStatus_t (*DeInit)(struct _MotorPort_t* motorPort);
     MotorLibraryStatus_t (*Update)(struct _MotorPort_t* motorPort);
 
-    MotorLibraryStatus_t (*Gpio0Callback)(struct _MotorPort_t* motorPort, uint32_t state);
-    MotorLibraryStatus_t (*Gpio1Callback)(struct _MotorPort_t* motorPort, uint32_t state);
+    MotorLibraryStatus_t (*Gpio0Callback)(struct _MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state);
+    MotorLibraryStatus_t (*Gpio1Callback)(struct _MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state);
 
     MotorLibraryStatus_t (*SetConfig)(struct _MotorPort_t* motorPort, const uint8_t* data, uint8_t size);
     MotorLibraryStatus_t (*UpdateConfiguration)(struct _MotorPort_t* motorPort);

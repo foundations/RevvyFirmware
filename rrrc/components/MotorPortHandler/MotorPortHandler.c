@@ -7,6 +7,7 @@
 
 #include "MotorPortHandlerInternal.h"
 #include "utils.h"
+#include "atmel_start_pins.h"
 #include <string.h>
 
 #include "MotorPortLibraries/Dummy/Dummy.h"
@@ -26,6 +27,9 @@ static size_t motorPortCount = 0u;
 static MotorPort_t* motorPorts = NULL;
 static MotorPort_t* configuredPort = NULL;
 
+static void MotorPort_gpio0_ext_cb(uint32_t data, void* port);
+static void MotorPort_gpio1_ext_cb(uint32_t data, void* port);
+
 static void _init_port(MotorPort_t* port)
 {
     /* init led pins */
@@ -40,9 +44,32 @@ static void _init_port(MotorPort_t* port)
     gpio_set_pin_level(port->led1, false);
 
     /* init gpios */
+    
+    /* encoders */
+    gpio_set_pin_direction(port->enc0, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(port->enc0, GPIO_PIN_FUNCTION_E);
+    gpio_set_pin_pull_mode(port->enc0, GPIO_PULL_UP);
+    timer_register_cb(port->enc0_timer, port->enc0_timer_event, &MotorPort_gpio0_ext_cb, port);
+
+    gpio_set_pin_direction(port->enc1, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(port->enc1, GPIO_PIN_FUNCTION_E);
+    gpio_set_pin_pull_mode(port->enc1, GPIO_PULL_UP);
+    timer_register_cb(port->enc1_timer, port->enc1_timer_event, &MotorPort_gpio1_ext_cb, port);
 
     /* set dummy library */
     port->library = &motor_library_dummy;
+}
+
+static void MotorPort_gpio0_ext_cb(uint32_t data, void* port)
+{
+    MotorPort_t* motorPort = (MotorPort_t*) port;
+    motorPort->library->Gpio0Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
+}
+
+static void MotorPort_gpio1_ext_cb(uint32_t data, void* port)
+{
+    MotorPort_t* motorPort = (MotorPort_t*) port;
+    motorPort->library->Gpio1Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
 }
 
 Comm_Status_t MotorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)

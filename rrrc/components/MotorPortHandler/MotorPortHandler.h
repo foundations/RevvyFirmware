@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <hal_gpio.h>
+#include <hal_timer.h>
 #include "../MasterCommunication/CommunicationManager.h"
 
 struct _MotorPort_t;
@@ -27,6 +28,13 @@ typedef struct _MotorPort_t
 
     uint8_t led0;
     uint8_t led1;
+
+    uint8_t enc0;
+    uint8_t enc1;
+    struct timer_descriptor* enc0_timer;
+    enum TIMER_CB_FUNC_TUPE enc0_timer_event;
+    struct timer_descriptor* enc1_timer;
+    enum TIMER_CB_FUNC_TUPE enc1_timer_event;
 } MotorPort_t;
 
 Comm_Status_t MotorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
