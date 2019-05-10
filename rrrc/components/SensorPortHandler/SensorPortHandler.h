@@ -34,6 +34,7 @@ Comm_Status_t SensorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t
 Comm_Status_t SensorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t SensorPortHandler_SetPortConfig_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t SensorPortHandler_GetSensorData_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+Comm_Status_t SensorPortHandler_GetSensorData_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 
 void SensorPortHandler_Run_OnInit(SensorPort_t* ports, size_t portCount);
 void SensorPortHandler_Run_Update(void);

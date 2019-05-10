@@ -23,6 +23,7 @@ static const SensorLibrary_t* libraries[] =
 static size_t sensorPortCount = 0u;
 static SensorPort_t* sensorPorts = NULL;
 static SensorPort_t* configuredPort = NULL;
+static SensorPort_t* activePort = NULL;
 
 static void _init_port(SensorPort_t* port)
 {
@@ -169,14 +170,41 @@ Comm_Status_t SensorPortHandler_GetSensorData_Start(const uint8_t* commandPayloa
     }
     
     SensorPort_t* port = &sensorPorts[port_idx];
-    SensorLibraryStatus_t result = port->library->GetValue(port, &commandPayload[1], commandSize - 1u, response, responseBufferSize, responseCount);
+    SensorLibraryStatus_t result = port->library->PrepareGetValue(port, &commandPayload[1], commandSize - 1u);
 
+    /* Prepare does not return with data. If it returns ok, data shall be read using opeartion GetResult */
     if (result == SensorLibraryStatus_Ok)
     {
-        return Comm_Status_Ok;
+        activePort = port;
+        return Comm_Status_Pending;
     }
     else
     {
+        return Comm_Status_Error_InternalError;
+    }
+}
+
+Comm_Status_t SensorPortHandler_GetSensorData_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (activePort == NULL)
+    {
+        return Comm_Status_Error_InvalidOperation;
+    }
+
+    SensorLibraryStatus_t result = activePort->library->GetValue(activePort, response, responseBufferSize, responseCount);
+
+    if (result == SensorLibraryStatus_Ok)
+    {
+        activePort = NULL;
+        return Comm_Status_Ok;
+    }
+    else if (result == SensorLibraryStatus_Pending)
+    {
+        return Comm_Status_Pending;
+    }
+    else
+    {
+        activePort = NULL;
         return Comm_Status_Error_InternalError;
     }
 }

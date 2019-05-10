@@ -89,7 +89,7 @@ static const Comm_CommandHandler_t communicationHandlers[] =
     [0x21u] = { .Start = &SensorPortHandler_GetPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
     [0x22u] = { .Start = &SensorPortHandler_SetPortType_Start, .GetResult = &SensorPortHandler_SetPortType_GetResult, .Cancel = NULL },
     [0x23u] = { .Start = &SensorPortHandler_SetPortConfig_Start, .GetResult = &SensorPortHandler_SetPortConfig_GetResult, .Cancel = NULL },
-    [0x24u] = { .Start = &SensorPortHandler_GetSensorData_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x24u] = { .Start = &SensorPortHandler_GetSensorData_Start, .GetResult = &SensorPortHandler_GetSensorData_GetResult, .Cancel = NULL },
     /* led ring commands */
 };
 
