@@ -48,7 +48,7 @@ MotorLibraryStatus_t PositionControlled_GetPosition(MotorPort_t* motorPort, int3
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t PositionControlled_SetControlReference(MotorPort_t* motorPort, uint8_t* data, uint8_t size)
+MotorLibraryStatus_t PositionControlled_SetControlReference(MotorPort_t* motorPort, const uint8_t* data, uint8_t size)
 {
     return MotorLibraryStatus_Ok;
 }

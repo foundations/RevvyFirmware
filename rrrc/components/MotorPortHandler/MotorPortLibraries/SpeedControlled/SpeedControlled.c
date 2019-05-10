@@ -48,7 +48,7 @@ MotorLibraryStatus_t SpeedControlled_GetPosition(MotorPort_t* motorPort, int32_t
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t SpeedControlled_SetControlReference(MotorPort_t* motorPort, uint8_t* data, uint8_t size)
+MotorLibraryStatus_t SpeedControlled_SetControlReference(MotorPort_t* motorPort, const uint8_t* data, uint8_t size)
 {
     return MotorLibraryStatus_Ok;
 }
