@@ -77,12 +77,14 @@ static const Comm_CommandHandler_t communicationHandlers[] =
     [0x05u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
     
     /* motor commands */
-    [0x10u] = { .Start = &MotorPortHandler_GetMotorPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x11u] = { .Start = &MotorPortHandler_GetMotorPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x10u] = { .Start = &MotorPortHandler_GetPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x11u] = { .Start = &MotorPortHandler_GetPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x12u] = { .Start = &MotorPortHandler_SetPortType_Start, .GetResult = &MotorPortHandler_SetPortType_GetResult, .Cancel = NULL },
 
     /* sensor commands */
-    [0x20u] = { .Start = &SensorPortHandler_GetSensorPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x21u] = { .Start = &SensorPortHandler_GetSensorPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x20u] = { .Start = &SensorPortHandler_GetPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x21u] = { .Start = &SensorPortHandler_GetPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x22u] = { .Start = &SensorPortHandler_SetPortType_Start, .GetResult = &SensorPortHandler_SetPortType_GetResult, .Cancel = NULL },
 
     /* led ring commands */
 };

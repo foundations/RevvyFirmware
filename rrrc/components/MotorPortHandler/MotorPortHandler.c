@@ -24,6 +24,7 @@ static const MotorLibrary_t* libraries[] =
 
 static size_t motorPortCount = 0u;
 static MotorPort_t* motorPorts = NULL;
+static MotorPort_t* configuredPort = NULL;
 
 static void _init_port(MotorPort_t* port)
 {
@@ -44,7 +45,7 @@ static void _init_port(MotorPort_t* port)
     port->library = &motor_library_dummy;
 }
 
-Comm_Status_t MotorPortHandler_GetMotorPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+Comm_Status_t MotorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
     response[0] = motorPortCount;
     *responseCount = 1u;
@@ -52,7 +53,7 @@ Comm_Status_t MotorPortHandler_GetMotorPortAmount_Start(const uint8_t* commandPa
     return Comm_Status_Ok;
 }
 
-Comm_Status_t MotorPortHandler_GetMotorPortTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+Comm_Status_t MotorPortHandler_GetPortTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
     uint8_t len = 0u;
     for (uint32_t i = 0u; i < ARRAY_SIZE(libraries); i++)
@@ -72,6 +73,56 @@ Comm_Status_t MotorPortHandler_GetMotorPortTypes_Start(const uint8_t* commandPay
     *responseCount = len;
 
     return Comm_Status_Ok;
+}
+
+Comm_Status_t MotorPortHandler_SetPortType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (commandSize != 2u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    uint8_t port_idx = commandPayload[0];
+    uint8_t type_idx = commandPayload[1];
+    if (port_idx >= motorPortCount)
+    {
+        return Comm_Status_Error_CommandError;
+    }
+    
+    if (type_idx >= ARRAY_SIZE(libraries))
+    {
+        return Comm_Status_Error_CommandError;
+    }
+
+    MotorPort_t* port = &motorPorts[port_idx];
+    port->requestedLibrary = libraries[type_idx];
+
+    configuredPort = port;
+
+    return Comm_Status_Pending;
+}
+
+Comm_Status_t MotorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (configuredPort == NULL)
+    {
+        return Comm_Status_Error_InvalidOperation;
+    }
+
+    if (configuredPort->requestedLibrary == configuredPort->library)
+    {
+        configuredPort = NULL;
+        return Comm_Status_Ok;
+    }
+    else
+    {
+        return Comm_Status_Pending;
+    }
+}
+
+Comm_Status_t MotorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    return Comm_Status_Error_InternalError;
 }
 
 void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount)
@@ -98,6 +149,8 @@ void MotorPortHandler_Run_Update(uint8_t port_idx)
             port->library = requestedLibrary;
             port->library->Init(port);
         }
+
+        port->library->Update(port);
     }
 }
 
