@@ -76,6 +76,11 @@ SensorLibraryStatus_t BumperSwitch_UpdateConfiguration(SensorPort_t* sensorPort)
     return SensorLibraryStatus_Ok;
 }
 
+SensorLibraryStatus_t BumperSwitch_InterruptCallback(SensorPort_t* sensorPort, bool status)
+{
+    return SensorLibraryStatus_Ok;
+}
+
 SensorLibraryStatus_t BumperSwitch_UpdateAnalogData(SensorPort_t* sensorPort, uint8_t rawValue)
 {
     SensorLibrary_BumperSwitch_Data_t* libdata = (SensorLibrary_BumperSwitch_Data_t*) sensorPort->libraryData;
@@ -95,4 +100,5 @@ const SensorLibrary_t sensor_library_bumper_switch =
     .GetValue            = &BumperSwitch_GetValue,
     .UpdateConfiguration = &BumperSwitch_UpdateConfiguration,
     .UpdateAnalogData    = &BumperSwitch_UpdateAnalogData,
+    .InterruptHandler    = &BumperSwitch_InterruptCallback
 };

@@ -5,6 +5,7 @@
  *  Author: Dániel Buga
  */ 
 #include "SensorPortHandlerInternal.h"
+#include "atmel_start_pins.h"
 
 void SensorPort_SetGreenLed(SensorPort_t* port, bool state)
 {
@@ -14,4 +15,82 @@ void SensorPort_SetGreenLed(SensorPort_t* port, bool state)
 void SensorPort_SetOrangeLed(SensorPort_t* port, bool state)
 {
     gpio_set_pin_level(port->led1, state);
+}
+
+void SensorPort_ConfigureGpio0_Input(SensorPort_t* port)
+{
+    gpio_set_pin_pull_mode(port->gpio0, GPIO_PULL_OFF);
+    gpio_set_pin_direction(port->gpio0, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_OFF);
+
+    ext_irq_disable(port->gpio0);
+}
+
+void SensorPort_ConfigureGpio0_Interrupt(SensorPort_t* port)
+{
+    gpio_set_pin_pull_mode(port->gpio0, GPIO_PULL_OFF);
+    gpio_set_pin_direction(port->gpio0, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_A);
+
+    ext_irq_enable(port->gpio0);
+}
+
+void SensorPort_ConfigureGpio0_Output(SensorPort_t* port)
+{
+    gpio_set_pin_pull_mode(port->gpio0, GPIO_PULL_OFF);
+    gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(port->gpio0, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(port->gpio0, false);
+
+    ext_irq_disable(port->gpio0);
+}
+
+void SensorPort_ConfigureGpio1_Input(SensorPort_t* port)
+{
+    gpio_set_pin_pull_mode(port->gpio0, GPIO_PULL_OFF);
+    gpio_set_pin_direction(port->gpio0, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_OFF);
+}
+
+void SensorPort_ConfigureGpio1_Output(SensorPort_t* port)
+{
+    gpio_set_pin_pull_mode(port->gpio1, GPIO_PULL_OFF);
+    gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(port->gpio1, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(port->gpio1, false);
+}
+
+bool SensorPort_Read_Gpio0(SensorPort_t* port)
+{
+    return gpio_get_pin_level(port->gpio0) != 0u;
+}
+
+bool SensorPort_Read_Gpio1(SensorPort_t* port)
+{
+    return gpio_get_pin_level(port->gpio1) != 0u;
+}
+
+void SensorPort_SetGpio0_Output(SensorPort_t* port, bool state)
+{
+    gpio_set_pin_level(port->gpio0, state);
+}
+
+void SensorPort_SetGpio1_Output(SensorPort_t* port, bool state)
+{
+    gpio_set_pin_level(port->gpio1, state);
+}
+
+void SensorPort_SetVccIo(SensorPort_t* port, Sensor_VccIo_t voltage)
+{
+    switch(voltage)
+    {
+        default:
+        case Sensor_VccIo_3V3:
+            gpio_set_pin_level(port->vccio, false);
+            break;
+
+        case Sensor_VccIo_5V:
+            gpio_set_pin_level(port->vccio, true);
+            break;
+    }
 }

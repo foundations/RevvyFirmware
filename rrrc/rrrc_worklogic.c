@@ -126,21 +126,33 @@ static SensorPort_t sensorPorts[] =
     {
         .led0 = S0LED0,
         .led1 = S0LED1,
+        .gpio0 = S0GPIO0,
+        .gpio1 = S0GPIO1,
+        .vccio = S0IOVCC,
         .adc = 3
     },
     {
         .led0 = S1LED0,
         .led1 = S1LED1,
+        .gpio0 = S1GPIO0,
+        .gpio1 = S1GPIO1,
+        .vccio = S1IOVCC,
         .adc = 0
     },
     {
         .led0 = S2LED0,
         .led1 = S2LED1,
+        .gpio0 = S2GPIO0,
+        .gpio1 = S2GPIO1,
+        .vccio = S2IOVCC,
         .adc = 1
     },
     {
         .led0 = S3LED0,
         .led1 = S3LED1,
+        .gpio0 = S3GPIO0,
+        .gpio1 = S3GPIO1,
+        .vccio = S3IOVCC,
         .adc = 2
     }
 };

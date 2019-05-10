@@ -26,6 +26,10 @@ typedef struct _SensorPort_t
     uint8_t led0;
     uint8_t led1;
 
+    uint8_t gpio0;
+    uint8_t gpio1;
+    uint8_t vccio;
+
     uint8_t adc;
 } SensorPort_t;
 

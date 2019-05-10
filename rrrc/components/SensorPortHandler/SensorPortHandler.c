@@ -25,6 +25,13 @@ static SensorPort_t* sensorPorts = NULL;
 static SensorPort_t* configuredPort = NULL;
 static SensorPort_t* activePort = NULL;
 
+static void SensorPort_ext0_callback(void* user_data)
+{
+    SensorPort_t* port = (SensorPort_t*) user_data;
+
+    port->library->InterruptHandler(port, SensorPort_Read_Gpio0(port));
+}
+
 static void _init_port(SensorPort_t* port)
 {
     /* init led pins */
@@ -38,7 +45,13 @@ static void _init_port(SensorPort_t* port)
     gpio_set_pin_direction(port->led1, GPIO_DIRECTION_OUT);
     gpio_set_pin_level(port->led1, false);
 
-    /* init gpios */
+    /* init vccio pin */
+    gpio_set_pin_pull_mode(port->vccio, GPIO_PULL_OFF);
+    gpio_set_pin_function(port->vccio, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(port->vccio, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(port->vccio, false);
+
+    ext_irq_register(port->gpio0, &SensorPort_ext0_callback, port);
 
     /* set dummy library */
     port->library = &sensor_library_dummy;

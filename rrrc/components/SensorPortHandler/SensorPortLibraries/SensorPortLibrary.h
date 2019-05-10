@@ -31,7 +31,8 @@ typedef struct _SensorLibrary_t
 
     SensorLibraryStatus_t (*PrepareGetValue)(struct _SensorPort_t* sensorPort, const uint8_t* parameter, uint8_t parameterLength);
     SensorLibraryStatus_t (*GetValue)(struct _SensorPort_t* sensorPort, uint8_t* value, uint8_t maxSize, uint8_t* valueSize);
-
+    
+    SensorLibraryStatus_t (*InterruptHandler)(struct _SensorPort_t* sensorPort, bool state);
     SensorLibraryStatus_t (*UpdateAnalogData)(struct _SensorPort_t* sensorPort, uint8_t rawValue);
 } SensorLibrary_t;
 
