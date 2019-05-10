@@ -134,20 +134,24 @@ void SensorPortHandler_Run_OnInit(SensorPort_t* ports, size_t portCount)
     }
 }
 
-void SensorPortHandler_Run_Update(uint8_t port_idx)
+void SensorPortHandler_Run_Update(void)
 {
-    if (port_idx < sensorPortCount)
+    if (configuredPort != NULL)
     {
-        SensorPort_t* port = &sensorPorts[port_idx];
-
-        const SensorLibrary_t* requestedLibrary = port->requestedLibrary;
-        if (requestedLibrary != port->library)
+        const SensorLibrary_t* requestedLibrary = configuredPort->requestedLibrary;
+        if (requestedLibrary != configuredPort->library)
         {
-            port->library->DeInit(port);
-            port->library = requestedLibrary;
-            port->library->Init(port);
+            configuredPort->library->DeInit(configuredPort);
+            configuredPort->library = requestedLibrary;
+            configuredPort->library->Init(configuredPort);
         }
-
-        port->library->Update(port);
     }
+}
+
+void SensorPortHandler_Run_PortUpdate(uint8_t port_idx)
+{
+    ASSERT(port_idx < sensorPortCount);
+
+    SensorPort_t* port = &sensorPorts[port_idx];
+    port->library->Update(port);
 }

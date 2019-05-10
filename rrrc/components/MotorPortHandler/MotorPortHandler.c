@@ -136,22 +136,26 @@ void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount)
     }
 }
 
-void MotorPortHandler_Run_Update(uint8_t port_idx)
+void MotorPortHandler_Run_Update(void)
 {
-    if (port_idx < motorPortCount)
+    if (configuredPort != NULL)
     {
-        MotorPort_t* port = &motorPorts[port_idx];
-
-        const MotorLibrary_t* requestedLibrary = port->requestedLibrary;
-        if (requestedLibrary != port->library)
+        const MotorLibrary_t* requestedLibrary = configuredPort->requestedLibrary;
+        if (requestedLibrary != configuredPort->library)
         {
-            port->library->DeInit(port);
-            port->library = requestedLibrary;
-            port->library->Init(port);
+            configuredPort->library->DeInit(configuredPort);
+            configuredPort->library = requestedLibrary;
+            configuredPort->library->Init(configuredPort);
         }
-
-        port->library->Update(port);
     }
+}
+
+void MotorPortHandler_Run_PortUpdate(uint8_t port_idx)
+{
+    ASSERT(port_idx < motorPortCount);
+
+    MotorPort_t* port = &motorPorts[port_idx];
+    port->library->Update(port);
 }
 
 __attribute__((weak))

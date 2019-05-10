@@ -140,9 +140,16 @@ static void ProcessTasks_10ms(void)
 static void ProcessTasks_20ms(void)
 {
     /* TODO: Different ports may be handled with a time offset from each other to decrease jitter */
+    MotorPortHandler_Run_Update();
     for (size_t i = 0u; i < ARRAY_SIZE(motorPorts); i++)
     {
-        MotorPortHandler_Run_Update(i);
+        MotorPortHandler_Run_PortUpdate(i);
+    }
+
+    SensorPortHandler_Run_Update();
+    for (size_t i = 0u; i < ARRAY_SIZE(sensorPorts); i++)
+    {
+        SensorPortHandler_Run_PortUpdate(i);
     }
 
     RingLedDisplay_Run_Update();

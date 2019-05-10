@@ -34,7 +34,8 @@ Comm_Status_t MotorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t 
 Comm_Status_t MotorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 
 void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount);
-void MotorPortHandler_Run_Update(uint8_t port_idx);
+void MotorPortHandler_Run_Update(void);
+void MotorPortHandler_Run_PortUpdate(uint8_t port_idx);
 
 void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value);
 bool MotorPortHandler_Read_DriverFault(uint8_t port_idx);
