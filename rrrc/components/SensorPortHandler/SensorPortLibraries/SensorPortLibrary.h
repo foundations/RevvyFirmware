@@ -25,6 +25,7 @@ typedef struct _SensorLibrary_t
     SensorLibraryStatus_t (*Update)(struct _SensorPort_t* sensorPort);
 
     SensorLibraryStatus_t (*SetConfig)(struct _SensorPort_t* sensorPort, const uint8_t* data, uint8_t size);
+    SensorLibraryStatus_t (*UpdateConfiguration)(struct _SensorPort_t* sensorPort);
     SensorLibraryStatus_t (*GetConfig)(struct _SensorPort_t* sensorPort, uint8_t* data, uint8_t* size, uint8_t max_size);
 } SensorLibrary_t;
 

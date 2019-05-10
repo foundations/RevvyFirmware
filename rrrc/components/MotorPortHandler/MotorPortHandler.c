@@ -122,7 +122,40 @@ Comm_Status_t MotorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t 
 
 Comm_Status_t MotorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
-    return Comm_Status_Error_InternalError;
+    if (commandSize < 2u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+    uint8_t port_idx = commandPayload[0];
+    if (port_idx >= motorPortCount)
+    {
+        return Comm_Status_Error_CommandError;
+    }
+    
+    MotorPort_t* port = &motorPorts[port_idx];
+    MotorLibraryStatus_t result = port->library->SetConfig(port, &commandPayload[1], commandSize - 1u);
+
+    if (result == MotorLibraryStatus_Ok)
+    {
+        configuredPort = port;
+        return Comm_Status_Pending;
+    }
+    else
+    {
+        return Comm_Status_Error_InternalError;
+    }
+}
+
+Comm_Status_t MotorPortHandler_SetPortConfig_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (configuredPort == NULL)
+    {
+        return Comm_Status_Ok;
+    }
+    else
+    {
+        return Comm_Status_Pending;
+    }
 }
 
 void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount)
@@ -147,6 +180,10 @@ void MotorPortHandler_Run_Update(void)
             configuredPort->library = requestedLibrary;
             configuredPort->library->Init(configuredPort);
         }
+
+        configuredPort->library->UpdateConfiguration(configuredPort);
+
+        configuredPort = NULL;
     }
 }
 
