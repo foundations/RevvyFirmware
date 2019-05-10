@@ -58,7 +58,7 @@ MotorLibraryStatus_t Dummy_GetControlReference(MotorPort_t* motorPort, uint8_t* 
 
 const MotorLibrary_t motor_library_dummy = 
 {
-    .name = "Dummy",
+    .name = "NotConfigured",
     .Init                = &Dummy_Init,
     .DeInit              = &Dummy_DeInit,
     .Update              = &Dummy_Update,
