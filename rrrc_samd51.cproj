@@ -1416,9 +1416,6 @@
     <Compile Include="rrrc\rrrc_hal.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\rrrc_i2c_protocol.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\rrrc_indication.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1426,12 +1423,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_indication_predefined.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\rrrc_sysmon.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\rrrc_sysmon.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_worklogic.c">

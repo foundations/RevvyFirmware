@@ -7,9 +7,7 @@
 
 #include "rrrc_hal.h"
 #include "rrrc_worklogic.h"
-#include "rrrc_i2c_protocol.h"
 #include "rrrc_indication.h"
-#include "rrrc_sysmon.h"
 
 #include "jscope/jscope.h"
 
@@ -50,6 +48,8 @@ static float mainBatteryVoltage;
 static float motorBatteryVoltage;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
+
+static float mcuTemperature;
 
 static MotorPort_t motorPorts[] = 
 {
@@ -425,17 +425,15 @@ uint8_t SensorPortHandler_Read_AdcData(uint8_t port_idx)
 
 void ADC_Write_Samples_ADC1(float samples[5])
 {
-    rrrc_sysmon_t sysmon;
-    sysmon.systicks = xTaskGetTickCount();
-    sysmon.motor_voltage   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_VOLTAGE] * (130.0f / 30.0f));
-    sysmon.battery_voltage = (uint32_t) lroundf(samples[SYSMON_ADC_BATTERY_VOLTAGE] * (340.0f / 240.0f));
-    sysmon.motor_current   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_CURRENT]);
-    InternalTemperatureSensor_Run_Convert(samples[SYSMON_ADC_TEMPERATURE_P], samples[SYSMON_ADC_TEMPERATURE_C], &sysmon.temperature);
+    uint32_t motor_voltage   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_VOLTAGE] * (130.0f / 30.0f));
+    uint32_t battery_voltage = (uint32_t) lroundf(samples[SYSMON_ADC_BATTERY_VOLTAGE] * (340.0f / 240.0f));
+//    sysmon.motor_current   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_CURRENT]);
 
-    mainBatteryVoltage = sysmon.battery_voltage;
-    motorBatteryVoltage = sysmon.motor_voltage;
+//    float temperature;
+    InternalTemperatureSensor_Run_Convert(samples[SYSMON_ADC_TEMPERATURE_P], samples[SYSMON_ADC_TEMPERATURE_C], &mcuTemperature);
 
-    SystemMonitor_Update(&sysmon);
+    mainBatteryVoltage = battery_voltage;
+    motorBatteryVoltage = motor_voltage;
 }
 
 static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
