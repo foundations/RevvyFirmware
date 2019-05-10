@@ -163,12 +163,6 @@ MotorLibraryStatus_t SpeedControlled_UpdateConfiguration(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t SpeedControlled_GetConfig(MotorPort_t* motorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return MotorLibraryStatus_Ok;
-}
-
 MotorLibraryStatus_t SpeedControlled_GetPosition(MotorPort_t* motorPort, int32_t* data)
 {
     MotorLibrary_SpeedControlled_Data_t* libdata = (MotorLibrary_SpeedControlled_Data_t*) motorPort->libraryData;
@@ -188,12 +182,6 @@ MotorLibraryStatus_t SpeedControlled_SetControlReference(MotorPort_t* motorPort,
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t SpeedControlled_GetControlReference(MotorPort_t* motorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return MotorLibraryStatus_Ok;
-}
-
 const MotorLibrary_t motor_library_speed_controlled = 
 {
     .name = "SpeedControlled",
@@ -204,8 +192,6 @@ const MotorLibrary_t motor_library_speed_controlled =
     .Gpio1Callback       = &SpeedControlled_Gpio1Callback,
     .SetConfig           = &SpeedControlled_SetConfig,
     .UpdateConfiguration = &SpeedControlled_UpdateConfiguration,
-    .GetConfig           = &SpeedControlled_GetConfig,
     .GetPosition         = &SpeedControlled_GetPosition,
     .SetControlReference = &SpeedControlled_SetControlReference,
-    .GetControlReference = &SpeedControlled_GetControlReference
 };

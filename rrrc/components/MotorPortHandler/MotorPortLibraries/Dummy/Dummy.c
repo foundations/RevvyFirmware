@@ -41,12 +41,6 @@ MotorLibraryStatus_t Dummy_UpdateConfiguration(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t Dummy_GetConfig(MotorPort_t* motorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return MotorLibraryStatus_Ok;
-}
-
 MotorLibraryStatus_t Dummy_GetPosition(MotorPort_t* motorPort, int32_t* data)
 {
     *data = 0;
@@ -58,15 +52,9 @@ MotorLibraryStatus_t Dummy_SetControlReference(MotorPort_t* motorPort, const uin
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t Dummy_GetControlReference(MotorPort_t* motorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return MotorLibraryStatus_Ok;
-}
-
 const MotorLibrary_t motor_library_dummy = 
 {
-    .name = "NotConfigured",
+    .name                = "NotConfigured",
     .Init                = &Dummy_Init,
     .DeInit              = &Dummy_DeInit,
     .Update              = &Dummy_Update,
@@ -74,8 +62,6 @@ const MotorLibrary_t motor_library_dummy =
     .Gpio1Callback       = &Dummy_Gpio1Callback,
     .SetConfig           = &Dummy_SetConfig,
     .UpdateConfiguration = &Dummy_UpdateConfiguration,
-    .GetConfig           = &Dummy_GetConfig,
     .GetPosition         = &Dummy_GetPosition,
     .SetControlReference = &Dummy_SetControlReference,
-    .GetControlReference = &Dummy_GetControlReference
 };

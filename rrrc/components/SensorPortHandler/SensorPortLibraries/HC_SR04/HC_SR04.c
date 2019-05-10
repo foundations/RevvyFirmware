@@ -117,12 +117,6 @@ SensorLibraryStatus_t HC_SR04_SetConfig(SensorPort_t* sensorPort, const uint8_t*
     return SensorLibraryStatus_Ok;
 }
 
-SensorLibraryStatus_t HC_SR04_GetConfig(SensorPort_t* sensorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return SensorLibraryStatus_Ok;
-}
-
 SensorLibraryStatus_t HC_SR04_PrepareGetValue(SensorPort_t* sensorPort, const uint8_t* parameter, uint8_t parameterLength)
 {
     return SensorLibraryStatus_Ok;
@@ -183,7 +177,6 @@ const SensorLibrary_t sensor_library_hc_sr04 =
     .DeInit              = &HC_SR04_DeInit,
     .Update              = &HC_SR04_Update,
     .SetConfig           = &HC_SR04_SetConfig,
-    .GetConfig           = &HC_SR04_GetConfig,
     .PrepareGetValue     = &HC_SR04_PrepareGetValue,
     .GetValue            = &HC_SR04_GetValue,
     .UpdateConfiguration = &HC_SR04_UpdateConfiguration,

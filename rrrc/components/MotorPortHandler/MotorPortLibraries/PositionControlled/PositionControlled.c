@@ -150,12 +150,6 @@ MotorLibraryStatus_t PositionControlled_UpdateConfiguration(MotorPort_t* motorPo
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t PositionControlled_GetConfig(MotorPort_t* motorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return MotorLibraryStatus_Ok;
-}
-
 MotorLibraryStatus_t PositionControlled_GetPosition(MotorPort_t* motorPort, int32_t* data)
 {
     MotorLibrary_PositionControlled_Data_t* libdata = (MotorLibrary_PositionControlled_Data_t*) motorPort->libraryData;
@@ -175,12 +169,6 @@ MotorLibraryStatus_t PositionControlled_SetControlReference(MotorPort_t* motorPo
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t PositionControlled_GetControlReference(MotorPort_t* motorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return MotorLibraryStatus_Ok;
-}
-
 const MotorLibrary_t motor_library_position_controlled = 
 {
     .name                = "PositionControlled",
@@ -191,8 +179,6 @@ const MotorLibrary_t motor_library_position_controlled =
     .Gpio1Callback       = &PositionControlled_Gpio1Callback,
     .SetConfig           = &PositionControlled_SetConfig,
     .UpdateConfiguration = &PositionControlled_UpdateConfiguration,
-    .GetConfig           = &PositionControlled_GetConfig,
     .GetPosition         = &PositionControlled_GetPosition,
     .SetControlReference = &PositionControlled_SetControlReference,
-    .GetControlReference = &PositionControlled_GetControlReference
 };

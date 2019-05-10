@@ -50,12 +50,6 @@ SensorLibraryStatus_t BumperSwitch_SetConfig(SensorPort_t* sensorPort, const uin
     return SensorLibraryStatus_Ok;
 }
 
-SensorLibraryStatus_t BumperSwitch_GetConfig(SensorPort_t* sensorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
-{
-    *size = 0u;
-    return SensorLibraryStatus_Ok;
-}
-
 SensorLibraryStatus_t BumperSwitch_PrepareGetValue(SensorPort_t* sensorPort, const uint8_t* parameter, uint8_t parameterLength)
 {
     return SensorLibraryStatus_Ok;
@@ -95,7 +89,6 @@ const SensorLibrary_t sensor_library_bumper_switch =
     .DeInit              = &BumperSwitch_DeInit,
     .Update              = &BumperSwitch_Update,
     .SetConfig           = &BumperSwitch_SetConfig,
-    .GetConfig           = &BumperSwitch_GetConfig,
     .PrepareGetValue     = &BumperSwitch_PrepareGetValue,
     .GetValue            = &BumperSwitch_GetValue,
     .UpdateConfiguration = &BumperSwitch_UpdateConfiguration,
