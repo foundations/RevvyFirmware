@@ -28,6 +28,7 @@ SensorLibraryStatus_t HC_SR04_SetConfig(SensorPort_t* sensorPort, const uint8_t*
 
 SensorLibraryStatus_t HC_SR04_GetConfig(SensorPort_t* sensorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
 {
+    *size = 0u;
     return SensorLibraryStatus_Ok;
 }
 

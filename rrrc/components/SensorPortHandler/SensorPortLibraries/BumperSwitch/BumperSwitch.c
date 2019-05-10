@@ -28,6 +28,7 @@ SensorLibraryStatus_t BumperSwitch_SetConfig(SensorPort_t* sensorPort, const uin
 
 SensorLibraryStatus_t BumperSwitch_GetConfig(SensorPort_t* sensorPort, uint8_t* data, uint8_t* size, uint8_t max_size)
 {
+    *size = 0u;
     return SensorLibraryStatus_Ok;
 }
 
