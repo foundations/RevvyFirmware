@@ -32,12 +32,18 @@ SensorLibraryStatus_t DummySensor_GetConfig(SensorPort_t* sensorPort, uint8_t* d
     return SensorLibraryStatus_Ok;
 }
 
+SensorLibraryStatus_t DummySensor_UpdateAnalogData(SensorPort_t* sensorPort, uint8_t rawValue)
+{
+    return SensorLibraryStatus_Ok;
+}
+
 const SensorLibrary_t sensor_library_dummy = 
 {
-    .name      = "NotConfigured",
-    .Init      = &DummySensor_Init,
-    .DeInit    = &DummySensor_DeInit,
-    .Update    = &DummySensor_Update,
-    .SetConfig = &DummySensor_SetConfig,
-    .GetConfig = &DummySensor_GetConfig,
+    .name             = "NotConfigured",
+    .Init             = &DummySensor_Init,
+    .DeInit           = &DummySensor_DeInit,
+    .Update           = &DummySensor_Update,
+    .SetConfig        = &DummySensor_SetConfig,
+    .GetConfig        = &DummySensor_GetConfig,
+    .UpdateAnalogData = &DummySensor_UpdateAnalogData,
 };

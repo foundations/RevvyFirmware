@@ -121,7 +121,29 @@ static MotorPort_t motorPorts[] =
     },
 };
 
-static SensorPort_t sensorPorts[] = {};
+static SensorPort_t sensorPorts[] = 
+{
+    {
+        .led0 = S0LED0,
+        .led1 = S0LED1,
+        .adc = 3
+    },
+    {
+        .led0 = S1LED0,
+        .led1 = S1LED1,
+        .adc = 0
+    },
+    {
+        .led0 = S2LED0,
+        .led1 = S2LED1,
+        .adc = 1
+    },
+    {
+        .led0 = S3LED0,
+        .led1 = S3LED1,
+        .adc = 2
+    }
+};
 
 static TB6612FNG_t motorDriver01 = 
 {
@@ -372,12 +394,21 @@ void RRRC_ProcessLogic_xTask(void* user)
 #define SYSMON_ADC_TEMPERATURE_P   ADC_BUFFER_ADC1_28
 #define SYSMON_ADC_TEMPERATURE_C   ADC_BUFFER_ADC1_29
 
+uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
+
 void ADC_Write_RawSamples_ADC0(uint16_t samples[4])
 {
     for (uint32_t i = 0u; i < ARRAY_SIZE(sensorPorts); i++)
     {
-        //SensorPort_Adc_Update(i, samples[i]);
+        sensorAdcValues[i] = samples[i] >> 4; /* 12 -> 8 bit */
     }
+}
+
+uint8_t SensorPortHandler_Read_AdcData(uint8_t port_idx)
+{
+    ASSERT(port_idx < ARRAY_SIZE(sensorPorts));
+
+    return sensorAdcValues[port_idx];
 }
 
 void ADC_Write_Samples_ADC1(float samples[5])

@@ -11,7 +11,7 @@
 
 struct _SensorLibrary_t;
 
-#include "../SensorPortHandler.h"
+#include "../SensorPortHandlerInternal.h"
 
 typedef enum {
     SensorLibraryStatus_Ok,
@@ -31,6 +31,8 @@ typedef struct _SensorLibrary_t
 
     SensorLibraryStatus_t (*PrepareGetValue)(struct _SensorPort_t* sensorPort, const uint8_t* parameter, uint8_t parameterLength);
     SensorLibraryStatus_t (*GetValue)(struct _SensorPort_t* sensorPort, uint8_t* value, uint8_t maxSize, uint8_t* valueSize);
+
+    SensorLibraryStatus_t (*UpdateAnalogData)(struct _SensorPort_t* sensorPort, uint8_t rawValue);
 } SensorLibrary_t;
 
 #endif /* SENSOR_PORT_LIBRARY_H_ */

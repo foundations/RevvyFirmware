@@ -18,7 +18,7 @@
 // <i>  Defines the bit resolution for the ADC sample values (RESSEL)
 // <id> adc_resolution
 #ifndef CONF_ADC_0_RESSEL
-#define CONF_ADC_0_RESSEL 0x03
+#define CONF_ADC_0_RESSEL 0x00
 #endif
 
 // <o> Reference Selection

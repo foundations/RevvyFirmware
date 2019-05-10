@@ -32,12 +32,18 @@ SensorLibraryStatus_t HC_SR04_GetConfig(SensorPort_t* sensorPort, uint8_t* data,
     return SensorLibraryStatus_Ok;
 }
 
+SensorLibraryStatus_t HC_SR04_UpdateAnalogData(SensorPort_t* sensorPort, uint8_t rawValue)
+{
+    return SensorLibraryStatus_Ok;
+}
+
 const SensorLibrary_t sensor_library_hc_sr04 = 
 {
-    .name      = "HC_SR04",
-    .Init      = &HC_SR04_Init,
-    .DeInit    = &HC_SR04_DeInit,
-    .Update    = &HC_SR04_Update,
-    .SetConfig = &HC_SR04_SetConfig,
-    .GetConfig = &HC_SR04_GetConfig,
+    .name             = "HC_SR04",
+    .Init             = &HC_SR04_Init,
+    .DeInit           = &HC_SR04_DeInit,
+    .Update           = &HC_SR04_Update,
+    .SetConfig        = &HC_SR04_SetConfig,
+    .GetConfig        = &HC_SR04_GetConfig,
+    .UpdateAnalogData = &HC_SR04_UpdateAnalogData,
 };

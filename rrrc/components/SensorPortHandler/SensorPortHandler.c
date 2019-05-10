@@ -105,12 +105,6 @@ Comm_Status_t SensorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t
 {
     if (configuredPort == NULL)
     {
-        return Comm_Status_Error_InvalidOperation;
-    }
-
-    if (configuredPort->requestedLibrary == configuredPort->library)
-    {
-        configuredPort = NULL;
         return Comm_Status_Ok;
     }
     else
@@ -243,7 +237,14 @@ void SensorPortHandler_Run_PortUpdate(uint8_t port_idx)
     ASSERT(port_idx < sensorPortCount);
 
     SensorPort_t* port = &sensorPorts[port_idx];
+    port->library->UpdateAnalogData(port, SensorPortHandler_Read_AdcData(port->adc));
     port->library->Update(port);
+}
+
+__attribute__((weak))
+uint8_t SensorPortHandler_Read_AdcData(uint8_t channel_idx)
+{
+    return 0u;
 }
 
 __attribute__((weak))

@@ -1311,6 +1311,9 @@
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled\SpeedControlled.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandlerInternal.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandlerInternal.h">
       <SubType>compile</SubType>
     </Compile>
