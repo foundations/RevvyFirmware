@@ -14,7 +14,8 @@ struct _MotorLibrary_t;
 #include "../MotorPortHandlerInternal.h"
 
 typedef enum {
-    MotorLibraryStatus_Ok
+    MotorLibraryStatus_Ok,
+    MotorLibraryStatus_InputError
 } MotorLibraryStatus_t; 
 
 typedef struct _MotorLibrary_t

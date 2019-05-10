@@ -1272,6 +1272,9 @@
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandler.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandlerInternal.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandlerInternal.h">
       <SubType>compile</SubType>
     </Compile>

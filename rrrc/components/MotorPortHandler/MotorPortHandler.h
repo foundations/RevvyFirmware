@@ -23,6 +23,8 @@ typedef struct _MotorPort_t
     void* libraryData;
     const struct _MotorLibrary_t* requestedLibrary;
 
+    uint8_t port_idx;
+
     uint8_t led0;
     uint8_t led1;
 } MotorPort_t;

@@ -6,13 +6,23 @@
  */ 
 #include "SpeedControlled.h"
 
+typedef struct 
+{
+
+} MotorLibrary_SpeedControlled_Data_t;
+
 MotorLibraryStatus_t SpeedControlled_Init(MotorPort_t* motorPort)
 {
+    motorPort->libraryData = MotorPortHandler_Call_Allocate(sizeof(MotorLibrary_SpeedControlled_Data_t));
+    MotorPort_SetGreenLed(motorPort, true);
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t SpeedControlled_DeInit(MotorPort_t* motorPort)
 {
+    MotorPort_SetDriveValue(motorPort, 0);
+    MotorPort_SetGreenLed(motorPort, false);
+    MotorPortHandler_Call_Free(&motorPort->libraryData);
     return MotorLibraryStatus_Ok;
 }
 
@@ -32,6 +42,11 @@ MotorLibraryStatus_t SpeedControlled_Gpio1Callback(MotorPort_t* motorPort, uint3
 }
 
 MotorLibraryStatus_t SpeedControlled_SetConfig(MotorPort_t* motorPort, const uint8_t* data, uint8_t size)
+{
+    return MotorLibraryStatus_Ok;
+}
+
+MotorLibraryStatus_t SpeedControlled_UpdateConfiguration(MotorPort_t* motorPort)
 {
     return MotorLibraryStatus_Ok;
 }
@@ -68,6 +83,7 @@ const MotorLibrary_t motor_library_speed_controlled =
     .Gpio0Callback       = &SpeedControlled_Gpio0Callback,
     .Gpio1Callback       = &SpeedControlled_Gpio1Callback,
     .SetConfig           = &SpeedControlled_SetConfig,
+    .UpdateConfiguration = &SpeedControlled_UpdateConfiguration,
     .GetConfig           = &SpeedControlled_GetConfig,
     .GetPosition         = &SpeedControlled_GetPosition,
     .SetControlReference = &SpeedControlled_SetControlReference,

@@ -6,13 +6,23 @@
  */ 
 #include "PositionControlled.h"
 
+typedef struct 
+{
+
+} MotorLibrary_PositionControlled_Data_t;
+
 MotorLibraryStatus_t PositionControlled_Init(MotorPort_t* motorPort)
 {
+    motorPort->libraryData = MotorPortHandler_Call_Allocate(sizeof(MotorLibrary_PositionControlled_Data_t));
+    MotorPort_SetGreenLed(motorPort, true);
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t PositionControlled_DeInit(MotorPort_t* motorPort)
 {
+    MotorPort_SetDriveValue(motorPort, 0);
+    MotorPort_SetGreenLed(motorPort, false);
+    MotorPortHandler_Call_Free(&motorPort->libraryData);
     return MotorLibraryStatus_Ok;
 }
 
@@ -32,6 +42,11 @@ MotorLibraryStatus_t PositionControlled_Gpio1Callback(MotorPort_t* motorPort, ui
 }
 
 MotorLibraryStatus_t PositionControlled_SetConfig(MotorPort_t* motorPort, const uint8_t* data, uint8_t size)
+{
+    return MotorLibraryStatus_Ok;
+}
+
+MotorLibraryStatus_t PositionControlled_UpdateConfiguration(MotorPort_t* motorPort)
 {
     return MotorLibraryStatus_Ok;
 }
@@ -68,6 +83,7 @@ const MotorLibrary_t motor_library_position_controlled =
     .Gpio0Callback       = &PositionControlled_Gpio0Callback,
     .Gpio1Callback       = &PositionControlled_Gpio1Callback,
     .SetConfig           = &PositionControlled_SetConfig,
+    .UpdateConfiguration = &PositionControlled_UpdateConfiguration,
     .GetConfig           = &PositionControlled_GetConfig,
     .GetPosition         = &PositionControlled_GetPosition,
     .SetControlReference = &PositionControlled_SetControlReference,

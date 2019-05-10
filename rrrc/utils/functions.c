@@ -23,6 +23,38 @@ float constrain_f32(float in, float min, float max)
     }
 }
 
+int32_t constrain_int32(int32_t value, int32_t min, int32_t max)
+{
+    if (value < min)
+    {
+        return min;
+    }
+    else if (value > max)
+    {
+        return max;
+    }
+    else
+    {
+        return value;
+    }
+}
+
+int8_t constrain_int8(int8_t value, int8_t min, int8_t max)
+{
+    if (value < min)
+    {
+        return min;
+    }
+    else if (value > max)
+    {
+        return max;
+    }
+    else
+    {
+        return value;
+    }
+}
+
 float map(float in, float min_in, float max_in, float min_out, float max_out)
 {
     float in_fs = max_in - min_in;
