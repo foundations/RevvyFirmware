@@ -31,6 +31,7 @@
 #include "components/BatteryStatusProvider/BatteryStatusProvider.h"
 #include "components/MotorPortHandler/MotorPortHandler.h"
 #include "components/SensorPortHandler/SensorPortHandler.h"
+#include "components/MemoryAllocator/MemoryAllocator.h"
 
 #include <math.h>
 
@@ -536,4 +537,24 @@ uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
 uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
 {
     return motorBatteryDetected ? motorBatteryPercentage : 0u;
+}
+
+void* SensorPortHandler_Call_Allocate(size_t size)
+{
+    return MemoryAllocator_Run_Allocate(size);
+}
+
+void SensorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
+}
+
+void* MotorPortHandler_Call_Allocate(size_t size)
+{
+    return MemoryAllocator_Run_Allocate(size);
+}
+
+void MotorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
 }

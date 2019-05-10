@@ -1260,6 +1260,12 @@
     <Compile Include="rrrc\components\CommunicationObserver\CommunicationObserver.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MemoryAllocator\MemoryAllocator.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MemoryAllocator\MemoryAllocator.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandler.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1509,6 +1515,7 @@
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop" />
+    <Folder Include="rrrc\components\MemoryAllocator" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\" />

@@ -169,3 +169,15 @@ bool MotorPortHandler_Read_DriverFault(uint8_t port_idx)
 {
     return false;
 }
+
+__attribute__((weak))
+void* MotorPortHandler_Call_Allocate(size_t size)
+{
+    return NULL;
+}
+
+__attribute__((weak))
+void MotorPortHandler_Call_Free(void** ptr)
+{
+    *ptr = NULL;
+}

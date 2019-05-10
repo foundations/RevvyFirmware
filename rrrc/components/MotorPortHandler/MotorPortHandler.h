@@ -37,6 +37,9 @@ void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount);
 void MotorPortHandler_Run_Update(void);
 void MotorPortHandler_Run_PortUpdate(uint8_t port_idx);
 
+void* MotorPortHandler_Call_Allocate(size_t size);
+void MotorPortHandler_Call_Free(void** ptr);
+
 void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value);
 bool MotorPortHandler_Read_DriverFault(uint8_t port_idx);
 

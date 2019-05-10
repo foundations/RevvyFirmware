@@ -37,4 +37,7 @@ void SensorPortHandler_Run_OnInit(SensorPort_t* ports, size_t portCount);
 void SensorPortHandler_Run_Update(void);
 void SensorPortHandler_Run_PortUpdate(uint8_t port_idx);
 
+void* SensorPortHandler_Call_Allocate(size_t size);
+void SensorPortHandler_Call_Free(void** ptr);
+
 #endif /* SENSOR_PORT_HANDLER_H_ */

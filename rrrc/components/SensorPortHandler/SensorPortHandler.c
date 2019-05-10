@@ -155,3 +155,15 @@ void SensorPortHandler_Run_PortUpdate(uint8_t port_idx)
     SensorPort_t* port = &sensorPorts[port_idx];
     port->library->Update(port);
 }
+
+__attribute__((weak))
+void* SensorPortHandler_Call_Allocate(size_t size)
+{
+    return NULL;
+}
+
+__attribute__((weak))
+void SensorPortHandler_Call_Free(void** ptr)
+{
+    *ptr = NULL;
+}
