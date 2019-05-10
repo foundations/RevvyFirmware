@@ -156,6 +156,31 @@ Comm_Status_t SensorPortHandler_SetPortConfig_GetResult(uint8_t* response, uint8
     }
 }
 
+Comm_Status_t SensorPortHandler_GetSensorData_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (commandSize < 1u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+    uint8_t port_idx = commandPayload[0];
+    if (port_idx >= sensorPortCount)
+    {
+        return Comm_Status_Error_CommandError;
+    }
+    
+    SensorPort_t* port = &sensorPorts[port_idx];
+    SensorLibraryStatus_t result = port->library->GetValue(port, &commandPayload[1], commandSize - 1u, response, responseBufferSize, responseCount);
+
+    if (result == SensorLibraryStatus_Ok)
+    {
+        return Comm_Status_Ok;
+    }
+    else
+    {
+        return Comm_Status_Error_InternalError;
+    }
+}
+
 void SensorPortHandler_Run_OnInit(SensorPort_t* ports, size_t portCount)
 {
     sensorPorts = ports;
