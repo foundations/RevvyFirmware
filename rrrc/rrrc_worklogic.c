@@ -32,6 +32,7 @@
 #include "components/MotorPortHandler/MotorPortHandler.h"
 #include "components/SensorPortHandler/SensorPortHandler.h"
 #include "components/MemoryAllocator/MemoryAllocator.h"
+#include "components/MotorDriver_TB661FNG/MotorDriver_TB661FNG.h"
 
 #include <math.h>
 
@@ -53,11 +54,129 @@ static uint8_t motorBatteryPercentage;
 static MotorPort_t motorPorts[] = 
 {
     {
-        
-    }
+        .port_idx = 0u,
+        .led0 = M0LED0,
+        .led1 = M0LED1,
+        .enc0 = M1ENC0,
+        .enc1 = M1ENC1,
+        .enc0_timer = &TIMER_TC0,
+        .enc0_timer_event = TIMER_MC0,
+        .enc1_timer = &TIMER_TC0,
+        .enc1_timer_event = TIMER_MC1
+    },
+    {
+        .port_idx = 1u,
+        .led0 = M1LED0,
+        .led1 = M1LED1,
+        .enc0 = M2ENC0,
+        .enc1 = M2ENC1,
+        .enc0_timer = &TIMER_TC6,
+        .enc0_timer_event = TIMER_MC0,
+        .enc1_timer = &TIMER_TC6,
+        .enc1_timer_event = TIMER_MC1
+    },
+    {
+        .port_idx = 2u,
+        .led0 = M2LED0,
+        .led1 = M2LED1,
+        .enc0 = M3ENC0,
+        .enc1 = M3ENC1,
+        .enc0_timer = &TIMER_TC3,
+        .enc0_timer_event = TIMER_MC0,
+        .enc1_timer = &TIMER_TC3,
+        .enc1_timer_event = TIMER_MC1
+    },
+    {
+        .port_idx = 3u,
+        .led0 = M3LED0,
+        .led1 = M3LED1,
+        .enc0 = M4ENC0,
+        .enc1 = M4ENC1,
+        .enc0_timer = &TIMER_TC5,
+        .enc0_timer_event = TIMER_MC0,
+        .enc1_timer = &TIMER_TC5,
+        .enc1_timer_event = TIMER_MC1
+    },
+    {
+        .port_idx = 4u,
+        .led0 = M4LED0,
+        .led1 = M4LED1,
+        .enc0 = M5ENC0,
+        .enc1 = M5ENC1,
+        .enc0_timer = &TIMER_TC1,
+        .enc0_timer_event = TIMER_MC0,
+        .enc1_timer = &TIMER_TC1,
+        .enc1_timer_event = TIMER_MC1
+    },
+    {
+        .port_idx = 5u,
+        .led0 = M5LED0,
+        .led1 = M5LED1,
+        .enc0 = M6ENC0,
+        .enc1 = M6ENC1,
+        .enc0_timer = &TIMER_TC4,
+        .enc0_timer_event = TIMER_MC0,
+        .enc1_timer = &TIMER_TC4,
+        .enc1_timer_event = TIMER_MC1
+    },
 };
 
 static SensorPort_t sensorPorts[] = {};
+
+static TB6612FNG_t motorDriver01 = 
+{
+    .channel_a = 
+    {
+        .dir0 = M1DIR1,
+        .dir1 = M1DIR2,
+        .pwm_pin = M0PWM0,
+        .pwm_channel = 1
+    },
+    .channel_b = 
+    {
+        .dir0 = M2DIR1,
+        .dir1 = M2DIR2,
+        .pwm_pin = M1PWM0,
+        .pwm_channel = 0
+    },
+    .standby = M12STBY
+};
+static TB6612FNG_t motorDriver23 = 
+{
+    .channel_a = 
+    {
+        .dir0 = M3DIR1,
+        .dir1 = M3DIR2,
+        .pwm_pin = M2PWM0,
+        .pwm_channel = 5
+    },
+    .channel_b = 
+    {
+        .dir0 = M4DIR1,
+        .dir1 = M4DIR2,
+        .pwm_pin = M3PWM0,
+        .pwm_channel = 2
+    },
+    .standby = M34STBY
+};
+static TB6612FNG_t motorDriver45 = 
+{
+    .channel_a = 
+    {
+        .dir0 = M5DIR1,
+        .dir1 = M5DIR2,
+        .pwm_pin = M4PWM0,
+        .pwm_channel = 3
+    },
+    .channel_b = 
+    {
+        .dir0 = M6DIR1,
+        .dir1 = M6DIR2,
+        .pwm_pin = M5PWM0,
+        .pwm_channel = 4
+    },
+    .standby = M56STBY
+};
 
 static MasterStatus_t masterStatus;
 static bool isBleConnected;
@@ -158,6 +277,10 @@ static void ProcessTasks_20ms(void)
 
     RingLedDisplay_Run_Update();
     LEDController_Run_Update();
+    
+    MotorDriver_TB661FNG_Run_Update(&motorDriver01);
+    MotorDriver_TB661FNG_Run_Update(&motorDriver23);
+    MotorDriver_TB661FNG_Run_Update(&motorDriver45);
 }
 
 static void ProcessTasks_100ms(void)
@@ -212,6 +335,11 @@ void RRRC_ProcessLogic_xTask(void* user)
     
     MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
     SensorPortHandler_Run_OnInit(&sensorPorts[0], ARRAY_SIZE(sensorPorts));
+    
+    MotorDriver_TB661FNG_Run_OnInit();
+    MotorDriver_TB661FNG_Run_OnDriverInit(&motorDriver01);
+    MotorDriver_TB661FNG_Run_OnDriverInit(&motorDriver23);
+    MotorDriver_TB661FNG_Run_OnDriverInit(&motorDriver45);
 
     BatteryCharger_Run_EnableFastCharge();
 
@@ -560,4 +688,50 @@ void* MotorPortHandler_Call_Allocate(size_t size)
 void MotorPortHandler_Call_Free(void** ptr)
 {
     MemoryAllocator_Run_Free(ptr);
+}
+
+int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
+void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value)
+{
+    driveValues[port_idx] = value;
+}
+
+int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelA(TB6612FNG_t* driver)
+{
+    if (driver == &motorDriver01)
+    {
+        return driveValues[0];
+    }
+    else if (driver == &motorDriver23)
+    {
+        return driveValues[2];
+    }
+    else if (driver == &motorDriver45)
+    {
+        return driveValues[4];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelB(TB6612FNG_t* driver)
+{
+    if (driver == &motorDriver01)
+    {
+        return driveValues[1];
+    }
+    else if (driver == &motorDriver23)
+    {
+        return driveValues[3];
+    }
+    else if (driver == &motorDriver45)
+    {
+        return driveValues[5];
+    }
+    else
+    {
+        return 0;
+    }
 }

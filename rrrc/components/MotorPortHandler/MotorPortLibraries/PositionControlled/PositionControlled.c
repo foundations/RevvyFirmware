@@ -23,7 +23,7 @@ typedef struct
 MotorLibraryStatus_t PositionControlled_Init(MotorPort_t* motorPort)
 {
     MotorLibrary_PositionControlled_Data_t* libdata = MotorPortHandler_Call_Allocate(sizeof(MotorLibrary_PositionControlled_Data_t));
-        
+
     libdata->position = 0;
     libdata->targetPosition = 0;
     pid_initialize(&libdata->controller);

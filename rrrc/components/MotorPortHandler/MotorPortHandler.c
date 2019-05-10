@@ -43,8 +43,6 @@ static void _init_port(MotorPort_t* port)
     gpio_set_pin_direction(port->led1, GPIO_DIRECTION_OUT);
     gpio_set_pin_level(port->led1, false);
 
-    /* init gpios */
-    
     /* encoders */
     gpio_set_pin_direction(port->enc0, GPIO_DIRECTION_IN);
     gpio_set_pin_function(port->enc0, GPIO_PIN_FUNCTION_E);
@@ -133,12 +131,6 @@ Comm_Status_t MotorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t 
 {
     if (configuredPort == NULL)
     {
-        return Comm_Status_Error_InvalidOperation;
-    }
-
-    if (configuredPort->requestedLibrary == configuredPort->library)
-    {
-        configuredPort = NULL;
         return Comm_Status_Ok;
     }
     else

@@ -1266,6 +1266,12 @@
     <Compile Include="rrrc\components\MemoryAllocator\MemoryAllocator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MotorDriver_TB661FNG\MotorDriver_TB661FNG.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorDriver_TB661FNG\MotorDriver_TB661FNG.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandler.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1519,6 +1525,7 @@
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop" />
     <Folder Include="rrrc\components\MemoryAllocator" />
+    <Folder Include="rrrc\components\MotorDriver_TB661FNG" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\" />

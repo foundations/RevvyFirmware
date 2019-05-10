@@ -25,7 +25,6 @@ struct timer_descriptor TIMER_TC5;
 struct timer_descriptor TIMER_TC6;
 struct timer_descriptor TIMER_TC7;
 
-struct timer_descriptor TIMER_TCC0;
 struct timer_descriptor TIMER_TCC1;
 struct timer_descriptor TIMER_TCC2;
 struct timer_descriptor TIMER_TCC3;
@@ -201,15 +200,6 @@ static void TIMER_TC7_init(void)
 }
 
 //*********************************************************************************************
-static void TIMER_TCC0_init(void)
-{
-    hri_mclk_set_APBBMASK_TCC0_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TCC0_GCLK_ID, CONF_GCLK_TCC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    
-    timer_init(&TIMER_TCC0, TCC0, _tcc_get_timer());
-}
-
-//*********************************************************************************************
 static void TIMER_TCC1_init(void)
 {
     hri_mclk_set_APBBMASK_TCC1_bit(MCLK);
@@ -302,7 +292,6 @@ void system_init(void)
     TIMER_TC5_init();
      TIMER_TC6_init();
      TIMER_TC7_init();
-     TIMER_TCC0_init();
 //     TIMER_TCC1_init();
 //     TIMER_TCC2_init();
 
