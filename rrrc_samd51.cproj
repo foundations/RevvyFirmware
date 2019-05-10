@@ -442,13 +442,13 @@
       <Value>../rrrc/motors</Value>
       <Value>../rrrc/sensors</Value>
       <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
-      <Value>../freertos</Value>
-      <Value>../freertos/FreeRTOSV10.0.0</Value>
-      <Value>../freertos/FreeRTOSV10.0.0/Source</Value>
-      <Value>../freertos/FreeRTOSV10.0.0/Source/include</Value>
-      <Value>../freertos/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F</Value>
-      <Value>../freertos/FreeRTOSV10.0.0/Source/portable/MemMang</Value>
-      <Value>../freertos/FreeRTOSV10.0.0/Source/portable/RVDS/ARM_CM4F</Value>
+      <Value>../third_party</Value>
+      <Value>../third_party/FreeRTOSV10.0.0</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/include</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/portable/MemMang</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/portable/RVDS/ARM_CM4F</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
@@ -610,93 +610,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="driver_init.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\hal_rtos.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\rtos_port.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\rtos_port.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\croutine.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\event_groups.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\croutine.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\deprecated_definitions.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\event_groups.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\FreeRTOS.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\list.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\message_buffer.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\mpu_wrappers.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\portable.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\projdefs.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\queue.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\semphr.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\StackMacros.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\stack_macros.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\stream_buffer.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\task.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\include\timers.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\list.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F\port.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F\portmacro.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\portable\MemMang\heap_4.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\queue.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\stream_buffer.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\tasks.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="freertos\FreeRTOSV10.0.0\Source\timers.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hal_adc_async.h">
@@ -1452,6 +1365,93 @@
     <Compile Include="rrrc\utils\functions.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\hal_rtos.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\rtos_port.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\rtos_port.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\croutine.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\event_groups.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\croutine.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\deprecated_definitions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\event_groups.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\FreeRTOS.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\list.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\message_buffer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\mpu_wrappers.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\portable.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\projdefs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\queue.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\semphr.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\StackMacros.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\stack_macros.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\stream_buffer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\task.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\include\timers.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\list.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F\port.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F\portmacro.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\portable\MemMang\heap_4.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\queue.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\stream_buffer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\tasks.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="third_party\FreeRTOSV10.0.0\Source\timers.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="third_party\segger\SEGGER_RTT.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1534,15 +1534,14 @@
     <Folder Include="third_party" />
     <Folder Include="rrrc" />
     <Folder Include="rrrc\controller" />
-    <Folder Include="freertos" />
-    <Folder Include="freertos\FreeRTOSV10.0.0" />
-    <Folder Include="freertos\FreeRTOSV10.0.0\License" />
-    <Folder Include="freertos\FreeRTOSV10.0.0\Source" />
-    <Folder Include="freertos\FreeRTOSV10.0.0\Source\include" />
-    <Folder Include="freertos\FreeRTOSV10.0.0\Source\portable" />
-    <Folder Include="freertos\FreeRTOSV10.0.0\Source\portable\GCC" />
-    <Folder Include="freertos\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F" />
-    <Folder Include="freertos\FreeRTOSV10.0.0\Source\portable\MemMang" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\License\" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\Source\" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\Source\include\" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\Source\portable\" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\Source\portable\GCC\" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F\" />
+    <Folder Include="third_party\FreeRTOSV10.0.0\Source\portable\MemMang\" />
     <Folder Include="third_party\segger" />
   </ItemGroup>
   <ItemGroup>
@@ -1552,22 +1551,22 @@
     <None Include="Device_Startup\samd51p19a_sram.ld">
       <SubType>compile</SubType>
     </None>
-    <None Include="freertos\FreeRTOSV10.0.0\License\license.txt">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="freertos\FreeRTOSV10.0.0\readme.txt">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="freertos\FreeRTOSV10.0.0\Source\include\stdint.readme">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="freertos\FreeRTOSV10.0.0\Source\portable\readme.txt">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="freertos\FreeRTOSV10.0.0\Source\readme.txt">
-      <SubType>compile</SubType>
-    </None>
     <None Include="rrrc\utils\functions.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="third_party\FreeRTOSV10.0.0\License\license.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="third_party\FreeRTOSV10.0.0\readme.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="third_party\FreeRTOSV10.0.0\Source\include\stdint.readme">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="third_party\FreeRTOSV10.0.0\Source\portable\readme.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="third_party\FreeRTOSV10.0.0\Source\readme.txt">
       <SubType>compile</SubType>
     </None>
   </ItemGroup>
