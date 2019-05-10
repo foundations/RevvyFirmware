@@ -54,6 +54,9 @@ static void _init_port(MotorPort_t* port)
     gpio_set_pin_pull_mode(port->enc1, GPIO_PULL_UP);
     timer_register_cb(port->enc1_timer, port->enc1_timer_event, &MotorPort_gpio1_ext_cb, port);
 
+    timer_start(port->enc0_timer);
+    timer_start(port->enc1_timer);
+
     /* set dummy library */
     port->library = &motor_library_dummy;
 }
