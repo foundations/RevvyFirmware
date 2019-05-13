@@ -184,7 +184,7 @@ MotorLibraryStatus_t SpeedControlled_SetControlReference(MotorPort_t* motorPort,
 
 const MotorLibrary_t motor_library_speed_controlled = 
 {
-    .name = "SpeedControlled",
+    .name                = "SpeedControlled",
     .Init                = &SpeedControlled_Init,
     .DeInit              = &SpeedControlled_DeInit,
     .Update              = &SpeedControlled_Update,
