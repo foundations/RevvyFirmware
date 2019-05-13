@@ -308,7 +308,7 @@ static void ProcessTasks_20ms(void)
     {
         SensorPortHandler_Run_PortUpdate(i);
     }
-
+    
     RingLedDisplay_Run_Update();
     LEDController_Run_Update();
     
@@ -365,6 +365,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
 
     RingLedDisplay_Run_OnInit();
+    RingLedDisplay_Run_SelectScenario(RingLedScenario_ColorWheel);
     CommunicationObserver_Run_OnInit();
     
     MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
@@ -436,14 +437,14 @@ void ADC_Write_Samples_ADC1(float samples[5])
     motorBatteryVoltage = motor_voltage;
 }
 
-static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
-static rgb_t ringLeds[RING_LEDS_AMOUNT] = { 0 };
+static rgb565_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
+static rgb565_t ringLeds[RING_LEDS_AMOUNT] = { 0 };
 
-rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
+rgb565_t LEDController_Read_StatusLED(uint32_t led_idx)
 {
     if (led_idx >= ARRAY_SIZE(statusLeds))
     {
-        return (rgb_t) LED_OFF;
+        return rgb_to_rgb565((rgb_t) LED_OFF);
     }
     else
     {
@@ -451,11 +452,11 @@ rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
     }
 }
 
-rgb_t LEDController_Read_RingLED(uint32_t led_idx)
+rgb565_t LEDController_Read_RingLED(uint32_t led_idx)
 {
     if (led_idx >= ARRAY_SIZE(ringLeds))
     {
-        return (rgb_t) LED_OFF;
+        return rgb_to_rgb565((rgb_t) LED_OFF);
     }
     else
     {
@@ -470,12 +471,12 @@ rgb_t LEDController_Read_RingLED(uint32_t led_idx)
 
 void BluetoothIndicator_Write_LedColor(rgb_t color)
 {
-    statusLeds[BLUETOOTH_INDICATOR_LED] = color;
+    statusLeds[BLUETOOTH_INDICATOR_LED] = rgb_to_rgb565(color);
 }
 
 void BrainStatusIndicator_Write_LedColor(rgb_t color)
 {
-    statusLeds[STATUS_INDICATOR_LED] = color;
+    statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565(color);
 }
 
 float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
@@ -582,11 +583,11 @@ void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t 
 {
     if (context == &mainBatteryIndicator)
     {
-        statusLeds[MAIN_BATTERY_INDICATOR_LED] = color;
+        statusLeds[MAIN_BATTERY_INDICATOR_LED] = rgb_to_rgb565(color);
     }
     else if (context == &motorBatteryIndicator)
     {
-        statusLeds[MOTOR_BATTERY_INDICATOR_LED] = color;
+        statusLeds[MOTOR_BATTERY_INDICATOR_LED] = rgb_to_rgb565(color);
     }
     else
     {
@@ -597,7 +598,7 @@ void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t 
 void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 {
     ASSERT(led_idx < RING_LEDS_AMOUNT);
-    ringLeds[led_idx] = color;
+    ringLeds[led_idx] = rgb_to_rgb565(color);
 }
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
@@ -632,19 +633,19 @@ void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
         default:
         case MasterStatus_Unknown:
             portENTER_CRITICAL();
-            statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_RED;
+            statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_RED);
             portEXIT_CRITICAL();
             break;
 
         case MasterStatus_Operational:
             portENTER_CRITICAL();
-            statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_ORANGE;
+            statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_ORANGE);
             portEXIT_CRITICAL();
             break;
 
         case MasterStatus_Controlled:
             portENTER_CRITICAL();
-            statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_GREEN;
+            statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_GREEN);
             portEXIT_CRITICAL();
             break;
     }

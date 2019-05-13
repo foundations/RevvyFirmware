@@ -52,7 +52,7 @@ typedef enum INDICATON_RING_TYPE
 // #define GreenYellow     0xAFE5      /* 173, 255,  47 */
 // #define Pink                        0xF81F
 
-#define LED_BRIGHT  0x10
+#define LED_BRIGHT  0xFF
 
 #define LED_RED     { LED_BRIGHT,     0x00,           0x00           }
 #define LED_GREEN   { 0x00,           LED_BRIGHT,     0x00           }
@@ -64,7 +64,7 @@ typedef enum INDICATON_RING_TYPE
 #define LED_WHITE   { LED_BRIGHT / 4, LED_BRIGHT / 4, LED_BRIGHT / 4 }
 #define LED_OFF     { 0x00,           0x00,           0x00           }
 
-#define LED_HSV_CYAN    0, 100, 10
+#define LED_HSV_CYAN    0, 100, 100
 
 uint32_t IndicationGetStatusLedsAmount();
 uint32_t IndicationGetRingLedsAmount();

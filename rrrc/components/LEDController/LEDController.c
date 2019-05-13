@@ -8,6 +8,7 @@
 #include "LEDController.h"
 #include "rrrc_hal.h"
 #include "rrrc_indication.h"
+#include "utils/functions.h"
 
 #include <stdint.h>
 
@@ -56,11 +57,15 @@ static inline void write_led_byte(uint32_t led_idx, uint32_t byte_idx, uint8_t b
     }
 }
 
-static inline void write_led_color(uint32_t led_idx, rgb_t color)
+static inline void write_led_color(uint32_t led_idx, rgb565_t color)
 {
-    write_led_byte(led_idx, 0u, color.G);
-    write_led_byte(led_idx, 1u, color.R);
-    write_led_byte(led_idx, 2u, color.B);
+    /* brightness scaling */
+    uint8_t max_brightness = LEDController_Read_MaxBrightness();
+    rgb_t rgb_dimmed = rgb565_to_rgb(rgb565_change_brightness(color, max_brightness / 255.0f));
+
+    write_led_byte(led_idx, 0u, rgb_dimmed.G);
+    write_led_byte(led_idx, 1u, rgb_dimmed.R);
+    write_led_byte(led_idx, 2u, rgb_dimmed.B);
 }
 
 static void update_frame(void)
@@ -107,12 +112,20 @@ void LEDController_Run_Update(void)
     }
 }
 
-__WEAK rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
+__attribute__((weak))
+rgb565_t LEDController_Read_StatusLED(uint32_t led_idx)
 {
-    return (rgb_t){0, 0, 0};
+    return (rgb565_t){0, 0, 0};
 }
 
-__WEAK rgb_t LEDController_Read_RingLED(uint32_t led_idx)
+__attribute__((weak))
+rgb565_t LEDController_Read_RingLED(uint32_t led_idx)
 {
-    return (rgb_t){0, 0, 0};
+    return (rgb565_t){0, 0, 0};
+}
+
+__attribute__((weak))
+uint8_t LEDController_Read_MaxBrightness(void)
+{
+    return 32u;
 }

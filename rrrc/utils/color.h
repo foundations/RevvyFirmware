@@ -13,6 +13,15 @@
 
 typedef struct
 {
+    uint8_t R:5;
+    uint8_t G:6;
+    uint8_t B:5;
+} __attribute__((packed)) rgb565_t;
+
+_Static_assert(sizeof(rgb565_t) == 2, "Size of rgb565_t should be 2 bytes");
+
+typedef struct
+{
     uint8_t R;
     uint8_t G;
     uint8_t B;
@@ -25,6 +34,12 @@ typedef struct
     uint8_t v;
 } hsv_t;
 
+rgb_t rgb565_to_rgb(rgb565_t rgb565);
+rgb565_t rgb_to_rgb565(rgb_t rgb);
 rgb_t hsv_to_rgb(hsv_t hsv_col);
+hsv_t rgb_to_hsv(rgb_t rgb);
+
+rgb_t rgb_change_brightness(rgb_t color, float brightness);
+rgb565_t rgb565_change_brightness(rgb565_t color, float brightness);
 
 #endif /* COLOR_H_ */

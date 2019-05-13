@@ -112,7 +112,7 @@ static void colorWheelWriter1(void* data)
         hsv_t hsv = {
             .h = userData->phase + i * 360u / RING_LEDS_AMOUNT,
             .s = 100,
-            .v = 10
+            .v = 100
         };
         rgb_t rgb = hsv_to_rgb(hsv);
         

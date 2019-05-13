@@ -15,8 +15,9 @@
 
 void LEDController_Run_OnInit(void);
 void LEDController_Run_Update(void);
+uint8_t LEDController_Read_MaxBrightness(void);
 
-rgb_t LEDController_Read_StatusLED(uint32_t led_idx);
-rgb_t LEDController_Read_RingLED(uint32_t led_idx);
+rgb565_t LEDController_Read_StatusLED(uint32_t led_idx);
+rgb565_t LEDController_Read_RingLED(uint32_t led_idx);
 
 #endif /* LEDCONTROLLER_H_ */
