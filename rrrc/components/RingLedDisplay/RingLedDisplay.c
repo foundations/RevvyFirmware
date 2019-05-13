@@ -10,13 +10,15 @@
 
 #include <string.h>
 
-typedef void (*ledRingInitializer)(void* data);
-typedef void (*ledRingWriter)(void* data);
+typedef void (*ledRingFn)(void* data);
+typedef void (*ledRingFn)(void* data);
 
 typedef struct
 {
-    ledRingInitializer init;
-    ledRingWriter handler;
+    const char* name;
+    ledRingFn init;
+    ledRingFn handler;
+    ledRingFn DeInit;
     void* userData;
 } indication_handler_t;
 
@@ -47,13 +49,54 @@ static void colorWheelWriter1(void* data);
 static led_ring_frame_t led_ring_userframes[LEDS_USER_MAX_FRAMES] = { 0 };
 static frame_data_t user_frame = { .frames = led_ring_userframes };
 static RingLedScenario_t currentScenario;
+static RingLedScenario_t requestedScenario;
 static indication_handler_t scenarioHandlers[] = 
 {
-    [RingLedScenario_Off] = { .init = NULL, .handler = &ledRingOffWriter, .userData = NULL },
+    [RingLedScenario_Off] = { .name="RingLedOff", .init = NULL, .handler = &ledRingOffWriter, .DeInit = NULL, .userData = NULL },
     
-    [RingLedScenario_UserAnimation] = { .init = &initUserFrameWriter, .handler = &ledRingFrameWriter, .userData = &user_frame },
-    [RingLedScenario_ColorWheel]    = { .init = &initColorWheel,      .handler = &colorWheelWriter1,  .userData = &colorWheelData1 },
+    [RingLedScenario_UserAnimation] = { .name="UserAnimation", .init = &initUserFrameWriter, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame },
+    [RingLedScenario_ColorWheel]    = { .name="ColorWheel", .init = &initColorWheel,      .handler = &colorWheelWriter1, .DeInit = NULL, .userData = &colorWheelData1 },
 };
+
+Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    uint8_t len = 0u;
+    for (uint32_t i = 0u; i < ARRAY_SIZE(scenarioHandlers); i++)
+    {
+        const indication_handler_t* lib = &scenarioHandlers[i];
+        size_t name_length = strlen(lib->name);
+        if (len + name_length + 2u > responseBufferSize)
+        {
+            *responseCount = 0u;
+            return Comm_Status_Error_InternalError;
+        }
+        response[len] = i;
+        response[len + 1] = name_length;
+        memcpy(&response[len + 2], lib->name, name_length);
+        len = len + 2 + name_length;
+    }
+    *responseCount = len;
+
+    return Comm_Status_Ok;
+}
+
+Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (commandSize != 1u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    uint8_t idx = commandPayload[0];
+    if (idx >= ARRAY_SIZE(scenarioHandlers))
+    {
+        return Comm_Status_Error_CommandError;
+    }
+
+    requestedScenario = (RingLedScenario_t) idx;
+
+    return Comm_Status_Ok;
+}
 
 static void ledRingOffWriter(void* data)
 {
@@ -128,6 +171,12 @@ void RingLedDisplay_Run_OnInit(void)
 
 void RingLedDisplay_Run_Update(void)
 {
+    RingLedScenario_t newScenario = requestedScenario;
+    if (newScenario != currentScenario)
+    {
+        RingLedDisplay_Run_SelectScenario(newScenario);
+    }
+
     if (currentScenario >= ARRAY_SIZE(scenarioHandlers))
     {
         currentScenario = RingLedScenario_Off;
@@ -161,6 +210,10 @@ bool RingLedDisplay_Run_AddUserFrame(rgb_t* leds, size_t ledCount)
 
 void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario)
 {
+    if (scenarioHandlers[currentScenario].DeInit)
+    {
+        scenarioHandlers[currentScenario].DeInit(scenarioHandlers[currentScenario].userData);
+    }
     currentScenario = scenario;
     if (scenarioHandlers[currentScenario].init)
     {
