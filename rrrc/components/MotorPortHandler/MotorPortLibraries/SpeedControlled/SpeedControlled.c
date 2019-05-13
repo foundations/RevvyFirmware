@@ -32,6 +32,7 @@ MotorLibraryStatus_t SpeedControlled_Init(MotorPort_t* motorPort)
     libdata->position = 0;
     libdata->lastPosition = 0;
     libdata->targetSpeed = 0.0f;
+    libdata->alpha = 0.2f;
     pid_initialize(&libdata->controller);
 
     motorPort->libraryData = libdata;
