@@ -205,6 +205,36 @@ Comm_Status_t MotorPortHandler_SetControlValue_Start(const uint8_t* commandPaylo
     }
 }
 
+Comm_Status_t MotorPortHandler_GetPosition_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (commandSize != 1u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+    if (responseBufferSize < 4u)
+    {
+        return Comm_Status_Error_InternalError;
+    }
+    uint8_t port_idx = commandPayload[0];
+    if (port_idx >= motorPortCount)
+    {
+        return Comm_Status_Error_CommandError;
+    }
+    
+    MotorPort_t* port = &motorPorts[port_idx];
+    MotorLibraryStatus_t result = port->library->GetPosition(port, (int32_t*) response);
+
+    if (result == MotorLibraryStatus_Ok)
+    {
+        *responseCount = sizeof(int32_t);
+        return Comm_Status_Ok;
+    }
+    else
+    {
+        return Comm_Status_Error_InternalError;
+    }
+}
+
 void MotorPortHandler_Run_OnInit(MotorPort_t* ports, uint8_t portCount)
 {
     motorPorts = ports;
