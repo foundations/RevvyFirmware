@@ -5,12 +5,12 @@
  *  Author: Dániel Buga
  */ 
 #include "VersionProvider.h"
+#include "fw_version.h"
 
 #include <string.h>
 
 #define HARDWARE_VERSION "1.1" /* TODO read from NVM */
-#define FIRMWARE_VERSION "1.0.0"
-#define FIRMWARE_VERSION_STRING FIRMWARE_VERSION " (" __DATE__ " " __TIME__ ")"
+#define FIRMWARE_VERSION_STRING "0.1-r" FW_VERSION
 
 Comm_Status_t VersionProvider_GetHardwareVersion_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
