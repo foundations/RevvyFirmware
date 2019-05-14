@@ -14,8 +14,6 @@
 #include "rrrc_indication.h"
 #include "../MasterCommunication/CommunicationManager.h"
 
-typedef rgb565_t led_ring_frame_t[RING_LEDS_AMOUNT];
-
 typedef enum 
 {
     RingLedScenario_Off = 0,

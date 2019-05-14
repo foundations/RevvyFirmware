@@ -15,9 +15,6 @@
 #define STATUS_LEDS_AMOUNT 4
 #define RING_LEDS_AMOUNT 12
 
-#define LEDS_USER_MAX_FRAMES 100
-
-// 
 // /* some RGB color definitions                                                 */
 // #define Black           0x0000      /*   0,   0,   0 */
 // #define Navy            0x000F      /*   0,   0, 128 */

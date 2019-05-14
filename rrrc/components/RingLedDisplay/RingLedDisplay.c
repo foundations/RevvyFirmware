@@ -36,14 +36,14 @@ static void ledRingOffWriter(void* data);
 static void ledRingFrameWriter(void* data);
 static void colorWheelWriter1(void* data);
 
-static led_ring_frame_t user_frame;
+static rgb565_t user_frame[RING_LEDS_AMOUNT];
 static RingLedScenario_t currentScenario;
 static RingLedScenario_t requestedScenario;
 static indication_handler_t scenarioHandlers[] = 
 {
     [RingLedScenario_Off] = { .name = "RingLedOff", .init = NULL, .handler = &ledRingOffWriter, .DeInit = NULL, .userData = NULL },
     
-    [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL,            .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame },
+    [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL,            .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
     [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = &initColorWheel, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = &colorWheelData1 },
 };
 
@@ -117,11 +117,11 @@ static void ledRingOffWriter(void* data)
 
 static void ledRingFrameWriter(void* frameData)
 {
-    led_ring_frame_t* userData = (led_ring_frame_t*) frameData;
+    rgb565_t* userData = (rgb565_t*) frameData;
     
     for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
     {
-        RingLedDisplay_Write_LedColor(idx, (*userData)[idx]);
+        RingLedDisplay_Write_LedColor(idx, userData[idx]);
     }
 }
 
