@@ -17,19 +17,6 @@
 
 #define LEDS_USER_MAX_FRAMES 100
 
-typedef enum INDICATON_RING_TYPE
-{
-	RING_LED_OFF,
-	RING_LED_USER,
-	RING_LED_PREDEF_1,
-	RING_LED_PREDEF_2,
-	RING_LED_PREDEF_3,
-	RING_LED_PREDEF_4,
-	RING_LED_COLORWHEEL_1,
-
-	RING_LED_PREDEF_MAX //Must be last
-} indication_type_t;
-
 // 
 // /* some RGB color definitions                                                 */
 // #define Black           0x0000      /*   0,   0,   0 */
@@ -65,10 +52,5 @@ typedef enum INDICATON_RING_TYPE
 #define LED_OFF     { 0x00,           0x00,           0x00           }
 
 #define LED_HSV_CYAN    0, 100, 100
-
-uint32_t IndicationGetStatusLedsAmount();
-uint32_t IndicationGetRingLedsAmount();
-
-int32_t IndicationSetRingType(enum INDICATON_RING_TYPE type);
 
 #endif /* RRRC_INDICATION_H_ */

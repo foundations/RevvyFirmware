@@ -248,6 +248,8 @@ static const Comm_CommandHandler_t communicationHandlers[] =
     /* led ring commands */
     [0x30u] = { .Start = &RingLedDisplay_GetScenarioTypes_Start, .GetResult = NULL, .Cancel = NULL },
     [0x31u] = { .Start = &RingLedDisplay_SetScenarioType_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x32u] = { .Start = &RingLedDisplay_GetRingLedAmount_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x33u] = { .Start = &RingLedDisplay_SetUserFrame_Start, .GetResult = NULL, .Cancel = NULL },
 };
 
 static MasterCommunicationInterface_Config_t communicationConfig = 
@@ -599,10 +601,10 @@ void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t 
     }
 }
 
-void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
+void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb565_t color)
 {
     ASSERT(led_idx < RING_LEDS_AMOUNT);
-    ringLeds[led_idx] = rgb_to_rgb565(color);
+    ringLeds[led_idx] = color;
 }
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)

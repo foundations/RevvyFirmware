@@ -11,7 +11,6 @@
 #include <string.h>
 
 typedef void (*ledRingFn)(void* data);
-typedef void (*ledRingFn)(void* data);
 
 typedef struct
 {
@@ -29,33 +28,23 @@ typedef struct
 
 static colorwheel_data_t colorWheelData1;
 
-typedef struct {
-    uint32_t frame_max;
-    led_ring_frame_t* frames;
-    uint32_t period;
-    uint32_t periodCounter;
-    uint32_t frame_curr;
-} frame_data_t, *p_frame_data_t;
-
 /* local function declarations */
 
-static void initUserFrameWriter(void* data);
 static void initColorWheel(void* data);
 
 static void ledRingOffWriter(void* data);
 static void ledRingFrameWriter(void* data);
 static void colorWheelWriter1(void* data);
 
-static led_ring_frame_t led_ring_userframes[LEDS_USER_MAX_FRAMES] = { 0 };
-static frame_data_t user_frame = { .frames = led_ring_userframes };
+static led_ring_frame_t user_frame;
 static RingLedScenario_t currentScenario;
 static RingLedScenario_t requestedScenario;
 static indication_handler_t scenarioHandlers[] = 
 {
-    [RingLedScenario_Off] = { .name="RingLedOff", .init = NULL, .handler = &ledRingOffWriter, .DeInit = NULL, .userData = NULL },
+    [RingLedScenario_Off] = { .name = "RingLedOff", .init = NULL, .handler = &ledRingOffWriter, .DeInit = NULL, .userData = NULL },
     
-    [RingLedScenario_UserAnimation] = { .name="UserAnimation", .init = &initUserFrameWriter, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame },
-    [RingLedScenario_ColorWheel]    = { .name="ColorWheel", .init = &initColorWheel,      .handler = &colorWheelWriter1, .DeInit = NULL, .userData = &colorWheelData1 },
+    [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL,            .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame },
+    [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = &initColorWheel, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = &colorWheelData1 },
 };
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -98,44 +87,41 @@ Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload
     return Comm_Status_Ok;
 }
 
+Comm_Status_t RingLedDisplay_GetRingLedAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    *response = RING_LEDS_AMOUNT;
+    *responseCount = 1u;
+
+    return Comm_Status_Ok;
+}
+
+Comm_Status_t RingLedDisplay_SetUserFrame_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (commandSize != RING_LEDS_AMOUNT * 2u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    RingLedDisplay_Run_SetUserFrame((const rgb565_t*) commandPayload, RING_LEDS_AMOUNT);
+
+    return Comm_Status_Ok;
+}
+
 static void ledRingOffWriter(void* data)
 {
     for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
     {
-        RingLedDisplay_Write_LedColor(idx, (rgb_t) LED_OFF);
+        RingLedDisplay_Write_LedColor(idx, (rgb565_t) LED_OFF);
     }
-}
-
-static void initUserFrameWriter(void* data)
-{
-    p_frame_data_t userData = (p_frame_data_t) data;
-    memset(&userData->frames[0], 0, sizeof(led_ring_userframes));
-    userData->frame_max = 0;
-    userData->frame_curr = 0;
 }
 
 static void ledRingFrameWriter(void* frameData)
 {
-    p_frame_data_t userData = (p_frame_data_t) frameData;
-
-    /* leave output unchanged if there is nothing to display - avoids flashing */
-    if (userData->frame_max != 0u)
+    led_ring_frame_t* userData = (led_ring_frame_t*) frameData;
+    
+    for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
     {
-        for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
-        {
-            RingLedDisplay_Write_LedColor(idx, userData->frames[userData->frame_curr][idx]);
-        }
-
-        userData->periodCounter++;
-        if (userData->periodCounter >= userData->period)
-        {
-            userData->periodCounter = 0u;
-            userData->frame_curr++;
-            if (userData->frame_curr >= userData->frame_max)
-            {
-                userData->frame_curr = 0;
-            }
-        }
+        RingLedDisplay_Write_LedColor(idx, (*userData)[idx]);
     }
 }
 
@@ -157,7 +143,7 @@ static void colorWheelWriter1(void* data)
             .s = 100,
             .v = 100
         };
-        rgb_t rgb = hsv_to_rgb(hsv);
+        rgb565_t rgb = rgb_to_rgb565(hsv_to_rgb(hsv));
         
         RingLedDisplay_Write_LedColor(i, rgb);
     }
@@ -185,27 +171,18 @@ void RingLedDisplay_Run_Update(void)
     scenarioHandlers[currentScenario].handler(scenarioHandlers[currentScenario].userData);
 }
 
-bool RingLedDisplay_Run_AddUserFrame(rgb_t* leds, size_t ledCount)
+bool RingLedDisplay_Run_SetUserFrame(const rgb565_t* leds, size_t ledCount)
 {
-    if (user_frame.frame_max + 1u < LEDS_USER_MAX_FRAMES)
+    for (uint32_t i = 0u; i < ledCount && i < RING_LEDS_AMOUNT; i++)
     {
-        uint32_t idx = user_frame.frame_max + 1u;
-        for (uint32_t i = 0u; i < ledCount && i < RING_LEDS_AMOUNT; i++)
-        {
-            user_frame.frames[idx][i] = leds[i];
-        }
-        for (uint32_t i = ledCount; i < RING_LEDS_AMOUNT; i++)
-        {
-            user_frame.frames[idx][i] = (rgb_t) LED_OFF;
-        }
-        user_frame.frame_max = idx;
+        user_frame[i] = leds[i];
+    }
+    for (uint32_t i = ledCount; i < RING_LEDS_AMOUNT; i++)
+    {
+        user_frame[i] = (rgb565_t) LED_OFF;
+    }
 
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario)
@@ -222,7 +199,7 @@ void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario)
 }
 
 __attribute__((weak))
-void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
+void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb565_t color)
 {
     /* nothing to do */
 }
