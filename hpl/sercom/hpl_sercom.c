@@ -1077,10 +1077,19 @@ static void _sercom_i2c_m_irq_handler(struct _i2c_m_async_device *i2c_dev)
 		}
 
 		/* app callback */
-		if ((flags & MB_FLAG) && i2c_dev->cb.tx_complete) {
-			i2c_dev->cb.tx_complete(i2c_dev);
-		} else if ((flags & SB_FLAG) && i2c_dev->cb.rx_complete) {
-			i2c_dev->cb.rx_complete(i2c_dev);
+		if (flags & MB_FLAG)
+        {
+            if (i2c_dev->cb.tx_complete)
+            {
+                i2c_dev->cb.tx_complete(i2c_dev);
+            }
+        }
+        else if (flags & SB_FLAG)
+        {
+            if (i2c_dev->cb.rx_complete)
+            {
+                i2c_dev->cb.rx_complete(i2c_dev);
+            }
 		}
 
 		return;
@@ -1306,20 +1315,20 @@ int32_t _i2c_m_async_transfer(struct _i2c_m_async_device *i2c_dev, struct _i2c_m
 int32_t _i2c_m_async_register_callback(struct _i2c_m_async_device *const i2c_dev, enum _i2c_m_async_callback_type type,
                                        FUNC_PTR func)
 {
-// 	switch (type) {
-// 	case I2C_M_ASYNC_DEVICE_ERROR:
-// 		i2c_dev->cb.error = (_i2c_error_cb_t)func;
-// 		break;
-// 	case I2C_M_ASYNC_DEVICE_TX_COMPLETE:
-// 		i2c_dev->cb.tx_complete = (_i2c_complete_cb_t)func;
-// 		break;
-// 	case I2C_M_ASYNC_DEVICE_RX_COMPLETE:
-// 		i2c_dev->cb.rx_complete = (_i2c_complete_cb_t)func;
-// 		break;
-// 	default:
-// 		/* error */
-// 		break;
-// 	}
+	switch (type) {
+	case I2C_M_ASYNC_DEVICE_ERROR:
+		i2c_dev->cb.error = (_i2c_error_cb_t)func;
+		break;
+	case I2C_M_ASYNC_DEVICE_TX_COMPLETE:
+		i2c_dev->cb.tx_complete = (_i2c_complete_cb_t)func;
+		break;
+	case I2C_M_ASYNC_DEVICE_RX_COMPLETE:
+		i2c_dev->cb.rx_complete = (_i2c_complete_cb_t)func;
+		break;
+	default:
+		/* error */
+		break;
+	}
 
 	return ERR_NONE;
 }

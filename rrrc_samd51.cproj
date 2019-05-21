@@ -1260,6 +1260,12 @@
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\SensorPortLibrary.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\SensorPort_I2C.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\SensorPort_I2C.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\VersionProvider\VersionProvider.c">
       <SubType>compile</SubType>
     </Compile>

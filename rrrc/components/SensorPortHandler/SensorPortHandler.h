@@ -15,6 +15,7 @@
 
 struct _SensorPort_t;
 
+#include "hal_i2c_m_async.h"
 #include "SensorPortLibraries/SensorPortLibrary.h"
 
 typedef struct _SensorPort_t
@@ -31,6 +32,9 @@ typedef struct _SensorPort_t
     uint8_t vccio;
 
     uint8_t adc;
+
+    void* i2c_hw;
+    struct i2c_m_async_desc i2c;
 } SensorPort_t;
 
 Comm_Status_t SensorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);

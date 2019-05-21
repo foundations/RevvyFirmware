@@ -129,7 +129,8 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S0GPIO0,
         .gpio1 = S0GPIO1,
         .vccio = S0IOVCC,
-        .adc = 3
+        .adc = 3,
+        .i2c_hw = I2C4_SERCOM
     },
     {
         .led0 = S1LED0,
@@ -137,7 +138,8 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S1GPIO0,
         .gpio1 = S1GPIO1,
         .vccio = S1IOVCC,
-        .adc = 0
+        .adc = 0,
+        .i2c_hw = I2C1_SERCOM
     },
     {
         .led0 = S2LED0,
@@ -145,7 +147,8 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S2GPIO0,
         .gpio1 = S2GPIO1,
         .vccio = S2IOVCC,
-        .adc = 1
+        .adc = 1,
+        .i2c_hw = I2C2_SERCOM
     },
     {
         .led0 = S3LED0,
@@ -153,7 +156,8 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S3GPIO0,
         .gpio1 = S3GPIO1,
         .vccio = S3IOVCC,
-        .adc = 2
+        .adc = 2,
+        .i2c_hw = I2C3_SERCOM
     }
 };
 
@@ -229,6 +233,7 @@ static const Comm_CommandHandler_t communicationHandlers[] =
     [0x03u] = { .Start = &BatteryStatusProvider_Start, .GetResult = NULL, .Cancel = NULL },
     [0x04u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
     [0x05u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
+    /* [0x06 - 0x0A]: reserved for bootloader */
     
     /* motor commands */
     [0x10u] = { .Start = &MotorPortHandler_GetPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
