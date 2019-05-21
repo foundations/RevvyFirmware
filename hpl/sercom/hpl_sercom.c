@@ -973,8 +973,8 @@ static inline int32_t _sercom_i2c_sync_analyse_flags(void *const hw, uint32_t fl
 
 	if (flags & MB_FLAG) {
 		/* tx error */
+		hri_sercomi2cm_clear_interrupt_MB_bit(hw);
 		if (status & SERCOM_I2CM_STATUS_ARBLOST) {
-			hri_sercomi2cm_clear_interrupt_MB_bit(hw);
 			msg->flags |= I2C_M_FAIL;
 			msg->flags &= ~I2C_M_BUSY;
 
@@ -1024,6 +1024,7 @@ static inline int32_t _sercom_i2c_sync_analyse_flags(void *const hw, uint32_t fl
 			return I2C_OK;
 		}
 	} else if (flags & SB_FLAG) {
+		hri_sercomi2cm_clear_interrupt_SB_bit(hw);
 		if ((msg->len) && !(status & SERCOM_I2CM_STATUS_RXNACK)) {
 			msg->len--;
 
@@ -1047,11 +1048,8 @@ static inline int32_t _sercom_i2c_sync_analyse_flags(void *const hw, uint32_t fl
 			 **/
 			*msg->buffer++ = hri_sercomi2cm_read_DATA_reg(hw);
 		} else {
-			hri_sercomi2cm_clear_interrupt_SB_bit(hw);
 			return I2C_NACK;
 		}
-
-		hri_sercomi2cm_clear_interrupt_SB_bit(hw);
 	}
 
 	return I2C_OK;
