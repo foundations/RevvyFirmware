@@ -29,7 +29,13 @@ static void SensorPort_ext0_callback(void* user_data)
 {
     SensorPort_t* port = (SensorPort_t*) user_data;
 
-    port->library->InterruptHandler(port, SensorPort_Read_Gpio0(port));
+    if (port != NULL)
+    {
+        if (port->library != NULL)
+        {
+            port->library->InterruptHandler(port, SensorPort_Read_Gpio0(port));
+        }
+    }
 }
 
 static void _init_port(SensorPort_t* port)
