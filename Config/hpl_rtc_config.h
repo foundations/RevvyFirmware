@@ -7,7 +7,7 @@
 // <h> Basic settings
 
 #ifndef CONF_RTC_ENABLE
-#define CONF_RTC_ENABLE 1
+#define CONF_RTC_ENABLE 0
 #endif
 
 // <q> Force reset RTC on initialization
