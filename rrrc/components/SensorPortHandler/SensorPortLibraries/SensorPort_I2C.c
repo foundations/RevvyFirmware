@@ -11,7 +11,7 @@
 void SensorPort_I2C_Enable(SensorPort_t* port, uint32_t baudrate, const i2c_callbacks_t* callbacks)
 {
     i2c_m_async_init(&port->i2c, port->i2c_hw);
-    i2c_m_async_set_baudrate(&port->i2c, 100, baudrate);
+    i2c_m_async_set_baudrate(&port->i2c, 24000, baudrate);
     i2c_m_async_register_callback(&port->i2c, I2C_M_ASYNC_ERROR, (FUNC_PTR)callbacks->error);
     i2c_m_async_register_callback(&port->i2c, I2C_M_ASYNC_TX_COMPLETE, (FUNC_PTR)callbacks->tx_complete);
     i2c_m_async_register_callback(&port->i2c, I2C_M_ASYNC_RX_COMPLETE, (FUNC_PTR)callbacks->rx_complete);
