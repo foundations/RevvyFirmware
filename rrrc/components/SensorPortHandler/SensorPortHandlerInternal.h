@@ -20,6 +20,9 @@ typedef enum {
 void SensorPort_SetGreenLed(struct _SensorPort_t* port, bool state);
 void SensorPort_SetOrangeLed(struct _SensorPort_t* port, bool state);
 
+void SensorPort_ToggleGreenLed(struct _SensorPort_t* port);
+void SensorPort_ToggleOrangeLed(struct _SensorPort_t* port);
+
 void SensorPort_ConfigureGpio0_Input(struct _SensorPort_t* port);
 void SensorPort_ConfigureGpio0_Interrupt(struct _SensorPort_t* port);
 void SensorPort_ConfigureGpio0_Output(struct _SensorPort_t* port);
