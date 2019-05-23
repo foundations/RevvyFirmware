@@ -25,13 +25,12 @@ uint32_t high_res_timer_ticks_per_ms(void);
 
 static inline uint32_t rtos_get_ticks_in_ms()
 {
-	//uint32_t ticks = xTaskGetTickCount();
-	return portTICK_PERIOD_MS;
+    return portTICK_PERIOD_MS;
 }
 
 static inline uint32_t rtos_ms_to_ticks(uint32_t ms)
 {
-	return ms * rtos_get_ticks_in_ms();
+    return ms * rtos_get_ticks_in_ms();
 }
 
 #ifdef __cplusplus
