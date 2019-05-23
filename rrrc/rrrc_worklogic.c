@@ -448,6 +448,8 @@ void ADC_Write_Samples_ADC1(float samples[5])
     motorBatteryVoltage = motor_voltage;
 }
 
+static bool statusLedsChanged;
+static bool ringLedsChanged;
 static rgb565_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
 static rgb565_t ringLeds[RING_LEDS_AMOUNT] = { 0 };
 
@@ -483,11 +485,13 @@ rgb565_t LEDController_Read_RingLED(uint32_t led_idx)
 void BluetoothIndicator_Write_LedColor(rgb_t color)
 {
     statusLeds[BLUETOOTH_INDICATOR_LED] = rgb_to_rgb565(color);
+    statusLedsChanged = true;
 }
 
 void BrainStatusIndicator_Write_LedColor(rgb_t color)
 {
     statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565(color);
+    statusLedsChanged = true;
 }
 
 float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
@@ -594,11 +598,21 @@ void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t 
 {
     if (context == &mainBatteryIndicator)
     {
-        statusLeds[MAIN_BATTERY_INDICATOR_LED] = rgb_to_rgb565(color);
+        rgb565_t newColor = rgb_to_rgb565(color);
+        if (!rgb565_equals(newColor, statusLeds[MAIN_BATTERY_INDICATOR_LED]))
+        {
+            statusLeds[MAIN_BATTERY_INDICATOR_LED] = newColor;
+            statusLedsChanged = true;
+        }
     }
     else if (context == &motorBatteryIndicator)
     {
-        statusLeds[MOTOR_BATTERY_INDICATOR_LED] = rgb_to_rgb565(color);
+        rgb565_t newColor = rgb_to_rgb565(color);
+        if (!rgb565_equals(newColor, statusLeds[MOTOR_BATTERY_INDICATOR_LED]))
+        {
+            statusLeds[MOTOR_BATTERY_INDICATOR_LED] = newColor;
+            statusLedsChanged = true;
+        }
     }
     else
     {
@@ -606,10 +620,28 @@ void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t 
     }
 }
 
+bool LEDController_Read_StatusLEDs_Changed(void)
+{
+    bool changed = statusLedsChanged;
+    statusLedsChanged = false;
+    return changed;
+}
+
+bool LEDController_Read_RingLEDs_Changed(void)
+{
+    bool changed = ringLedsChanged;
+    ringLedsChanged = false;
+    return changed;
+}
+
 void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb565_t color)
 {
     ASSERT(led_idx < RING_LEDS_AMOUNT);
-    ringLeds[led_idx] = color;
+    if (!rgb565_equals(ringLeds[led_idx], color))
+    {
+        ringLeds[led_idx] = color;
+        ringLedsChanged = true;
+    }
 }
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
@@ -636,29 +668,33 @@ void CommunicationObserver_Call_ErrorThresholdReached(void)
 
 void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
 {
-    masterStatus = status;
-
-    /* TODO this should be moved to a separate component, probably */
-    switch (status)
+    if (masterStatus != status)
     {
-        default:
-        case MasterStatus_Unknown:
-            portENTER_CRITICAL();
-            statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_RED);
-            portEXIT_CRITICAL();
-            break;
+        masterStatus = status;
+        statusLedsChanged = true;
 
-        case MasterStatus_Operational:
-            portENTER_CRITICAL();
-            statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_ORANGE);
-            portEXIT_CRITICAL();
-            break;
+        /* TODO this should be moved to a separate component, probably */
+        switch (status)
+        {
+            default:
+            case MasterStatus_Unknown:
+                portENTER_CRITICAL();
+                statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_RED);
+                portEXIT_CRITICAL();
+                break;
 
-        case MasterStatus_Controlled:
-            portENTER_CRITICAL();
-            statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_GREEN);
-            portEXIT_CRITICAL();
-            break;
+            case MasterStatus_Operational:
+                portENTER_CRITICAL();
+                statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_ORANGE);
+                portEXIT_CRITICAL();
+                break;
+
+            case MasterStatus_Controlled:
+                portENTER_CRITICAL();
+                statusLeds[STATUS_INDICATOR_LED] = rgb_to_rgb565((rgb_t) LED_GREEN);
+                portEXIT_CRITICAL();
+                break;
+        }
     }
 }
 

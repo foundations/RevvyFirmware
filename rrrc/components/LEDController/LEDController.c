@@ -107,9 +107,24 @@ void LEDController_Run_Update(void)
 {
     if (!ledsUpdating)
     {
-        update_frame();
-        send_frame();
+        if (LEDController_Read_StatusLEDs_Changed() || LEDController_Read_RingLEDs_Changed())
+        {
+            update_frame();
+            send_frame();
+        }
     }
+}
+
+__attribute__((weak))
+bool LEDController_Read_StatusLEDs_Changed(void)
+{
+    return true;
+}
+
+__attribute__((weak))
+bool LEDController_Read_RingLEDs_Changed(void)
+{
+    return true;
 }
 
 __attribute__((weak))

@@ -17,8 +17,13 @@ typedef struct
     uint8_t G:6;
     uint8_t B:5;
 } __attribute__((packed)) rgb565_t;
-
 _Static_assert(sizeof(rgb565_t) == 2, "Size of rgb565_t should be 2 bytes");
+
+#define rgb565_equals(a, b) (\
+    a.R == b.R && \
+    a.G == b.G && \
+    a.B == b.B    \
+)
 
 typedef struct
 {
@@ -27,12 +32,24 @@ typedef struct
     uint8_t B;
 } rgb_t;
 
+#define rgb_equals(a, b) (\
+    a.R == b.R && \
+    a.G == b.G && \
+    a.B == b.B    \
+)
+
 typedef struct
 {
     uint16_t h;
     uint8_t s;
     uint8_t v;
 } hsv_t;
+
+#define hsv_equals(a, b) (\
+    a.h == b.h && \
+    a.s == b.s && \
+    a.v == b.v    \
+)
 
 rgb_t rgb565_to_rgb(rgb565_t rgb565);
 rgb565_t rgb_to_rgb565(rgb_t rgb);
