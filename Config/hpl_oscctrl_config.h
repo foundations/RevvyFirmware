@@ -261,14 +261,14 @@
 // <i> Indicates whether DFLL is enabled or not
 // <id> dfll_arch_enable
 #ifndef CONF_DFLL_ENABLE
-#define CONF_DFLL_ENABLE 1
+#define CONF_DFLL_ENABLE 0
 #endif
 
 // <q> On Demand Control
 // <i> Indicates whether On Demand Control is enabled or not
 // <id> dfll_arch_ondemand
 #ifndef CONF_DFLL_ONDEMAND
-#define CONF_DFLL_ONDEMAND 1
+#define CONF_DFLL_ONDEMAND 0
 #endif
 
 // <q> Run in Standby
@@ -282,7 +282,7 @@
 // <i> Indicates whether USB Clock Recovery Mode is enabled or not
 // <id> dfll_arch_usbcrm
 #ifndef CONF_DFLL_USBCRM
-#define CONF_DFLL_USBCRM 1
+#define CONF_DFLL_USBCRM 0
 #endif
 
 // <q> Wait Lock
@@ -332,7 +332,7 @@
 // <1=>Closed Loop Mode
 // <id> dfll_mode
 #ifndef CONF_DFLL_MODE
-#define CONF_DFLL_MODE 0x01
+#define CONF_DFLL_MODE 0x0
 #endif
 
 // <o> Coarse Maximum Step <0x0-0x1F>

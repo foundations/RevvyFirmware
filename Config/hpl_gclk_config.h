@@ -235,7 +235,7 @@
 // <i> Indicates whether generic clock 3 configuration is enabled or not
 // <id> enable_gclk_gen_3
 #ifndef CONF_GCLK_GENERATOR_3_CONFIG
-#define CONF_GCLK_GENERATOR_3_CONFIG 1
+#define CONF_GCLK_GENERATOR_3_CONFIG 0
 #endif
 
 // <h> Generic Clock Generator Control
