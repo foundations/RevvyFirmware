@@ -101,7 +101,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <q> Use maclloc failed hook
 // <id> freertos_use_malloc_failed_hook
 #ifndef configUSE_MALLOC_FAILED_HOOK
-#define configUSE_MALLOC_FAILED_HOOK 1
+#define configUSE_MALLOC_FAILED_HOOK 0
 #endif
 
 // <q> Use idle hook
@@ -120,7 +120,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <q> Use tickless idle
 // <id> freertos_use_tickless_idle
 #ifndef configUSE_TICKLESS_IDLE
-#define configUSE_TICKLESS_IDLE 0
+#define configUSE_TICKLESS_IDLE 1
 #endif
 
 // <q> Use trace facility
@@ -188,7 +188,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <o> Timer task stack size <32-512:4>
 // <i> Default is 64
 // <id> freertos_timer_task_stack_depth
-#ifndef TIMER_TASK_STACK_DEPTH
+#ifndef configTIMER_TASK_STACK_DEPTH
 #define configTIMER_TASK_STACK_DEPTH (128)
 #endif
 
