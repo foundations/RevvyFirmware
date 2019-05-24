@@ -164,10 +164,11 @@ MotorLibraryStatus_t SpeedControlled_UpdateConfiguration(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t SpeedControlled_GetPosition(MotorPort_t* motorPort, int32_t* data)
+MotorLibraryStatus_t SpeedControlled_GetStatus(MotorPort_t* motorPort, uint8_t* data, uint8_t* dataSize)
 {
     MotorLibrary_SpeedControlled_Data_t* libdata = (MotorLibrary_SpeedControlled_Data_t*) motorPort->libraryData;
-    *data = libdata->position;
+    memcpy(data, &libdata->position, 4u);
+    *dataSize = 4u;
     return MotorLibraryStatus_Ok;
 }
 
@@ -193,6 +194,6 @@ const MotorLibrary_t motor_library_speed_controlled =
     .Gpio1Callback       = &SpeedControlled_Gpio1Callback,
     .SetConfig           = &SpeedControlled_SetConfig,
     .UpdateConfiguration = &SpeedControlled_UpdateConfiguration,
-    .GetPosition         = &SpeedControlled_GetPosition,
+    .GetStatus           = &SpeedControlled_GetStatus,
     .SetControlReference = &SpeedControlled_SetControlReference,
 };

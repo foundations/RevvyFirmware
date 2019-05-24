@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "MotorPortLibraries/Dummy/Dummy.h"
+#include "MotorPortLibraries/DcMotor/DcMotor.h"
 #include "MotorPortLibraries/SpeedControlled/SpeedControlled.h"
 #include "MotorPortLibraries/PositionControlled/PositionControlled.h"
 #include "MotorPortLibraries/OpenLoop/OpenLoop.h"
@@ -18,6 +19,7 @@
 static const MotorLibrary_t* libraries[] = 
 {
     &motor_library_dummy,
+    &motor_library_dc,
     &motor_library_open_loop,
     &motor_library_speed_controlled,
     &motor_library_position_controlled,
@@ -205,7 +207,7 @@ Comm_Status_t MotorPortHandler_SetControlValue_Start(const uint8_t* commandPaylo
     }
 }
 
-Comm_Status_t MotorPortHandler_GetPosition_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+Comm_Status_t MotorPortHandler_GetStatus_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
     if (commandSize != 1u)
     {
@@ -222,15 +224,15 @@ Comm_Status_t MotorPortHandler_GetPosition_Start(const uint8_t* commandPayload, 
     }
     
     MotorPort_t* port = &motorPorts[port_idx];
-    MotorLibraryStatus_t result = port->library->GetPosition(port, (int32_t*) response);
+    MotorLibraryStatus_t result = port->library->GetStatus(port, response, responseCount);
 
     if (result == MotorLibraryStatus_Ok)
     {
-        *responseCount = sizeof(int32_t);
         return Comm_Status_Ok;
     }
     else
     {
+        *responseCount = 0u;
         return Comm_Status_Error_InternalError;
     }
 }

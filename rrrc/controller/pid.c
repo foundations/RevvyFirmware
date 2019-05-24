@@ -6,22 +6,7 @@
  */ 
 
 #include "pid.h"
-
-static float saturate_float(float value, float min, float max)
-{
-    if (value < min)
-    {
-        return min;
-    }
-    else if (value > max)
-    {
-        return max;
-    }
-    else
-    {
-        return value;
-    }
-}
+#include "utils/functions.h"
 
 void pid_initialize(PID_t* controller)
 {
@@ -43,7 +28,7 @@ float pid_update(PID_t* controller, float refSignal, float feedback)
 
     float p = error * controller->config.P;
     float d = dError * controller->config.D;
-    float u = saturate_float(p + d + controller->state.integratorFeedback, controller->config.LowerLimit, controller->config.UpperLimit);
+    float u = constrain_f32(p + d + controller->state.integratorFeedback, controller->config.LowerLimit, controller->config.UpperLimit);
 
     controller->state.previousError = error;
     controller->state.previousFeedback = feedback;

@@ -150,10 +150,11 @@ MotorLibraryStatus_t PositionControlled_UpdateConfiguration(MotorPort_t* motorPo
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t PositionControlled_GetPosition(MotorPort_t* motorPort, int32_t* data)
+MotorLibraryStatus_t PositionControlled_GetStatus(MotorPort_t* motorPort, uint8_t* data, uint8_t* dataSize)
 {
     MotorLibrary_PositionControlled_Data_t* libdata = (MotorLibrary_PositionControlled_Data_t*) motorPort->libraryData;
-    *data = libdata->position;
+    memcpy(data, &libdata->position, 4u);
+    *dataSize = 4u;
     return MotorLibraryStatus_Ok;
 }
 
@@ -179,6 +180,6 @@ const MotorLibrary_t motor_library_position_controlled =
     .Gpio1Callback       = &PositionControlled_Gpio1Callback,
     .SetConfig           = &PositionControlled_SetConfig,
     .UpdateConfiguration = &PositionControlled_UpdateConfiguration,
-    .GetPosition         = &PositionControlled_GetPosition,
+    .GetStatus           = &PositionControlled_GetStatus,
     .SetControlReference = &PositionControlled_SetControlReference,
 };

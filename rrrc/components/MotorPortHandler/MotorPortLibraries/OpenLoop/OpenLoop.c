@@ -74,9 +74,9 @@ MotorLibraryStatus_t OpenLoop_UpdateConfiguration(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-MotorLibraryStatus_t OpenLoop_GetPosition(MotorPort_t* motorPort, int32_t* data)
+MotorLibraryStatus_t OpenLoop_GetStatus(MotorPort_t* motorPort, uint8_t* data, uint8_t* dataSize)
 {
-    *data = 0;
+    *dataSize = 0u;
     return MotorLibraryStatus_Ok;
 }
 
@@ -103,6 +103,6 @@ const MotorLibrary_t motor_library_open_loop =
     .Gpio1Callback       = &OpenLoop_Gpio1Callback,
     .SetConfig           = &OpenLoop_SetConfig,
     .UpdateConfiguration = &OpenLoop_UpdateConfiguration,
-    .GetPosition         = &OpenLoop_GetPosition,
+    .GetStatus           = &OpenLoop_GetStatus,
     .SetControlReference = &OpenLoop_SetControlReference,
 };
