@@ -76,6 +76,9 @@ MotorLibraryStatus_t DcMotor_Init(MotorPort_t* motorPort)
 
 MotorLibraryStatus_t DcMotor_DeInit(MotorPort_t* motorPort)
 {
+    MotorPort_SetDriveValue(motorPort, 0);
+    MotorPort_SetGreenLed(motorPort, false);
+    MotorPortHandler_Call_Free(&motorPort->libraryData);
     return MotorLibraryStatus_Ok;
 }
 
