@@ -1200,6 +1200,12 @@
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandlerInternal.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\DcMotor\DcMotor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\DcMotor\DcMotor.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\Dummy\Dummy.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1518,6 +1524,7 @@
     <Folder Include="rrrc\components\MotorPortHandler" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\Dummy" />
+    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\DcMotor" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop" />
