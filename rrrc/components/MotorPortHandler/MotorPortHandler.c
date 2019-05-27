@@ -12,17 +12,11 @@
 
 #include "MotorPortLibraries/Dummy/Dummy.h"
 #include "MotorPortLibraries/DcMotor/DcMotor.h"
-#include "MotorPortLibraries/SpeedControlled/SpeedControlled.h"
-#include "MotorPortLibraries/PositionControlled/PositionControlled.h"
-#include "MotorPortLibraries/OpenLoop/OpenLoop.h"
 
 static const MotorLibrary_t* libraries[] = 
 {
     &motor_library_dummy,
-    &motor_library_dc,
-    &motor_library_open_loop,
-    &motor_library_speed_controlled,
-    &motor_library_position_controlled,
+    &motor_library_dc
 };
 
 static size_t motorPortCount = 0u;

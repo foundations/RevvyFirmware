@@ -1215,24 +1215,6 @@
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\MotorPortLibrary.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop\OpenLoop.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop\OpenLoop.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled\PositionControlled.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled\PositionControlled.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled\SpeedControlled.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled\SpeedControlled.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandlerInternal.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1525,9 +1507,6 @@
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\Dummy" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\DcMotor" />
-    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\SpeedControlled" />
-    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\PositionControlled" />
-    <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\OpenLoop" />
     <Folder Include="rrrc\components\MemoryAllocator" />
     <Folder Include="rrrc\components\MotorDriver_TB661FNG" />
     <Folder Include="rrrc\components\SensorPortHandler" />
