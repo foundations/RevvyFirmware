@@ -53,12 +53,12 @@ MotorLibraryStatus_t SpeedControlled_Update(MotorPort_t* motorPort)
     MotorLibrary_SpeedControlled_Data_t* libdata = (MotorLibrary_SpeedControlled_Data_t*) motorPort->libraryData;
 
     int32_t position = libdata->position;
-    int32_t measuredSpeed = position - libdata->lastPosition; // todo more sensible (less arbitrary) unit of speed
+    float dt = 0.02f;
+    float measuredSpeed = (position - libdata->lastPosition) / dt; // todo more sensible (less arbitrary) unit of speed
 
-    libdata->y0 = libdata->alpha * measuredSpeed + (1 - libdata->alpha) * libdata->y0;
     libdata->lastPosition = position;
 
-    float u = pid_update(&libdata->controller, libdata->targetSpeed, libdata->y0);
+    float u = pid_update(&libdata->controller, libdata->targetSpeed, measuredSpeed);
     int8_t driveValue = (int8_t) lroundf(u);
     MotorPort_SetDriveValue(motorPort, driveValue);
 
