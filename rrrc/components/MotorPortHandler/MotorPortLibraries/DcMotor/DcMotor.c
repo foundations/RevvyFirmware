@@ -119,14 +119,11 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
             libdata->lastPosition = libdata->position;
 
             libdata->positionBuffer[libdata->positionBufferIdx] = posDiff;
+            libdata->positionBufferIdx = (libdata->positionBufferIdx + 1u) % ARRAY_SIZE(libdata->positionBuffer);
+
             if (libdata->positionBufferCount < ARRAY_SIZE(libdata->positionBuffer))
             {
                 libdata->positionBufferCount++;
-                libdata->positionBufferIdx = libdata->positionBufferCount;
-            }
-            else
-            {
-                libdata->positionBufferIdx = (libdata->positionBufferIdx + 1u) % ARRAY_SIZE(libdata->positionBuffer);
             }
             
             /* Get the average */
@@ -231,6 +228,7 @@ MotorLibraryStatus_t DcMotor_SetConfig(MotorPort_t* motorPort, const uint8_t* da
         return MotorLibraryStatus_InputError;
     }
 
+    libdata->configured = false;
     memcpy(&libdata->configuration[0], data, size);
 
     return MotorLibraryStatus_Ok;
@@ -249,7 +247,6 @@ MotorLibraryStatus_t DcMotor_UpdateConfiguration(MotorPort_t* motorPort)
     libdata->positionController.config.LowerLimit = get_float(&libdata->configuration[20]);
     libdata->positionController.config.UpperLimit = get_float(&libdata->configuration[24]);
     
-    
     pid_initialize(&libdata->speedController);
     libdata->speedController.config.P = get_float(&libdata->configuration[28]);
     libdata->speedController.config.I = get_float(&libdata->configuration[32]);
@@ -257,6 +254,7 @@ MotorLibraryStatus_t DcMotor_UpdateConfiguration(MotorPort_t* motorPort)
     libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
     libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
 
+    libdata->lastPosition = 0;
     libdata->position = 0;
     libdata->positionBufferIdx = 0u;
     libdata->positionBufferCount = 0u;
@@ -264,7 +262,8 @@ MotorLibraryStatus_t DcMotor_UpdateConfiguration(MotorPort_t* motorPort)
 
     libdata->speed = 0.0f;
     libdata->target.type = target_pwm;
-    libdata->target.position = 0;
+    libdata->target.pwm = 0;
+    libdata->pwm = 0;
     
     libdata->configured = true;
 
@@ -302,12 +301,15 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 {
                     return MotorLibraryStatus_InputError;
                 }
+
+                portENTER_CRITICAL();
                 libdata->target.type = target_pwm;
                 libdata->target.pwm = data[1];
                 if (libdata->speedController.config.LowerLimit < libdata->speedController.config.UpperLimit)
                 {
                     libdata->target.pwm = constrain_int8(libdata->target.pwm, libdata->speedController.config.LowerLimit, libdata->speedController.config.UpperLimit);
                 }
+                portEXIT_CRITICAL();
                 break;
 
             case MOTOR_CONTROL_SPEED:
@@ -315,12 +317,15 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 {
                     return MotorLibraryStatus_InputError;
                 }
+
+                portENTER_CRITICAL();
                 libdata->target.type = target_speed;
                 libdata->target.speed = get_float(&data[1]);
                 if (libdata->positionController.config.LowerLimit < libdata->positionController.config.UpperLimit)
                 {
                     libdata->target.speed = constrain_f32(libdata->target.speed, libdata->positionController.config.LowerLimit, libdata->positionController.config.UpperLimit);
                 }
+                portEXIT_CRITICAL();
                 break;
 
             case MOTOR_CONTROL_POSITION:
@@ -328,12 +333,15 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 {
                     return MotorLibraryStatus_InputError;
                 }
+                
+                portENTER_CRITICAL();
                 libdata->target.type = target_position;
                 libdata->target.position = get_int32(&data[1]);
                 if (libdata->positionLimitMin < libdata->positionLimitMax)
                 {
                     libdata->target.position = constrain_int32(libdata->target.position, libdata->positionLimitMin, libdata->positionLimitMax);
                 }
+                portEXIT_CRITICAL();
                 break;
 
             default:
