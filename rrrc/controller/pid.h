@@ -19,9 +19,9 @@ typedef struct
     } config;
     
     struct {
+        float previousOutput;
         float previousFeedback;
         float previousError;
-        float integratorFeedback;
     } state;
 } PID_t;
 
