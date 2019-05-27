@@ -316,6 +316,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                     return MotorLibraryStatus_InputError;
                 }
                 libdata->target.type = target_speed;
+                libdata->target.speed = get_float(&data[1]);
                 if (libdata->positionController.config.LowerLimit < libdata->positionController.config.UpperLimit)
                 {
                     libdata->target.speed = constrain_f32(libdata->target.speed, libdata->positionController.config.LowerLimit, libdata->positionController.config.UpperLimit);
