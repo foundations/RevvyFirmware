@@ -53,7 +53,7 @@ typedef struct
 
     /* last status */
     int32_t lastPosition;
-    int32_t positionBuffer[4];
+    int32_t positionBuffer[1];
     uint8_t positionBufferIdx;
     uint8_t positionBufferCount;
 
@@ -88,6 +88,33 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
 
     if (libdata->configured)
     {
+        /* Calculate current speed */
+        /* Record last N position difference values */
+        int32_t posDiff = libdata->position - libdata->lastPosition;
+        libdata->lastPosition = libdata->position;
+
+        libdata->positionBuffer[libdata->positionBufferIdx] = posDiff;
+        libdata->positionBufferIdx = (libdata->positionBufferIdx + 1u) % ARRAY_SIZE(libdata->positionBuffer);
+
+        if (libdata->positionBufferCount < ARRAY_SIZE(libdata->positionBuffer))
+        {
+            libdata->positionBufferCount++;
+        }
+            
+        /* Get the average */
+        int32_t sumPosDiff = 0;
+        for (size_t i = 0u; i < ARRAY_SIZE(libdata->positionBuffer); i++)
+        {
+            sumPosDiff += libdata->positionBuffer[i];
+        }
+        float avgPosDiff = sumPosDiff / (float) libdata->positionBufferCount;
+ 
+        /* Calculate speed - 20ms cycle time */
+        float dt = 0.02f;
+        float speed = avgPosDiff / dt;
+
+        libdata->speed = speed;
+
         int8_t pwm = 0;
         if (libdata->target.type == target_pwm)
         {
@@ -113,35 +140,8 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
                 reqSpeed = pid_update(&libdata->positionController, reqPosition, libdata->position);
             }
 
-            /* Calculate current speed */
-            /* Record last N position difference values */
-            int32_t posDiff = libdata->position - libdata->lastPosition;
-            libdata->lastPosition = libdata->position;
-
-            libdata->positionBuffer[libdata->positionBufferIdx] = posDiff;
-            libdata->positionBufferIdx = (libdata->positionBufferIdx + 1u) % ARRAY_SIZE(libdata->positionBuffer);
-
-            if (libdata->positionBufferCount < ARRAY_SIZE(libdata->positionBuffer))
-            {
-                libdata->positionBufferCount++;
-            }
-            
-            /* Get the average */
-            int32_t sumPosDiff = 0;
-            for (size_t i = 0u; i < ARRAY_SIZE(libdata->positionBuffer); i++)
-            {
-                sumPosDiff += libdata->positionBuffer[i];
-            }
-            float avgPosDiff = sumPosDiff / (float) libdata->positionBufferCount;
- 
-            /* Calculate speed - 20ms cycle time */
-            float dt = 0.02f;
-            float speed = avgPosDiff / dt;
-
-            libdata->speed = speed;
-
             /* calculate drive value to control speed */
-            float u = pid_update(&libdata->speedController, reqSpeed, speed);
+            float u = pid_update(&libdata->speedController, reqSpeed, libdata->speed);
             pwm = (int8_t) lroundf(u);
         }
         
