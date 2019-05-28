@@ -10,7 +10,7 @@
 #include "rrrc_indication.h"
 #include <stdint.h>
 
-#define BLINK_PERIOD    25
+#define BLINK_PERIOD    26
 #define BLINK_LENGTH     1
 
 #define BLE_ON_COLOR    (rgb_t) LED_CYAN
