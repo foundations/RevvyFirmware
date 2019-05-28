@@ -13,7 +13,7 @@
 
 #include <hpl_rtc_base.h>
 
-
+#include "rrrc_hal.h"
 
 struct timer_descriptor TIMER_RTC;
 struct timer_descriptor TIMER_TC0;

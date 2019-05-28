@@ -8,6 +8,9 @@
 #include "rrrc_indication.h"
 #include "utils.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include <string.h>
 
 typedef void (*ledRingFn)(void* data);
@@ -21,16 +24,7 @@ typedef struct
     void* userData;
 } indication_handler_t;
 
-typedef struct
-{
-    uint32_t phase;
-} colorwheel_data_t, *p_colorwheel_data_t;
-
-static colorwheel_data_t colorWheelData1;
-
 /* local function declarations */
-
-static void initColorWheel(void* data);
 
 static void ledRingOffWriter(void* data);
 static void ledRingFrameWriter(void* data);
@@ -43,8 +37,8 @@ static indication_handler_t scenarioHandlers[] =
 {
     [RingLedScenario_Off] = { .name = "RingLedOff", .init = NULL, .handler = &ledRingOffWriter, .DeInit = NULL, .userData = NULL },
     
-    [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL,            .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
-    [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = &initColorWheel, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = &colorWheelData1 },
+    [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
+    [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = NULL, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = NULL },
 };
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -125,21 +119,14 @@ static void ledRingFrameWriter(void* frameData)
     }
 }
 
-static void initColorWheel(void* data)
-{
-    p_colorwheel_data_t userData = (p_colorwheel_data_t) data;
-
-    userData->phase = 0u;
-}
-
 static void colorWheelWriter1(void* data)
 {
-    p_colorwheel_data_t userData = (p_colorwheel_data_t) data;
+    uint32_t phase = (xTaskGetTickCount() * 6) / 20;
     
     for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
     {
         hsv_t hsv = {
-            .h = userData->phase + i * 360u / RING_LEDS_AMOUNT,
+            .h = phase + i * 360u / RING_LEDS_AMOUNT,
             .s = 100,
             .v = 100
         };
@@ -147,7 +134,6 @@ static void colorWheelWriter1(void* data)
         
         RingLedDisplay_Write_LedColor(i, rgb);
     }
-    userData->phase = (userData->phase + 6u) % 360;
 }
 
 void RingLedDisplay_Run_OnInit(void)
