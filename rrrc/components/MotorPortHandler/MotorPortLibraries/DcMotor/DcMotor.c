@@ -28,6 +28,9 @@ typedef enum {
 #define MOTOR_CONTROL_SPEED    ((uint8_t) 1u)
 #define MOTOR_CONTROL_POSITION ((uint8_t) 2u)
 
+#define DRIVE_CONTSTRAINED_POWER    ((uint8_t) 0u)
+#define DRIVE_CONTSTRAINED_SPEED    ((uint8_t) 1u)
+
 typedef struct 
 {
     bool configured;
@@ -228,8 +231,10 @@ MotorLibraryStatus_t DcMotor_SetConfig(MotorPort_t* motorPort, const uint8_t* da
         return MotorLibraryStatus_InputError;
     }
 
+    portENTER_CRITICAL();
     libdata->configured = false;
     memcpy(&libdata->configuration[0], data, size);
+    portEXIT_CRITICAL();
 
     return MotorLibraryStatus_Ok;
 }
@@ -315,7 +320,24 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
             case MOTOR_CONTROL_SPEED:
                 if (size != 5u)
                 {
-                    return MotorLibraryStatus_InputError;
+                    if (size == 9u)
+                    {
+                        /* constrained drive command -power constraint */
+                        libdata->speedController.config.LowerLimit = -get_float(&data[6]);
+                        libdata->speedController.config.UpperLimit = get_float(&data[6]);
+                    }
+                    else
+                    {
+                        return MotorLibraryStatus_InputError;
+                    }
+                }
+                else
+                {
+                    /* reset controller limits */
+                    libdata->positionController.config.LowerLimit = get_float(&libdata->configuration[20]);
+                    libdata->positionController.config.UpperLimit = get_float(&libdata->configuration[24]);
+                    libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
+                    libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
                 }
 
                 portENTER_CRITICAL();
@@ -331,7 +353,44 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
             case MOTOR_CONTROL_POSITION:
                 if (size != 5u)
                 {
-                    return MotorLibraryStatus_InputError;
+                    if (size == 10u)
+                    {
+                        /* constrained drive command */
+                        switch (data[5])
+                        {
+                            case DRIVE_CONTSTRAINED_POWER:
+                                libdata->speedController.config.LowerLimit = -get_float(&data[6]);
+                                libdata->speedController.config.UpperLimit = get_float(&data[6]);
+                                break;
+
+                            case DRIVE_CONTSTRAINED_SPEED:
+                                libdata->positionController.config.LowerLimit = -get_float(&data[6]);
+                                libdata->positionController.config.UpperLimit = get_float(&data[6]);
+                                break;
+
+                            default:
+                                return MotorLibraryStatus_InputError;
+                        }
+                    }
+                    else if (size == 13u)
+                    {
+                        libdata->positionController.config.LowerLimit = -get_float(&data[6]);
+                        libdata->positionController.config.UpperLimit = get_float(&data[6]);
+                        libdata->speedController.config.LowerLimit = -get_float(&data[10]);
+                        libdata->speedController.config.UpperLimit = get_float(&data[10]);
+                    }
+                    else
+                    {
+                        return MotorLibraryStatus_InputError;
+                    }
+                }
+                else
+                {
+                    /* reset controller limits */
+                    libdata->positionController.config.LowerLimit = get_float(&libdata->configuration[20]);
+                    libdata->positionController.config.UpperLimit = get_float(&libdata->configuration[24]);
+                    libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
+                    libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
                 }
                 
                 portENTER_CRITICAL();
