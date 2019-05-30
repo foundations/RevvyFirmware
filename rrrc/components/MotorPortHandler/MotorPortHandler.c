@@ -291,3 +291,20 @@ void MotorPortHandler_Call_Free(void** ptr)
 {
     *ptr = NULL;
 }
+
+__attribute__((weak))
+void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
+{
+    /* nothing to do */
+}
+
+__attribute__((weak))
+void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst)
+{
+    *dst = (MotorPort_DriveRequest_t) {
+        .type = MotorPort_DriveRequest_Power,
+        .pwm = 0,
+        .speed_limit = 0.0f,
+        .power_limit = 0.0f
+    };
+}

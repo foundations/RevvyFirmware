@@ -18,12 +18,6 @@
 #include <string.h>
 #include <math.h>
 
-typedef enum {
-    target_position,
-    target_speed,
-    target_pwm
-} target_type;
-
 #define MOTOR_CONTROL_PWM      ((uint8_t) 0u)
 #define MOTOR_CONTROL_SPEED    ((uint8_t) 1u)
 #define MOTOR_CONTROL_POSITION ((uint8_t) 2u)
@@ -41,18 +35,6 @@ typedef struct
     PID_t positionController;
     PID_t speedController;
     uint8_t configuration[48];
-
-    /* requested status */
-    struct
-    {
-        target_type type;
-        union
-        {
-            int8_t pwm;
-            float speed;
-            int32_t position;
-        };
-    } target;
 
     /* last status */
     int32_t lastPosition;
@@ -118,24 +100,51 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
 
         libdata->speed = speed;
 
+        MotorPort_DriveRequest_t driveRequest;
+        MotorPortHandler_Read_DriveRequest(motorPort->port_idx, &driveRequest);
+
+        /* set up limits */
+        if (driveRequest.speed_limit == 0.0f)
+        {
+            libdata->positionController.config.LowerLimit = get_float(&libdata->configuration[20]);
+            libdata->positionController.config.UpperLimit = get_float(&libdata->configuration[24]);
+        }
+        else
+        {
+            libdata->positionController.config.LowerLimit = -driveRequest.speed_limit;
+            libdata->positionController.config.UpperLimit = driveRequest.speed_limit;
+        }
+
+        if (driveRequest.power_limit == 0.0f)
+        {
+            libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
+            libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
+        }
+        else
+        {
+            libdata->speedController.config.LowerLimit = -driveRequest.power_limit;
+            libdata->speedController.config.UpperLimit = driveRequest.power_limit;
+        }
+
+        /* control the motor */
         int8_t pwm = 0;
-        if (libdata->target.type == target_pwm)
+        if (driveRequest.type == MotorPort_DriveRequest_Power)
         {
             /* pwm value directly given */
-            pwm = libdata->target.pwm;
+            pwm = driveRequest.pwm;
         }
         else
         {
             float reqSpeed = 0.0f;
-            if (libdata->target.type == target_speed)
+            if (driveRequest.type == MotorPort_DriveRequest_Speed)
             {
                 /* requested speed is given */
-                reqSpeed = libdata->target.speed;
+                reqSpeed = driveRequest.speed;
             }
             else
             {
                 /* calculate speed to reach requested position */
-                int32_t reqPosition = libdata->target.position;
+                int32_t reqPosition = driveRequest.position;
                 if (libdata->positionLimitMin < libdata->positionLimitMax)
                 {
                     reqPosition = constrain_int32(reqPosition, libdata->positionLimitMin, libdata->positionLimitMax);
@@ -266,9 +275,16 @@ MotorLibraryStatus_t DcMotor_UpdateConfiguration(MotorPort_t* motorPort)
     memset(libdata->positionBuffer, 0, sizeof(libdata->positionBuffer));
 
     libdata->speed = 0.0f;
-    libdata->target.type = target_pwm;
-    libdata->target.pwm = 0;
     libdata->pwm = 0;
+
+    static const MotorPort_DriveRequest_t defaultDriveRequest = {
+        .type = MotorPort_DriveRequest_Power,
+        .pwm = 0,
+        .speed_limit = 0.0f,
+        .power_limit = 0.0f
+    };
+
+    MotorPortHandler_Write_DriveRequest(motorPort->port_idx, &defaultDriveRequest);
     
     libdata->configured = true;
 
@@ -298,7 +314,12 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
     }
     else
     {
-        MotorLibrary_Dc_Data_t* libdata = (MotorLibrary_Dc_Data_t*) motorPort->libraryData;
+        MotorPort_DriveRequest_t driveRequest = {
+            .type = MotorPort_DriveRequest_Power,
+            .pwm = 0,
+            .speed_limit = 0.0f,
+            .power_limit = 0.0f
+        };
         switch (data[0])
         {
             case MOTOR_CONTROL_PWM:
@@ -306,15 +327,9 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 {
                     return MotorLibraryStatus_InputError;
                 }
-
-                portENTER_CRITICAL();
-                libdata->target.type = target_pwm;
-                libdata->target.pwm = data[1];
-                if (libdata->speedController.config.LowerLimit < libdata->speedController.config.UpperLimit)
-                {
-                    libdata->target.pwm = constrain_int8(libdata->target.pwm, libdata->speedController.config.LowerLimit, libdata->speedController.config.UpperLimit);
-                }
-                portEXIT_CRITICAL();
+                
+                driveRequest.type = MotorPort_DriveRequest_Power;
+                driveRequest.pwm = data[1];
                 break;
 
             case MOTOR_CONTROL_SPEED:
@@ -323,8 +338,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                     if (size == 9u)
                     {
                         /* constrained drive command -power constraint */
-                        libdata->speedController.config.LowerLimit = -get_float(&data[6]);
-                        libdata->speedController.config.UpperLimit = get_float(&data[6]);
+                        driveRequest.power_limit = get_float(&data[6]);
                     }
                     else
                     {
@@ -334,20 +348,12 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 else
                 {
                     /* reset controller limits */
-                    libdata->positionController.config.LowerLimit = get_float(&libdata->configuration[20]);
-                    libdata->positionController.config.UpperLimit = get_float(&libdata->configuration[24]);
-                    libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
-                    libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
+                    driveRequest.power_limit = 0.0f;
+                    driveRequest.speed_limit = 0.0f;
                 }
-
-                portENTER_CRITICAL();
-                libdata->target.type = target_speed;
-                libdata->target.speed = get_float(&data[1]);
-                if (libdata->positionController.config.LowerLimit < libdata->positionController.config.UpperLimit)
-                {
-                    libdata->target.speed = constrain_f32(libdata->target.speed, libdata->positionController.config.LowerLimit, libdata->positionController.config.UpperLimit);
-                }
-                portEXIT_CRITICAL();
+                
+                driveRequest.type = MotorPort_DriveRequest_Speed;
+                driveRequest.speed = get_float(&data[1]);
                 break;
 
             case MOTOR_CONTROL_POSITION:
@@ -359,13 +365,11 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                         switch (data[5])
                         {
                             case DRIVE_CONTSTRAINED_POWER:
-                                libdata->speedController.config.LowerLimit = -get_float(&data[6]);
-                                libdata->speedController.config.UpperLimit = get_float(&data[6]);
+                                driveRequest.power_limit = get_float(&data[10]);
                                 break;
 
                             case DRIVE_CONTSTRAINED_SPEED:
-                                libdata->positionController.config.LowerLimit = -get_float(&data[6]);
-                                libdata->positionController.config.UpperLimit = get_float(&data[6]);
+                                driveRequest.speed_limit = get_float(&data[6]);
                                 break;
 
                             default:
@@ -373,11 +377,9 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                         }
                     }
                     else if (size == 13u)
-                    {
-                        libdata->positionController.config.LowerLimit = -get_float(&data[6]);
-                        libdata->positionController.config.UpperLimit = get_float(&data[6]);
-                        libdata->speedController.config.LowerLimit = -get_float(&data[10]);
-                        libdata->speedController.config.UpperLimit = get_float(&data[10]);
+                    {                    
+                        driveRequest.speed_limit = get_float(&data[6]);
+                        driveRequest.power_limit = get_float(&data[10]);
                     }
                     else
                     {
@@ -387,25 +389,19 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 else
                 {
                     /* reset controller limits */
-                    libdata->positionController.config.LowerLimit = get_float(&libdata->configuration[20]);
-                    libdata->positionController.config.UpperLimit = get_float(&libdata->configuration[24]);
-                    libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
-                    libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
+                    driveRequest.power_limit = 0.0f;
+                    driveRequest.speed_limit = 0.0f;
                 }
                 
-                portENTER_CRITICAL();
-                libdata->target.type = target_position;
-                libdata->target.position = get_int32(&data[1]);
-                if (libdata->positionLimitMin < libdata->positionLimitMax)
-                {
-                    libdata->target.position = constrain_int32(libdata->target.position, libdata->positionLimitMin, libdata->positionLimitMax);
-                }
-                portEXIT_CRITICAL();
+                driveRequest.type = MotorPort_DriveRequest_Position;
+                driveRequest.position = get_int32(&data[1]);
                 break;
 
             default:
                 return MotorLibraryStatus_InputError;
         }
+
+        MotorPortHandler_Write_DriveRequest(motorPort->port_idx, &driveRequest);
     }
 
     return MotorLibraryStatus_Ok;

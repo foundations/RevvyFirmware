@@ -18,6 +18,26 @@ struct _MotorPort_t;
 
 #include "MotorPortLibraries/MotorPortLibrary.h"
 
+typedef enum 
+{
+    MotorPort_DriveRequest_Speed,
+    MotorPort_DriveRequest_Position,
+    MotorPort_DriveRequest_Power
+} MotorPort_DriveRequestType_t;
+
+typedef struct
+{
+    MotorPort_DriveRequestType_t type;
+    union
+    {
+        int8_t pwm;
+        float speed;
+        int32_t position;
+    };
+    float speed_limit;
+    float power_limit;
+} MotorPort_DriveRequest_t;
+
 typedef struct _MotorPort_t
 {
     const struct _MotorLibrary_t* library;
@@ -55,5 +75,8 @@ void MotorPortHandler_Call_Free(void** ptr);
 
 void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value);
 bool MotorPortHandler_Read_DriverFault(uint8_t port_idx);
+
+void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command);
+void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst);
 
 #endif /* MOTOR_PORT_HANDLER_H_ */

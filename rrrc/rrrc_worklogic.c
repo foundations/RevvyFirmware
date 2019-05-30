@@ -779,7 +779,40 @@ void MotorPortHandler_Call_Free(void** ptr)
     MemoryAllocator_Run_Free(ptr);
 }
 
-int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
+static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
+static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
+
+void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
+{
+    /* nothing to do */
+    if (port_idx < ARRAY_SIZE(motorPorts))
+    {
+        portENTER_CRITICAL();
+        motorDriveRequests[port_idx] = *command;
+        portEXIT_CRITICAL();
+    }
+}
+
+void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst)
+{
+    if (port_idx < ARRAY_SIZE(motorPorts))
+    {
+        portENTER_CRITICAL();
+        *dst = motorDriveRequests[port_idx];
+        portEXIT_CRITICAL();
+    }
+    else
+    {
+        *dst = (MotorPort_DriveRequest_t) {
+            .type = MotorPort_DriveRequest_Power,
+            .pwm = 0,
+            .speed_limit = 0.0f,
+            .power_limit = 0.0f
+        };
+    }
+}
+
+
 void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value)
 {
     driveValues[port_idx] = value;
