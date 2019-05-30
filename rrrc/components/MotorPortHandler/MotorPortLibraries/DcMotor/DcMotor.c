@@ -311,7 +311,7 @@ MotorLibraryStatus_t DcMotor_GetStatus(MotorPort_t* motorPort, uint8_t* data, ui
     MotorLibrary_Dc_Data_t* libdata = (MotorLibrary_Dc_Data_t*) motorPort->libraryData;
     
     portENTER_CRITICAL();
-    float pos = to_si(motorPort, libdata->position);
+    int32_t pos = (int32_t) lroundf(to_si(motorPort, libdata->position));
     float speed = to_si(motorPort, libdata->speed);
     data[sizeof(float) + sizeof(int32_t)] = libdata->pwm;
     portEXIT_CRITICAL();
