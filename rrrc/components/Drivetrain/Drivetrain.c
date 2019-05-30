@@ -13,6 +13,8 @@
 #define DRIVETRAIN_CONTROL_GO_SPD ((uint8_t) 1u)
 #define DRIVETRAIN_CONTROL_STOP   ((uint8_t) 2u)
 
+#define DRIVETRAIN_DIFFERENTIAL ((uint8_t) 0u)
+
 typedef enum {
     Motor_NotAssigned = 0u,
     Motor_Left,
@@ -20,6 +22,7 @@ typedef enum {
 } MotorAssingment_t;
 
 static MotorAssingment_t motors[6];
+static uint8_t driveTrainType;
 
 static void assign_motor(uint8_t motor_idx, MotorAssingment_t assignment)
 {
@@ -31,16 +34,97 @@ static void assign_motor(uint8_t motor_idx, MotorAssingment_t assignment)
     motors[motor_idx] = assignment;
 }
 
-Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8_t commandSize)
 {
-    if (commandSize != ARRAY_SIZE(motors))
+    DriveTrain_DriveRequest_t leftDriveRequest;
+    DriveTrain_DriveRequest_t rightDriveRequest;
+
+    leftDriveRequest.speed_limit  = 0.0f;
+    rightDriveRequest.speed_limit = 0.0f;
+
+    leftDriveRequest.power_limit  = 0.0f;
+    rightDriveRequest.power_limit = 0.0f;
+
+    switch (commandPayload[0])
     {
-        return Comm_Status_Error_PayloadLengthError;
+        case DRIVETRAIN_CONTROL_GO_POS:
+            if (commandSize != 18u)
+            {
+                return Comm_Status_Error_PayloadLengthError;
+            }
+            leftDriveRequest.type  = DriveTrain_Request_Position;
+            rightDriveRequest.type = DriveTrain_Request_Position;
+                
+            leftDriveRequest.v.position  = get_int32(&commandPayload[1]);
+            rightDriveRequest.v.position = get_int32(&commandPayload[5]);
+
+            leftDriveRequest.speed_limit  = get_float(&commandPayload[9]);
+            rightDriveRequest.speed_limit = get_float(&commandPayload[13]);
+
+            leftDriveRequest.power_limit  = (float) commandPayload[17];
+            rightDriveRequest.power_limit = (float) commandPayload[17];
+            break;
+
+        case DRIVETRAIN_CONTROL_GO_SPD:
+            if (commandSize != 10u)
+            {
+                return Comm_Status_Error_PayloadLengthError;
+            }
+            leftDriveRequest.type = DriveTrain_Request_Speed;
+            rightDriveRequest.type = DriveTrain_Request_Speed;
+                
+            leftDriveRequest.v.speed  = get_float(&commandPayload[1]);
+            rightDriveRequest.v.speed = get_float(&commandPayload[5]);
+
+            leftDriveRequest.power_limit  = (float) commandPayload[9];
+            rightDriveRequest.power_limit = (float) commandPayload[9];
+            break;
+
+        case DRIVETRAIN_CONTROL_STOP:
+            if (commandSize != 1u)
+            {
+                return Comm_Status_Error_PayloadLengthError;
+            }
+            leftDriveRequest.type = DriveTrain_Request_Power;
+            rightDriveRequest.type = DriveTrain_Request_Power;
+                
+            leftDriveRequest.v.power = 0;
+            rightDriveRequest.v.power = 0;
+            break;
     }
 
     for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
     {
-        assign_motor(i, commandPayload[i]);
+        switch (motors[i])
+        {
+            case Motor_Left:
+                DriveTrain_Write_DriveRequest(i, &leftDriveRequest);
+                break;
+
+            case Motor_Right:
+                DriveTrain_Write_DriveRequest(i, &rightDriveRequest);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    return Comm_Status_Ok;
+}
+
+Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    if (commandSize != ARRAY_SIZE(motors) + 1u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    driveTrainType = commandPayload[0];
+
+    for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
+    {
+        assign_motor(i, commandPayload[1u + i]);
     }
 
     return Comm_Status_Ok;
@@ -54,76 +138,18 @@ Comm_Status_t DriveTrain_SetControlValue_Start(const uint8_t* commandPayload, ui
     }
     else
     {
-        DriveTrain_DriveRequest_t leftDriveRequest;
-        DriveTrain_DriveRequest_t rightDriveRequest;
-
-        switch (commandPayload[0])
+        Comm_Status_t status = Comm_Status_Error_CommandError;
+        switch (driveTrainType)
         {
-            case DRIVETRAIN_CONTROL_GO_POS:
-                if (commandSize != 18u)
-                {
-                    return Comm_Status_Error_PayloadLengthError;
-                }
-                leftDriveRequest.type  = DriveTrain_Request_Position;
-                rightDriveRequest.type = DriveTrain_Request_Position;
-                
-                leftDriveRequest.position  = get_int32(&commandPayload[1]);
-                rightDriveRequest.position = get_int32(&commandPayload[5]);
-
-                leftDriveRequest.speed_limit  = get_float(&commandPayload[9]);
-                rightDriveRequest.speed_limit = get_float(&commandPayload[13]);
-
-                leftDriveRequest.power_limit  = (float) commandPayload[17];
-                rightDriveRequest.power_limit = (float) commandPayload[17];
+            case DRIVETRAIN_DIFFERENTIAL:
+                status = differentialDrivetrain(commandPayload, commandSize);
                 break;
 
-            case DRIVETRAIN_CONTROL_GO_SPD:
-                if (commandSize != 10u)
-                {
-                    return Comm_Status_Error_PayloadLengthError;
-                }
-                leftDriveRequest.type = DriveTrain_Request_Speed;
-                rightDriveRequest.type = DriveTrain_Request_Speed;
-                
-                leftDriveRequest.speed  = get_float(&commandPayload[1]);
-                rightDriveRequest.speed = get_float(&commandPayload[5]);
-
-                leftDriveRequest.power_limit  = (float) commandPayload[9];
-                rightDriveRequest.power_limit = (float) commandPayload[9];
-                break;
-
-            case DRIVETRAIN_CONTROL_STOP:
-                if (commandSize != 1u)
-                {
-                    return Comm_Status_Error_PayloadLengthError;
-                }
-                leftDriveRequest.type = DriveTrain_Request_Power;
-                rightDriveRequest.type = DriveTrain_Request_Power;
-                
-                leftDriveRequest.power = 0;
-                rightDriveRequest.power = 0;
+            default:
                 break;
         }
-
-        for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
-        {
-            switch (motors[i])
-            {
-                case Motor_Left:
-                    DriveTrain_Write_DriveRequest(i, &leftDriveRequest);
-                    break;
-
-                case Motor_Right:
-                    DriveTrain_Write_DriveRequest(i, &rightDriveRequest);
-                    break;
-
-                default:
-                    break;
-            }
-        }
+        return status;
     }
-
-    return Comm_Status_Ok;
 }
 
 void DriveTrain_Run_OnInit(void)

@@ -33,7 +33,7 @@ typedef struct
         int8_t pwm;
         float speed;
         int32_t position;
-    };
+    } v;
     float speed_limit;
     float power_limit;
 } MotorPort_DriveRequest_t;

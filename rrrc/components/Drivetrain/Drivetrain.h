@@ -26,7 +26,7 @@ typedef struct {
         float speed;
         int32_t position;
         int8_t power;
-    };
+    } v;
     float power_limit;
     float speed_limit;
 } DriveTrain_DriveRequest_t;

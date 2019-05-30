@@ -303,7 +303,7 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
 {
     *dst = (MotorPort_DriveRequest_t) {
         .type = MotorPort_DriveRequest_Power,
-        .pwm = 0,
+        .v.pwm = 0,
         .speed_limit = 0.0f,
         .power_limit = 0.0f
     };

@@ -32,7 +32,7 @@ void BatteryCalculator_Run_Update(BatteryCalculator_Context_t* context)
 
     if (filtered > context->detectionVoltage)
     {
-        float p = map(filtered, context->minVoltage, context->maxVoltage, 0, 100);
+        float p = map_constrained(filtered, context->minVoltage, context->maxVoltage, 0, 100);
         
         BatteryCalculator_Write_BatteryPresent(context, true);
         BatteryCalculator_Write_Percentage(context, lroundf(p));

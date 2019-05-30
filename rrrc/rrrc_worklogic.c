@@ -755,23 +755,23 @@ void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveReque
         switch (command->type)
         {
             case DriveTrain_Request_Power:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position;
-                motorDriveRequests[port_idx].pwm = command->power_limit;
+                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+                motorDriveRequests[port_idx].v.pwm = command->v.power;
                 break;
 
             case DriveTrain_Request_Speed:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position;
-                motorDriveRequests[port_idx].speed = command->speed;
+                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Speed;
+                motorDriveRequests[port_idx].v.speed = command->v.speed;
                 break;
 
             case DriveTrain_Request_Position:
                 motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position;
-                motorDriveRequests[port_idx].position = command->position;
+                motorDriveRequests[port_idx].v.position = command->v.position;
                 break;
 
             default:
                 motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
-                motorDriveRequests[port_idx].pwm = 0;
+                motorDriveRequests[port_idx].v.pwm = 0;
                 break;
         }
         motorDriveRequests[port_idx].speed_limit = command->speed_limit;
@@ -792,7 +792,7 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
     {
         *dst = (MotorPort_DriveRequest_t) {
             .type = MotorPort_DriveRequest_Power,
-            .pwm = 0,
+            .v.pwm = 0,
             .speed_limit = 0.0f,
             .power_limit = 0.0f
         };

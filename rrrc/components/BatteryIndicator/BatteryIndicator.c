@@ -20,7 +20,7 @@ static void write_color_based_on_percentage(BatteryIndicator_Context_t* context,
 {
     rgb_t color = { 0u };
 
-    color.G = lroundf(map(percentage, 0, 100, 0, LED_BRIGHT));
+    color.G = lroundf(map_constrained(percentage, 10, 90, 0, LED_BRIGHT));
     color.R = LED_BRIGHT - color.G;
 
     BatteryIndicator_Write_LedColor(context, color);
