@@ -13,8 +13,35 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
+#include "components/ADC/adc.h"
+#include "components/BatteryCharger/BatteryCharger.h"
+#include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
+#include "components/LEDController/LEDController.h"
+#include "components/BluetoothIndicator/BluetoothIndicator.h"
+#include "components/BrainStatusIndicator/BrainStatusIndicator.h"
+#include "components/BatteryCalculator/BatteryCalculator.h"
+#include "components/BatteryIndicator/BatteryIndicator.h"
+#include "components/RingLedDisplay/RingLedDisplay.h"
+#include "components/MasterCommunicationInterface/MasterCommunicationInterface.h"
+#include "components/MasterCommunication/MasterCommunication.h"
+#include "components/CommunicationObserver/CommunicationObserver.h"
+#include "components/MasterStatusObserver/MasterStatusObserver.h"
+#include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
+#include "components/VersionProvider/VersionProvider.h"
+#include "components/BatteryStatusProvider/BatteryStatusProvider.h"
+#include "components/MotorPortHandler/MotorPortHandler.h"
+#include "components/SensorPortHandler/SensorPortHandler.h"
+#include "components/MemoryAllocator/MemoryAllocator.h"
+#include "components/MotorDriver_TB661FNG/MotorDriver_TB661FNG.h"
+#include "components/Drivetrain/Drivetrain.h"
+
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);
+
+#define COMM_HANDLER_COUNT  ((uint8_t) 0x34u)
+const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT];
 
 #ifdef __cplusplus
 }

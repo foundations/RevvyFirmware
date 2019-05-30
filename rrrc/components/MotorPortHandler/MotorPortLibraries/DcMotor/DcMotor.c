@@ -337,8 +337,8 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 {
                     if (size == 9u)
                     {
-                        /* constrained drive command -power constraint */
-                        driveRequest.power_limit = get_float(&data[6]);
+                        /* constrained drive command - power constraint */
+                        driveRequest.power_limit = get_float(&data[5]);
                     }
                     else
                     {
@@ -365,7 +365,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                         switch (data[5])
                         {
                             case DRIVE_CONTSTRAINED_POWER:
-                                driveRequest.power_limit = get_float(&data[10]);
+                                driveRequest.power_limit = get_float(&data[6]);
                                 break;
 
                             case DRIVE_CONTSTRAINED_SPEED:
@@ -377,7 +377,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                         }
                     }
                     else if (size == 13u)
-                    {                    
+                    {
                         driveRequest.speed_limit = get_float(&data[6]);
                         driveRequest.power_limit = get_float(&data[10]);
                     }

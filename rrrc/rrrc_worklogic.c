@@ -4,33 +4,12 @@
  * Created: 2/14/2019 11:38:22 AM
  *  Author: User
  */ 
-
+ 
 #include "rrrc_hal.h"
 #include "rrrc_worklogic.h"
 #include "rrrc_indication.h"
 
 #include "jscope/jscope.h"
-
-#include "components/ADC/adc.h"
-#include "components/BatteryCharger/BatteryCharger.h"
-#include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
-#include "components/LEDController/LEDController.h"
-#include "components/BluetoothIndicator/BluetoothIndicator.h"
-#include "components/BrainStatusIndicator/BrainStatusIndicator.h"
-#include "components/BatteryCalculator/BatteryCalculator.h"
-#include "components/BatteryIndicator/BatteryIndicator.h"
-#include "components/RingLedDisplay/RingLedDisplay.h"
-#include "components/MasterCommunicationInterface/MasterCommunicationInterface.h"
-#include "components/MasterCommunication/MasterCommunication.h"
-#include "components/CommunicationObserver/CommunicationObserver.h"
-#include "components/MasterStatusObserver/MasterStatusObserver.h"
-#include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
-#include "components/VersionProvider/VersionProvider.h"
-#include "components/BatteryStatusProvider/BatteryStatusProvider.h"
-#include "components/MotorPortHandler/MotorPortHandler.h"
-#include "components/SensorPortHandler/SensorPortHandler.h"
-#include "components/MemoryAllocator/MemoryAllocator.h"
-#include "components/MotorDriver_TB661FNG/MotorDriver_TB661FNG.h"
 
 #include <math.h>
 
@@ -219,44 +198,6 @@ static TB6612FNG_t motorDriver45 =
 static MasterStatus_t masterStatus;
 static bool isBleConnected;
 
-Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
-{
-    return Comm_Status_Ok;
-}
-
-static const Comm_CommandHandler_t communicationHandlers[] = 
-{
-    /* other commands */
-    [0x00u] = { .Start = &PingMessageHandler_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x01u] = { .Start = &VersionProvider_GetHardwareVersion_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x02u] = { .Start = &VersionProvider_GetFirmwareVersion_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x03u] = { .Start = &BatteryStatusProvider_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x04u] = { .Start = &MasterStatusObserver_SetMasterStatus_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x05u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
-    /* [0x06 - 0x0A]: reserved for bootloader */
-    
-    /* motor commands */
-    [0x10u] = { .Start = &MotorPortHandler_GetPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x11u] = { .Start = &MotorPortHandler_GetPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x12u] = { .Start = &MotorPortHandler_SetPortType_Start, .GetResult = &MotorPortHandler_SetPortType_GetResult, .Cancel = NULL },
-    [0x13u] = { .Start = &MotorPortHandler_SetPortConfig_Start, .GetResult = &MotorPortHandler_SetPortConfig_GetResult, .Cancel = NULL },
-    [0x14u] = { .Start = &MotorPortHandler_SetControlValue_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x15u] = { .Start = &MotorPortHandler_GetStatus_Start, .GetResult = NULL, .Cancel = NULL },
-
-    /* sensor commands */
-    [0x20u] = { .Start = &SensorPortHandler_GetPortAmount_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x21u] = { .Start = &SensorPortHandler_GetPortTypes_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x22u] = { .Start = &SensorPortHandler_SetPortType_Start, .GetResult = &SensorPortHandler_SetPortType_GetResult, .Cancel = NULL },
-    [0x23u] = { .Start = &SensorPortHandler_SetPortConfig_Start, .GetResult = &SensorPortHandler_SetPortConfig_GetResult, .Cancel = NULL },
-    [0x24u] = { .Start = &SensorPortHandler_GetSensorData_Start, .GetResult = &SensorPortHandler_GetSensorData_GetResult, .Cancel = NULL },
-
-    /* led ring commands */
-    [0x30u] = { .Start = &RingLedDisplay_GetScenarioTypes_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x31u] = { .Start = &RingLedDisplay_SetScenarioType_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x32u] = { .Start = &RingLedDisplay_GetRingLedAmount_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x33u] = { .Start = &RingLedDisplay_SetUserFrame_Start, .GetResult = NULL, .Cancel = NULL },
-};
-
 static MasterCommunicationInterface_Config_t communicationConfig = 
 {
     .rxTimeout = 100u, /* ms */
@@ -352,7 +293,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     MasterStatusObserver_Run_OnInit();
     BluetoothStatusObserver_Run_OnInit();
 
-    MasterCommunication_Run_OnInit(&communicationHandlers[0], ARRAY_SIZE(communicationHandlers));
+    MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
 
     MasterCommunication_Run_GetDefaultResponse(&communicationConfig.defaultResponseBuffer, &communicationConfig.defaultResponseLength);
     MasterCommunication_Run_GetLongRxErrorResponse(&communicationConfig.longRxErrorResponseBuffer, &communicationConfig.longRxErrorResponseLength);
@@ -379,6 +320,8 @@ void RRRC_ProcessLogic_xTask(void* user)
     RingLedDisplay_Run_SelectScenario(RingLedScenario_ColorWheel);
     CommunicationObserver_Run_OnInit();
     
+    DriveTrain_Run_OnInit();
+
     MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
     SensorPortHandler_Run_OnInit(&sensorPorts[0], ARRAY_SIZE(sensorPorts));
     
@@ -781,14 +724,58 @@ void MotorPortHandler_Call_Free(void** ptr)
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
 static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
+static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
+
+void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
+{
+    if (port_idx < ARRAY_SIZE(motorPorts))
+    {
+        motorControlledByDriveTrain[port_idx] = isAssigned;
+    }
+}
 
 void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
 {
-    /* nothing to do */
     if (port_idx < ARRAY_SIZE(motorPorts))
     {
         portENTER_CRITICAL();
-        motorDriveRequests[port_idx] = *command;
+        if (!motorControlledByDriveTrain[port_idx])
+        {
+            motorDriveRequests[port_idx] = *command;
+        }
+        portEXIT_CRITICAL();
+    }
+}
+
+void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command)
+{
+    if (port_idx < ARRAY_SIZE(motorPorts))
+    {
+        portENTER_CRITICAL();
+        switch (command->type)
+        {
+            case DriveTrain_Request_Power:
+                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position;
+                motorDriveRequests[port_idx].pwm = command->power_limit;
+                break;
+
+            case DriveTrain_Request_Speed:
+                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position;
+                motorDriveRequests[port_idx].speed = command->speed;
+                break;
+
+            case DriveTrain_Request_Position:
+                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position;
+                motorDriveRequests[port_idx].position = command->position;
+                break;
+
+            default:
+                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+                motorDriveRequests[port_idx].pwm = 0;
+                break;
+        }
+        motorDriveRequests[port_idx].speed_limit = command->speed_limit;
+        motorDriveRequests[port_idx].power_limit = command->power_limit;
         portEXIT_CRITICAL();
     }
 }
@@ -811,7 +798,6 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
         };
     }
 }
-
 
 void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value)
 {

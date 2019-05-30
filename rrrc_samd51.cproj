@@ -1176,6 +1176,12 @@
     <Compile Include="rrrc\components\CommunicationObserver\CommunicationObserver.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\Drivetrain\Drivetrain.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\Drivetrain\Drivetrain.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MemoryAllocator\MemoryAllocator.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1333,6 +1339,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_worklogic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\runtime\comm_handlers.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\utils\color.c">
@@ -1509,6 +1518,7 @@
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\DcMotor" />
     <Folder Include="rrrc\components\MemoryAllocator" />
     <Folder Include="rrrc\components\MotorDriver_TB661FNG" />
+    <Folder Include="rrrc\components\Drivetrain" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\" />
@@ -1519,6 +1529,7 @@
     <Folder Include="rrrc\components\RingLedDisplay" />
     <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\components" />
+    <Folder Include="rrrc\runtime" />
     <Folder Include="rrrc\utils" />
     <Folder Include="third_party" />
     <Folder Include="rrrc" />
