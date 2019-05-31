@@ -371,7 +371,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 }
                 
                 driveRequest.type = MotorPort_DriveRequest_Speed;
-                driveRequest.v.speed = from_si(motorPort, get_float(&data[1]));
+                driveRequest.v.speed = get_float(&data[1]);
                 break;
 
             case MOTOR_CONTROL_POSITION:
@@ -387,7 +387,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                                 break;
 
                             case DRIVE_CONTSTRAINED_SPEED:
-                                driveRequest.speed_limit = from_si(motorPort, get_float(&data[6]));
+                                driveRequest.speed_limit = get_float(&data[6]);
                                 break;
 
                             default:
@@ -396,7 +396,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                     }
                     else if (size == 13u)
                     {
-                        driveRequest.speed_limit = from_si(motorPort, get_float(&data[6]));
+                        driveRequest.speed_limit = get_float(&data[6]);
                         driveRequest.power_limit = get_float(&data[10]);
                     }
                     else
@@ -412,7 +412,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 }
                 
                 driveRequest.type = MotorPort_DriveRequest_Position;
-                driveRequest.v.position = from_si(motorPort, get_int32(&data[1]));
+                driveRequest.v.position = get_int32(&data[1]);
                 break;
 
             default:
