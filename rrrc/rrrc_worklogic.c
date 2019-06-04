@@ -765,7 +765,7 @@ void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveReque
                 break;
 
             case DriveTrain_Request_Position:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position;
+                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position_Relative;
                 motorDriveRequests[port_idx].v.position = command->v.position;
                 break;
 

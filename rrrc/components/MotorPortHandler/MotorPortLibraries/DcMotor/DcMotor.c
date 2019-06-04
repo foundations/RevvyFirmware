@@ -18,9 +18,10 @@
 #include <string.h>
 #include <math.h>
 
-#define MOTOR_CONTROL_PWM      ((uint8_t) 0u)
-#define MOTOR_CONTROL_SPEED    ((uint8_t) 1u)
-#define MOTOR_CONTROL_POSITION ((uint8_t) 2u)
+#define MOTOR_CONTROL_PWM               ((uint8_t) 0u)
+#define MOTOR_CONTROL_SPEED             ((uint8_t) 1u)
+#define MOTOR_CONTROL_POSITION          ((uint8_t) 2u)
+#define MOTOR_CONTROL_POSITION_RELATIVE ((uint8_t) 3u)
 
 #define DRIVE_CONTSTRAINED_POWER    ((uint8_t) 0u)
 #define DRIVE_CONTSTRAINED_SPEED    ((uint8_t) 1u)
@@ -158,6 +159,11 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
             {
                 /* calculate speed to reach requested position */
                 int32_t reqPosition = from_si(motorPort, driveRequest.v.position);
+                if (driveRequest.type == MotorPort_DriveRequest_Position_Relative)
+                {
+                    reqPosition = libdata->position + reqPosition;
+                }
+
                 if (libdata->positionLimitMin != libdata->positionLimitMax)
                 {
                     reqPosition = constrain_int32(reqPosition, libdata->positionLimitMin, libdata->positionLimitMax);
@@ -373,8 +379,9 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                 driveRequest.type = MotorPort_DriveRequest_Speed;
                 driveRequest.v.speed = get_float(&data[1]);
                 break;
-
+                
             case MOTOR_CONTROL_POSITION:
+            case MOTOR_CONTROL_POSITION_RELATIVE:
                 if (size != 5u)
                 {
                     if (size == 10u)
@@ -411,7 +418,14 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
                     driveRequest.speed_limit = 0.0f;
                 }
                 
-                driveRequest.type = MotorPort_DriveRequest_Position;
+                if (data[0] == MOTOR_CONTROL_POSITION_RELATIVE)
+                {
+                    driveRequest.type = MotorPort_DriveRequest_Position_Relative;
+                }
+                else
+                {
+                    driveRequest.type = MotorPort_DriveRequest_Position;
+                }
                 driveRequest.v.position = get_int32(&data[1]);
                 break;
 

@@ -22,7 +22,8 @@ typedef enum
 {
     MotorPort_DriveRequest_Speed,
     MotorPort_DriveRequest_Position,
-    MotorPort_DriveRequest_Power
+    MotorPort_DriveRequest_Position_Relative,
+    MotorPort_DriveRequest_Power,
 } MotorPort_DriveRequestType_t;
 
 typedef struct
