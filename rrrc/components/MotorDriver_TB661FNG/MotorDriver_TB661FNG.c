@@ -49,13 +49,13 @@ static void tb6612fng_drv_set_dir(TB6612FNG_Channel_t* drv, int8_t speed)
     }
     else if (speed < 0)
     {
-        gpio_set_pin_level(drv->dir0, false);
-        gpio_set_pin_level(drv->dir1, true);
+        gpio_set_pin_level(drv->dir0, true);
+        gpio_set_pin_level(drv->dir1, false);
     }
     else
     {
-        gpio_set_pin_level(drv->dir0, true);
-        gpio_set_pin_level(drv->dir1, false);
+        gpio_set_pin_level(drv->dir0, false);
+        gpio_set_pin_level(drv->dir1, true);
     }
 }
 
