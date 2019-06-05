@@ -743,6 +743,18 @@ void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_Drive
         {
             motorDriveRequests[port_idx] = *command;
         }
+        else
+        {
+            if (motorDriveRequests[port_idx].type == MotorPort_DriveRequest_Position_Relative)
+            {
+                if (command->type == MotorPort_DriveRequest_Position)
+                {
+                    /* allow converting relative request to absolute */
+                    /* TODO: motor status should be exposed and this request should be handled by an external component */
+                    motorDriveRequests[port_idx] = *command;
+                }
+            }
+        }
         portEXIT_CRITICAL();
     }
 }

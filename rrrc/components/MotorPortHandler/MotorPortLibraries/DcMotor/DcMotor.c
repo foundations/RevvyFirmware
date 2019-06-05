@@ -117,6 +117,13 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
         MotorPort_DriveRequest_t driveRequest;
         MotorPortHandler_Read_DriveRequest(motorPort->port_idx, &driveRequest);
 
+        if (driveRequest.type == MotorPort_DriveRequest_Position_Relative)
+        {
+            driveRequest.type = MotorPort_DriveRequest_Position;
+            driveRequest.v.position += to_si(motorPort, libdata->position);
+            MotorPortHandler_Write_DriveRequest(motorPort->port_idx, &driveRequest);
+        }
+
         /* set up limits */
         if (driveRequest.speed_limit == 0.0f)
         {
@@ -159,10 +166,6 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
             {
                 /* calculate speed to reach requested position */
                 int32_t reqPosition = from_si(motorPort, driveRequest.v.position);
-                if (driveRequest.type == MotorPort_DriveRequest_Position_Relative)
-                {
-                    reqPosition = libdata->position + reqPosition;
-                }
 
                 if (libdata->positionLimitMin != libdata->positionLimitMax)
                 {
