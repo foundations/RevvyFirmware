@@ -55,7 +55,7 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
             leftDriveRequest.type  = DriveTrain_Request_Position;
             rightDriveRequest.type = DriveTrain_Request_Position;
                 
-            leftDriveRequest.v.position  = get_int32(&commandPayload[1]);
+            leftDriveRequest.v.position  = -get_int32(&commandPayload[1]);
             rightDriveRequest.v.position = get_int32(&commandPayload[5]);
 
             leftDriveRequest.speed_limit  = get_float(&commandPayload[9]);
@@ -72,8 +72,8 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
             }
             leftDriveRequest.type = DriveTrain_Request_Speed;
             rightDriveRequest.type = DriveTrain_Request_Speed;
-                
-            leftDriveRequest.v.speed  = get_float(&commandPayload[1]);
+
+            leftDriveRequest.v.speed  = -get_float(&commandPayload[1]);
             rightDriveRequest.v.speed = get_float(&commandPayload[5]);
 
             leftDriveRequest.power_limit  = (float) commandPayload[9];
@@ -87,7 +87,7 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
             }
             leftDriveRequest.type = DriveTrain_Request_Power;
             rightDriveRequest.type = DriveTrain_Request_Power;
-                
+
             leftDriveRequest.v.power = 0;
             rightDriveRequest.v.power = 0;
             break;
