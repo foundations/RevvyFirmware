@@ -29,6 +29,7 @@ typedef struct
 static void ledRingOffWriter(void* data);
 static void ledRingFrameWriter(void* data);
 static void colorWheelWriter1(void* data);
+static void rainbowFadeWriter(void* data);
 
 static rgb565_t user_frame[RING_LEDS_AMOUNT];
 static RingLedScenario_t currentScenario;
@@ -39,6 +40,7 @@ static indication_handler_t scenarioHandlers[] =
     
     [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
     [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = NULL, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = NULL },
+    [RingLedScenario_RainbowFade] = { .name = "RainbowFade", .init = NULL, .handler = &rainbowFadeWriter,  .DeInit = NULL, .userData = NULL },
 };
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -132,6 +134,23 @@ static void colorWheelWriter1(void* data)
         };
         rgb565_t rgb = rgb_to_rgb565(hsv_to_rgb(hsv));
         
+        RingLedDisplay_Write_LedColor(i, rgb);
+    }
+}
+
+static void rainbowFadeWriter(void* data)
+{
+    uint32_t phase = xTaskGetTickCount() / 10u;
+    
+    hsv_t hsv = {
+        .h = phase,
+        .s = 100,
+        .v = 100
+    };
+    rgb565_t rgb = rgb_to_rgb565(hsv_to_rgb(hsv));
+
+    for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
+    {
         RingLedDisplay_Write_LedColor(i, rgb);
     }
 }
