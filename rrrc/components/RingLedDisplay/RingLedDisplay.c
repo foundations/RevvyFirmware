@@ -107,7 +107,7 @@ static void ledRingOffWriter(void* data)
 {
     for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
     {
-        RingLedDisplay_Write_LedColor(idx, (rgb565_t) LED_OFF);
+        RingLedDisplay_Write_LedColor(idx, (rgb_t) LED_OFF);
     }
 }
 
@@ -117,7 +117,7 @@ static void ledRingFrameWriter(void* frameData)
     
     for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
     {
-        RingLedDisplay_Write_LedColor(idx, userData[idx]);
+        RingLedDisplay_Write_LedColor(idx, rgb565_to_rgb(userData[idx]));
     }
 }
 
@@ -132,7 +132,7 @@ static void colorWheelWriter1(void* data)
             .s = 100,
             .v = 100
         };
-        rgb565_t rgb = rgb_to_rgb565(hsv_to_rgb(hsv));
+        rgb_t rgb = hsv_to_rgb(hsv);
         
         RingLedDisplay_Write_LedColor(i, rgb);
     }
@@ -147,7 +147,7 @@ static void rainbowFadeWriter(void* data)
         .s = 100,
         .v = 100
     };
-    rgb565_t rgb = rgb_to_rgb565(hsv_to_rgb(hsv));
+    rgb_t rgb = hsv_to_rgb(hsv);
 
     for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
     {
@@ -204,7 +204,7 @@ void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario)
 }
 
 __attribute__((weak))
-void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb565_t color)
+void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 {
     /* nothing to do */
 }

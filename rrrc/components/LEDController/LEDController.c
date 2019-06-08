@@ -57,11 +57,11 @@ static inline void write_led_byte(uint32_t led_idx, uint32_t byte_idx, uint8_t b
     }
 }
 
-static inline void write_led_color(uint32_t led_idx, rgb565_t color)
+static inline void write_led_color(uint32_t led_idx, rgb_t color)
 {
     /* brightness scaling */
     uint8_t max_brightness = LEDController_Read_MaxBrightness();
-    rgb_t rgb_dimmed = rgb565_to_rgb(rgb565_change_brightness(color, max_brightness / 255.0f));
+    rgb_t rgb_dimmed = rgb_change_brightness(color, max_brightness / 255.0f);
 
     write_led_byte(led_idx, 0u, rgb_dimmed.G);
     write_led_byte(led_idx, 1u, rgb_dimmed.R);
@@ -128,15 +128,15 @@ bool LEDController_Read_RingLEDs_Changed(void)
 }
 
 __attribute__((weak))
-rgb565_t LEDController_Read_StatusLED(uint32_t led_idx)
+rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
 {
-    return (rgb565_t){0, 0, 0};
+    return (rgb_t){0, 0, 0};
 }
 
 __attribute__((weak))
-rgb565_t LEDController_Read_RingLED(uint32_t led_idx)
+rgb_t LEDController_Read_RingLED(uint32_t led_idx)
 {
-    return (rgb565_t){0, 0, 0};
+    return (rgb_t){0, 0, 0};
 }
 
 __attribute__((weak))

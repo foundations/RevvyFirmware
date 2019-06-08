@@ -28,7 +28,7 @@ void RingLedDisplay_Run_Update(void);
 bool RingLedDisplay_Run_SetUserFrame(const rgb565_t* leds, size_t ledCount);
 void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario);
 
-void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb565_t color);
+void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color);
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
