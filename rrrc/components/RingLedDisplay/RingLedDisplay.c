@@ -140,7 +140,7 @@ static void colorWheelWriter1(void* data)
 
 static void rainbowFadeWriter(void* data)
 {
-    uint32_t phase = xTaskGetTickCount() / 10u;
+    uint32_t phase = xTaskGetTickCount() / 40u;
     
     hsv_t hsv = {
         .h = phase,
