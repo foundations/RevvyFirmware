@@ -25,7 +25,7 @@ typedef enum
 void RingLedDisplay_Run_OnInit(void);
 void RingLedDisplay_Run_Update(void);
 
-bool RingLedDisplay_Run_SetUserFrame(const rgb565_t* leds, size_t ledCount);
+bool RingLedDisplay_Run_SetUserFrame(const uint8_t* bytes, size_t ledCount);
 void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario);
 
 void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color);

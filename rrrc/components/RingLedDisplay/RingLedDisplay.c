@@ -98,7 +98,7 @@ Comm_Status_t RingLedDisplay_SetUserFrame_Start(const uint8_t* commandPayload, u
         return Comm_Status_Error_PayloadLengthError;
     }
 
-    RingLedDisplay_Run_SetUserFrame((const rgb565_t*) commandPayload, RING_LEDS_AMOUNT);
+    RingLedDisplay_Run_SetUserFrame(commandPayload, RING_LEDS_AMOUNT);
 
     return Comm_Status_Ok;
 }
@@ -176,11 +176,20 @@ void RingLedDisplay_Run_Update(void)
     scenarioHandlers[currentScenario].handler(scenarioHandlers[currentScenario].userData);
 }
 
-bool RingLedDisplay_Run_SetUserFrame(const rgb565_t* leds, size_t ledCount)
+static inline rgb565_t read_rgb565(const uint8_t bytes[2])
+{
+    return (rgb565_t) {
+        .R =  ((bytes[1u] & 0xF8u) >> 3u),
+        .G = (((bytes[1u] & 0x07u) << 3u) + ((bytes[0u] & 0xE0u) >> 5u)),
+        .B =  ((bytes[0u] & 0x1Fu) >> 0u),
+    };
+}
+
+bool RingLedDisplay_Run_SetUserFrame(const uint8_t* bytes, size_t ledCount)
 {
     for (uint32_t i = 0u; i < ledCount && i < RING_LEDS_AMOUNT; i++)
     {
-        user_frame[i] = leds[i];
+        user_frame[i] = read_rgb565(&bytes[2*i]);
     }
     for (uint32_t i = ledCount; i < RING_LEDS_AMOUNT; i++)
     {
