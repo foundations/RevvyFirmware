@@ -28,8 +28,8 @@ const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT] =
     [0x05u] = { .Start = &BluetoothStatusObserver_SetBluetoothStatus_Start, .GetResult = NULL, .Cancel = NULL },
 
     /* [0x06 - 0x0A]: reserved for bootloader */
-    [0x06] = { .Start = &GetOperationMode_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x0B] = { .Start = &RebootToBootloader_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x06u] = { .Start = &GetOperationMode_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x0Bu] = { .Start = &RebootToBootloader_Start, .GetResult = NULL, .Cancel = NULL },
     
     /* motor commands */
     [0x10u] = { .Start = &MotorPortHandler_GetPortAmount_Start, .GetResult = NULL, .Cancel = NULL },

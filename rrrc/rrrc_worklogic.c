@@ -587,6 +587,30 @@ void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
 {
+    if (bufferSize >= 2u)
+    {
+        /* TODO: this is not the nicest solution */
+        switch (buffer[1])
+        {
+            case 0x04u:
+            case 0x05u:
+            case 0x12u:
+            case 0x13u:
+            case 0x14u:
+            case 0x1Au:
+            case 0x1Bu:
+            case 0x22u:
+            case 0x23u:
+            case 0x31u:
+            case 0x33u:
+                /* only enable for write commands */
+                CommunicationObserver_Run_Enable();
+
+            default:
+                break;
+        }
+    }
+    
     CommunicationObserver_Run_OnMessageReceived();
     MasterCommunication_Run_HandleCommand(buffer, bufferSize);
 }

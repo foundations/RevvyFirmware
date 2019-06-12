@@ -10,6 +10,7 @@
 #define COMMUNICATION_OBSERVER_H_
 
 void CommunicationObserver_Run_OnInit(void);
+void CommunicationObserver_Run_Enable(void);
 void CommunicationObserver_Run_OnMessageMissed(void);
 void CommunicationObserver_Run_OnMessageReceived(void);
 

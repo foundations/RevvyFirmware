@@ -13,12 +13,21 @@
 #define ERROR_COUNTER_INCREMENT        ((uint8_t) 2u)
 
 static uint8_t errorCounter;
-static bool communicationWasActive;
+static bool enabled;
 
 void CommunicationObserver_Run_OnInit(void)
 {
     errorCounter = ERROR_COUNTER_MAX;
-    communicationWasActive = false;
+    enabled = false;
+}
+
+void CommunicationObserver_Run_Enable(void)
+{
+    if (!enabled)
+    {
+        enabled = true;
+        errorCounter = ERROR_COUNTER_MAX;
+    }
 }
 
 void CommunicationObserver_Run_OnMessageMissed(void)
@@ -28,7 +37,7 @@ void CommunicationObserver_Run_OnMessageMissed(void)
         --errorCounter;
     }
 
-    if (errorCounter == 0u && communicationWasActive)
+    if (errorCounter == 0u && enabled)
     {
         CommunicationObserver_Call_ErrorThresholdReached();
     }
@@ -36,14 +45,16 @@ void CommunicationObserver_Run_OnMessageMissed(void)
 
 void CommunicationObserver_Run_OnMessageReceived(void)
 {
-    communicationWasActive = true;
-    if (errorCounter > ERROR_COUNTER_MAX - ERROR_COUNTER_INCREMENT)
+    if (enabled)
     {
-        errorCounter = ERROR_COUNTER_MAX;
-    }
-    else
-    {
-        errorCounter += ERROR_COUNTER_INCREMENT;
+        if (errorCounter > ERROR_COUNTER_MAX - ERROR_COUNTER_INCREMENT)
+        {
+            errorCounter = ERROR_COUNTER_MAX;
+        }
+        else
+        {
+            errorCounter += ERROR_COUNTER_INCREMENT;
+        }
     }
 }
 
