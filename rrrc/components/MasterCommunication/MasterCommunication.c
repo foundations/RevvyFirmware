@@ -7,6 +7,7 @@
 
 #include "MasterCommunication.h"
 #include "utils/crc.h"
+#include <string.h>
 
 static uint8_t responseBuffer[256];
 
@@ -26,13 +27,13 @@ static Comm_ResponseHeader_t longRxErrorResponse =
 
 void MasterCommunication_Run_GetDefaultResponse(uint8_t** defaultResponseBuffer, size_t* defaultResponseLength)
 {
-    *defaultResponseBuffer = (uint8_t*) &defaultResponse;
+    memcpy(defaultResponseBuffer, (uint8_t*) &defaultResponse, sizeof(defaultResponse));
     *defaultResponseLength = sizeof(defaultResponse);
 }
 
 void MasterCommunication_Run_GetLongRxErrorResponse(uint8_t** longRxErrorResponseBuffer, size_t* longRxErrorResponseLength)
 {
-    *longRxErrorResponseBuffer = (uint8_t*) &longRxErrorResponse;
+    memcpy(longRxErrorResponseBuffer, (uint8_t*) &longRxErrorResponse, sizeof(longRxErrorResponse));
     *longRxErrorResponseLength = sizeof(longRxErrorResponse);
 }
 
