@@ -27,13 +27,13 @@ static Comm_ResponseHeader_t longRxErrorResponse =
 
 void MasterCommunication_Run_GetDefaultResponse(uint8_t** defaultResponseBuffer, size_t* defaultResponseLength)
 {
-    memcpy(defaultResponseBuffer, (uint8_t*) &defaultResponse, sizeof(defaultResponse));
+    *defaultResponseBuffer = (uint8_t*) &defaultResponse;
     *defaultResponseLength = sizeof(defaultResponse);
 }
 
 void MasterCommunication_Run_GetLongRxErrorResponse(uint8_t** longRxErrorResponseBuffer, size_t* longRxErrorResponseLength)
 {
-    memcpy(longRxErrorResponseBuffer, (uint8_t*) &longRxErrorResponse, sizeof(longRxErrorResponse));
+    *longRxErrorResponseBuffer = (uint8_t*) &longRxErrorResponse;
     *longRxErrorResponseLength = sizeof(longRxErrorResponse);
 }
 
