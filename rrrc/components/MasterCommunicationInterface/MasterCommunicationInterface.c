@@ -19,7 +19,7 @@
 
 static TaskHandle_t communicationTaskHandle;
 
-static uint8_t rxBuffer[255 + 4];
+static uint8_t rxBuffer[255 + 6];
 
 static i2c_hal_descriptor I2C_0;
 const MasterCommunicationInterface_Config_t* config;
