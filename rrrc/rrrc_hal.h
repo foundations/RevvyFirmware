@@ -19,6 +19,20 @@
 extern "C" {
 #endif
 
+#define FLASH_AVAILABLE     ((FLASH_SIZE / 2) - NVMCTRL_BLOCK_SIZE)
+#define FLASH_FW_OFFSET     (FLASH_SIZE / 2)
+#define FLASH_HDR_OFFSET    (FLASH_FW_OFFSET + FLASH_AVAILABLE)
+
+typedef struct 
+{
+    uint32_t hw_version;
+    uint32_t bootloader_version;
+    uint32_t target_checksum;
+    uint32_t target_length;
+} FlashHeader_t;
+
+#define FLASH_HEADER  ((FlashHeader_t*) (FLASH_HDR_OFFSET))
+
 void high_res_timer_init(struct timer_descriptor* timer);
 uint32_t high_res_timer_get_count(void);
 uint32_t high_res_timer_ticks_per_ms(void);

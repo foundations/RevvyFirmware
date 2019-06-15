@@ -6,18 +6,34 @@
  */ 
 #include "VersionProvider.h"
 #include "fw_version.h"
+#include "rrrc_hal.h"
 
 #include <string.h>
 
-#define HARDWARE_VERSION "1.1" /* TODO read from NVM */
+static const char* hw_version_strings[] = 
+{
+    "1.0",
+    "1.1"
+};
+
 #define FIRMWARE_VERSION_STRING "0.1-r" FW_VERSION
 
 Comm_Status_t VersionProvider_GetHardwareVersion_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
-    memcpy(response, HARDWARE_VERSION, strlen(HARDWARE_VERSION));
-    *responseCount = strlen(HARDWARE_VERSION);
+    uint32_t hw = FLASH_HEADER->hw_version;
 
-    return Comm_Status_Ok;
+    if (hw < ARRAY_SIZE(hw_version_strings))
+    {
+        uint8_t len = strlen(hw_version_strings[hw]);
+        memcpy(response, hw_version_strings[hw], len);
+        *responseCount = len;
+    
+        return Comm_Status_Ok;
+    }
+    else
+    {
+        return Comm_Status_Error_InternalError;
+    }
 }
 
 Comm_Status_t VersionProvider_GetFirmwareVersion_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)

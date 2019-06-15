@@ -11,10 +11,11 @@
 #include "utils/functions.h"
 
 #include <stdint.h>
+#include <string.h>
 
-#define LED_VAL_ZERO    ((uint8_t) 0x3Fu)
-#define LED_VAL_ONE     ((uint8_t) 0x03u)
-#define LED_VAL_RES     ((uint8_t) 0xFFu)
+#define LED_VAL_ZERO    ((uint8_t) 0xC0u)
+#define LED_VAL_ONE     ((uint8_t) 0xFCu)
+#define LED_VAL_RES     ((uint8_t) 0x00u)
 #define LED_RESET_SIZE  ((size_t)    50u)
 
 #define LED_BYTE_SIZE   8                   /* one LED control bit is coded as 8 MCU bits, so 1 byte -> 8 bytes */
@@ -22,6 +23,10 @@
 #define LED_FRAME_SIZE  (LED_RESET_SIZE + (LED_COLOR_SIZE * (STATUS_LEDS_AMOUNT + RING_LEDS_AMOUNT)))
 
 static bool ledsUpdating;
+
+static uint8_t led_one;
+static uint8_t led_zero;
+
 static uint8_t frame_leds[LED_FRAME_SIZE];
 
 static struct spi_m_dma_descriptor SPI_0;
@@ -45,7 +50,7 @@ static void SPI_0_Init(void)
 
 static inline uint8_t getLedBitPattern(uint8_t bitValue)
 {
-    return (bitValue == 0u) ? LED_VAL_ZERO : LED_VAL_ONE;
+    return (bitValue == 0u) ? led_zero : led_one;
 }
 
 static inline void write_led_byte(uint32_t led_idx, uint32_t byte_idx, uint8_t byte_value)
@@ -77,7 +82,7 @@ static void update_frame(void)
 
     for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
     {
-        write_led_color(4u + i, LEDController_Read_RingLED(i));
+        write_led_color(STATUS_LEDS_AMOUNT + i, LEDController_Read_RingLED(i));
     }
 }
 
@@ -95,6 +100,24 @@ static void tx_complete_cb_SPI_0(struct _dma_resource *resource)
 void LEDController_Run_OnInit(void)
 {
     ledsUpdating = false;
+
+    /* hw version 0 is for board without inverting FET */
+    bool inverted = (FLASH_HEADER->hw_version != 0u);
+    uint8_t led_reset;
+    if (inverted)
+    {
+        led_one = (uint8_t) ~LED_VAL_ONE;
+        led_zero = (uint8_t) ~LED_VAL_ZERO;
+        led_reset = (uint8_t) ~LED_VAL_RES;
+    }
+    else
+    {
+        led_one = LED_VAL_ONE;
+        led_zero = LED_VAL_ZERO;
+        led_reset = LED_VAL_RES;
+    }
+
+    memset(frame_leds, led_reset, sizeof(frame_leds));
 
     SPI_0_Init();
 
