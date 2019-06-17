@@ -8,7 +8,7 @@
 
 void BluetoothStatusObserver_Run_OnInit(void)
 {
-    BluetoothStatusObserver_Write_IsConnected(false);
+    BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_Inactive);
 }
 
 Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -23,11 +23,11 @@ Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* co
         switch (commandPayload[0])
         {
             case 0u:
-                BluetoothStatusObserver_Write_IsConnected(false);
+                BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_NotConnected);
                 break;
 
             case 1u:
-                BluetoothStatusObserver_Write_IsConnected(true);
+                BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_Connected);
                 break;
 
             default:
@@ -40,7 +40,7 @@ Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* co
 }
 
 __attribute__((weak))
-void BluetoothStatusObserver_Write_IsConnected(bool status)
+void BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_t status)
 {
     /* nothing to do */
 }

@@ -196,7 +196,7 @@ static TB6612FNG_t motorDriver45 =
 };
 
 static MasterStatus_t masterStatus;
-static bool isBleConnected;
+static BluetoothStatus_t isBleConnected;
 
 static MasterCommunicationInterface_Config_t communicationConfig = 
 {
@@ -686,14 +686,19 @@ bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
     return masterStatus == MasterStatus_Controlled;
 }
 
-void BluetoothStatusObserver_Write_IsConnected(bool status)
+void BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_t status)
 {
     isBleConnected = status;
 }
 
 bool BluetoothIndicator_Read_IsConnected(void)
 {
-    return isBleConnected;
+    return isBleConnected == BluetoothStatus_Connected;
+}
+
+bool BluetoothIndicator_Read_IsActive(void)
+{
+    return isBleConnected != BluetoothStatus_Inactive;
 }
 
 BatteryStatusProvider_ChargerStatus_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)

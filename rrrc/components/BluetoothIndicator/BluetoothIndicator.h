@@ -16,6 +16,7 @@ void BluetoothIndicator_Run_OnInit(void);
 void BluetoothIndicator_Run_Update(void);
 
 bool BluetoothIndicator_Read_IsConnected(void);
+bool BluetoothIndicator_Read_IsActive(void);
 void BluetoothIndicator_Write_LedColor(rgb_t color);
 
 #endif /* BLUETOOTHINDICATOR_H_ */
