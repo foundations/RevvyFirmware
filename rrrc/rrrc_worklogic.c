@@ -28,6 +28,7 @@ static float motorBatteryVoltage;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
+static bool masterBooted = false;
 static float mcuTemperature;
 
 static MotorPort_t motorPorts[] = 
@@ -587,6 +588,7 @@ void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
 {
+    masterBooted = true;
     if (bufferSize >= 2u)
     {
         /* TODO: this is not the nicest solution */
@@ -881,4 +883,9 @@ int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelB(TB6612FNG_t* driver)
     {
         return 0;
     }
+}
+
+bool RingLedDisplay_Read_MasterReady(void)
+{
+    return masterBooted;
 }

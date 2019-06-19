@@ -11,6 +11,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "utils/functions.h"
+
 #include <string.h>
 
 typedef void (*ledRingFn)(void* data);
@@ -30,10 +32,13 @@ static void ledRingOffWriter(void* data);
 static void ledRingFrameWriter(void* data);
 static void colorWheelWriter1(void* data);
 static void rainbowFadeWriter(void* data);
+static void spinningColorWriter(void* data);
 
 static rgb565_t user_frame[RING_LEDS_AMOUNT];
 static RingLedScenario_t currentScenario;
 static RingLedScenario_t requestedScenario;
+static bool master_was_ready;
+
 static indication_handler_t scenarioHandlers[] = 
 {
     [RingLedScenario_Off] = { .name = "RingLedOff", .init = NULL, .handler = &ledRingOffWriter, .DeInit = NULL, .userData = NULL },
@@ -41,6 +46,7 @@ static indication_handler_t scenarioHandlers[] =
     [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
     [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = NULL, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = NULL },
     [RingLedScenario_RainbowFade] = { .name = "RainbowFade", .init = NULL, .handler = &rainbowFadeWriter,  .DeInit = NULL, .userData = NULL },
+    [RingLedScenario_BusyIndicator] = { .name = "BusyRing", .init = NULL, .handler = &spinningColorWriter, .DeInit = NULL, .userData = NULL }
 };
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -78,6 +84,7 @@ Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload
         return Comm_Status_Error_CommandError;
     }
 
+    master_was_ready = true;
     requestedScenario = (RingLedScenario_t) idx;
 
     return Comm_Status_Ok;
@@ -155,13 +162,46 @@ static void rainbowFadeWriter(void* data)
     }
 }
 
+static void spinningColorWriter(void* data)
+{
+    uint32_t start_led = xTaskGetTickCount() / 100u;
+    const uint32_t tail_length = 8u;
+
+    for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
+    {
+        rgb_t rgb = LED_OFF;
+        if (i < tail_length)
+        {
+            hsv_t hsv = {
+                .h = 0,
+                .s = 100,
+                .v = (uint8_t) map(i, 0, tail_length, 0, 100)
+            };
+            rgb = hsv_to_rgb(hsv);
+        }
+        
+        RingLedDisplay_Write_LedColor((start_led + i) % RING_LEDS_AMOUNT, rgb);
+    }
+}
+
 void RingLedDisplay_Run_OnInit(void)
 {
+    master_was_ready = false;
     currentScenario = RingLedScenario_Off;
+    requestedScenario = RingLedScenario_BusyIndicator;
 }
 
 void RingLedDisplay_Run_Update(void)
 {
+    if (!master_was_ready)
+    {
+        if (RingLedDisplay_Read_MasterReady())
+        {
+            master_was_ready = true;
+            requestedScenario = RingLedScenario_Off;
+        }
+    }
+
     RingLedScenario_t newScenario = requestedScenario;
     if (newScenario != currentScenario)
     {
@@ -216,4 +256,10 @@ __attribute__((weak))
 void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 {
     /* nothing to do */
+}
+
+__attribute__((weak))
+bool RingLedDisplay_Read_MasterReady(void)
+{
+    return true;
 }

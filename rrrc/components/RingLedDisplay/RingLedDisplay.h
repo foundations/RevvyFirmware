@@ -19,7 +19,8 @@ typedef enum
     RingLedScenario_Off = 0,
     RingLedScenario_UserFrame = 1,
     RingLedScenario_ColorWheel = 2,
-    RingLedScenario_RainbowFade = 3
+    RingLedScenario_RainbowFade = 3,
+    RingLedScenario_BusyIndicator = 4,
 } RingLedScenario_t;
 
 void RingLedDisplay_Run_OnInit(void);
@@ -29,6 +30,7 @@ bool RingLedDisplay_Run_SetUserFrame(const uint8_t* bytes, size_t ledCount);
 void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario);
 
 void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color);
+bool RingLedDisplay_Read_MasterReady(void);
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
