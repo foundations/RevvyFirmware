@@ -108,7 +108,7 @@ Comm_Status_t MotorPortHandler_SetPortType_Start(const uint8_t* commandPayload, 
 
     uint8_t port_idx = commandPayload[0];
     uint8_t type_idx = commandPayload[1];
-    if (port_idx >= motorPortCount)
+    if (port_idx == 0u || port_idx > motorPortCount)
     {
         return Comm_Status_Error_CommandError;
     }
@@ -118,7 +118,7 @@ Comm_Status_t MotorPortHandler_SetPortType_Start(const uint8_t* commandPayload, 
         return Comm_Status_Error_CommandError;
     }
 
-    MotorPort_t* port = &motorPorts[port_idx];
+    MotorPort_t* port = &motorPorts[port_idx - 1u];
     port->requestedLibrary = libraries[type_idx];
 
     configuredPort = port;
@@ -145,12 +145,12 @@ Comm_Status_t MotorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload
         return Comm_Status_Error_PayloadLengthError;
     }
     uint8_t port_idx = commandPayload[0];
-    if (port_idx >= motorPortCount)
+    if (port_idx == 0u || port_idx > motorPortCount)
     {
         return Comm_Status_Error_CommandError;
     }
     
-    MotorPort_t* port = &motorPorts[port_idx];
+    MotorPort_t* port = &motorPorts[port_idx - 1u];
     MotorLibraryStatus_t result = port->library->SetConfig(port, &commandPayload[1], commandSize - 1u);
 
     if (result == MotorLibraryStatus_Ok)
@@ -183,12 +183,12 @@ Comm_Status_t MotorPortHandler_SetControlValue_Start(const uint8_t* commandPaylo
         return Comm_Status_Error_PayloadLengthError;
     }
     uint8_t port_idx = commandPayload[0];
-    if (port_idx >= motorPortCount)
+    if (port_idx == 0u || port_idx > motorPortCount)
     {
         return Comm_Status_Error_CommandError;
     }
     
-    MotorPort_t* port = &motorPorts[port_idx];
+    MotorPort_t* port = &motorPorts[port_idx - 1u];
     MotorLibraryStatus_t result = port->library->SetControlReference(port, &commandPayload[1], commandSize - 1u);
 
     if (result == MotorLibraryStatus_Ok)
@@ -212,12 +212,12 @@ Comm_Status_t MotorPortHandler_GetStatus_Start(const uint8_t* commandPayload, ui
         return Comm_Status_Error_InternalError;
     }
     uint8_t port_idx = commandPayload[0];
-    if (port_idx >= motorPortCount)
+    if (port_idx == 0u || port_idx > motorPortCount)
     {
         return Comm_Status_Error_CommandError;
     }
     
-    MotorPort_t* port = &motorPorts[port_idx];
+    MotorPort_t* port = &motorPorts[port_idx - 1u];
     MotorLibraryStatus_t result = port->library->GetStatus(port, response, responseCount);
 
     if (result == MotorLibraryStatus_Ok)

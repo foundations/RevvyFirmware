@@ -102,7 +102,7 @@ Comm_Status_t SensorPortHandler_SetPortType_Start(const uint8_t* commandPayload,
 
     uint8_t port_idx = commandPayload[0];
     uint8_t type_idx = commandPayload[1];
-    if (port_idx >= sensorPortCount)
+    if (port_idx == 0u || port_idx > sensorPortCount)
     {
         return Comm_Status_Error_CommandError;
     }
@@ -112,7 +112,7 @@ Comm_Status_t SensorPortHandler_SetPortType_Start(const uint8_t* commandPayload,
         return Comm_Status_Error_CommandError;
     }
 
-    SensorPort_t* port = &sensorPorts[port_idx];
+    SensorPort_t* port = &sensorPorts[port_idx - 1u];
     port->requestedLibrary = libraries[type_idx];
 
     configuredPort = port;
@@ -139,12 +139,12 @@ Comm_Status_t SensorPortHandler_SetPortConfig_Start(const uint8_t* commandPayloa
         return Comm_Status_Error_PayloadLengthError;
     }
     uint8_t port_idx = commandPayload[0];
-    if (port_idx >= sensorPortCount)
+    if (port_idx == 0u || port_idx > sensorPortCount)
     {
         return Comm_Status_Error_CommandError;
     }
     
-    SensorPort_t* port = &sensorPorts[port_idx];
+    SensorPort_t* port = &sensorPorts[port_idx - 1u];
     SensorLibraryStatus_t result = port->library->SetConfig(port, &commandPayload[1], commandSize - 1u);
 
     if (result == SensorLibraryStatus_Ok)
@@ -177,12 +177,12 @@ Comm_Status_t SensorPortHandler_GetSensorData_Start(const uint8_t* commandPayloa
         return Comm_Status_Error_PayloadLengthError;
     }
     uint8_t port_idx = commandPayload[0];
-    if (port_idx >= sensorPortCount)
+    if (port_idx == 0u || port_idx > sensorPortCount)
     {
         return Comm_Status_Error_CommandError;
     }
     
-    SensorPort_t* port = &sensorPorts[port_idx];
+    SensorPort_t* port = &sensorPorts[port_idx - 1u];
     SensorLibraryStatus_t result = port->library->PrepareGetValue(port, &commandPayload[1], commandSize - 1u);
 
     /* Prepare does not return with data. If it returns ok, data shall be read using opeartion GetResult */
