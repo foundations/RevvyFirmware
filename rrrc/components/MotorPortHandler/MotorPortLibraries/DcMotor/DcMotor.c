@@ -315,6 +315,12 @@ MotorLibraryStatus_t DcMotor_UpdateConfiguration(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
+static void write(uint8_t* dst, uint8_t* src, uint8_t size, uint8_t* idx)
+{
+    memcpy(&dst[*idx], src, size);
+    *idx += size;
+}
+
 MotorLibraryStatus_t DcMotor_GetStatus(MotorPort_t* motorPort, uint8_t* data, uint8_t* dataSize)
 {
     MotorLibrary_Dc_Data_t* libdata = (MotorLibrary_Dc_Data_t*) motorPort->libraryData;
@@ -322,13 +328,21 @@ MotorLibraryStatus_t DcMotor_GetStatus(MotorPort_t* motorPort, uint8_t* data, ui
     portENTER_CRITICAL();
     int32_t pos = (int32_t) lroundf(to_si(motorPort, libdata->position));
     float speed = to_si(motorPort, libdata->speed);
-    data[sizeof(float) + sizeof(int32_t)] = libdata->pwm;
+    int8_t pwm = libdata->pwm;
+
+    MotorPort_DriveRequest_t driveRequest;
+    MotorPortHandler_Read_DriveRequest(motorPort->port_idx, &driveRequest);
     portEXIT_CRITICAL();
+    
+    write(data, &pos, sizeof(int32_t), dataSize);
+    write(data, &speed, sizeof(float), dataSize);
+    write(data, &pwm, sizeof(int8_t), dataSize);
 
-    memcpy(data, &pos, sizeof(int32_t));
-    memcpy(&data[sizeof(int32_t)], &speed, sizeof(float));
-
-    *dataSize = sizeof(float) + sizeof(int32_t) + sizeof(int8_t);
+    if (driveRequest.type == MotorPort_DriveRequest_Position)
+    {
+        bool pos_reached = abs(pos - driveRequest.v.position) < 10;
+        write(data, &pos_reached, sizeof(bool), dataSize);
+    }
 
     return MotorLibraryStatus_Ok;
 }
