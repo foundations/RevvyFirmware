@@ -849,15 +849,15 @@ int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelA(TB6612FNG_t* driver)
 {
     if (driver == &motorDriver01)
     {
-        return driveValues[0];
+        return driveValues[5];
     }
     else if (driver == &motorDriver23)
     {
-        return driveValues[2];
+        return driveValues[3];
     }
     else if (driver == &motorDriver45)
     {
-        return driveValues[4];
+        return driveValues[1];
     }
     else
     {
@@ -869,15 +869,15 @@ int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelB(TB6612FNG_t* driver)
 {
     if (driver == &motorDriver01)
     {
-        return driveValues[1];
+        return driveValues[4];
     }
     else if (driver == &motorDriver23)
     {
-        return driveValues[3];
+        return driveValues[0];
     }
     else if (driver == &motorDriver45)
     {
-        return driveValues[5];
+        return driveValues[2];
     }
     else
     {
