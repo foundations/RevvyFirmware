@@ -30,7 +30,7 @@ static void assign_motor(uint8_t motor_idx, MotorAssingment_t assignment)
     {
         assignment = Motor_NotAssigned;
     }
-    DriveTrain_Write_MotorAssigned(motors[motor_idx], assignment != Motor_NotAssigned);
+    DriveTrain_Write_MotorAssigned(motor_idx, assignment != Motor_NotAssigned);
     motors[motor_idx] = assignment;
 }
 
