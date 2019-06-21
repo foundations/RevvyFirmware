@@ -69,8 +69,8 @@ SensorLibraryStatus_t HC_SR04_Init(SensorPort_t* sensorPort)
     SensorPort_SetGreenLed(sensorPort, true);
     
     SensorPort_SetVccIo(sensorPort, Sensor_VccIo_5V);
-    SensorPort_ConfigureGpio0_Interrupt(sensorPort);
-    SensorPort_ConfigureGpio1_Output(sensorPort);
+    SensorPort_ConfigureGpio0_Output(sensorPort);
+    SensorPort_ConfigureGpio1_Interrupt(sensorPort);
 
     return SensorLibraryStatus_Ok;
 }
@@ -93,9 +93,9 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
 
     if (!libdata->isMeasuring)
     {
-        SensorPort_SetGpio1_Output(sensorPort, true);
+        SensorPort_SetGpio0_Output(sensorPort, true);
         delay_us(30);
-        SensorPort_SetGpio1_Output(sensorPort, false);
+        SensorPort_SetGpio0_Output(sensorPort, false);
 
         libdata->finished = false;
         libdata->isMeasuring = true;

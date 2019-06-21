@@ -24,11 +24,11 @@ void SensorPort_ToggleGreenLed(struct _SensorPort_t* port);
 void SensorPort_ToggleOrangeLed(struct _SensorPort_t* port);
 
 void SensorPort_ConfigureGpio0_Input(struct _SensorPort_t* port);
-void SensorPort_ConfigureGpio0_Interrupt(struct _SensorPort_t* port);
 void SensorPort_ConfigureGpio0_Output(struct _SensorPort_t* port);
 
 void SensorPort_ConfigureGpio1_Input(struct _SensorPort_t* port);
 void SensorPort_ConfigureGpio1_Output(struct _SensorPort_t* port);
+void SensorPort_ConfigureGpio1_Interrupt(struct _SensorPort_t* port);
 
 bool SensorPort_Read_Gpio0(struct _SensorPort_t* port);
 bool SensorPort_Read_Gpio1(struct _SensorPort_t* port);
