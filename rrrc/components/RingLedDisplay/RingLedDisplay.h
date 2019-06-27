@@ -21,6 +21,7 @@ typedef enum
     RingLedScenario_ColorWheel = 2,
     RingLedScenario_RainbowFade = 3,
     RingLedScenario_BusyIndicator = 4,
+    RingLedScenario_BreathingGreen = 5,
 } RingLedScenario_t;
 
 void RingLedDisplay_Run_OnInit(void);

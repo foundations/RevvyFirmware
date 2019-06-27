@@ -14,6 +14,7 @@
 #include "utils/functions.h"
 
 #include <string.h>
+#include <math.h>
 
 typedef void (*ledRingFn)(void* data);
 
@@ -26,6 +27,15 @@ typedef struct
     void* userData;
 } indication_handler_t;
 
+typedef struct {
+    const rgb_t color;
+    TickType_t start_time;
+} breathing_data_t;
+
+static breathing_data_t breathing_green_data = {
+    .color = LED_GREEN
+};
+
 /* local function declarations */
 
 static void ledRingOffWriter(void* data);
@@ -33,6 +43,8 @@ static void ledRingFrameWriter(void* data);
 static void colorWheelWriter1(void* data);
 static void rainbowFadeWriter(void* data);
 static void spinningColorWriter(void* data);
+static void init_breathing(void* data);
+static void breathing(void* data);
 
 static rgb565_t user_frame[RING_LEDS_AMOUNT];
 static RingLedScenario_t currentScenario;
@@ -46,7 +58,8 @@ static indication_handler_t scenarioHandlers[] =
     [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
     [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = NULL, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = NULL },
     [RingLedScenario_RainbowFade] = { .name = "RainbowFade", .init = NULL, .handler = &rainbowFadeWriter,  .DeInit = NULL, .userData = NULL },
-    [RingLedScenario_BusyIndicator] = { .name = "BusyRing", .init = NULL, .handler = &spinningColorWriter, .DeInit = NULL, .userData = NULL }
+    [RingLedScenario_BusyIndicator] = { .name = "BusyRing", .init = NULL, .handler = &spinningColorWriter, .DeInit = NULL, .userData = NULL },
+    [RingLedScenario_BreathingGreen] = { .name = "BreathingGreen", .init = &init_breathing, .handler = &breathing, .DeInit = NULL, .userData = &breathing_green_data }
 };
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -184,6 +197,26 @@ static void spinningColorWriter(void* data)
     }
 }
 
+static void init_breathing(void* data)
+{
+    breathing_data_t* bdata = (breathing_data_t*) data;
+    bdata->start_time = xTaskGetTickCount();
+}
+
+static void breathing(void* data)
+{
+    breathing_data_t* bdata = (breathing_data_t*) data;
+    hsv_t color = rgb_to_hsv(bdata->color);
+    float c = cosf(M_2_PI * (xTaskGetTickCount() - bdata->start_time) / 1000.0f);
+    color.v = map(c*c, 0, 1, 0, 100);
+    
+    rgb_t rgb = hsv_to_rgb(color);
+    for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
+    {
+        RingLedDisplay_Write_LedColor(i, rgb);
+    }
+}
+
 void RingLedDisplay_Run_OnInit(void)
 {
     master_was_ready = false;
@@ -198,7 +231,7 @@ void RingLedDisplay_Run_Update(void)
         if (RingLedDisplay_Read_MasterReady())
         {
             master_was_ready = true;
-            requestedScenario = RingLedScenario_Off;
+            requestedScenario = RingLedScenario_BreathingGreen;
         }
     }
 
