@@ -6,16 +6,22 @@
  */ 
 #include "BumperSwitch.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 typedef struct 
 {
     uint8_t threshold;
     uint8_t analogValue;
+    bool was_pressed;
 } SensorLibrary_BumperSwitch_Data_t;
  
 SensorLibraryStatus_t BumperSwitch_Init(SensorPort_t* sensorPort)
 {
     SensorLibrary_BumperSwitch_Data_t* libdata = SensorPortHandler_Call_Allocate(sizeof(SensorLibrary_BumperSwitch_Data_t));
-    libdata->threshold = 127u;
+    libdata->threshold = 75u; /* sensor ADC input has a range of 0..5V, bumper switch is 3V, set threshold to half of that */
+    libdata->was_pressed = false;
+    
     sensorPort->libraryData = libdata;
     SensorPort_SetGreenLed(sensorPort, true);
     return SensorLibraryStatus_Ok;
@@ -59,8 +65,13 @@ SensorLibraryStatus_t BumperSwitch_GetValue(SensorPort_t* sensorPort, uint8_t* v
 {
     SensorLibrary_BumperSwitch_Data_t* libdata = (SensorLibrary_BumperSwitch_Data_t*) sensorPort->libraryData;
 
-    *value = libdata->analogValue > libdata->threshold ? 1u : 0u;
-    *valueSize = 1u;
+    portENTER_CRITICAL();
+    value[0] = (libdata->analogValue > libdata->threshold) ? 1u : 0u;
+    value[1] = libdata->was_pressed ? 1u : 0u;
+    libdata->was_pressed = false;
+    portEXIT_CRITICAL();
+
+    *valueSize = 2u;
 
     return SensorLibraryStatus_Ok;
 }
@@ -78,7 +89,13 @@ SensorLibraryStatus_t BumperSwitch_InterruptCallback(SensorPort_t* sensorPort, b
 SensorLibraryStatus_t BumperSwitch_UpdateAnalogData(SensorPort_t* sensorPort, uint8_t rawValue)
 {
     SensorLibrary_BumperSwitch_Data_t* libdata = (SensorLibrary_BumperSwitch_Data_t*) sensorPort->libraryData;
+    portENTER_CRITICAL();
     libdata->analogValue = rawValue;
+    if (rawValue > libdata->threshold)
+    {
+        libdata->was_pressed = true;
+    }
+    portEXIT_CRITICAL();
     return SensorLibraryStatus_Ok;
 }
 
