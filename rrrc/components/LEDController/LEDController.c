@@ -82,7 +82,7 @@ static void update_frame(void)
 
     for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
     {
-        write_led_color(STATUS_LEDS_AMOUNT + i, LEDController_Read_RingLED(i));
+        write_led_color(STATUS_LEDS_AMOUNT + i, LEDController_Read_RingLED((i + 3) % 12));
     }
 }
 
