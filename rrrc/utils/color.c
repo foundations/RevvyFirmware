@@ -120,6 +120,7 @@ hsv_t rgb_to_hsv(rgb_t rgb)
     }
     else if (cmax == rp)
     {
+        hsv.s = lroundf(100 * delta / cmax);
         hsv.h = 60 * (lroundf(((gp - bp) / delta)) % 6);
     }
     else if (cmax == gp)

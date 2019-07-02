@@ -36,6 +36,15 @@ static breathing_data_t breathing_green_data = {
     .color = LED_GREEN
 };
 
+typedef struct {
+    const rgb_t color;
+    TickType_t start_time;
+} spinning_color_data_t;
+
+static spinning_color_data_t spinning_color_data = {
+    .color = LED_RED
+};
+
 /* local function declarations */
 
 static void ledRingOffWriter(void* data);
@@ -43,6 +52,7 @@ static void ledRingFrameWriter(void* data);
 static void colorWheelWriter1(void* data);
 static void rainbowFadeWriter(void* data);
 static void spinningColorWriter(void* data);
+static void init_spinningColor(void* data);
 static void init_breathing(void* data);
 static void breathing(void* data);
 
@@ -58,7 +68,7 @@ static indication_handler_t scenarioHandlers[] =
     [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
     [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = NULL, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = NULL },
     [RingLedScenario_RainbowFade] = { .name = "RainbowFade", .init = NULL, .handler = &rainbowFadeWriter,  .DeInit = NULL, .userData = NULL },
-    [RingLedScenario_BusyIndicator] = { .name = "BusyRing", .init = NULL, .handler = &spinningColorWriter, .DeInit = NULL, .userData = NULL },
+    [RingLedScenario_BusyIndicator] = { .name = "BusyRing", .init = &init_spinningColor, .handler = &spinningColorWriter, .DeInit = NULL, .userData = &spinning_color_data },
     [RingLedScenario_BreathingGreen] = { .name = "BreathingGreen", .init = &init_breathing, .handler = &breathing, .DeInit = NULL, .userData = &breathing_green_data }
 };
 
@@ -175,21 +185,29 @@ static void rainbowFadeWriter(void* data)
     }
 }
 
+static void init_spinningColor(void* data)
+{
+    spinning_color_data_t* sdata = (spinning_color_data_t*) data;
+    sdata->start_time = xTaskGetTickCount();
+}
+
 static void spinningColorWriter(void* data)
 {
-    uint32_t start_led = xTaskGetTickCount() / 100u;
-    const uint32_t tail_length = 8u;
+    spinning_color_data_t* sdata = (spinning_color_data_t*) data;
+    TickType_t elapsed = xTaskGetTickCount() - sdata->start_time;
 
+    const uint32_t tail_length = 8u;
+    uint32_t n_leds = map_constrained(elapsed, 0, 1000, 0, tail_length);
+    
+    uint32_t start_led = n_leds == tail_length ? elapsed / 100u : 10u;
+    
+    hsv_t hsv = rgb_to_hsv(sdata->color);
     for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
     {
         rgb_t rgb = LED_OFF;
-        if (i < tail_length)
+        if (i < n_leds)
         {
-            hsv_t hsv = {
-                .h = 0,
-                .s = 100,
-                .v = (uint8_t) map(i, 0, tail_length, 0, 100)
-            };
+            hsv.v = (uint8_t) map(i, 0, tail_length, 0, 100);
             rgb = hsv_to_rgb(hsv);
         }
         
