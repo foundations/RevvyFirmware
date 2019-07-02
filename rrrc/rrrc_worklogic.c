@@ -594,6 +594,7 @@ void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, 
         /* TODO: this is not the nicest solution */
         switch (buffer[1])
         {
+            case 0x00u: /* ping */
             case 0x04u:
             case 0x05u:
             case 0x12u:
