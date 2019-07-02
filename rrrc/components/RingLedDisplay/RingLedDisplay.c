@@ -196,10 +196,9 @@ static void spinningColorWriter(void* data)
     spinning_color_data_t* sdata = (spinning_color_data_t*) data;
     TickType_t elapsed = xTaskGetTickCount() - sdata->start_time;
 
-    const uint32_t tail_length = 8u;
-    uint32_t n_leds = map_constrained(elapsed, 0, 1000, 0, tail_length);
-    
-    uint32_t start_led = n_leds == tail_length ? elapsed / 100u : 10u;
+    const uint32_t tail_length = 6u;
+    uint32_t n_leds = map_constrained(elapsed, 0, tail_length * 100, 0, tail_length);
+    uint32_t start_led = (11u - tail_length) + (tail_length == n_leds ? elapsed / 100u : tail_length);
     
     hsv_t hsv = rgb_to_hsv(sdata->color);
     for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
