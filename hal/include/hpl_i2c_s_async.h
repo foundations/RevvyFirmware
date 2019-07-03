@@ -63,7 +63,7 @@ struct _i2c_s_async_callback {
 	void (*error_cb)(struct _i2c_s_async_device *const device);
 	void (*addrm_cb)(struct _i2c_s_async_device *const device, const uint8_t dir);
 	void (*tx_cb)(struct _i2c_s_async_device *const device);
-	void (*rx_done_cb)(struct _i2c_s_async_device *const device, const uint8_t data);
+	void (*rx_done_cb)(struct _i2c_s_async_device *const device, const uint32_t data);
 	void (*stop_cb)(struct _i2c_s_async_device *const device, const uint8_t dir);
 };
 
@@ -71,7 +71,7 @@ struct _i2c_s_async_callback {
  * \brief i2c slave device structure
  */
 struct _i2c_s_async_device {
-	void *                       hw;
+	SercomI2cs*                  hw;
 	struct _i2c_s_async_callback cb;
 	struct _irq_descriptor       irq;
 };

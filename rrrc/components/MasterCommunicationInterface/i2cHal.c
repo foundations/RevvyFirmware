@@ -13,7 +13,7 @@
 
 static void i2c_hal_on_address_matched(struct _i2c_s_async_device *const device, const uint8_t dir);
 static void i2c_hal_on_error(struct _i2c_s_async_device *const device);
-static void i2c_hal_on_rx_done(struct _i2c_s_async_device *const device, const uint8_t data);
+static void i2c_hal_on_rx_done(struct _i2c_s_async_device *const device, const uint32_t data);
 static void i2c_hal_on_tx(struct _i2c_s_async_device *const device);
 static void i2c_hal_on_stop(struct _i2c_s_async_device *const device, const uint8_t dir);
 
@@ -106,13 +106,13 @@ static void i2c_hal_on_error(struct _i2c_s_async_device *const device)
     /* ignore for now */
 }
 
-static void i2c_hal_on_rx_done(struct _i2c_s_async_device *const device, const uint8_t data)
+static void i2c_hal_on_rx_done(struct _i2c_s_async_device *const device, const uint32_t data)
 {
     i2c_hal_descriptor *descr = CONTAINER_OF(device, i2c_hal_descriptor, device);
 
     if (descr->rxBufferCount < descr->rxBufferSize)
     {
-        descr->rxBuffer[descr->rxBufferCount] = data;
+        descr->rxBuffer[descr->rxBufferCount] = data & 0xFFu;
     }
     
     ++descr->rxBufferCount;
