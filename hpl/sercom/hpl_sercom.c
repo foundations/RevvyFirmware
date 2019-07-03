@@ -1993,39 +1993,40 @@ int32_t _i2c_s_async_set_irq_state(struct _i2c_s_async_device *const device, con
  */
 static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
 {
-	void *   hw    = device->hw;
-	uint32_t flags = hri_sercomi2cm_read_INTFLAG_reg(hw);
+    SercomI2cs* hw = device->hw;
+    uint32_t flags = hri_sercomi2cm_read_INTFLAG_reg(hw);
 
-	if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
-		hri_sercomi2cs_clear_INTFLAG_ERROR_bit(hw);
- 		if (device->cb.error_cb)
- 		{
-            device->cb.error_cb(device);
+    if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
+        if (hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
+            if (device->cb.tx_cb)
+            {
+                device->cb.tx_cb(device);
+            }
+        } else {
+            if (device->cb.rx_done_cb)
+            {
+                device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
+            }
         }
-	} else if (flags & SERCOM_I2CS_INTFLAG_PREC) {
-        if (device->cb.stop_cb)
-        {
-            device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
-        }
-        hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
-	} else if (flags & SERCOM_I2CS_INTFLAG_AMATCH) {
+    } else if (flags & SERCOM_I2CS_INTFLAG_AMATCH) {
         if (device->cb.addrm_cb)
         {
             device->cb.addrm_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
         }
         hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
-	} else if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
-		if (!hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
-			if (device->cb.rx_done_cb)
-            {
-				device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
-            }
-		} else {
-			if (device->cb.tx_cb)
-			{
-                device->cb.tx_cb(device);
-            }
-		}
+    } else if (flags & SERCOM_I2CS_INTFLAG_PREC) {
+        if (device->cb.stop_cb)
+        {
+            device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
+        }
+        hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
+    } else if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
+        hri_sercomi2cs_clear_INTFLAG_ERROR_bit(hw);
+        if (device->cb.error_cb)
+        {
+            device->cb.error_cb(device);
+        }
+	} else {
 #if (CONF_MCLK_LPDIV) != (CONF_MCLK_CPUDIV)
 		/* Adding grace time while waiting for SCL line to be released */
 		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
