@@ -1994,7 +1994,7 @@ int32_t _i2c_s_async_set_irq_state(struct _i2c_s_async_device *const device, con
 static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
-    uint32_t flags = hri_sercomi2cm_read_INTFLAG_reg(hw);
+    uint32_t flags = hri_sercomi2cs_read_INTFLAG_reg(hw);
 
     if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
         if (hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
