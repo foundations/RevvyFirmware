@@ -374,7 +374,7 @@
 // </e>
 
 #ifndef CONF_SERCOM_2_I2CS_SPEED
-#define CONF_SERCOM_2_I2CS_SPEED 1 // Speed: Standard/Fast mode
+#define CONF_SERCOM_2_I2CS_SPEED 0x0 // Speed: Standard/Fast mode
 #endif
 
 #include <peripheral_clk_config.h>
