@@ -102,21 +102,10 @@ void LEDController_Run_OnInit(void)
 {
     ledsUpdating = false;
 
-    /* hw version 0 is for board without inverting FET */
-    bool inverted = (FLASH_HEADER->hw_version != 0u);
-    uint8_t led_reset;
-    if (inverted)
-    {
-        led_one = (uint8_t) ~LED_VAL_ONE;
-        led_zero = (uint8_t) ~LED_VAL_ZERO;
-        led_reset = (uint8_t) ~LED_VAL_RES;
-    }
-    else
-    {
-        led_one = LED_VAL_ONE;
-        led_zero = LED_VAL_ZERO;
-        led_reset = LED_VAL_RES;
-    }
+    /* invert here so the constants are easier to understand */
+    led_one = (uint8_t) ~LED_VAL_ONE;
+    led_zero = (uint8_t) ~LED_VAL_ZERO;
+    uint8_t led_reset = (uint8_t) ~LED_VAL_RES;
 
     memset(frame_leds, led_reset, sizeof(frame_leds));
 
