@@ -285,6 +285,34 @@ static void ProcessTasks_100ms(void)
 //*********************************************************************************************
 void RRRC_ProcessLogic_xTask(void* user)
 {
+    {
+        const uint32_t compatible_hw[] = { COMPATIBLE_HW_VERSIONS };
+        const uint32_t hw = FLASH_HEADER->hw_version;
+        bool on_compatible_hw = false;
+        for (size_t i = 0u; i < ARRAY_SIZE(compatible_hw); i++)
+        {
+            if (hw == compatible_hw[i])
+            {
+                on_compatible_hw = true;
+                break;
+            }
+        }
+
+        if (!on_compatible_hw)
+        {
+            const void * s_rtc_module = (const void *) RTC;
+            hri_rtcmode0_set_CTRLB_GP0EN_bit(s_rtc_module);
+            hri_rtcmode0_set_CTRLB_GP2EN_bit(s_rtc_module);
+
+            hri_rtc_write_GP_reg(s_rtc_module, 0u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
+            hri_rtc_write_GP_reg(s_rtc_module, 1u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
+            hri_rtc_write_GP_reg(s_rtc_module, 2u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
+            hri_rtc_write_GP_reg(s_rtc_module, 3u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
+    
+            NVIC_SystemReset();
+        }
+    }
+
     ADC_Run_OnInit();
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
