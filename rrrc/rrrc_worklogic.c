@@ -285,6 +285,7 @@ static void ProcessTasks_100ms(void)
 //*********************************************************************************************
 void RRRC_ProcessLogic_xTask(void* user)
 {
+#ifndef DEBUG
     {
         const uint32_t compatible_hw[] = { COMPATIBLE_HW_VERSIONS };
         const uint32_t hw = FLASH_HEADER->hw_version;
@@ -312,6 +313,7 @@ void RRRC_ProcessLogic_xTask(void* user)
             NVIC_SystemReset();
         }
     }
+#endif
 
     ADC_Run_OnInit();
     BatteryCharger_Run_OnInit();
