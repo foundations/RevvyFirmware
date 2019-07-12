@@ -209,6 +209,13 @@ static MasterCommunicationInterface_Config_t communicationConfig =
     .rxTimeout = 100u, /* ms */
 };
 
+#define MAX_MOTOR_STATUS_SIZE 10
+#define MAX_SENSOR_STATUS_SIZE 4
+
+static uint8_t motor_status[6][MAX_MOTOR_STATUS_SIZE + 1] = {0};
+static uint8_t sensor_status[4][MAX_SENSOR_STATUS_SIZE + 1] = {0};
+static bool status_changed[32] = {0};
+
 void RRRC_ProcessLogic_xTask(void* user_data);
 
 //*********************************************************************************************
@@ -495,11 +502,19 @@ void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, ui
 {
     if (context == &mainBattery)
     {
-        mainBatteryPercentage = percent;
+        if (mainBatteryPercentage != percent)
+        {
+            status_changed[11u] = true;
+            mainBatteryPercentage = percent;
+        }
     }
     else if (context == &motorBattery)
     {
-        motorBatteryPercentage = percent;
+        if (motorBatteryPercentage != percent)
+        {
+            status_changed[11u] = true;
+            motorBatteryPercentage = percent;
+        }
     }
     else
     {
@@ -926,13 +941,6 @@ bool RingLedDisplay_Read_MasterReady(void)
     return masterBooted;
 }
 
-#define MAX_MOTOR_STATUS_SIZE 10
-#define MAX_SENSOR_STATUS_SIZE 4
-
-static uint8_t motor_status[6][MAX_MOTOR_STATUS_SIZE + 1] = {0};
-static uint8_t sensor_status[4][MAX_SENSOR_STATUS_SIZE + 1] = {0};
-static bool status_changed[32] = {0};
-
 void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
     portENTER_CRITICAL();
@@ -998,14 +1006,22 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
                 memcpy(pData, &sensor_status[sensor_idx][1], sensor_status[sensor_idx][0]);
             }
         }
+        else if (slot == 11u)
+        {
+            /* battery */
+            if (bufferSize >= 4u)
+            {
+                pData[0] = BatteryIndicator_Read_Status(&mainBatteryIndicator);
+                pData[1] = mainBatteryPercentage;
+                pData[2] = BatteryIndicator_Read_Status(&motorBatteryIndicator);
+                pData[3] = motorBatteryPercentage;
+                *slotDataSize = 4u;
+            }
+        }
         else
         {
 
         }
-    }
-    else
-    {
-
     }
     portEXIT_CRITICAL();
 }
