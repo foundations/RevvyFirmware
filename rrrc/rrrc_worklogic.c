@@ -1028,5 +1028,7 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
 
 void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
 {
+    portENTER_CRITICAL();
     status_changed[slot] = false;
+    portEXIT_CRITICAL();
 }
