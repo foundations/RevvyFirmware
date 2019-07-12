@@ -17,6 +17,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <fastmath.h>
 
 #define MOTOR_CONTROL_PWM               ((uint8_t) 0u)
 #define MOTOR_CONTROL_SPEED             ((uint8_t) 1u)
@@ -181,6 +182,22 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
         
         libdata->pwm = pwm;
         MotorPort_SetDriveValue(motorPort, pwm);
+
+        uint8_t status[10];
+    
+        int32_t pos = (int32_t) lroundf(to_si(motorPort, libdata->position));
+        float si_speed = to_si(motorPort, libdata->speed);
+
+        memcpy(&status[0], &pwm, sizeof(int8_t));
+        memcpy(&status[1], &pos, sizeof(int32_t));
+        memcpy(&status[5], &si_speed, sizeof(float));
+
+        if (driveRequest.type == MotorPort_DriveRequest_Position)
+        {
+            status[9] = abs(pos - driveRequest.v.position) < 10;
+        }
+
+        MotorPort_Write_PortState(motorPort->port_idx, status, sizeof(status));
     }
 
     return MotorLibraryStatus_Ok;

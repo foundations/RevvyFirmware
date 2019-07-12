@@ -308,3 +308,9 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
         .power_limit = 0.0f
     };
 }
+
+__attribute__((weak))
+void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
+{
+
+}

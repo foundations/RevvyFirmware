@@ -12,6 +12,7 @@
 #include "jscope/jscope.h"
 
 #include <math.h>
+#include <string.h>
 
 static TaskHandle_t xRRRC_Main_xTask;
 
@@ -104,6 +105,7 @@ static MotorPort_t motorPorts[] =
 static SensorPort_t sensorPorts[] = 
 {
     {
+        .port_idx = 0u,
         .led0 = S0LED0,
         .led1 = S0LED1,
         .gpio0 = S0GPIO0,
@@ -113,6 +115,7 @@ static SensorPort_t sensorPorts[] =
         .i2c_hw = I2C4_SERCOM
     },
     {
+        .port_idx = 1u,
         .led0 = S1LED0,
         .led1 = S1LED1,
         .gpio0 = S1GPIO0,
@@ -122,6 +125,7 @@ static SensorPort_t sensorPorts[] =
         .i2c_hw = I2C1_SERCOM
     },
     {
+        .port_idx = 2u,
         .led0 = S2LED0,
         .led1 = S2LED1,
         .gpio0 = S2GPIO0,
@@ -131,6 +135,7 @@ static SensorPort_t sensorPorts[] =
         .i2c_hw = I2C2_SERCOM
     },
     {
+        .port_idx = 3u,
         .led0 = S3LED0,
         .led1 = S3LED1,
         .gpio0 = S3GPIO0,
@@ -919,4 +924,93 @@ int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelB(TB6612FNG_t* driver)
 bool RingLedDisplay_Read_MasterReady(void)
 {
     return masterBooted;
+}
+
+#define MAX_MOTOR_STATUS_SIZE 10
+#define MAX_SENSOR_STATUS_SIZE 4
+
+static uint8_t motor_status[6][MAX_MOTOR_STATUS_SIZE + 1] = {0};
+static uint8_t sensor_status[4][MAX_SENSOR_STATUS_SIZE + 1] = {0};
+static bool status_changed[32] = {0};
+
+void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
+{
+    portENTER_CRITICAL();
+    ASSERT(dataSize <= MAX_MOTOR_STATUS_SIZE);
+
+    bool changed = false;
+    for (uint8_t i = 0u; i < dataSize; i++)
+    {
+        if (motor_status[port_idx][i + 1u] != pData[i])
+        {
+            motor_status[port_idx][i + 1u] = pData[i];
+            changed = true;
+        }
+    }
+
+    status_changed[port_idx] = changed;
+
+    portEXIT_CRITICAL();
+}
+
+void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
+{
+    portENTER_CRITICAL();
+    ASSERT(dataSize <= MAX_SENSOR_STATUS_SIZE);
+
+    bool changed = dataSize != sensor_status[port_idx][0];
+    for (uint8_t i = 0u; i < dataSize; i++)
+    {
+        if (sensor_status[port_idx][i + 1u] != pData[i])
+        {
+            sensor_status[port_idx][i + 1u] = pData[i];
+            changed = true;
+        }
+    }
+
+    status_changed[6u + port_idx] = changed;
+
+    portEXIT_CRITICAL();
+}
+
+void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotDataSize)
+{
+    portENTER_CRITICAL();
+    *slotDataSize = 0u;
+
+    if (status_changed[slot])
+    {
+        if (slot < 6u)
+        {
+            uint8_t motor_idx = slot;
+            if (bufferSize >= motor_status[motor_idx][0])
+            {
+                *slotDataSize = motor_status[motor_idx][0];
+                memcpy(pData, &motor_status[motor_idx][1], motor_status[motor_idx][0]);
+            }
+        }
+        else if (slot < 10u)
+        {
+            uint8_t sensor_idx = slot - 6u;
+            if (bufferSize >= sensor_status[sensor_idx][0])
+            {
+                *slotDataSize = sensor_status[sensor_idx][0];
+                memcpy(pData, &sensor_status[sensor_idx][1], sensor_status[sensor_idx][0]);
+            }
+        }
+        else
+        {
+
+        }
+    }
+    else
+    {
+
+    }
+    portEXIT_CRITICAL();
+}
+
+void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
+{
+    status_changed[slot] = false;
 }

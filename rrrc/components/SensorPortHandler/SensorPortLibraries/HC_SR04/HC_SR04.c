@@ -23,6 +23,14 @@ typedef struct
     uint32_t distanceBufferWriteIdx;
 } SensorLibrary_HC_SR04_Data_t;
 
+static uint32_t _get_cm(uint32_t distance_tick)
+{
+    uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
+
+    float distance_ms = (float)distance_tick / ticks_in_ms;
+    return (uint32_t)lroundf(distance_ms * 17.0f);
+}
+
 static inline void swap_uint32(uint32_t* a, uint32_t* b)
 {
     uint32_t t = *a;
@@ -106,6 +114,9 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
         {
             libdata->isMeasuring = false;
             update_filtered_distance(libdata);
+            
+            uint16_t cm = (uint16_t) _get_cm(libdata->filtered_distance_tick);
+            SensorPort_Write_PortState(sensorPort->port_idx, cm, sizeof(cm));
         }
     }
     
@@ -126,13 +137,9 @@ SensorLibraryStatus_t HC_SR04_GetValue(SensorPort_t* sensorPort, uint8_t* value,
 {
     SensorLibrary_HC_SR04_Data_t* libdata = (SensorLibrary_HC_SR04_Data_t*) sensorPort->libraryData;
     
-    uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
-    uint32_t distance_tick = libdata->filtered_distance_tick;
+    uint32_t cm = _get_cm(libdata->filtered_distance_tick);
 
-    float distance_ms = (float)distance_tick / ticks_in_ms;
-    uint32_t distance_cm = (uint32_t)lroundf(distance_ms * 17.0f);
-
-    memcpy(value, &distance_cm, sizeof(uint32_t));
+    memcpy(value, &cm, sizeof(uint32_t));
     *valueSize = 4u;
 
     return SensorLibraryStatus_Ok;

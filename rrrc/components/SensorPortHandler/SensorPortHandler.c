@@ -277,3 +277,9 @@ void SensorPortHandler_Call_Free(void** ptr)
 {
     *ptr = NULL;
 }
+
+__attribute__((weak))
+void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
+{
+
+}
