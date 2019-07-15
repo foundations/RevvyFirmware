@@ -1043,6 +1043,9 @@ void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
 void McuStatusCollectorWrapper_Run_ResetSlots(void)
 {
     McuStatusCollector_Run_ResetSlots();
+    
+    memset(motor_status, 0u, sizeof(motor_status));
+    memset(sensor_status, 0u, sizeof(sensor_status));
 }
 
 void McuStatusCollectorWrapper_Run_EnableSlot(uint8_t slot)
