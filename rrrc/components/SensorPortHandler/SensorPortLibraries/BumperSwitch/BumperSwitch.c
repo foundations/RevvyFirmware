@@ -66,8 +66,8 @@ SensorLibraryStatus_t BumperSwitch_GetValue(SensorPort_t* sensorPort, uint8_t* v
     SensorLibrary_BumperSwitch_Data_t* libdata = (SensorLibrary_BumperSwitch_Data_t*) sensorPort->libraryData;
 
     portENTER_CRITICAL();
-    value[0] = (libdata->analogValue > libdata->threshold) ? 1u : 0u;
-    value[1] = libdata->was_pressed ? 1u : 0u;
+    value[0] = libdata->was_pressed ? 1u : 0u;
+    value[1] = libdata->analogValue;
     libdata->was_pressed = false;
     portEXIT_CRITICAL();
 
