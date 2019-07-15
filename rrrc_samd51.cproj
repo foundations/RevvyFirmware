@@ -408,7 +408,7 @@
   <armgcc.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>DEBUG</Value>
-      <Value>COMPATIBLE_HW_VERSIONS=0,1</Value>
+      <Value>COMPATIBLE_HW_VERSIONS=2</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
