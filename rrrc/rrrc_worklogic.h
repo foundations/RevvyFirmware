@@ -42,7 +42,7 @@ extern "C" {
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);
 
-#define COMM_HANDLER_COUNT  ((uint8_t) 0x34u)
+#define COMM_HANDLER_COUNT  ((uint8_t) 0x3Du)
 const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT];
 
 #ifdef __cplusplus

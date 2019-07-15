@@ -54,6 +54,11 @@ const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT] =
     [0x31u] = { .Start = &RingLedDisplay_SetScenarioType_Start, .GetResult = NULL, .Cancel = NULL },
     [0x32u] = { .Start = &RingLedDisplay_GetRingLedAmount_Start, .GetResult = NULL, .Cancel = NULL },
     [0x33u] = { .Start = &RingLedDisplay_SetUserFrame_Start, .GetResult = NULL, .Cancel = NULL },
+    
+    /* MCU status updater commands */
+    [0x3Au] = { .Start = &McuStatusCollectorWrapper_Reset_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x3Bu] = { .Start = &McuStatusCollectorWrapper_ControlSlot_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x3Cu] = { .Start = &McuStatusCollectorWrapper_ReadStatus_Start, .GetResult = NULL, .Cancel = NULL },
 };
 
 static Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
