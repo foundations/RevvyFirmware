@@ -195,7 +195,8 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
         uint8_t size = 9u;
         if (driveRequest.type == MotorPort_DriveRequest_Position)
         {
-            status[9] = abs(pos - driveRequest.v.position) < 10;
+            int32_t diff = pos - driveRequest.v.position;
+            status[9] = -10 < diff && diff < 10;
             size = 10u;
         }
 
@@ -334,7 +335,7 @@ MotorLibraryStatus_t DcMotor_UpdateConfiguration(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-static void write(uint8_t* dst, uint8_t* src, uint8_t size, uint8_t* idx)
+static void write(uint8_t* dst, void* src, uint8_t size, uint8_t* idx)
 {
     memcpy(&dst[*idx], src, size);
     *idx += size;
@@ -359,7 +360,9 @@ MotorLibraryStatus_t DcMotor_GetStatus(MotorPort_t* motorPort, uint8_t* data, ui
 
     if (driveRequest.type == MotorPort_DriveRequest_Position)
     {
-        bool pos_reached = abs(pos - driveRequest.v.position) < 10;
+        int32_t diff = pos - driveRequest.v.position;
+        bool pos_reached = -10 < diff && diff < 10;
+        
         write(data, &pos_reached, sizeof(bool), dataSize);
     }
 
