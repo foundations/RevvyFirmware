@@ -984,6 +984,8 @@ void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSi
 void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotDataSize)
 {
     portENTER_CRITICAL();
+    ASSERT(slot < ARRAY_SIZE(status_changed));
+
     *slotDataSize = 0u;
 
     if (status_changed[slot])
@@ -1029,6 +1031,8 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
 void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
 {
     portENTER_CRITICAL();
+    ASSERT(slot < ARRAY_SIZE(status_changed));
+
     status_changed[slot] = false;
     portEXIT_CRITICAL();
 }
