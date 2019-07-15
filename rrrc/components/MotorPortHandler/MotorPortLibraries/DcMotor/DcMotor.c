@@ -192,12 +192,14 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
         memcpy(&status[1], &pos, sizeof(int32_t));
         memcpy(&status[5], &si_speed, sizeof(float));
 
+        uint8_t size = 9u;
         if (driveRequest.type == MotorPort_DriveRequest_Position)
         {
             status[9] = abs(pos - driveRequest.v.position) < 10;
+            size = 10u;
         }
 
-        MotorPort_Write_PortState(motorPort->port_idx, status, sizeof(status));
+        MotorPort_Write_PortState(motorPort->port_idx, status, size);
     }
 
     return MotorLibraryStatus_Ok;

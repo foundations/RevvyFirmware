@@ -249,13 +249,17 @@ void MotorPortHandler_Run_Update(void)
         const MotorLibrary_t* requestedLibrary = configuredPort->requestedLibrary;
         if (requestedLibrary != configuredPort->library)
         {
+            /* configuredPort set by SetPortType */
             configuredPort->library->DeInit(configuredPort);
             configuredPort->library = requestedLibrary;
             configuredPort->library->Init(configuredPort);
         }
-
-        configuredPort->library->UpdateConfiguration(configuredPort);
-
+        else
+        {
+            /* configuredPort set by SetPortConfig */
+            configuredPort->library->UpdateConfiguration(configuredPort);
+        }
+        
         configuredPort = NULL;
     }
 }
