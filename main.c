@@ -18,8 +18,8 @@ int main(void)
 void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
 {
     /* These are volatile to try and prevent the compiler/linker optimising them
-    away as the variables never actually get used.  If the debugger won't show the
-    values of the variables, make them global my moving their declaration outside
+    away as the variables never actually get used. If the debugger won't show the
+    values of the variables, make them global by moving their declaration outside
     of this function. */
     volatile uint32_t r0;
     volatile uint32_t r1;
@@ -39,6 +39,16 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
     lr = pulFaultStackAddress[ 5 ];
     pc = pulFaultStackAddress[ 6 ];
     psr = pulFaultStackAddress[ 7 ];
+    
+    /* suppress warnings */
+    (void) r0;
+    (void) r1;
+    (void) r2;
+    (void) r3;
+    (void) r12;
+    (void) lr;
+    (void) pc;
+    (void) psr;
 
     /* When the following line is hit, the variables contain the register values. */
     __BKPT(1);
@@ -66,31 +76,31 @@ void HardFault_Handler( void )
         " handler2_address_const: .word prvGetRegistersFromStack    \n"
     );
 }
-void MemManage_Handler       ( void )
+void MemManage_Handler( void )
 {
     while (1) {
         __BKPT(1);
     }
 }
-void BusFault_Handler        ( void )
+void BusFault_Handler( void )
 {
     while (1) {
         __BKPT(1);
     }
 }
-void UsageFault_Handler ( void )
+void UsageFault_Handler( void )
 {
     while (1) {
         __BKPT(1);
     }
 }
-void SVC_Handler ( void )
+void SVC_Handler( void )
 {
     while (1) {
         __BKPT(1);
     }
 }
-void DebugMon_Handler ( void )
+void DebugMon_Handler( void )
 {
     while (1) {
         __BKPT(1);
