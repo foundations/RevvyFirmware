@@ -504,7 +504,6 @@ void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, ui
     {
         if (mainBatteryPercentage != percent)
         {
-            status_changed[11u] = true;
             mainBatteryPercentage = percent;
         }
     }
@@ -512,7 +511,6 @@ void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, ui
     {
         if (motorBatteryPercentage != percent)
         {
-            status_changed[11u] = true;
             motorBatteryPercentage = percent;
         }
     }
@@ -520,6 +518,7 @@ void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, ui
     {
         ASSERT(0);
     }
+    status_changed[10u] = true;
 }
 
 void BatteryCalculator_Write_BatteryPresent(BatteryCalculator_Context_t* context, bool present)
@@ -946,7 +945,8 @@ void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSiz
     portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_MOTOR_STATUS_SIZE);
 
-    bool changed = false;
+    bool changed = motor_status[port_idx][0] != dataSize;
+    motor_status[port_idx][0] = dataSize;
     for (uint8_t i = 0u; i < dataSize; i++)
     {
         if (motor_status[port_idx][i + 1u] != pData[i])
@@ -956,7 +956,8 @@ void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSiz
         }
     }
 
-    status_changed[port_idx] = changed;
+    uint8_t slot = port_idx;
+    status_changed[slot] = changed;
 
     portEXIT_CRITICAL();
 }
@@ -967,6 +968,7 @@ void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSi
     ASSERT(dataSize <= MAX_SENSOR_STATUS_SIZE);
 
     bool changed = dataSize != sensor_status[port_idx][0];
+    sensor_status[port_idx][0] = dataSize;
     for (uint8_t i = 0u; i < dataSize; i++)
     {
         if (sensor_status[port_idx][i + 1u] != pData[i])
@@ -975,8 +977,9 @@ void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSi
             changed = true;
         }
     }
-
-    status_changed[6u + port_idx] = changed;
+    
+    uint8_t slot = port_idx + 6u;
+    status_changed[slot] = changed;
 
     portEXIT_CRITICAL();
 }
@@ -1008,7 +1011,7 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
                 memcpy(pData, &sensor_status[sensor_idx][1], sensor_status[sensor_idx][0]);
             }
         }
-        else if (slot == 11u)
+        else if (slot == 10u)
         {
             /* battery */
             if (bufferSize >= 4u)

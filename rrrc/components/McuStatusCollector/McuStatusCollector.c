@@ -25,7 +25,7 @@ static bool _read_slot(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t
 
     if (size != 0u) /* < does this slot have any new data? */
     {
-        if (2u + size < bufferSize) /* < enough space for slot data? */
+        if (2u + size <= bufferSize) /* < enough space for slot data? */
         {
             McuStatusCollector_Call_ClearSlotData(slot);
 
