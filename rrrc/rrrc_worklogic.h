@@ -38,6 +38,7 @@ extern "C" {
 #include "components/Drivetrain/Drivetrain.h"
 #include "components/McuStatusCollector/McuStatusCollector.h"
 #include "components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.h"
+#include "components/RestartManager/RestartManager.h"
 
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);

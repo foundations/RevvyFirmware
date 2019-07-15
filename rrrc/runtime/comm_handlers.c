@@ -10,8 +10,6 @@
 /* These constants are common between bootloader and application */
 #define OPERATION_MODE_BOOTLOADER   ((uint8_t) 0xBBu)
 #define OPERATION_MODE_APPLICATION  ((uint8_t) 0xAAu)
-
-static const void * s_rtc_module = (const void *) RTC;
  
 static Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 static Comm_Status_t GetOperationMode_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
@@ -75,15 +73,7 @@ static Comm_Status_t GetOperationMode_Start(const uint8_t* commandPayload, uint8
 
 static Comm_Status_t RebootToBootloader_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
-    hri_rtcmode0_set_CTRLB_GP0EN_bit(s_rtc_module);
-    hri_rtcmode0_set_CTRLB_GP2EN_bit(s_rtc_module);
-
-    hri_rtc_write_GP_reg(s_rtc_module, 0u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
-    hri_rtc_write_GP_reg(s_rtc_module, 1u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
-    hri_rtc_write_GP_reg(s_rtc_module, 2u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
-    hri_rtc_write_GP_reg(s_rtc_module, 3u, (hri_rtc_gp_reg_t) 0xFFFFFFFFu);
-    
-    NVIC_SystemReset();
+    RestartManager_Run_RebootToBootloader();
 
     /* will not be reached, device will NACK after this point */
     return Comm_Status_Ok;

@@ -1234,6 +1234,12 @@
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\MotorPortLibrary.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\RestartManager\RestartManager.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\RestartManager\RestartManager.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandlerInternal.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1534,6 +1540,7 @@
     <Folder Include="rrrc\components\Drivetrain" />
     <Folder Include="rrrc\components\McuStatusCollector" />
     <Folder Include="rrrc\components\McuStatusCollectorWrapper" />
+    <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\" />
