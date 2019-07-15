@@ -1183,6 +1183,9 @@
     <Compile Include="rrrc\components\Drivetrain\Drivetrain.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\McuStatusCollectorWrapper\McuStatusCollectorWrapper.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\McuStatusCollectorWrapper\McuStatusCollectorWrapper.h">
       <SubType>compile</SubType>
     </Compile>

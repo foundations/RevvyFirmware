@@ -36,6 +36,8 @@ extern "C" {
 #include "components/MemoryAllocator/MemoryAllocator.h"
 #include "components/MotorDriver_TB661FNG/MotorDriver_TB661FNG.h"
 #include "components/Drivetrain/Drivetrain.h"
+#include "components/McuStatusCollector/McuStatusCollector.h"
+#include "components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.h"
 
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);
