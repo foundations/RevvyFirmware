@@ -115,8 +115,8 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             libdata->isMeasuring = false;
             update_filtered_distance(libdata);
             
-            uint16_t cm = (uint16_t) _get_cm(libdata->filtered_distance_tick);
-            SensorPort_Write_PortState(sensorPort->port_idx, &cm, sizeof(cm));
+            uint32_t cm = (uint32_t) _get_cm(libdata->filtered_distance_tick);
+            SensorPort_Write_PortState(sensorPort->port_idx, (uint8_t*) &cm, sizeof(cm));
         }
     }
     
