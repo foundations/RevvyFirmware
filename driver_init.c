@@ -231,16 +231,29 @@ void WDT_0_init(void)
 
 static void IT_init(void)
 {
-    // Set everything to 1, interrupts must not be at priority 0
+    /* Set everything to 3, interrupts that access FreeRTOS API must not be at priority 0 */
     for (uint8_t i = 0; i < 138; i++)
     {
         NVIC_SetPriority(i, 3);
     }
 
+    /* RPi I2C has highest possible prio
+    Datasheet: The integer number specified in the source refers to the respective bit position in the INTFLAG register of respective peripheral.
+
+    Sercom 2 interrupt mapping:
+    Source | Line | Bit
+        0  | 54   | PREC
+        1  | 55   | AMATCH
+        2  | 56   | DRDY
+        3  | 57   | -
+        4  | 57   | -
+        5  | 57   | -
+        7  | 57   | Error
+    * only STOP (PREC) accesses FreeRTOS API, set others to 0 */
     NVIC_SetPriority(SERCOM2_0_IRQn, 1);
-    NVIC_SetPriority(SERCOM2_1_IRQn, 1);
-    NVIC_SetPriority(SERCOM2_2_IRQn, 1);
-    NVIC_SetPriority(SERCOM2_3_IRQn, 1);
+    NVIC_SetPriority(SERCOM2_1_IRQn, 0);
+    NVIC_SetPriority(SERCOM2_2_IRQn, 0);
+    NVIC_SetPriority(SERCOM2_3_IRQn, 0);
 }
 
 //*********************************************************************************************
