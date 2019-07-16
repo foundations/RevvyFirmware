@@ -23,6 +23,9 @@ typedef struct
     uint32_t distanceBufferWriteIdx;
 } SensorLibrary_HC_SR04_Data_t;
 
+static bool ultrasonic_used[] = {false, false, false, false};
+static uint8_t ultrasonic_active = 0u;
+
 static uint32_t _get_cm(uint32_t distance_tick)
 {
     uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
@@ -80,11 +83,15 @@ SensorLibraryStatus_t HC_SR04_Init(SensorPort_t* sensorPort)
     SensorPort_ConfigureGpio0_Output(sensorPort);
     SensorPort_ConfigureGpio1_Interrupt(sensorPort);
 
+    ultrasonic_used[sensorPort->port_idx] = true;
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t HC_SR04_DeInit(SensorPort_t* sensorPort)
 {
+    ultrasonic_used[sensorPort->port_idx] = false;
+
     SensorPort_SetVccIo(sensorPort, Sensor_VccIo_3V3);
     SensorPort_ConfigureGpio0_Input(sensorPort);
     SensorPort_ConfigureGpio1_Input(sensorPort);
@@ -101,15 +108,35 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
 
     if (!libdata->isMeasuring)
     {
-        SensorPort_SetGpio0_Output(sensorPort, true);
-        delay_us(30);
-        SensorPort_SetGpio0_Output(sensorPort, false);
+        /* make sure an active sensor is selected */
+        for (uint8_t i = 0u; i < sizeof(ultrasonic_used); i++)
+        {
+            if (!ultrasonic_used[ultrasonic_active])
+            {
+                /* current sensor is inactive, check the next */
+                ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
+            }
+            else
+            {
+                /* an active sensor is selected, stop searching */
+                break;
+            }
+        }
+        
+        /* if the current sensor is active, start measurement */
+        if (ultrasonic_active == sensorPort->port_idx)
+        {
+            SensorPort_SetGpio0_Output(sensorPort, true);
+            delay_us(30);
+            SensorPort_SetGpio0_Output(sensorPort, false);
 
-        libdata->finished = false;
-        libdata->isMeasuring = true;
+            libdata->finished = false;
+            libdata->isMeasuring = true;
+        }
     }
     else
     {
+        /* this sensor is currently measuring - check if it has finished */
         if (libdata->finished)
         {
             libdata->isMeasuring = false;
@@ -117,6 +144,9 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             
             uint32_t cm = (uint32_t) _get_cm(libdata->filtered_distance_tick);
             SensorPort_Write_PortState(sensorPort->port_idx, (uint8_t*) &cm, sizeof(cm));
+            
+            /* mark next sensor as active */
+            ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
         }
     }
     
