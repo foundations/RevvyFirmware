@@ -2013,10 +2013,7 @@ static void _sercom_i2c_s_irq_handler_1(struct _i2c_s_async_device *device)
     uint32_t flags = hri_sercomi2cs_read_INTFLAG_reg(hw);
 
     if (flags & SERCOM_I2CS_INTFLAG_AMATCH) {
-        if (device->cb.addrm_cb)
-        {
-            device->cb.addrm_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
-        }
+        device->cb.addrm_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
         hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
     } else {
         __BKPT(1);
@@ -2030,15 +2027,9 @@ static void _sercom_i2c_s_irq_handler_2(struct _i2c_s_async_device *device)
 
     if (flags & SERCOM_I2CS_INTFLAG_DRDY) {
         if (hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
-            if (device->cb.tx_cb)
-            {
-                device->cb.tx_cb(device);
-            }
+            device->cb.tx_cb(device);
         } else {
-            if (device->cb.rx_done_cb)
-            {
-                device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
-            }
+            device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
         }
     } else {
         __BKPT(1);
@@ -2052,10 +2043,7 @@ static void _sercom_i2c_s_irq_handler_3(struct _i2c_s_async_device *device)
 
     if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
         hri_sercomi2cs_clear_INTFLAG_ERROR_bit(hw);
-        if (device->cb.error_cb)
-        {
-            device->cb.error_cb(device);
-        }
+        device->cb.error_cb(device);
     } else {
         __BKPT(1);
     }
