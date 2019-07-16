@@ -1991,7 +1991,39 @@ int32_t _i2c_s_async_set_irq_state(struct _i2c_s_async_device *const device, con
  *
  * \param[in] p The pointer to i2c slave device
  */
-static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
+static void _sercom_i2c_s_irq_handler_0(struct _i2c_s_async_device *device)
+{
+    SercomI2cs* hw = device->hw;
+    uint32_t flags = hri_sercomi2cs_read_INTFLAG_reg(hw);
+
+    if (flags & SERCOM_I2CS_INTFLAG_PREC) {
+        if (device->cb.stop_cb)
+        {
+            device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
+        }
+        hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
+    } else {
+        __BKPT(1);
+    }
+}
+
+static void _sercom_i2c_s_irq_handler_1(struct _i2c_s_async_device *device)
+{
+    SercomI2cs* hw = device->hw;
+    uint32_t flags = hri_sercomi2cs_read_INTFLAG_reg(hw);
+
+    if (flags & SERCOM_I2CS_INTFLAG_AMATCH) {
+        if (device->cb.addrm_cb)
+        {
+            device->cb.addrm_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
+        }
+        hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
+    } else {
+        __BKPT(1);
+    }
+}
+
+static void _sercom_i2c_s_irq_handler_2(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
     uint32_t flags = hri_sercomi2cs_read_INTFLAG_reg(hw);
@@ -2008,32 +2040,25 @@ static void _sercom_i2c_s_irq_handler(struct _i2c_s_async_device *device)
                 device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
             }
         }
-    } else if (flags & SERCOM_I2CS_INTFLAG_AMATCH) {
-        if (device->cb.addrm_cb)
-        {
-            device->cb.addrm_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
-        }
-        hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
-    } else if (flags & SERCOM_I2CS_INTFLAG_PREC) {
-        if (device->cb.stop_cb)
-        {
-            device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
-        }
-        hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
-    } else if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
+    } else {
+        __BKPT(1);
+    }
+}
+
+static void _sercom_i2c_s_irq_handler_3(struct _i2c_s_async_device *device)
+{
+    SercomI2cs* hw = device->hw;
+    uint32_t flags = hri_sercomi2cs_read_INTFLAG_reg(hw);
+
+    if (flags & SERCOM_I2CS_INTFLAG_ERROR) {
         hri_sercomi2cs_clear_INTFLAG_ERROR_bit(hw);
         if (device->cb.error_cb)
         {
             device->cb.error_cb(device);
         }
-	} else {
-#if (CONF_MCLK_LPDIV) != (CONF_MCLK_CPUDIV)
-		/* Adding grace time while waiting for SCL line to be released */
-		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
-		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
-		hri_sercomi2cs_clear_STATUS_reg(hw, 0);
-#endif
-	}
+    } else {
+        __BKPT(1);
+    }
 }
 
 /**
@@ -2533,28 +2558,28 @@ void SERCOM1_3_Handler(void)
  */
 void SERCOM2_0_Handler(void)
 {
-	_sercom_i2c_s_irq_handler(_sercom2_dev);
+	_sercom_i2c_s_irq_handler_0(_sercom2_dev);
 }
 /**
  * \internal Sercom interrupt handler
  */
 void SERCOM2_1_Handler(void)
 {
-	_sercom_i2c_s_irq_handler(_sercom2_dev);
+	_sercom_i2c_s_irq_handler_1(_sercom2_dev);
 }
 /**
  * \internal Sercom interrupt handler
  */
 void SERCOM2_2_Handler(void)
 {
-	_sercom_i2c_s_irq_handler(_sercom2_dev);
+	_sercom_i2c_s_irq_handler_2(_sercom2_dev);
 }
 /**
  * \internal Sercom interrupt handler
  */
 void SERCOM2_3_Handler(void)
 {
-	_sercom_i2c_s_irq_handler(_sercom2_dev);
+	_sercom_i2c_s_irq_handler_3(_sercom2_dev);
 }
 
 /**

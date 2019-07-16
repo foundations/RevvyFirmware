@@ -241,14 +241,14 @@ static void IT_init(void)
     Datasheet: The integer number specified in the source refers to the respective bit position in the INTFLAG register of respective peripheral.
 
     Sercom 2 interrupt mapping:
-    Source | Line | Bit
-        0  | 54   | PREC
-        1  | 55   | AMATCH
-        2  | 56   | DRDY
-        3  | 57   | -
-        4  | 57   | -
-        5  | 57   | -
-        7  | 57   | Error
+    Source | Line | Bit (Slave) | Bit (Master)
+        0  | 54   | PREC        | MB
+        1  | 55   | AMATCH      | SB
+        2  | 56   | DRDY        | -
+        3  | 57   | -           | -
+        4  | 57   | -           | -
+        5  | 57   | -           | -
+        7  | 57   | Error       | ERROR
     * only STOP (PREC) accesses FreeRTOS API, set others to 0 */
     NVIC_SetPriority(SERCOM2_0_IRQn, 1);
     NVIC_SetPriority(SERCOM2_1_IRQn, 0);
