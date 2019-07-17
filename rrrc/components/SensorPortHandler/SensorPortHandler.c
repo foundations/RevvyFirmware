@@ -243,6 +243,7 @@ void SensorPortHandler_Run_Update(void)
             /* configuredPort set by SetPortType */
             configuredPort->library->DeInit(configuredPort);
             configuredPort->library = requestedLibrary;
+            SensorPort_Write_PortState(configuredPort->port_idx, NULL, 0u);
             configuredPort->library->Init(configuredPort);
         }
         else
