@@ -633,7 +633,6 @@ void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, 
         /* TODO: this is not the nicest solution */
         switch (buffer[1])
         {
-            case 0x00u: /* ping */
             case 0x04u:
             case 0x05u:
             case 0x12u:
@@ -645,6 +644,8 @@ void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, 
             case 0x23u:
             case 0x31u:
             case 0x33u:
+            case 0x3Au:
+            case 0x3Bu:
                 /* only enable for write commands */
                 masterBooted = true;
                 CommunicationObserver_Run_Enable();
