@@ -57,6 +57,12 @@ const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT] =
     [0x3Au] = { .Start = &McuStatusCollectorWrapper_Reset_Start, .GetResult = NULL, .Cancel = NULL },
     [0x3Bu] = { .Start = &McuStatusCollectorWrapper_ControlSlot_Start, .GetResult = NULL, .Cancel = NULL },
     [0x3Cu] = { .Start = &McuStatusCollectorWrapper_ReadStatus_Start, .GetResult = NULL, .Cancel = NULL },
+    
+    /* Error storage commands */
+    [0x3Du] = { .Start = &ErrorStorageWrapper_ReadCount_Start, .GetResult = NULL, .Cancel = NULL }, /* Read stored error count */
+    [0x3Eu] = { .Start = &ErrorStorageWrapper_ReadErrors_Start, .GetResult = NULL, .Cancel = NULL }, /* Read errors starting with the given index */
+    [0x3Fu] = { .Start = &ErrorStorageWrapper_ClearMemory_Start, .GetResult = NULL, .Cancel = NULL }, /* Clear error memory */
+    [0x40u] = { .Start = &ErrorStorageWrapper_StoreTestError_Start, .GetResult = NULL, .Cancel = NULL}, /* Record a test error */
 };
 
 static Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)

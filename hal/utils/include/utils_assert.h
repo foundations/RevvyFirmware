@@ -41,7 +41,7 @@ extern "C" {
 #include <compiler.h>
 
 #ifndef USE_SIMPLE_ASSERT
-//# define USE_SIMPLE_ASSERT
+#define USE_SIMPLE_ASSERT
 #endif
 
 /**
@@ -55,14 +55,17 @@ extern "C" {
  */
 #define ASSERT(condition) ASSERT_IMPL((condition), __FILE__, __LINE__)
 
-#ifdef DEBUG
+extern void assert_failed(const char *file, uint32_t line);
 
+#ifdef DEBUG
 #ifdef USE_SIMPLE_ASSERT
 #define ASSERT_IMPL(condition, file, line)                                                                             \
 	if (!(condition))                                                                                                  \
 		__asm("BKPT #0");
 #else
-#define ASSERT_IMPL(condition, file, line) assert((condition), file, line)
+#define ASSERT_IMPL(condition, file, line)                                                                             \
+	if (!(condition))                                                                                                  \
+        assert_failed(file, line)
 #endif
 
 #else /* DEBUG */
@@ -74,18 +77,6 @@ extern "C" {
 #endif
 
 #endif /* DEBUG */
-
-/**
- * \brief Assert function
- *
- * This function is used to throw asserts.
- *
- * \param[in] condition A condition to be checked; assert is thrown if the given
- *                      condition is false
- * \param[in] file File name
- * \param[in] line Line number
- */
-void assert(const bool condition, const char *const file, const int line);
 
 #ifdef __cplusplus
 }

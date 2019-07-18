@@ -568,6 +568,9 @@
     <Compile Include="Config\hpl_mclk_config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Config\hpl_nvmctrl_config.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Config\hpl_osc32kctrl_config.h">
       <SubType>compile</SubType>
     </Compile>
@@ -637,6 +640,9 @@
     <Compile Include="hal\include\hal_ext_irq.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\include\hal_flash.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\include\hal_gpio.h">
       <SubType>compile</SubType>
     </Compile>
@@ -701,6 +707,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_ext_irq.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\include\hpl_flash.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_gpio.h">
@@ -790,6 +799,9 @@
     <Compile Include="hal\include\hpl_usb_host.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\include\hpl_user_area.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\include\hpl_wdt.h">
       <SubType>compile</SubType>
     </Compile>
@@ -812,6 +824,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_ext_irq.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\src\hal_flash.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_gpio.c">
@@ -938,6 +953,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\mclk\hpl_mclk.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hpl\nvmctrl\hpl_nvmctrl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\osc32kctrl\hpl_osc32kctrl.c">
@@ -1181,6 +1199,18 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\Drivetrain\Drivetrain.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\ErrorStorageWrapper\ErrorStorageWrapper.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\ErrorStorageWrapper\ErrorStorageWrapper.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\ErrorStorage\ErrorStorage.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\ErrorStorage\ErrorStorage.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\McuStatusCollectorWrapper\McuStatusCollectorWrapper.c">
@@ -1505,6 +1535,7 @@
     <Folder Include="hpl\gclk\" />
     <Folder Include="hpl\mclk\" />
     <Folder Include="hpl\evsys" />
+    <Folder Include="hpl\nvmctrl" />
     <Folder Include="hpl\osc32kctrl\" />
     <Folder Include="hpl\oscctrl\" />
     <Folder Include="hpl\pm\" />
@@ -1540,6 +1571,8 @@
     <Folder Include="rrrc\components\Drivetrain" />
     <Folder Include="rrrc\components\McuStatusCollector" />
     <Folder Include="rrrc\components\McuStatusCollectorWrapper" />
+    <Folder Include="rrrc\components\ErrorStorage" />
+    <Folder Include="rrrc\components\ErrorStorageWrapper" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />

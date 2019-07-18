@@ -2,16 +2,44 @@
 #include "rrrc_hal.h"
 #include "rrrc_worklogic.h"
 
+#include <string.h>
+
 int main(void)
 {
     system_init();
 
     if (ERR_NONE == RRRC_Init())
-        vTaskStartScheduler(); //main loop
-
-    while (1) {
-        __BKPT(1);
+    {
+        vTaskStartScheduler();
     }
+
+    configASSERT(0);
+}
+
+void assert_failed(const char *file, uint32_t line)
+{
+    ErrorInfo_t data = {
+        .error_id = ERROR_ID_ASSERTION_FAILURE,
+        .data = {0}
+    };
+
+    memcpy(&data.data[0], &line, sizeof(uint32_t));
+    /* save as much from the end of the filename as possible */
+    size_t len = strlen(file);
+    size_t available = sizeof(data.data) - sizeof(uint32_t);
+    if (len > available)
+    {
+        size_t start_idx = len - available;
+        strncpy((char*) &data.data[4], &file[start_idx], available);
+    }
+    else
+    {
+        strncpy((char*) &data.data[4], file, available);
+    }
+    ErrorStorage_Run_Store(&data);
+
+    __BKPT(1);
+    while(1);
 }
 
 /* Cortex-M4 core handlers */
@@ -26,9 +54,9 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
     volatile uint32_t r2;
     volatile uint32_t r3;
     volatile uint32_t r12;
-    volatile uint32_t lr; /* Link register. */
-    volatile uint32_t pc; /* Program counter. */
-    volatile uint32_t psr;/* Program status register. */
+    uint32_t lr; /* Link register. */
+    uint32_t pc; /* Program counter. */
+    uint32_t psr;/* Program status register. */
 
     r0 = pulFaultStackAddress[ 0 ];
     r1 = pulFaultStackAddress[ 1 ];
@@ -46,9 +74,15 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
     (void) r2;
     (void) r3;
     (void) r12;
-    (void) lr;
-    (void) pc;
-    (void) psr;
+    
+    /* log the most important registers */
+    ErrorInfo_t data = {
+        .error_id = ERROR_ID_HARD_FAULT
+    };
+    memcpy(&data.data[0], &pc, sizeof(uint32_t));
+    memcpy(&data.data[4], &psr, sizeof(uint32_t));
+    memcpy(&data.data[8], &lr, sizeof(uint32_t));
+    ErrorStorage_Run_Store(&data);
 
     /* When the following line is hit, the variables contain the register values. */
     __BKPT(1);
@@ -109,6 +143,13 @@ void DebugMon_Handler( void )
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
+    ErrorInfo_t data = {
+        .error_id = ERROR_ID_STACK_OVERFLOW,
+        .data = {0}
+    };
+    strncpy((char*) &data.data[0], pcTaskName, sizeof(data.data));
+    ErrorStorage_Run_Store(&data);
+
     while (1) {
         __BKPT(1);
     }

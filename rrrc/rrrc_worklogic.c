@@ -14,6 +14,12 @@
 #include <math.h>
 #include <string.h>
 
+/* TODO */
+static BlockInfo_t errorStorageBlocks[] = {
+    { .base_address = 0x3C000u },
+    { .base_address = 0x3E000u },
+};
+
 static TaskHandle_t xRRRC_Main_xTask;
 
 static BatteryCalculator_Context_t mainBattery;
@@ -297,6 +303,8 @@ static void ProcessTasks_100ms(void)
 //*********************************************************************************************
 void RRRC_ProcessLogic_xTask(void* user)
 {
+    ErrorStorage_Run_OnInit(&errorStorageBlocks[0], ARRAY_SIZE(errorStorageBlocks));
+
 #ifndef DEBUG
     {
         const uint32_t compatible_hw[] = { COMPATIBLE_HW_VERSIONS };
@@ -1053,4 +1061,32 @@ void McuStatusCollectorWrapper_Run_DisableSlot(uint8_t slot)
 void McuStatusCollectorWrapper_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
 {
     McuStatusCollector_Run_ReadData(pData, bufferSize, dataSize);
+}
+
+bool ErrorStorageWrapper_Call_Read(uint32_t index, ErrorInfo_t* pDst)
+{
+    __disable_irq();
+    bool found = ErrorStorage_Run_Read(index, pDst);
+    __enable_irq();
+
+    return found;
+}
+
+void ErrorStorageWrapper_Call_ClearMemory(void)
+{
+    __disable_irq();
+    ErrorStorage_Run_Clear();
+    __enable_irq();
+}
+
+static uint32_t number_of_errors = 0u;
+
+void ErrorStorage_Write_NumberOfStoredErrors(uint32_t number)
+{
+    number_of_errors = number;
+}
+
+uint32_t ErrorStorageWrapper_Read_NumberOfStoredErrors(void)
+{
+    return number_of_errors;
 }

@@ -15,6 +15,14 @@ extern "C" {
 
 #include <stdint.h>
 
+#define ERROR_ID_HARD_FAULT        (0u)
+#define ERROR_ID_STACK_OVERFLOW    (1u)
+#define ERROR_ID_ASSERTION_FAILURE (2u)
+#define ERROR_ID_TEST_ERROR        (3u)
+
+#include "components/ErrorStorage/ErrorStorage.h"
+#include "components/ErrorStorageWrapper/ErrorStorageWrapper.h"
+
 #include "components/ADC/adc.h"
 #include "components/BatteryCharger/BatteryCharger.h"
 #include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
@@ -43,7 +51,7 @@ extern "C" {
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);
 
-#define COMM_HANDLER_COUNT  ((uint8_t) 0x3Du)
+#define COMM_HANDLER_COUNT  ((uint8_t) 0x41u)
 const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT];
 
 #ifdef __cplusplus
