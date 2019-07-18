@@ -13,9 +13,9 @@
 
 typedef struct
 {
-    uint8_t R:5;
-    uint8_t G:6;
-    uint8_t B:5;
+    uint16_t R:5;
+    uint16_t G:6;
+    uint16_t B:5;
 } __attribute__((packed)) rgb565_t;
 _Static_assert(sizeof(rgb565_t) == 2, "Size of rgb565_t should be 2 bytes");
 
