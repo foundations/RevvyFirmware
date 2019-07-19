@@ -9,7 +9,7 @@
 
 void SensorPort_SetGreenLed(SensorPort_t* port, bool state)
 {
-    gpio_set_pin_level(port->led0, state);
+    gpio_set_pin_level(port->led0, !state);
 }
 
 void SensorPort_ToggleGreenLed(SensorPort_t* port)
@@ -19,7 +19,7 @@ void SensorPort_ToggleGreenLed(SensorPort_t* port)
 
 void SensorPort_SetOrangeLed(SensorPort_t* port, bool state)
 {
-    gpio_set_pin_level(port->led1, state);
+    gpio_set_pin_level(port->led1, !state);
 }
 
 void SensorPort_ToggleOrangeLed(SensorPort_t* port)
