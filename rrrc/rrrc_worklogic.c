@@ -299,7 +299,6 @@ void RRRC_ProcessLogic_xTask(void* user)
 {
     ErrorStorage_Run_OnInit(&errorStorageBlocks[0], ARRAY_SIZE(errorStorageBlocks));
 
-#ifndef DEBUG
     {
         const uint32_t compatible_hw[] = { COMPATIBLE_HW_VERSIONS };
         const uint32_t hw = FLASH_HEADER->hw_version;
@@ -318,7 +317,6 @@ void RRRC_ProcessLogic_xTask(void* user)
             RestartManager_Run_RebootToBootloader();
         }
     }
-#endif
 
     ADC_Run_OnInit();
     BatteryCharger_Run_OnInit();
