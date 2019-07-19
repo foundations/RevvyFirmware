@@ -86,7 +86,7 @@ static void _delete_object(BlockInfo_t* block, uint8_t idx)
 
     FlashData_t* ptr = _get_object(block, idx);
 
-    if (ptr->status.deleted == 1u)
+    if (ptr->status.allocated == 0u && ptr->status.deleted == 1u)
     {
         /* set the deleted bit on a copy */
         FlashData_t data = *ptr;
@@ -165,6 +165,8 @@ static void _cleanup_invalid_and_full_blocks(void)
 {
     for (size_t i = 0u; i < esBlockCount; i++)
     {
+        esBlocks[i].allocated = 0u;
+        esBlocks[i].deleted = 0u;
         const FlashHeader_t* header = _block_header(&esBlocks[i]);
         
         if (header->layout_version != 0xFFu)
@@ -197,6 +199,11 @@ static void _cleanup_invalid_and_full_blocks(void)
                     /* track objects mark for deletion */
                     if (obj.status.deleted == 0u)
                     {
+                        if (obj.status.allocated == 1u)
+                        {
+                            /* this is an invalid block */
+                            esBlocks[i].allocated++;
+                        }
                         esBlocks[i].deleted++;
                     }
                 }
