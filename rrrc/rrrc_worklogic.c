@@ -42,8 +42,7 @@ static MotorPort_t motorPorts[] =
 {
     {
         .port_idx = 0u,
-        .led0 = M3LED0,
-        .led1 = M3LED1,
+        .led = M3LED0,
         .enc0 = M4ENC0,
         .enc1 = M4ENC1,
         .enc0_timer = &TIMER_TC5,
@@ -53,8 +52,7 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 1u,
-        .led0 = M4LED0,
-        .led1 = M4LED1,
+        .led = M4LED0,
         .enc0 = M5ENC0,
         .enc1 = M5ENC1,
         .enc0_timer = &TIMER_TC1,
@@ -64,8 +62,7 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 2u,
-        .led0 = M5LED0,
-        .led1 = M5LED1,
+        .led = M5LED0,
         .enc0 = M6ENC0,
         .enc1 = M6ENC1,
         .enc0_timer = &TIMER_TC4,
@@ -75,8 +72,7 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 3u,
-        .led0 = M2LED0,
-        .led1 = M2LED1,
+        .led = M2LED0,
         .enc0 = M3ENC0,
         .enc1 = M3ENC1,
         .enc0_timer = &TIMER_TC3,
@@ -86,8 +82,7 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 4u,
-        .led0 = M1LED0,
-        .led1 = M1LED1,
+        .led = M1LED0,
         .enc0 = M2ENC0,
         .enc1 = M2ENC1,
         .enc0_timer = &TIMER_TC6,
@@ -97,8 +92,7 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 5u,
-        .led0 = M0LED0,
-        .led1 = M0LED1,
+        .led = M0LED0,
         .enc0 = M1ENC0,
         .enc1 = M1ENC1,
         .enc0_timer = &TIMER_TC0,

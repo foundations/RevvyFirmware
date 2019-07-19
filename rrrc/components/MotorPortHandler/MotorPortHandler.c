@@ -29,15 +29,10 @@ static void MotorPort_gpio1_ext_cb(uint32_t data, void* port);
 static void _init_port(MotorPort_t* port)
 {
     /* init led pins */
-    gpio_set_pin_pull_mode(port->led0, GPIO_PULL_UP);
-    gpio_set_pin_function(port->led0, GPIO_PIN_FUNCTION_OFF);
-    gpio_set_pin_direction(port->led0, GPIO_DIRECTION_OUT);
-    gpio_set_pin_level(port->led0, false);
-
-    gpio_set_pin_pull_mode(port->led1, GPIO_PULL_UP);
-    gpio_set_pin_function(port->led1, GPIO_PIN_FUNCTION_OFF);
-    gpio_set_pin_direction(port->led1, GPIO_DIRECTION_OUT);
-    gpio_set_pin_level(port->led1, false);
+    gpio_set_pin_pull_mode(port->led, GPIO_PULL_UP);
+    gpio_set_pin_function(port->led, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(port->led, GPIO_DIRECTION_OUT);
+    gpio_set_pin_level(port->led, false);
 
     /* encoders */
     gpio_set_pin_direction(port->enc0, GPIO_DIRECTION_IN);

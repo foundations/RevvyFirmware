@@ -47,8 +47,7 @@ typedef struct _MotorPort_t
 
     uint8_t port_idx;
 
-    uint8_t led0;
-    uint8_t led1;
+    uint8_t led;
 
     uint8_t enc0;
     uint8_t enc1;

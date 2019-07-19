@@ -8,7 +8,7 @@
 
 void MotorPort_SetGreenLed(MotorPort_t* port, bool state)
 {
-    gpio_set_pin_level(port->led0, state);
+    gpio_set_pin_level(port->led, state);
 }
 
 void MotorPort_SetDriveValue(struct _MotorPort_t* port, int8_t value)
