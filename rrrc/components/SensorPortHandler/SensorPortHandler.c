@@ -44,12 +44,12 @@ static void _init_port(SensorPort_t* port)
     gpio_set_pin_pull_mode(port->led0, GPIO_PULL_UP);
     gpio_set_pin_function(port->led0, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(port->led0, GPIO_DIRECTION_OUT);
-    gpio_set_pin_level(port->led0, false);
+    SensorPort_SetGreenLed(port, false);
 
     gpio_set_pin_pull_mode(port->led1, GPIO_PULL_UP);
     gpio_set_pin_function(port->led1, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(port->led1, GPIO_DIRECTION_OUT);
-    gpio_set_pin_level(port->led1, false);
+    SensorPort_SetOrangeLed(port, false);
 
     /* init vccio pin */
     gpio_set_pin_pull_mode(port->vccio, GPIO_PULL_OFF);

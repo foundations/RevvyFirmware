@@ -32,7 +32,7 @@ static void _init_port(MotorPort_t* port)
     gpio_set_pin_pull_mode(port->led, GPIO_PULL_UP);
     gpio_set_pin_function(port->led, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(port->led, GPIO_DIRECTION_OUT);
-    gpio_set_pin_level(port->led, false);
+    MotorPort_SetGreenLed(port, false);
 
     /* encoders */
     gpio_set_pin_direction(port->enc0, GPIO_DIRECTION_IN);
