@@ -138,7 +138,7 @@ static int32_t adc_convert_channel(uint32_t adc_idx, uint32_t channel_idx)
 static void conversion_complete(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
 {
     /* we can assume that adc_idx and channel_idx are valid */
-    adc[adc_idx].samples[channel_idx] = adc_data;
+    ADC_Write_ChannelData(adc_idx, channel_idx, adc_data);
 
     if (channel_idx < adc[adc_idx].channelCount - 1u)
     {
@@ -216,8 +216,20 @@ void ADC_Run_Update(void)
     }
 }
 
-__WEAK void ADC_Write_RawSamples_ADC0(uint16_t smaples[4]) {}
-__WEAK void ADC_Write_RawSamples_ADC1(uint16_t smaples[5]) {}
+__attribute__((weak))
+void ADC_Write_ChannelData(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
+{
+    adc[adc_idx].samples[channel_idx] = adc_data;
+}
 
-__WEAK void ADC_Write_Samples_ADC0(float smaples[4]) {}
-__WEAK void ADC_Write_Samples_ADC1(float smaples[5]) {}
+__attribute__((weak))
+void ADC_Write_RawSamples_ADC0(uint16_t smaples[4]) {}
+
+__attribute__((weak))
+void ADC_Write_RawSamples_ADC1(uint16_t smaples[5]) {}
+
+__attribute__((weak))
+void ADC_Write_Samples_ADC0(float smaples[4]) {}
+
+__attribute__((weak))
+void ADC_Write_Samples_ADC1(float smaples[5]) {}
