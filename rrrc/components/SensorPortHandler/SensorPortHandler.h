@@ -32,8 +32,6 @@ typedef struct _SensorPort_t
     uint8_t gpio1;
     uint8_t vccio;
 
-    uint8_t adc;
-
     void* i2c_hw;
     struct i2c_m_async_desc i2c;
 } SensorPort_t;

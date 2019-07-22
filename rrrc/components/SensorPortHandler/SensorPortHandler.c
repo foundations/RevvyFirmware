@@ -261,7 +261,7 @@ void SensorPortHandler_Run_PortUpdate(uint8_t port_idx)
     ASSERT(port_idx < sensorPortCount);
 
     SensorPort_t* port = &sensorPorts[port_idx];
-    port->library->UpdateAnalogData(port, SensorPortHandler_Read_AdcData(port->adc));
+    port->library->UpdateAnalogData(port, SensorPortHandler_Read_AdcData(port->port_idx));
     port->library->Update(port);
 }
 

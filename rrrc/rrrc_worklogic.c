@@ -111,7 +111,6 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S0GPIO0,
         .gpio1 = S0GPIO1,
         .vccio = S0IOVCC,
-        .adc = 3,
         .i2c_hw = I2C4_SERCOM
     },
     {
@@ -121,7 +120,6 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S1GPIO0,
         .gpio1 = S1GPIO1,
         .vccio = S1IOVCC,
-        .adc = 0,
         .i2c_hw = I2C1_SERCOM
     },
     {
@@ -131,7 +129,6 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S2GPIO0,
         .gpio1 = S2GPIO1,
         .vccio = S2IOVCC,
-        .adc = 1,
         .i2c_hw = I2C2_SERCOM
     },
     {
@@ -141,7 +138,6 @@ static SensorPort_t sensorPorts[] =
         .gpio0 = S3GPIO0,
         .gpio1 = S3GPIO1,
         .vccio = S3IOVCC,
-        .adc = 2,
         .i2c_hw = I2C3_SERCOM
     }
 };
