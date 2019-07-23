@@ -205,6 +205,12 @@
 #define M0_ISEN_CH          6
 #define M0_ENC_A            PB25
 #define M0_ENC_B            PB24
+#define M0_PWM0_PIN         PA04
+#define M0_PWM0_TIMER       0
+#define M0_PWM0_CH          0
+#define M0_PWM1_PIN         PA05
+#define M0_PWM1_TIMER       0
+#define M0_PWM1_CH          1
 
 /* Motor port 1 */
 #define M1_GREEN_LED        PC24
@@ -215,6 +221,12 @@
 #define M1_ISEN_CH          15
 #define M1_ENC_A            PB27
 #define M1_ENC_B            PA20
+#define M1_PWM0_PIN         PB08
+#define M1_PWM0_TIMER       4
+#define M1_PWM0_CH          0
+#define M1_PWM1_PIN         PB09
+#define M1_PWM1_TIMER       4
+#define M1_PWM1_CH          1
 
 /* Motor port 2 */
 #define M2_GREEN_LED        PC26
@@ -225,6 +237,12 @@
 #define M2_ISEN_CH          10
 #define M2_ENC_A            PA02
 #define M2_ENC_B            PA21
+#define M2_PWM0_PIN         PA00
+#define M2_PWM0_TIMER       2
+#define M2_PWM0_CH          0
+#define M2_PWM1_PIN         PA01
+#define M2_PWM1_TIMER       2
+#define M2_PWM1_CH          1
 
 /* Motor port 3 */
 #define M3_GREEN_LED        PC12
@@ -235,6 +253,12 @@
 #define M3_ISEN_CH          11
 #define M3_ENC_A            PB17
 #define M3_ENC_B            PB07
+#define M3_PWM0_PIN         PA06
+#define M3_PWM0_TIMER       1
+#define M3_PWM0_CH          0
+#define M3_PWM1_PIN         PA07
+#define M3_PWM1_TIMER       1
+#define M3_PWM1_CH          1
 
 /* Motor port 4 */
 #define M4_GREEN_LED        PD12
@@ -245,6 +269,12 @@
 #define M4_ISEN_CH          10
 #define M4_ENC_A            PB15
 #define M4_ENC_B            PC10
+#define M4_PWM0_PIN         PB10
+#define M4_PWM0_TIMER       5
+#define M4_PWM0_CH          0
+#define M4_PWM1_PIN         PB11
+#define M4_PWM1_TIMER       5
+#define M4_PWM1_CH          1
 
 /* Motor port 5 */
 #define M5_GREEN_LED        PC14
@@ -255,6 +285,12 @@
 #define M5_ISEN_CH          4
 #define M5_ENC_A            PB16
 #define M5_ENC_B            PB14
+#define M5_PWM0_PIN         PA14
+#define M5_PWM0_TIMER       3
+#define M5_PWM0_CH          0
+#define M5_PWM1_PIN         PA15
+#define M5_PWM1_TIMER       3
+#define M5_PWM1_CH          1
 
 /* Motor drivers */
 #define MOTOR_DRIVER_0_YELLOW   PB23
@@ -268,8 +304,6 @@
 #define MOTOR_DRIVER_2_YELLOW   PC13
 #define MOTOR_DRIVER_2_EN       PA18
 #define MOTOR_DRIVER_2_FAULT    PB13
-
-#define EN_PWR_MOTOR        PC28
 
 /* ========== Sensor ports ========== */
 /* Sensor port 0 */

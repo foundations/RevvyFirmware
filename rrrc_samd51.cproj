@@ -1232,6 +1232,12 @@
     <Compile Include="rrrc\components\MemoryAllocator\MemoryAllocator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MotorDriver_8833\MotorDriver_8833.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorDriver_8833\MotorDriver_8833.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortHandler.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1552,6 +1558,7 @@
     <Folder Include="rrrc\components\McuStatusCollectorWrapper" />
     <Folder Include="rrrc\components\ErrorStorage" />
     <Folder Include="rrrc\components\ErrorStorageWrapper" />
+    <Folder Include="rrrc\components\MotorDriver_8833" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
