@@ -13,6 +13,9 @@
 #include "MotorPortLibraries/Dummy/Dummy.h"
 #include "MotorPortLibraries/DcMotor/DcMotor.h"
 
+#include <hal_gpio.h>
+#include <hal_ext_irq.h>
+
 static const MotorLibrary_t* libraries[] = 
 {
     &motor_library_dummy,
@@ -23,8 +26,8 @@ static size_t motorPortCount = 0u;
 static MotorPort_t* motorPorts = NULL;
 static MotorPort_t* configuredPort = NULL;
 
-static void MotorPort_gpio0_ext_cb(uint32_t data, void* port);
-static void MotorPort_gpio1_ext_cb(uint32_t data, void* port);
+static void MotorPort_gpio0_ext_cb(void* port);
+static void MotorPort_gpio1_ext_cb(void* port);
 
 static void _init_port(MotorPort_t* port)
 {
@@ -36,30 +39,29 @@ static void _init_port(MotorPort_t* port)
 
     /* encoders */
     gpio_set_pin_direction(port->enc0, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(port->enc0, GPIO_PIN_FUNCTION_E);
-    gpio_set_pin_pull_mode(port->enc0, GPIO_PULL_UP);
-    timer_register_cb(port->enc0_timer, port->enc0_timer_event, &MotorPort_gpio0_ext_cb, port);
+    gpio_set_pin_function(port->enc0, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_pull_mode(port->enc0, GPIO_PULL_OFF);
+
+    ext_irq_register(port->enc0, &MotorPort_gpio0_ext_cb, port);
 
     gpio_set_pin_direction(port->enc1, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(port->enc1, GPIO_PIN_FUNCTION_E);
-    gpio_set_pin_pull_mode(port->enc1, GPIO_PULL_UP);
-    timer_register_cb(port->enc1_timer, port->enc1_timer_event, &MotorPort_gpio1_ext_cb, port);
+    gpio_set_pin_function(port->enc1, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_pull_mode(port->enc1, GPIO_PULL_OFF);
 
-    timer_start(port->enc0_timer);
-    timer_start(port->enc1_timer);
+    ext_irq_register(port->enc1, &MotorPort_gpio1_ext_cb, port);
 
     /* set dummy library */
     port->library = &motor_library_dummy;
 }
 
-static void MotorPort_gpio0_ext_cb(uint32_t data, void* port)
+static void MotorPort_gpio0_ext_cb(void* port)
 {
     (void) data;
     MotorPort_t* motorPort = (MotorPort_t*) port;
     motorPort->library->Gpio0Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
 }
 
-static void MotorPort_gpio1_ext_cb(uint32_t data, void* port)
+static void MotorPort_gpio1_ext_cb(void* port)
 {
     (void) data;
     MotorPort_t* motorPort = (MotorPort_t*) port;

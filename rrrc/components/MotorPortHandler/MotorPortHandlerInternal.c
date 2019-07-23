@@ -6,6 +6,8 @@
  */ 
 #include "MotorPortHandlerInternal.h"
 
+#include <hal_gpio.h>
+
 void MotorPort_SetGreenLed(MotorPort_t* port, bool state)
 {
     gpio_set_pin_level(port->led, !state);
