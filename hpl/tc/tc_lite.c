@@ -45,12 +45,15 @@ static inline int8_t TIMER_any_init(Tc* timer)
         hri_tc_write_CTRLA_reg(timer, TC_CTRLA_SWRST);
     }
     hri_tc_wait_for_sync(timer, TC_SYNCBUSY_SWRST);
-
+    
+    hri_tc_write_CTRLA_reg(timer, TC_CTRLA_MODE_COUNT8);
     hri_tc_write_CTRLB_reg(timer,
                            0 << TC_CTRLBSET_CMD_Pos
                                | 0 << TC_CTRLBSET_ONESHOT_Pos
                                | 0 << TC_CTRLBCLR_LUPD_Pos
                                | 0 << TC_CTRLBSET_DIR_Pos);
+
+    hri_tccount8_write_PER_reg(timer, 100);
 
     hri_tc_write_WAVE_reg(timer, 2);
     hri_tc_write_CTRLA_ENABLE_bit(timer, 1 << TC_CTRLA_ENABLE_Pos);

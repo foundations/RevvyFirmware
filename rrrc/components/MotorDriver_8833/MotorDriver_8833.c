@@ -98,26 +98,26 @@ static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Chann
         
         driver->speed_b = speed;
     }
-
-    hri_tcc_write_CC_reg(timers[timer0], ch0, pwm_0);
-    hri_tcc_wait_for_sync(timers[timer0], TCC_SYNCBUSY_CC(1 << ch0));
-    hri_tcc_write_CC_reg(timers[timer1], ch1, pwm_1);
-    hri_tcc_wait_for_sync(timers[timer1], TCC_SYNCBUSY_CC(1 << ch1));
+    
+    hri_tccount8_write_CC_reg(timers[timer0], ch0, pwm_0);
+    hri_tc_wait_for_sync(timers[timer0], TCC_SYNCBUSY_CC(1 << ch0));
+    hri_tccount8_write_CC_reg(timers[timer1], ch1, pwm_1);
+    hri_tc_wait_for_sync(timers[timer1], TCC_SYNCBUSY_CC(1 << ch1));
 }
 
 void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)
 {
-    gpio_set_pin_function(driver->pwm_a1, GPIO_PIN_FUNCTION_E);
     gpio_set_pin_direction(driver->pwm_a1, GPIO_DIRECTION_OFF);
+    gpio_set_pin_function(driver->pwm_a1, GPIO_PIN_FUNCTION_E);
     
-    gpio_set_pin_function(driver->pwm_a2, GPIO_PIN_FUNCTION_E);
     gpio_set_pin_direction(driver->pwm_a2, GPIO_DIRECTION_OFF);
-
+    gpio_set_pin_function(driver->pwm_a2, GPIO_PIN_FUNCTION_E);
+    
+    gpio_set_pin_direction(driver->pwm_b1, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(driver->pwm_b1, GPIO_PIN_FUNCTION_E);
-    gpio_set_pin_direction(driver->pwm_b1, GPIO_DIRECTION_OUT);
-
+    
+    gpio_set_pin_direction(driver->pwm_b2, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(driver->pwm_b2, GPIO_PIN_FUNCTION_E);
-    gpio_set_pin_direction(driver->pwm_b2, GPIO_DIRECTION_OUT);
 
     gpio_set_pin_function(driver->fault, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(driver->fault, GPIO_DIRECTION_IN);
@@ -127,6 +127,16 @@ void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)
     gpio_set_pin_direction(driver->n_sleep, GPIO_DIRECTION_OUT);
     gpio_set_pin_pull_mode(driver->n_sleep, GPIO_PULL_OFF);
     gpio_set_pin_level(driver->n_sleep, false);
+    
+    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_a1_timer]);
+    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_a1_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
+    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_a2_timer]);
+    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_a2_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
+    
+    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_b1_timer]);
+    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_b1_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
+    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_b2_timer]);
+    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_b2_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
 }
 
 void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver)
