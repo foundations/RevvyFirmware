@@ -206,36 +206,22 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
+static inline int32_t _get_delta(uint32_t pin0state, uint32_t pin1state)
+{
+    /* ps0 ps1 out
+         0   0 -1
+         0   1  1
+         1   0  1
+         1   1 -1
+    */
+    return pin0state ^ pin1state ? 1 : -1;
+}
+
 MotorLibraryStatus_t DcMotor_Gpio1Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
     MotorLibrary_Dc_Data_t* libdata = (MotorLibrary_Dc_Data_t*) motorPort->libraryData;
     
-    int32_t delta = 0;
-    if (pin0state)
-    {
-        /* rising edge */
-        if (pin1state)
-        {
-            delta = -1;
-        }
-        else
-        {
-            delta = 1;
-        }
-    }
-    else
-    {
-        /* falling edge */
-        if (pin1state)
-        {
-            delta = 1;
-        }
-        else
-        {
-            delta = -1;
-        }
-    }
-    libdata->position += delta;
+    libdata->position += _get_delta(pin0state, pin1state);
 
     return MotorLibraryStatus_Ok;
 }
@@ -244,32 +230,7 @@ MotorLibraryStatus_t DcMotor_Gpio0Callback(MotorPort_t* motorPort, uint32_t pin0
 {
     MotorLibrary_Dc_Data_t* libdata = (MotorLibrary_Dc_Data_t*) motorPort->libraryData;
     
-    int32_t delta = 0;
-    if (pin0state)
-    {
-        /* rising edge */
-        if (pin1state)
-        {
-            delta = 1;
-        }
-        else
-        {
-            delta = -1;
-        }
-    }
-    else
-    {
-        /* falling edge */
-        if (pin1state)
-        {
-            delta = -1;
-        }
-        else
-        {
-            delta = 1;
-        }
-    }
-    libdata->position += delta;
+    libdata->position -= _get_delta(pin0state, pin1state);
 
     return MotorLibraryStatus_Ok;
 }
