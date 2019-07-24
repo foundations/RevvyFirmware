@@ -39,6 +39,13 @@ void MotorDriver_8833_Run_OnGlobalInit(void)
     TIMER_3_init();
     TIMER_4_init();
     TIMER_5_init();
+
+    hri_tccount8_write_PER_reg(TC0, MOTOR_SPEED_RESOLUTION - 1u);
+    hri_tccount8_write_PER_reg(TC1, MOTOR_SPEED_RESOLUTION - 1u);
+    hri_tccount8_write_PER_reg(TC2, MOTOR_SPEED_RESOLUTION - 1u);
+    hri_tccount8_write_PER_reg(TC3, MOTOR_SPEED_RESOLUTION - 1u);
+    hri_tccount8_write_PER_reg(TC4, MOTOR_SPEED_RESOLUTION - 1u);
+    hri_tccount8_write_PER_reg(TC5, MOTOR_SPEED_RESOLUTION - 1u);
     
     timers[0] = TC0;
     timers[1] = TC1;
@@ -49,33 +56,30 @@ void MotorDriver_8833_Run_OnGlobalInit(void)
 }
 
 static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel, int8_t speed)
-{
-    uint8_t pwm_0;
-    uint8_t pwm_1;
-    
+{    
     uint32_t ch0;
     uint32_t ch1;
     
     uint8_t timer0;
     uint8_t timer1;
-    
-    if (speed < 0)
+
+    bool reverse = speed < 0;
+    speed = reverse ? -speed : speed;
+    if (speed > MOTOR_SPEED_RESOLUTION)
     {
-        if (speed < -MOTOR_SPEED_RESOLUTION)
-        {
-            speed = (int8_t) -MOTOR_SPEED_RESOLUTION;
-        }
-        pwm_0 = MOTOR_SPEED_RESOLUTION;
-        pwm_1 = -1 * speed;
+        speed = MOTOR_SPEED_RESOLUTION;
+    }
+    
+    uint8_t pwm_0 = 0u;
+    uint8_t pwm_1 = 0u;
+
+    if (reverse)
+    {
+        pwm_0 = speed;
     }
     else
     {
-        if (speed > MOTOR_SPEED_RESOLUTION)
-        {
-            speed = MOTOR_SPEED_RESOLUTION;
-        }
-        pwm_0 = speed;
-        pwm_1 = MOTOR_SPEED_RESOLUTION;
+        pwm_1 = speed;
     }
 
     if (channel == MotorDriver_8833_Channel_A)
