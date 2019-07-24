@@ -125,24 +125,15 @@ static SensorPort_t sensorPorts[] =
 {
     {
         .port_idx = 0u,
-        .led0 = S0_LED_GREEN,
-        .led1 = S0_LED_YELLOW,
-        .gpio0 = S0_GPIO_OUT,
-        .gpio1 = S0_GPIO_IN,
-        .vccio = S0_IOVCC,
-        .i2c_hw = I2C0_SERCOM
+        .led0 = S3_LED_GREEN,
+        .led1 = S3_LED_YELLOW,
+        .gpio0 = S3_GPIO_OUT,
+        .gpio1 = S3_GPIO_IN,
+        .vccio = S3_IOVCC,
+        .i2c_hw = I2C3_SERCOM
     },
     {
         .port_idx = 1u,
-        .led0 = S1_LED_GREEN,
-        .led1 = S1_LED_YELLOW,
-        .gpio0 = S1_GPIO_OUT,
-        .gpio1 = S1_GPIO_IN,
-        .vccio = S1_IOVCC,
-        .i2c_hw = I2C1_SERCOM
-    },
-    {
-        .port_idx = 2u,
         .led0 = S2_LED_GREEN,
         .led1 = S2_LED_YELLOW,
         .gpio0 = S2_GPIO_OUT,
@@ -151,13 +142,22 @@ static SensorPort_t sensorPorts[] =
         .i2c_hw = I2C2_SERCOM
     },
     {
+        .port_idx = 2u,
+        .led0 = S1_LED_GREEN,
+        .led1 = S1_LED_YELLOW,
+        .gpio0 = S1_GPIO_OUT,
+        .gpio1 = S1_GPIO_IN,
+        .vccio = S1_IOVCC,
+        .i2c_hw = I2C1_SERCOM
+    },
+    {
         .port_idx = 3u,
-        .led0 = S3_LED_GREEN,
-        .led1 = S3_LED_YELLOW,
-        .gpio0 = S3_GPIO_OUT,
-        .gpio1 = S3_GPIO_IN,
-        .vccio = S3_IOVCC,
-        .i2c_hw = I2C3_SERCOM
+        .led0 = S0_LED_GREEN,
+        .led1 = S0_LED_YELLOW,
+        .gpio0 = S0_GPIO_OUT,
+        .gpio1 = S0_GPIO_IN,
+        .vccio = S0_IOVCC,
+        .i2c_hw = I2C0_SERCOM
     }
 };
 
