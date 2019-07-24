@@ -71,7 +71,7 @@ MotorLibraryStatus_t DcMotor_Init(MotorPort_t* motorPort)
 
     motorPort->libraryData = libdata;
     MotorPort_EnableExti0(motorPort);
-    MotorPort_EnableExti1(motorPort);
+    //MotorPort_EnableExti1(motorPort);
     MotorPort_SetGreenLed(motorPort, true);
     return MotorLibraryStatus_Ok;
 }
@@ -81,7 +81,7 @@ MotorLibraryStatus_t DcMotor_DeInit(MotorPort_t* motorPort)
     MotorPort_SetDriveValue(motorPort, 0);
     MotorPort_SetGreenLed(motorPort, false);
     MotorPort_DisableExti0(motorPort);
-    MotorPort_DisableExti1(motorPort);
+    //MotorPort_DisableExti1(motorPort);
     MotorPortHandler_Call_Free(&motorPort->libraryData);
     return MotorLibraryStatus_Ok;
 }
@@ -210,32 +210,24 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
     return MotorLibraryStatus_Ok;
 }
 
-static inline int32_t _get_delta(uint32_t pin0state, uint32_t pin1state)
-{
-    /* ps0 ps1 out
-         0   0 -1
-         0   1  1
-         1   0  1
-         1   1 -1
-    */
-    return pin0state ^ pin1state ? 1 : -1;
-}
-
-MotorLibraryStatus_t DcMotor_Gpio1Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
-{
-    MotorLibrary_Dc_Data_t* libdata = (MotorLibrary_Dc_Data_t*) motorPort->libraryData;
-    
-    libdata->position += _get_delta(pin0state, pin1state);
-
-    return MotorLibraryStatus_Ok;
-}
-
 MotorLibraryStatus_t DcMotor_Gpio0Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
     MotorLibrary_Dc_Data_t* libdata = (MotorLibrary_Dc_Data_t*) motorPort->libraryData;
     
-    libdata->position -= _get_delta(pin0state, pin1state);
+    /* ps0 ps1 out
+         0   0   1
+         0   1  -1
+         1   0  -1
+         1   1   1
+    */
+    libdata->position += pin0state ^ pin1state ? -1 : 1;
 
+    return MotorLibraryStatus_Ok;
+}
+
+MotorLibraryStatus_t DcMotor_Gpio1Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
+{
+    /* no-op for compatibility with v1 settings */
     return MotorLibraryStatus_Ok;
 }
 
