@@ -50,8 +50,8 @@ static void _init_port(MotorPort_t* port)
     ext_irq_register(port->enc0, &MotorPort_gpio0_ext_cb, port);
     ext_irq_register(port->enc1, &MotorPort_gpio1_ext_cb, port);
     
-    ext_irq_disable(port->enc0);
-    ext_irq_disable(port->enc1);
+    MotorPort_DisableExti0(port);
+    MotorPort_DisableExti1(port);
     __enable_irq();
     /* set dummy library */
     port->library = &motor_library_dummy;

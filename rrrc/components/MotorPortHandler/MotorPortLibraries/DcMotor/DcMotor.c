@@ -70,6 +70,8 @@ MotorLibraryStatus_t DcMotor_Init(MotorPort_t* motorPort)
     libdata->configured = false;
 
     motorPort->libraryData = libdata;
+    MotorPort_EnableExti0(motorPort);
+    MotorPort_EnableExti1(motorPort);
     MotorPort_SetGreenLed(motorPort, true);
     return MotorLibraryStatus_Ok;
 }
@@ -78,6 +80,8 @@ MotorLibraryStatus_t DcMotor_DeInit(MotorPort_t* motorPort)
 {
     MotorPort_SetDriveValue(motorPort, 0);
     MotorPort_SetGreenLed(motorPort, false);
+    MotorPort_DisableExti0(motorPort);
+    MotorPort_DisableExti1(motorPort);
     MotorPortHandler_Call_Free(&motorPort->libraryData);
     return MotorLibraryStatus_Ok;
 }
