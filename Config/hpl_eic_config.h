@@ -909,22 +909,22 @@
 /*#define CONFIG_EIC_EXTINT_MAP {10, PIN_PB10}, {11, PIN_PB11}, {12, PIN_PB12}, {13, PIN_PB13},*/
 
 #define CONFIG_EIC_EXTINT_MAP \
-{0, INVALID_PIN_NUMBER}, \
-{1, INVALID_PIN_NUMBER}, \
-{2, PIN_PA18}, \
-{3, PIN_PA19}, \
-{4, PIN_PA20}, \
-{5, PIN_PA21}, \
-{6, INVALID_PIN_NUMBER}, \
-{7, INVALID_PIN_NUMBER}, \
-{8, INVALID_PIN_NUMBER}, \
-{9, INVALID_PIN_NUMBER}, \
-{10, PIN_PB10}, \
-{11, PIN_PB11}, \
+{0,  PIN_PB16}, \
+{1,  PIN_PB17}, \
+{2,  PIN_PA02}, \
+{3,  PIN_PA03}, \
+{4,  PIN_PA20}, \
+{5,  PIN_PA21}, \
+{6,  PIN_PB06}, \
+{7,  PIN_PB07}, \
+{8,  PIN_PB24}, \
+{9,  PIN_PB25}, \
+{10, PIN_PC10}, \
+{11, PIN_PA27}, \
 {12, PIN_PB12}, \
-{13, PIN_PB13}, \
-{14, INVALID_PIN_NUMBER}, \
-{15, INVALID_PIN_NUMBER}, \
+{13, PIN_PB27}, \
+{14, PIN_PB14}, \
+{15, PIN_PB15}, \
 
 
 // <<< end of configuration section >>>
