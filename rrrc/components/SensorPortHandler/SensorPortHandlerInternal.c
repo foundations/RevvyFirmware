@@ -32,33 +32,33 @@ void SensorPort_ConfigureGpio0_Input(SensorPort_t* port)
     gpio_set_pin_pull_mode(port->gpio0, GPIO_PULL_OFF);
     gpio_set_pin_direction(port->gpio0, GPIO_DIRECTION_IN);
     gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_OFF);
-
-    ext_irq_disable(port->gpio0);
 }
 
 void SensorPort_ConfigureGpio0_Output(SensorPort_t* port)
 {
     gpio_set_pin_pull_mode(port->gpio0, GPIO_PULL_OFF);
-    gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(port->gpio0, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_level(port->gpio0, false);
-
-    ext_irq_disable(port->gpio0);
 }
 
 void SensorPort_ConfigureGpio1_Input(SensorPort_t* port)
 {
-    gpio_set_pin_pull_mode(port->gpio0, GPIO_PULL_OFF);
-    gpio_set_pin_direction(port->gpio0, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(port->gpio0, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_pull_mode(port->gpio1, GPIO_PULL_OFF);
+    gpio_set_pin_direction(port->gpio1, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_OFF);
+
+    ext_irq_disable(port->gpio1);
 }
 
 void SensorPort_ConfigureGpio1_Output(SensorPort_t* port)
 {
     gpio_set_pin_pull_mode(port->gpio1, GPIO_PULL_OFF);
-    gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(port->gpio1, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_level(port->gpio1, false);
+
+    ext_irq_disable(port->gpio1);
 }
 
 void SensorPort_ConfigureGpio1_Interrupt(SensorPort_t* port)
