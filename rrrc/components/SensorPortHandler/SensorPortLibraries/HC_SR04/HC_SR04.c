@@ -21,6 +21,8 @@ typedef struct
     uint32_t filtered_distance_tick;
     uint32_t distanceBuffer[HCSR05_MEDIAN_FITLER_SIZE - 1];
     uint32_t distanceBufferWriteIdx;
+
+    uint32_t timeout;
 } SensorLibrary_HC_SR04_Data_t;
 
 static bool ultrasonic_used[] = {false, false, false, false};
@@ -130,6 +132,8 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             delay_us(30);
             SensorPort_SetGpio0_Output(sensorPort, false);
 
+            libdata->timeout = 0u;
+
             libdata->finished = false;
             libdata->isMeasuring = true;
         }
@@ -147,6 +151,19 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             
             /* mark next sensor as active */
             ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
+        }
+        else
+        {
+            if (libdata->timeout == 100u)
+            {
+                libdata->finished = false;
+                libdata->isMeasuring = false;
+                SensorPort_SetOrangeLed(sensorPort, false;
+            }
+            else
+            {
+                libdata->timeout++;
+            }
         }
     }
     
@@ -188,20 +205,23 @@ SensorLibraryStatus_t HC_SR04_UpdateAnalogData(SensorPort_t* sensorPort, uint8_t
 SensorLibraryStatus_t HC_SR04_InterruptCallback(SensorPort_t* sensorPort, bool status)
 {
     SensorLibrary_HC_SR04_Data_t* libdata = (SensorLibrary_HC_SR04_Data_t*) sensorPort->libraryData;
-    if (status)
+    if (libdata->isMeasuring)
     {
-        libdata->start_time = high_res_timer_get_count();
-    }
-    else
-    {
-        uint32_t finish_time = high_res_timer_get_count();
-        uint32_t dist = finish_time - libdata->start_time;
-
-        if (dist < 0x7FFFu) /* FIXME: this is a hack to prevent start > finish cases (unknown root cause) */
+        if (status)
         {
-            libdata->distance_tick = dist;
+            libdata->start_time = high_res_timer_get_count();
         }
-        libdata->finished = true;
+        else
+        {
+            uint32_t finish_time = high_res_timer_get_count();
+            uint32_t dist = finish_time - libdata->start_time;
+
+            if (dist < 0x7FFFu) /* FIXME: this is a hack to prevent start > finish cases (unknown root cause) */
+            {
+                libdata->distance_tick = dist;
+            }
+            libdata->finished = true;
+        }
     }
     SensorPort_SetOrangeLed(sensorPort, status);
     return SensorLibraryStatus_Ok;
