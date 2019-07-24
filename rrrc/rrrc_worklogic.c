@@ -38,12 +38,12 @@ static MotorPort_t motorPorts[] =
 {
     {
         .port_idx = 0u,
-        .led = M3_GREEN_LED,
-        .enc0 = M3_ENC_A,
-        .enc1 = M3_ENC_B,
+        .led = M5_GREEN_LED,
+        .enc0 = M5_ENC_A,
+        .enc1 = M5_ENC_B,
 
-        .driver_idx = M3_DRIVER_IDX,
-        .driver_channel = M3_DRIVER_CHANNEL
+        .driver_idx = M5_DRIVER_IDX,
+        .driver_channel = M5_DRIVER_CHANNEL
     },
     {
         .port_idx = 1u,
@@ -56,21 +56,21 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 2u,
-        .led = M5_GREEN_LED,
-        .enc0 = M5_ENC_A,
-        .enc1 = M5_ENC_B,
+        .led = M3_GREEN_LED,
+        .enc0 = M3_ENC_A,
+        .enc1 = M3_ENC_B,
 
-        .driver_idx = M5_DRIVER_IDX,
-        .driver_channel = M5_DRIVER_CHANNEL
+        .driver_idx = M3_DRIVER_IDX,
+        .driver_channel = M3_DRIVER_CHANNEL
     },
     {
         .port_idx = 3u,
-        .led = M2_GREEN_LED,
-        .enc0 = M2_ENC_A,
-        .enc1 = M2_ENC_B,
+        .led = M0_GREEN_LED,
+        .enc0 = M0_ENC_A,
+        .enc1 = M0_ENC_B,
 
-        .driver_idx = M2_DRIVER_IDX,
-        .driver_channel = M2_DRIVER_CHANNEL
+        .driver_idx = M0_DRIVER_IDX,
+        .driver_channel = M0_DRIVER_CHANNEL
     },
     {
         .port_idx = 4u,
@@ -83,12 +83,12 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 5u,
-        .led = M0_GREEN_LED,
-        .enc0 = M0_ENC_A,
-        .enc1 = M0_ENC_B,
+        .led = M2_GREEN_LED,
+        .enc0 = M2_ENC_A,
+        .enc1 = M2_ENC_B,
 
-        .driver_idx = M0_DRIVER_IDX,
-        .driver_channel = M0_DRIVER_CHANNEL
+        .driver_idx = M2_DRIVER_IDX,
+        .driver_channel = M2_DRIVER_CHANNEL
     }
 };
 
