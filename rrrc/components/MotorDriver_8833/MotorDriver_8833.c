@@ -100,8 +100,8 @@ static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Chann
     }
 
     hri_tcc_write_CC_reg(timers[timer0], ch0, pwm_0);
-    hri_tcc_write_CC_reg(timers[timer1], ch1, pwm_1);
     hri_tcc_wait_for_sync(timers[timer0], TCC_SYNCBUSY_CC(1 << ch0));
+    hri_tcc_write_CC_reg(timers[timer1], ch1, pwm_1);
     hri_tcc_wait_for_sync(timers[timer1], TCC_SYNCBUSY_CC(1 << ch1));
 }
 
@@ -125,7 +125,7 @@ void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)
 
     gpio_set_pin_function(driver->n_sleep, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(driver->n_sleep, GPIO_DIRECTION_OUT);
-    gpio_set_pin_pull_mode(driver->n_sleep, GPIO_PULL_UP);
+    gpio_set_pin_pull_mode(driver->n_sleep, GPIO_PULL_OFF);
     gpio_set_pin_level(driver->n_sleep, false);
 }
 
