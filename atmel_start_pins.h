@@ -387,9 +387,9 @@
 /* SERCOM2!! (RPi) */
 #define I2C4_SERCOM          SERCOM2
 #define I2C4_SDApin          PA12
-#define I2C4_SDApin_function GPIO_PIN_FUNCTION_D
+#define I2C4_SDApin_function GPIO_PIN_FUNCTION_C
 #define I2C4_SCLpin          PA13
-#define I2C4_SCLpin_function GPIO_PIN_FUNCTION_D
+#define I2C4_SCLpin_function GPIO_PIN_FUNCTION_C
 
 #define RPi_I2C_sda          I2C4_SDApin
 #define RPi_I2C_scl          I2C4_SCLpin
