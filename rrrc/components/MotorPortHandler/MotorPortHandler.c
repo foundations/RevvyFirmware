@@ -39,17 +39,20 @@ static void _init_port(MotorPort_t* port)
 
     /* encoders */
     gpio_set_pin_direction(port->enc0, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(port->enc0, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_function(port->enc0, GPIO_PIN_FUNCTION_A);
     gpio_set_pin_pull_mode(port->enc0, GPIO_PULL_OFF);
 
-    ext_irq_register(port->enc0, &MotorPort_gpio0_ext_cb, port);
-
     gpio_set_pin_direction(port->enc1, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(port->enc1, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_function(port->enc1, GPIO_PIN_FUNCTION_A);
     gpio_set_pin_pull_mode(port->enc1, GPIO_PULL_OFF);
-
+    
+    __disable_irq();
+    ext_irq_register(port->enc0, &MotorPort_gpio0_ext_cb, port);
     ext_irq_register(port->enc1, &MotorPort_gpio1_ext_cb, port);
-
+    
+    ext_irq_disable(port->enc0);
+    ext_irq_disable(port->enc1);
+    __enable_irq();
     /* set dummy library */
     port->library = &motor_library_dummy;
 }
