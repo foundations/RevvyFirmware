@@ -25,7 +25,6 @@ extern "C" {
 #include <hal_ext_irq.h>
 #include <hal_timer.h>
 #include <hpl_tc_base.h>
-#include <hpl_tcc.h>
 #include <hal_delay.h>
 #include <hal_wdt.h>
 

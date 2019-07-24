@@ -590,9 +590,6 @@
     <Compile Include="Config\hpl_systick_config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Config\hpl_tcc_config.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Config\hpl_tc_config.h">
       <SubType>compile</SubType>
     </Compile>
@@ -987,12 +984,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\systick\hpl_systick.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hpl\tcc\hpl_tcc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hpl\tcc\hpl_tcc.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\tc\hpl_tc.c">
@@ -1530,7 +1521,6 @@
     <Folder Include="hpl\rtc\" />
     <Folder Include="hpl\sercom\" />
     <Folder Include="hpl\systick\" />
-    <Folder Include="hpl\tcc\" />
     <Folder Include="hpl\tc\" />
     <Folder Include="hpl\usb\" />
     <Folder Include="hpl\wdt\" />

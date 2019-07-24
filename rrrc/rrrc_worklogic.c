@@ -41,37 +41,84 @@ static MotorPort_t motorPorts[] =
         .led = M3_GREEN_LED,
         .enc0 = M3_ENC_A,
         .enc1 = M3_ENC_B,
+
+        .driver_idx = M3_DRIVER_IDX,
+        .driver_channel = M3_DRIVER_CHANNEL
     },
     {
         .port_idx = 1u,
         .led = M4_GREEN_LED,
         .enc0 = M4_ENC_A,
         .enc1 = M4_ENC_B,
+
+        .driver_idx = M4_DRIVER_IDX,
+        .driver_channel = M4_DRIVER_CHANNEL
     },
     {
         .port_idx = 2u,
         .led = M5_GREEN_LED,
         .enc0 = M5_ENC_A,
         .enc1 = M5_ENC_B,
+
+        .driver_idx = M5_DRIVER_IDX,
+        .driver_channel = M5_DRIVER_CHANNEL
     },
     {
         .port_idx = 3u,
         .led = M2_GREEN_LED,
         .enc0 = M2_ENC_A,
         .enc1 = M2_ENC_B,
+
+        .driver_idx = M2_DRIVER_IDX,
+        .driver_channel = M2_DRIVER_CHANNEL
     },
     {
         .port_idx = 4u,
         .led = M1_GREEN_LED,
         .enc0 = M1_ENC_A,
         .enc1 = M1_ENC_B,
+
+        .driver_idx = M1_DRIVER_IDX,
+        .driver_channel = M1_DRIVER_CHANNEL
     },
     {
         .port_idx = 5u,
         .led = M0_GREEN_LED,
         .enc0 = M0_ENC_A,
         .enc1 = M0_ENC_B,
+
+        .driver_idx = M0_DRIVER_IDX,
+        .driver_channel = M0_DRIVER_CHANNEL
     }
+};
+
+#define MOTOR_DRIVER_INIT(i)                              \
+{                                                         \
+    .idx = i,                                             \
+                                                          \
+    .fault = MOTOR_DRIVER_## i ## _FAULT,                 \
+    .n_sleep = MOTOR_DRIVER_## i ## _EN,                  \
+                                                          \
+    .pwm_a1 = MOTOR_DRIVER_## i ##_CH_A_PWM0_PIN,         \
+    .pwm_a2 = MOTOR_DRIVER_## i ##_CH_A_PWM1_PIN,         \
+    .pwm_b1 = MOTOR_DRIVER_## i ##_CH_B_PWM0_PIN,         \
+    .pwm_b2 = MOTOR_DRIVER_## i ##_CH_B_PWM1_PIN,         \
+                                                          \
+    .pwm_a1_timer = MOTOR_DRIVER_## i ##_CH_A_PWM0_TIMER, \
+    .pwm_a2_timer = MOTOR_DRIVER_## i ##_CH_A_PWM1_TIMER, \
+    .pwm_b1_timer = MOTOR_DRIVER_## i ##_CH_B_PWM0_TIMER, \
+    .pwm_b2_timer = MOTOR_DRIVER_## i ##_CH_B_PWM1_TIMER, \
+                                                          \
+    .pwm_a1_ch = MOTOR_DRIVER_## i ##_CH_A_PWM0_CH,       \
+    .pwm_a2_ch = MOTOR_DRIVER_## i ##_CH_A_PWM1_CH,       \
+    .pwm_b1_ch = MOTOR_DRIVER_## i ##_CH_B_PWM0_CH,       \
+    .pwm_b2_ch = MOTOR_DRIVER_## i ##_CH_B_PWM1_CH,       \
+}
+
+static MotorDriver_8833_t motorDrivers[] = {
+    MOTOR_DRIVER_INIT(0),
+    MOTOR_DRIVER_INIT(1),
+    MOTOR_DRIVER_INIT(2)
 };
 
 static SensorPort_t sensorPorts[] = 
@@ -180,9 +227,9 @@ static void ProcessTasks_20ms(void)
     RingLedDisplay_Run_Update();
     LEDController_Run_Update();
     
-    //MotorDriver_DRV8833_Run_Update(&motorDriver01);
-    //MotorDriver_DRV8833_Run_Update(&motorDriver23);
-    //MotorDriver_DRV8833_Run_Update(&motorDriver45);
+    MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
+    MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
+    MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
 }
 
 static void ProcessTasks_100ms(void)
@@ -264,10 +311,10 @@ void RRRC_ProcessLogic_xTask(void* user)
     MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
     SensorPortHandler_Run_OnInit(&sensorPorts[0], ARRAY_SIZE(sensorPorts));
     
-    //MotorDriver_DRV8833_Run_OnInit();
-    //MotorDriver_DRV8833_Run_OnDriverInit(&motorDriver01);
-    //MotorDriver_DRV8833_Run_OnDriverInit(&motorDriver23);
-    //MotorDriver_DRV8833_Run_OnDriverInit(&motorDriver45);
+    MotorDriver_8833_Run_OnGlobalInit();
+    MotorDriver_8833_Run_OnInit(&motorDrivers[0]);
+    MotorDriver_8833_Run_OnInit(&motorDrivers[1]);
+    MotorDriver_8833_Run_OnInit(&motorDrivers[2]);
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (uint8_t cycleCounter = 0u;;)
@@ -734,7 +781,7 @@ void MotorPortHandler_Call_Free(void** ptr)
 }
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
-static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
+static int8_t driveValues[ARRAY_SIZE(motorDrivers)][2] = {0};
 static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
 
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
@@ -820,9 +867,14 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
     }
 }
 
-void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value)
+void MotorPortHandler_Write_MotorDriveValue(uint8_t driver_idx, uint8_t channel_idx, int8_t value)
 {
-    driveValues[port_idx] = value;
+    driveValues[driver_idx][channel_idx] = value;
+}
+
+int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel)
+{
+    return driveValues[driver->idx][channel];
 }
 
 bool RingLedDisplay_Read_MasterReady(void)

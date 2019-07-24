@@ -9,16 +9,15 @@
 
 #include <peripheral_clk_config.h>
 #include <hal_init.h>
-#include <hal_timer.h>
-#include <hpl_tc_base.h>
+#include <tc_lite.h>
 #include <hal_gpio.h>
 #include "atmel_start_pins.h"
 
-static struct timer_descriptor timers[6];
-
 #define MOTOR_SPEED_RESOLUTION (100u)
 
-void MotorDriver_8833_Run_GlobalInit(void)
+static Tc* timers[6];
+
+void MotorDriver_8833_Run_OnGlobalInit(void)
 {
     hri_mclk_set_APBAMASK_TC0_bit(MCLK);
     hri_mclk_set_APBAMASK_TC1_bit(MCLK);
@@ -34,22 +33,22 @@ void MotorDriver_8833_Run_GlobalInit(void)
     hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_gclk_write_PCHCTRL_reg(GCLK, TC5_GCLK_ID, CONF_GCLK_TC5_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     
-    timer_init(&timers[0], TC0, _tc_get_timer());
-    timer_init(&timers[1], TC1, _tc_get_timer());
-    timer_init(&timers[2], TC2, _tc_get_timer());
-    timer_init(&timers[3], TC3, _tc_get_timer());
-    timer_init(&timers[4], TC4, _tc_get_timer());
-    timer_init(&timers[5], TC5, _tc_get_timer());
+    TIMER_0_init();
+    TIMER_1_init();
+    TIMER_2_init();
+    TIMER_3_init();
+    TIMER_4_init();
+    TIMER_5_init();
     
-    timer_set_clock_cycles_per_tick(&timers[0], MOTOR_SPEED_RESOLUTION + 1u);
-    timer_set_clock_cycles_per_tick(&timers[1], MOTOR_SPEED_RESOLUTION + 1u);
-    timer_set_clock_cycles_per_tick(&timers[2], MOTOR_SPEED_RESOLUTION + 1u);
-    timer_set_clock_cycles_per_tick(&timers[3], MOTOR_SPEED_RESOLUTION + 1u);
-    timer_set_clock_cycles_per_tick(&timers[4], MOTOR_SPEED_RESOLUTION + 1u);
-    timer_set_clock_cycles_per_tick(&timers[5], MOTOR_SPEED_RESOLUTION + 1u);
+    timers[0] = TC0;
+    timers[1] = TC1;
+    timers[2] = TC2;
+    timers[3] = TC3;
+    timers[4] = TC4;
+    timers[5] = TC5;
 }
 
-void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel, int8_t speed)
+static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel, int8_t speed)
 {
     uint8_t pwm_0;
     uint8_t pwm_1;
@@ -100,13 +99,10 @@ void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t ch
         driver->speed_b = speed;
     }
 
-    
-    timer_stop(&timers[timer0]);
-    timer_stop(&timers[timer1]);
-    timer_set_chan_compare_value(&timers[timer0], ch0, pwm_0);
-    timer_set_chan_compare_value(&timers[timer1], ch1, pwm_1);
-    timer_start(&timers[timer1]);
-    timer_start(&timers[timer0]);
+    hri_tcc_write_CC_reg(timers[timer0], ch0, pwm_0);
+    hri_tcc_write_CC_reg(timers[timer1], ch1, pwm_1);
+    hri_tcc_wait_for_sync(timers[timer0], TCC_SYNCBUSY_CC(1 << ch0));
+    hri_tcc_wait_for_sync(timers[timer1], TCC_SYNCBUSY_CC(1 << ch1));
 }
 
 void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)

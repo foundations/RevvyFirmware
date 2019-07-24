@@ -1,3 +1,4 @@
+
 /**
  * \file
  *
@@ -54,37 +55,12 @@ extern "C" {
  * \brief Initialize tc interface
  * \return Initialization status.
  */
-int8_t TIMER_0_init();
-
-/**
- * \brief Initialize tc interface
- * \return Initialization status.
- */
-int8_t TIMER_1_init();
-
-/**
- * \brief Initialize tc interface
- * \return Initialization status.
- */
-int8_t TIMER_2_init();
-
-/**
- * \brief Initialize tc interface
- * \return Initialization status.
- */
-int8_t TIMER_3_init();
-
-/**
- * \brief Initialize tc interface
- * \return Initialization status.
- */
-int8_t TIMER_4_init();
-
-/**
- * \brief Initialize tc interface
- * \return Initialization status.
- */
-int8_t TIMER_5_init();
+int8_t TIMER_0_init(void);
+int8_t TIMER_1_init(void);
+int8_t TIMER_2_init(void);
+int8_t TIMER_3_init(void);
+int8_t TIMER_4_init(void);
+int8_t TIMER_5_init(void);
 
 #ifdef __cplusplus
 }

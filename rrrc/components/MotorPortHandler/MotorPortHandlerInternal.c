@@ -15,5 +15,5 @@ void MotorPort_SetGreenLed(MotorPort_t* port, bool state)
 
 void MotorPort_SetDriveValue(struct _MotorPort_t* port, int8_t value)
 {
-    MotorPortHandler_Write_MotorDriveValue(port->port_idx, value);
+    MotorPortHandler_Write_MotorDriveValue(port->driver_idx, port->driver_channel, value);
 }

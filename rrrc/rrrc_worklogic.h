@@ -46,6 +46,7 @@ extern "C" {
 #include "components/McuStatusCollector/McuStatusCollector.h"
 #include "components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.h"
 #include "components/RestartManager/RestartManager.h"
+#include "components/MotorDriver_8833/MotorDriver_8833.h"
 
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);

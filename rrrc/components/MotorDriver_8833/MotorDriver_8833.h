@@ -18,6 +18,8 @@ typedef enum {
 } MotorDriver_8833_Channel_t;
 
 typedef struct {
+    uint8_t idx;
+
     uint8_t pwm_a1;
     uint8_t pwm_a2;
     uint8_t pwm_b1;
@@ -42,7 +44,7 @@ typedef struct {
     bool has_fault;
 } MotorDriver_8833_t;
 
-void MotorDriver_8833_Run_GlobalInit(void);
+void MotorDriver_8833_Run_OnGlobalInit(void);
 
 void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver);
 void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver);
