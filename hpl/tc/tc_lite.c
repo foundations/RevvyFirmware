@@ -35,33 +35,55 @@
 #include "tc_lite.h"
 
 /* setup function for NPWM timers */
-#define TIMER_INIT_FN(idx)                                               \
-int8_t TIMER_## idx ##_init(void)                                        \
-{                                                                        \
-    if (!hri_tc_is_syncing(TC## idx, TC_SYNCBUSY_SWRST)) {               \
-        if (hri_tc_get_CTRLA_reg(TC## idx, TC_CTRLA_ENABLE)) {           \
-            hri_tc_clear_CTRLA_ENABLE_bit(TC## idx);                     \
-            hri_tc_wait_for_sync(TC## idx, TC_SYNCBUSY_ENABLE);          \
-        }                                                                \
-        hri_tc_write_CTRLA_reg(TC## idx, TC_CTRLA_SWRST);                \
-    }                                                                    \
-    hri_tc_wait_for_sync(TC## idx, TC_SYNCBUSY_SWRST);                   \
-                                                                         \
-    hri_tc_write_CTRLB_reg(TC## idx,                                     \
-                           0 << TC_CTRLBSET_CMD_Pos                      \
-                               | 0 << TC_CTRLBSET_ONESHOT_Pos            \
-                               | 0 << TC_CTRLBCLR_LUPD_Pos               \
-                               | 0 << TC_CTRLBSET_DIR_Pos);              \
-                                                                         \
-    hri_tc_write_WAVE_reg(TC## idx, 2);                                  \
-    hri_tc_write_CTRLA_ENABLE_bit(TC## idx, 1 << TC_CTRLA_ENABLE_Pos);   \
-                                                                         \
-    return 0;                                                            \
+static inline int8_t TIMER_any_init(Tc* timer)
+{
+    if (!hri_tc_is_syncing(timer, TC_SYNCBUSY_SWRST)) {
+        if (hri_tc_get_CTRLA_reg(timer, TC_CTRLA_ENABLE)) {
+            hri_tc_clear_CTRLA_ENABLE_bit(timer);
+            hri_tc_wait_for_sync(timer, TC_SYNCBUSY_ENABLE);
+        }
+        hri_tc_write_CTRLA_reg(timer, TC_CTRLA_SWRST);
+    }
+    hri_tc_wait_for_sync(timer, TC_SYNCBUSY_SWRST);
+
+    hri_tc_write_CTRLB_reg(timer,
+                           0 << TC_CTRLBSET_CMD_Pos
+                               | 0 << TC_CTRLBSET_ONESHOT_Pos
+                               | 0 << TC_CTRLBCLR_LUPD_Pos
+                               | 0 << TC_CTRLBSET_DIR_Pos);
+
+    hri_tc_write_WAVE_reg(timer, 2);
+    hri_tc_write_CTRLA_ENABLE_bit(timer, 1 << TC_CTRLA_ENABLE_Pos);
+
+    return 0;
 }
 
-TIMER_INIT_FN(0)
-TIMER_INIT_FN(1)
-TIMER_INIT_FN(2)
-TIMER_INIT_FN(3)
-TIMER_INIT_FN(4)
-TIMER_INIT_FN(5)
+int8_t TIMER_0_init(void)
+{
+    return TIMER_any_init(TC0);
+}
+
+int8_t TIMER_1_init(void)
+{
+    return TIMER_any_init(TC1);
+}
+
+int8_t TIMER_2_init(void)
+{
+    return TIMER_any_init(TC2);
+}
+
+int8_t TIMER_3_init(void)
+{
+    return TIMER_any_init(TC3);
+}
+
+int8_t TIMER_4_init(void)
+{
+    return TIMER_any_init(TC4);
+}
+
+int8_t TIMER_5_init(void)
+{
+    return TIMER_any_init(TC5);
+}
