@@ -158,7 +158,7 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             {
                 libdata->finished = false;
                 libdata->isMeasuring = false;
-                SensorPort_SetOrangeLed(sensorPort, false;
+                SensorPort_SetOrangeLed(sensorPort, false);
             }
             else
             {
