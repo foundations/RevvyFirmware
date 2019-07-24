@@ -139,8 +139,8 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
 
         if (driveRequest.power_limit == 0.0f)
         {
-            libdata->speedController.config.LowerLimit = from_si(motorPort, get_float(&libdata->configuration[40]));
-            libdata->speedController.config.UpperLimit = from_si(motorPort, get_float(&libdata->configuration[44]));
+            libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
+            libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
         }
         else
         {
@@ -309,8 +309,8 @@ MotorLibraryStatus_t DcMotor_UpdateConfiguration(MotorPort_t* motorPort)
     libdata->speedController.config.P = get_float(&libdata->configuration[28]);
     libdata->speedController.config.I = get_float(&libdata->configuration[32]);
     libdata->speedController.config.D = get_float(&libdata->configuration[36]);
-    libdata->speedController.config.LowerLimit = from_si(motorPort, get_float(&libdata->configuration[40]));
-    libdata->speedController.config.UpperLimit = from_si(motorPort, get_float(&libdata->configuration[44]));
+    libdata->speedController.config.LowerLimit = get_float(&libdata->configuration[40]);
+    libdata->speedController.config.UpperLimit = get_float(&libdata->configuration[44]);
     
     libdata->lastPosition = 0;
     libdata->position = 0;
