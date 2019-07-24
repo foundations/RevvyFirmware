@@ -198,7 +198,7 @@
 
 /* Motor port 0 */
 #define M0_GREEN_LED        PB22
-#define M0_DRIVER_IDX       2
+#define M0_DRIVER_IDX       1
 #define M0_DRIVER_CHANNEL   DRV8833_Channel_A
 #define M0_ISEN_AIN         PB04
 #define M0_ISEN_ADC         1
@@ -228,7 +228,7 @@
 
 /* Motor port 3 */
 #define M3_GREEN_LED        PC12
-#define M3_DRIVER_IDX       1
+#define M3_DRIVER_IDX       2
 #define M3_DRIVER_CHANNEL   DRV8833_Channel_A
 #define M3_ISEN_AIN         PA11
 #define M3_ISEN_ADC         0
@@ -238,7 +238,7 @@
 
 /* Motor port 4 */
 #define M4_GREEN_LED        PD12
-#define M4_DRIVER_IDX       1
+#define M4_DRIVER_IDX       2
 #define M4_DRIVER_CHANNEL   DRV8833_Channel_B
 #define M4_ISEN_AIN         PA10
 #define M4_ISEN_ADC         0
@@ -248,7 +248,7 @@
 
 /* Motor port 5 */
 #define M5_GREEN_LED        PC14
-#define M5_DRIVER_IDX       2
+#define M5_DRIVER_IDX       1
 #define M5_DRIVER_CHANNEL   DRV8833_Channel_B
 #define M5_ISEN_AIN         PC02
 #define M5_ISEN_ADC         1
@@ -279,36 +279,36 @@
 #define MOTOR_DRIVER_1_EN       PD01
 #define MOTOR_DRIVER_1_FAULT    PB23
 
-#define MOTOR_DRIVER_1_CH_A_PWM0_PIN         PA06
-#define MOTOR_DRIVER_1_CH_A_PWM0_TIMER       1
+#define MOTOR_DRIVER_1_CH_A_PWM0_PIN         PA04
+#define MOTOR_DRIVER_1_CH_A_PWM0_TIMER       0
 #define MOTOR_DRIVER_1_CH_A_PWM0_CH          0
-#define MOTOR_DRIVER_1_CH_A_PWM1_PIN         PA07
-#define MOTOR_DRIVER_1_CH_A_PWM1_TIMER       1
+#define MOTOR_DRIVER_1_CH_A_PWM1_PIN         PA05
+#define MOTOR_DRIVER_1_CH_A_PWM1_TIMER       0
 #define MOTOR_DRIVER_1_CH_A_PWM1_CH          1
                      
-#define MOTOR_DRIVER_1_CH_B_PWM0_PIN         PB10
-#define MOTOR_DRIVER_1_CH_B_PWM0_TIMER       5
+#define MOTOR_DRIVER_1_CH_B_PWM0_PIN         PA14
+#define MOTOR_DRIVER_1_CH_B_PWM0_TIMER       3
 #define MOTOR_DRIVER_1_CH_B_PWM0_CH          0
-#define MOTOR_DRIVER_1_CH_B_PWM1_PIN         PB11
-#define MOTOR_DRIVER_1_CH_B_PWM1_TIMER       5
+#define MOTOR_DRIVER_1_CH_B_PWM1_PIN         PA15
+#define MOTOR_DRIVER_1_CH_B_PWM1_TIMER       3
 #define MOTOR_DRIVER_1_CH_B_PWM1_CH          1
 
 #define MOTOR_DRIVER_2_YELLOW   PC13
 #define MOTOR_DRIVER_2_EN       PA18
 #define MOTOR_DRIVER_2_FAULT    PB13
 
-#define MOTOR_DRIVER_2_CH_A_PWM0_PIN         PA04
-#define MOTOR_DRIVER_2_CH_A_PWM0_TIMER       0
+#define MOTOR_DRIVER_2_CH_A_PWM0_PIN         PA06
+#define MOTOR_DRIVER_2_CH_A_PWM0_TIMER       1
 #define MOTOR_DRIVER_2_CH_A_PWM0_CH          0
-#define MOTOR_DRIVER_2_CH_A_PWM1_PIN         PA05
-#define MOTOR_DRIVER_2_CH_A_PWM1_TIMER       0
+#define MOTOR_DRIVER_2_CH_A_PWM1_PIN         PA07
+#define MOTOR_DRIVER_2_CH_A_PWM1_TIMER       1
 #define MOTOR_DRIVER_2_CH_A_PWM1_CH          1
                      
-#define MOTOR_DRIVER_2_CH_B_PWM0_PIN         PA14
-#define MOTOR_DRIVER_2_CH_B_PWM0_TIMER       3
+#define MOTOR_DRIVER_2_CH_B_PWM0_PIN         PB10
+#define MOTOR_DRIVER_2_CH_B_PWM0_TIMER       5
 #define MOTOR_DRIVER_2_CH_B_PWM0_CH          0
-#define MOTOR_DRIVER_2_CH_B_PWM1_PIN         PA15
-#define MOTOR_DRIVER_2_CH_B_PWM1_TIMER       3
+#define MOTOR_DRIVER_2_CH_B_PWM1_PIN         PB11
+#define MOTOR_DRIVER_2_CH_B_PWM1_TIMER       5
 #define MOTOR_DRIVER_2_CH_B_PWM1_CH          1
 
 /* ========== Sensor ports ========== */
