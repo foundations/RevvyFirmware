@@ -393,7 +393,7 @@ void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float volt
                 break;
 
             case ADC_CH_BAT_VOLTAGE:
-                mainBatteryVoltage = (uint32_t) lroundf(voltage * (130.0f / 30.0f));
+                mainBatteryVoltage = (uint32_t) lroundf(voltage * (340.0f / 240.0f));
                 break;
 
             case M0_ISEN_CH:
