@@ -207,6 +207,7 @@ static void ProcessTasks_10ms(void)
 {
     ADC_Run_Update();
     BatteryCharger_Run_Update();
+    IMU_Run_OnUpdate();
 }
 
 static void ProcessTasks_20ms(void)
@@ -275,6 +276,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     LEDController_Run_OnInit();
     BluetoothIndicator_Run_OnInit();
     BrainStatusIndicator_Run_OnInit();
+    IMU_Run_OnInit();
     
     MasterStatusObserver_Run_OnInit();
     BluetoothStatusObserver_Run_OnInit();

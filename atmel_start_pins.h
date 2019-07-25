@@ -398,6 +398,16 @@
 #define WS2812pin           PB29
 #define WS2812pin_function  GPIO_PIN_FUNCTION_D
 
+#define IMU_SERCOM            SERCOM5
+#define IMU_MISO_pin          PB01
+#define IMU_MISO_pin_function PINMUX_PB01D_SERCOM5_PAD3
+#define IMU_MOSI_pin          PB31
+#define IMU_MOSI_pin_function PINMUX_PB31D_SERCOM5_PAD0
+#define IMU_SCLK_pin          PB30
+#define IMU_SCLK_pin_function PINMUX_PB30D_SERCOM5_PAD1
+#define IMU_CS_pin            PB00
+#define IMU_CS_pin_function   GPIO_PIN_FUNCTION_OFF
+
 #define CHARGER_STBY        PC21
 #define CHARGER_STAT        PC23
 

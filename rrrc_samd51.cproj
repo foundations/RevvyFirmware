@@ -1205,6 +1205,12 @@
     <Compile Include="rrrc\components\ErrorStorage\ErrorStorage.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\IMU\IMU.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMU\IMU.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\McuStatusCollectorWrapper\McuStatusCollectorWrapper.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1555,6 +1561,7 @@
     <Folder Include="rrrc\components\ErrorStorage" />
     <Folder Include="rrrc\components\ErrorStorageWrapper" />
     <Folder Include="rrrc\components\MotorDriver_8833" />
+    <Folder Include="rrrc\components\IMU" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
