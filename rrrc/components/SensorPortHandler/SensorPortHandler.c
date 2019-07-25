@@ -12,12 +12,14 @@
 #include "SensorPortLibraries/Dummy/Dummy.h"
 #include "SensorPortLibraries/BumperSwitch/BumperSwitch.h"
 #include "SensorPortLibraries/HC_SR04/HC_SR04.h"
+#include "SensorPortLibraries/DebugRTC/DebugRTC.h"
 
 static const SensorLibrary_t* libraries[] = 
 {
     &sensor_library_dummy,
     &sensor_library_bumper_switch,
     &sensor_library_hc_sr04,
+    &sensor_library_debug_rtc
 };
 
 static size_t sensorPortCount = 0u;

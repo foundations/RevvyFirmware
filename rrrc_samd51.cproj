@@ -1280,6 +1280,12 @@
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\BumperSwitch\BumperSwitch.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\DebugRTC\DebugRTC.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\DebugRTC\DebugRTC.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\Dummy.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1555,6 +1561,7 @@
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\BumperSwitch" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\HC_SR04" />
+    <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\DebugRTC" />
     <Folder Include="rrrc\components\VersionProvider" />
     <Folder Include="rrrc\components\BatteryStatusProvider" />
     <Folder Include="rrrc\components\RingLedDisplay" />
