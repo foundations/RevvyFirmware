@@ -52,9 +52,9 @@ static void _init_port(MotorPort_t* port)
     
     MotorPort_DisableExti0(port);
     MotorPort_DisableExti1(port);
-    __enable_irq();
     /* set dummy library */
     port->library = &motor_library_dummy;
+    __enable_irq();
 }
 
 static void MotorPort_gpio0_ext_cb(void* port)
