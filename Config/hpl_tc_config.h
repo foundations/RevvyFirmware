@@ -22,7 +22,7 @@
 // <i> This defines the prescaler value
 // <id> timer_prescaler
 #ifndef CONF_TC6_PRESCALER
-#define CONF_TC6_PRESCALER 0x4
+#define CONF_TC6_PRESCALER 0x7
 #endif
 
 // <e> Advanced configuration
@@ -117,7 +117,7 @@
 // <i> Event which will be performed on an event
 //<id> tc_arch_evact
 #ifndef CONF_TC6_EVACT
-#define CONF_TC6_EVACT 2
+#define CONF_TC6_EVACT 3
 #endif
 // </e>
 
@@ -171,15 +171,15 @@
 #endif
 
 #ifndef CONF_TC6_COPEN1
-#define CONF_TC6_COPEN1 1
+#define CONF_TC6_COPEN1 0
 #endif
 
 #ifndef CONF_TC6_CAPTEN0
-#define CONF_TC6_CAPTEN0 1
+#define CONF_TC6_CAPTEN0 0
 #endif
 
 #ifndef CONF_TC6_CAPTEN1
-#define CONF_TC6_CAPTEN1 1
+#define CONF_TC6_CAPTEN1 0
 #endif
 
 #ifndef CONF_TC6_DRVCTRLEN0
@@ -192,7 +192,7 @@
 
 
 #ifndef CONF_TC7_ENABLE
-#define CONF_TC7_ENABLE 1
+#define CONF_TC7_ENABLE 0
 #endif
 
 #include "peripheral_clk_config.h"
