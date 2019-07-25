@@ -32,7 +32,7 @@ void IMU_Run_OnInit(void)
     gpio_set_pin_function(IMU_MISO_pin, IMU_MISO_pin_function);
 
     /* CS permanently tied to ground */
-    gpio_set_pin_level(IMU_CS_pin, false);
+    gpio_set_pin_level(IMU_CS_pin, true);
     gpio_set_pin_direction(IMU_CS_pin, GPIO_DIRECTION_OUT);
     gpio_set_pin_function(IMU_CS_pin, IMU_CS_pin_function);
 
@@ -66,8 +66,9 @@ static inline void _imu_send_read_address(uint8_t addr)
     spi_m_sync_transfer(&spi, &xfer);
 }
 
-static void _imu_write_registers(uint8_t reg, const uint8_t* pData, size_t data_count)
+static void _imu_write_registers(uint8_t reg, uint8_t* pData, size_t data_count)
 {
+    gpio_set_pin_level(IMU_CS_pin, false);
     struct spi_xfer xfer;
 
     xfer.txbuf = pData;
@@ -77,10 +78,12 @@ static void _imu_write_registers(uint8_t reg, const uint8_t* pData, size_t data_
     _imu_send_write_address(reg);
     
     spi_m_sync_transfer(&spi, &xfer);
+    gpio_set_pin_level(IMU_CS_pin, true);
 }
 
 static void _imu_read_registers(uint8_t reg, uint8_t* pData, size_t data_count)
 {
+    gpio_set_pin_level(IMU_CS_pin, false);
     struct spi_xfer xfer;
 
     xfer.txbuf = NULL;
@@ -90,15 +93,12 @@ static void _imu_read_registers(uint8_t reg, uint8_t* pData, size_t data_count)
     _imu_send_read_address(reg);
     
     spi_m_sync_transfer(&spi, &xfer);
+    gpio_set_pin_level(IMU_CS_pin, true);
 }
 
 static void _imu_write_register(uint8_t reg, uint8_t data)
 {
-    uint8_t rx;
-
     _imu_write_registers(reg, &data, 1u);
-
-    return rx;
 }
 
 static uint8_t _imu_read_register(uint8_t reg)

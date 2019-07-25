@@ -946,7 +946,7 @@
 // <0x3=>PAD[3]
 // <id> spi_master_rxpo
 #ifndef CONF_SERCOM_5_SPI_RXPO
-#define CONF_SERCOM_5_SPI_RXPO 2
+#define CONF_SERCOM_5_SPI_RXPO 3
 #endif
 
 // <o> Transmit Data Pinout
@@ -956,7 +956,7 @@
 // <0x3=>PAD[0,3]_DO_SCK
 // <id> spi_master_txpo
 #ifndef CONF_SERCOM_5_SPI_TXPO
-#define CONF_SERCOM_5_SPI_TXPO 2
+#define CONF_SERCOM_5_SPI_TXPO 0
 #endif
 
 // Calculate baud register value from requested baudrate value
