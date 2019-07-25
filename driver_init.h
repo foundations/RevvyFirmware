@@ -35,10 +35,10 @@ extern "C" {
 #include <hal_evsys.h>
 #include <tc_lite.h>
 
-extern struct i2c_m_sync_desc   I2C_1;
-extern struct i2c_m_sync_desc   I2C_2;
-extern struct i2c_m_sync_desc   I2C_3;
-extern struct i2c_m_sync_desc   I2C_4;
+extern struct i2c_m_async_desc I2C_0;
+extern struct i2c_m_async_desc I2C_1;
+extern struct i2c_m_async_desc I2C_2;
+extern struct i2c_m_async_desc I2C_3;
 
 extern struct timer_descriptor TIMER_TC6;
 

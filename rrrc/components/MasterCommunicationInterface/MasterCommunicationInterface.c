@@ -21,11 +21,11 @@ static TaskHandle_t communicationTaskHandle;
 
 static uint8_t rxBuffer[255 + 6];
 
-static i2c_hal_descriptor I2C_0;
+static i2c_hal_descriptor I2C_4;
 const MasterCommunicationInterface_Config_t* config;
 
 //*********************************************************************************************
-static int32_t I2C_0_init(i2c_hal_descriptor* descriptor)
+static int32_t I2C_4_init(i2c_hal_descriptor* descriptor)
 {
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_CORE, CONF_GCLK_SERCOM2_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_SLOW, CONF_GCLK_SERCOM2_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
@@ -43,9 +43,9 @@ static void CommunicationTask(void* user_data)
 {
     config = (const MasterCommunicationInterface_Config_t*) user_data;
 
-    (void) I2C_0_init(&I2C_0);
+    (void) I2C_4_init(&I2C_4);
     
-    i2c_hal_receive(&I2C_0, &rxBuffer[0], sizeof(rxBuffer));
+    i2c_hal_receive(&I2C_4, &rxBuffer[0], sizeof(rxBuffer));
     for(;;)
     {
         uint32_t bytesReceived;
@@ -110,5 +110,5 @@ void MasterCommunicationInterface_Call_RxTimeout(void)
 
 void MasterCommunicationInterface_Run_SetResponse(const uint8_t* buffer, size_t bufferSize)
 {
-    i2c_hal_set_tx_buffer(&I2C_0, buffer, bufferSize);
+    i2c_hal_set_tx_buffer(&I2C_4, buffer, bufferSize);
 }
