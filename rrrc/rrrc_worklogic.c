@@ -348,7 +348,7 @@ void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t 
         switch (channel_idx)
         {
             case S0_ADC_CH:
-                sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
+                sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
                 break;
         }
     }
@@ -357,15 +357,15 @@ void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t 
         switch (channel_idx)
         {
             case S1_ADC_CH:
-                sensorAdcValues[1] = adc_data >> 4; /* 12 -> 8 bit */
-                break;
-
-            case S2_ADC_CH:
                 sensorAdcValues[2] = adc_data >> 4; /* 12 -> 8 bit */
                 break;
 
+            case S2_ADC_CH:
+                sensorAdcValues[1] = adc_data >> 4; /* 12 -> 8 bit */
+                break;
+
             case S3_ADC_CH:
-                sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
+                sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
                 break;
         }
     }
