@@ -10,15 +10,17 @@
 #include <stdbool.h>
 #define I2C_ADDRESS ((uint8_t) 0x68u) //0110 1000
 
-static uint8_t data;
-static uint8_t prev_data;
-static bool reading;
+typedef struct {
+    uint8_t data;
+    bool reading;
+} SensorLibrary_DebugRTC_Data_t;
 
 static void rxcomplete(struct i2c_m_async_desc *const i2c)
 {
     SensorPort_t *port = CONTAINER_OF(i2c, SensorPort_t, i2c);
-    SensorPort_SetOrangeLed(port, ((data % 2) == 0));
-    reading = false;
+    SensorLibrary_DebugRTC_Data_t* libdata = port->libraryData;
+    SensorPort_SetOrangeLed(port, ((libdata->data % 2) == 0));
+    libdata->reading = false;
 }
 
 static void txcomplete(struct i2c_m_async_desc *const i2c)
@@ -28,7 +30,11 @@ static void txcomplete(struct i2c_m_async_desc *const i2c)
 
 static void error(struct i2c_m_async_desc *const i2c, int32_t error)
 {
-    reading = false;
+    SensorPort_t *port = CONTAINER_OF(i2c, SensorPort_t, i2c);
+    SensorLibrary_DebugRTC_Data_t* libdata = port->libraryData;
+    libdata->reading = false;
+    SensorPort_SetGreenLed(port, false);
+    SensorPort_SetOrangeLed(port, false);
 }
 
 const i2c_callbacks_t callbacks = 
@@ -42,30 +48,39 @@ SensorLibraryStatus_t DebugRTC_Init(SensorPort_t* sensorPort)
 {
     SensorPort_SetVccIo(sensorPort, Sensor_VccIo_5V);
     SensorPort_I2C_Enable(sensorPort, 100, &callbacks);
-
-    reading = false;
-    data = 0;
-    prev_data = 0;
-
+    SensorPort_SetOrangeLed(sensorPort, false);
+    
+    SensorLibrary_DebugRTC_Data_t* libdata = SensorPortHandler_Call_Allocate(sizeof(SensorLibrary_DebugRTC_Data_t));
+    libdata->reading = false; 
+    libdata->data = 0u;
+    
+    sensorPort->libraryData = libdata;
+    
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t DebugRTC_DeInit(SensorPort_t* sensorPort)
 {
     SensorPort_SetGreenLed(sensorPort, false);
+    SensorPort_SetOrangeLed(sensorPort, false);
+    SensorPort_SetVccIo(sensorPort, Sensor_VccIo_3V3);
     SensorPort_I2C_Disable(sensorPort);
+    SensorPortHandler_Call_Free(&sensorPort->libraryData);
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t DebugRTC_Update(SensorPort_t* sensorPort)
 {
-    if (!reading)
+    SensorLibrary_DebugRTC_Data_t* libdata = sensorPort->libraryData;
+    if (!libdata->reading)
     {
-        reading = true;
-        if (SensorPort_I2C_StartRegRead(sensorPort, I2C_ADDRESS, 0x00, &data, 1) == SensorPort_I2C_Error)
+        libdata->reading = true;
+        if (SensorPort_I2C_StartRegRead(sensorPort, I2C_ADDRESS, 0x00, &libdata->data, 1) == SensorPort_I2C_Error)
         {
             SensorPort_SetGreenLed(sensorPort, false);
-            reading = false;
+            SensorPort_SetOrangeLed(sensorPort, false);
+            libdata->reading = false;
         }
         else
         {
