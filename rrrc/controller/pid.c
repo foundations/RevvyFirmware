@@ -33,6 +33,11 @@ float pid_update(PID_t* controller, float refSignal, float feedback)
     float u2k = (1 - controller->config.I) * controller->state.previousFeedback + controller->config.I * controller->state.previousOutput;
     float uk = constrain_f32(u1k + u2k, controller->config.LowerLimit, controller->config.UpperLimit);
 
+    if (error == 0)
+    {
+        u2k = 0;
+    }
+
     controller->state.previousError = error;
     controller->state.previousFeedback = u2k;
     controller->state.previousOutput = uk;
