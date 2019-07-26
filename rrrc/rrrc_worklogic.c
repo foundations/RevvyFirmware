@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <string.h>
+#include "utils/functions.h"
 
 static BlockInfo_t errorStorageBlocks[] = {
     { .base_address = 0x3C000u },
@@ -205,7 +206,6 @@ int32_t RRRC_Init(void)
 
 static void ProcessTasks_10ms(void)
 {
-    ADC_Run_Update();
     BatteryCharger_Run_Update();
     IMU_Run_OnUpdate();
 }
@@ -321,27 +321,41 @@ void RRRC_ProcessLogic_xTask(void* user)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (uint8_t cycleCounter = 0u;;)
     {
-        ProcessTasks_10ms();
+        ADC_Run_Update();
+    
+        if (cycleCounter % 10 == 9)
+        {
+            ProcessTasks_10ms();
+            if (cycleCounter % 20 == 19)
+            {
+                ProcessTasks_20ms();
         
-        if (cycleCounter % 2 == 0)
-        {
-            ProcessTasks_20ms();
-        }
-        if (cycleCounter == 9u)
-        {
-            ProcessTasks_100ms();
-            cycleCounter = 0u;
+                if (cycleCounter == 99u)
+                {
+                    ProcessTasks_100ms();
+                    cycleCounter = 0u;
+                }
+                else
+                {
+                    cycleCounter++;
+                }
+            }
+            else
+            {
+                cycleCounter++;
+            }
         }
         else
         {
             cycleCounter++;
         }
 
-        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(10));
+        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(1));
     }
 }
 
 uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
+float motorCurrents[ARRAY_SIZE(motorPorts)];
 
 void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
 {
@@ -380,9 +394,15 @@ void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float volt
         switch (channel_idx)
         {
             case M1_ISEN_CH:
+                motorCurrents[1] = map(voltage, 0, 200, 0, 1.66667f);
+                break;
+
             case M3_ISEN_CH:
+                motorCurrents[3] = map(voltage, 0, 200, 0, 1.66667f);
+                break;
+
             case M4_ISEN_CH:
-                /* TODO */
+                motorCurrents[4] = map(voltage, 0, 200, 0, 1.66667f);
                 break;
         }
     }
@@ -399,9 +419,15 @@ void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float volt
                 break;
 
             case M0_ISEN_CH:
+                motorCurrents[0] = map(voltage, 0, 200, 0, 1.66667f);
+                break;
+
             case M2_ISEN_CH:
+                motorCurrents[2] = map(voltage, 0, 200, 0, 1.66667f);
+                break;
+
             case M5_ISEN_CH:
-                /* TODO */
+                motorCurrents[5] = map(voltage, 0, 200, 0, 1.66667f);
                 break;
         }
     }
