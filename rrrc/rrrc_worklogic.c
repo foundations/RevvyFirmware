@@ -356,6 +356,8 @@ void RRRC_ProcessLogic_xTask(void* user)
 
 uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
 float motorCurrents[ARRAY_SIZE(motorPorts)];
+float motorPreviousCurrents[ARRAY_SIZE(motorPorts)];
+uint16_t motorRawCurrents[ARRAY_SIZE(motorPorts)];
 
 void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
 {
@@ -363,6 +365,18 @@ void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t 
     {
         switch (channel_idx)
         {
+            case M1_ISEN_CH:
+                motorRawCurrents[1] = adc_data;
+                break;
+
+            case M3_ISEN_CH:
+                motorRawCurrents[3] = adc_data;
+                break;
+
+            case M4_ISEN_CH:
+                motorRawCurrents[4] = adc_data;
+                break;
+
             case S0_ADC_CH:
                 sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
                 break;
@@ -383,8 +397,26 @@ void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t 
             case S3_ADC_CH:
                 sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
                 break;
+
+            case M0_ISEN_CH:
+                motorRawCurrents[0] = adc_data;
+                break;
+
+            case M2_ISEN_CH:
+                motorRawCurrents[2] = adc_data;
+                break;
+
+            case M5_ISEN_CH:
+                motorRawCurrents[5] = adc_data;
+                break;
         }
     }
+}
+
+static inline void _update_current(uint8_t idx, float voltage)
+{
+    motorPreviousCurrents[idx] = motorCurrents[idx];
+    motorCurrents[idx] = map_constrained(voltage, 0, 200, 0, 1.66667f) * 0.05f + motorPreviousCurrents[idx] * 0.95f;
 }
 
 void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float voltage)
@@ -394,15 +426,15 @@ void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float volt
         switch (channel_idx)
         {
             case M1_ISEN_CH:
-                motorCurrents[1] = map(voltage, 0, 200, 0, 1.66667f);
+                _update_current(1, voltage);
                 break;
 
             case M3_ISEN_CH:
-                motorCurrents[3] = map(voltage, 0, 200, 0, 1.66667f);
+                _update_current(3, voltage);
                 break;
 
             case M4_ISEN_CH:
-                motorCurrents[4] = map(voltage, 0, 200, 0, 1.66667f);
+                _update_current(4, voltage);
                 break;
         }
     }
@@ -419,15 +451,15 @@ void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float volt
                 break;
 
             case M0_ISEN_CH:
-                motorCurrents[0] = map(voltage, 0, 200, 0, 1.66667f);
+                _update_current(0, voltage);
                 break;
 
             case M2_ISEN_CH:
-                motorCurrents[2] = map(voltage, 0, 200, 0, 1.66667f);
+                _update_current(2, voltage);
                 break;
 
             case M5_ISEN_CH:
-                motorCurrents[5] = map(voltage, 0, 200, 0, 1.66667f);
+                _update_current(5, voltage);
                 break;
         }
     }
@@ -809,7 +841,7 @@ void MotorPortHandler_Call_Free(void** ptr)
 }
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
-static int8_t driveValues[ARRAY_SIZE(motorDrivers)][2] = {0};
+static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
 static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
 
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
@@ -897,12 +929,12 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
 
 void MotorPortHandler_Write_MotorDriveValue(uint8_t driver_idx, uint8_t channel_idx, int8_t value)
 {
-    driveValues[driver_idx][channel_idx] = value;
+    driveValues[2 * driver_idx + channel_idx] = value;
 }
 
 int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel)
 {
-    return driveValues[driver->idx][channel];
+    return driveValues[2 * driver->idx + channel];
 }
 
 bool RingLedDisplay_Read_MasterReady(void)
