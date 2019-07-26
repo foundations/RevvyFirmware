@@ -110,8 +110,8 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
         float avgPosDiff = sumPosDiff / (float) libdata->positionBufferCount;
  
         /* Calculate speed - 20ms cycle time */
-        float dt = 0.02f;
-        float speed = avgPosDiff / dt;
+        /* float dt = 0.02f; -> multiply by 50 */
+        float speed = avgPosDiff * 50.0f;
 
         libdata->speed = speed;
 
