@@ -48,6 +48,8 @@ extern "C" {
 #include "components/RestartManager/RestartManager.h"
 #include "components/MotorDriver_8833/MotorDriver_8833.h"
 #include "components/IMU/IMU.h"
+#include "components/MotorThermalModel/MotorThermalModel.h"
+#include "components/MotorDerating/MotorDerating.h"
 
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);

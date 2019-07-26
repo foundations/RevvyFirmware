@@ -1229,6 +1229,12 @@
     <Compile Include="rrrc\components\MemoryAllocator\MemoryAllocator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\MotorDerating\MotorDerating.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorDerating\MotorDerating.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\MotorDriver_8833\MotorDriver_8833.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1260,6 +1266,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\MotorPortHandler\MotorPortLibraries\MotorPortLibrary.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorThermalModel\MotorThermalModel.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorThermalModel\MotorThermalModel.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\RestartManager\RestartManager.c">
@@ -1562,6 +1574,8 @@
     <Folder Include="rrrc\components\ErrorStorageWrapper" />
     <Folder Include="rrrc\components\MotorDriver_8833" />
     <Folder Include="rrrc\components\IMU" />
+    <Folder Include="rrrc\components\MotorThermalModel" />
+    <Folder Include="rrrc\components\MotorDerating" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
