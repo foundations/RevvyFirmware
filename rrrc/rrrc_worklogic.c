@@ -358,6 +358,7 @@ void RRRC_ProcessLogic_xTask(void* user)
 uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
 float motorCurrents[ARRAY_SIZE(motorPorts)];
 float motorPreviousCurrents[ARRAY_SIZE(motorPorts)];
+float motorTemperatures[ARRAY_SIZE(motorPorts)];
 uint16_t motorRawCurrents[ARRAY_SIZE(motorPorts)];
 
 void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
@@ -985,6 +986,21 @@ int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDrive
             ASSERT(0);
             return 0;
     }
+}
+
+float MotorThermalModel_Read_MotorCurrent(MotorThermalModel_t* model)
+{
+    return motorCurrents[model->idx];
+}
+
+void MotorThermalModel_Write_Temperature(MotorThermalModel_t* model, float temp)
+{
+    motorTemperatures[model->idx] = temp;
+}
+
+float MotorDerating_Read_MotorTemperature(uint8_t motor_idx)
+{
+    return motorTemperatures[motor_idx];
 }
 
 bool RingLedDisplay_Read_MasterReady(void)
