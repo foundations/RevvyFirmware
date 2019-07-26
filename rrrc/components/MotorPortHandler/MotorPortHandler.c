@@ -305,7 +305,7 @@ void MotorPortHandler_Run_PortUpdate(uint8_t port_idx)
 }
 
 __attribute__((weak))
-void MotorPortHandler_Write_MotorDriveValue(uint8_t driver_idx, uint8_t channel_idx, int8_t value)
+void MotorPortHandler_Write_MotorDriveValue(uint8_t motor, int8_t value)
 {
     (void) port_idx;
     (void) value;

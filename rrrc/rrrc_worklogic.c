@@ -217,6 +217,7 @@ static void ProcessTasks_20ms(void)
     for (size_t i = 0u; i < ARRAY_SIZE(motorPorts); i++)
     {
         MotorPortHandler_Run_PortUpdate(i);
+        MotorDerating_Run_OnUpdate(i);
     }
 
     SensorPortHandler_Run_Update();
@@ -842,6 +843,7 @@ void MotorPortHandler_Call_Free(void** ptr)
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
 static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
+static int8_t deratedDriveValues[ARRAY_SIZE(motorPorts)] = {0};
 static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
 
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
@@ -927,14 +929,62 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
     }
 }
 
-void MotorPortHandler_Write_MotorDriveValue(uint8_t driver_idx, uint8_t channel_idx, int8_t value)
+int8_t MotorDerating_Read_ControlValue(uint8_t motor_idx)
 {
-    driveValues[2 * driver_idx + channel_idx] = value;
+    return driveValues[motor_idx];
+}
+
+void MotorDerating_Write_ControlValue(uint8_t motor_idx, int8_t control_value)
+{
+    deratedDriveValues[motor_idx] = control_value;
+}
+
+void MotorPortHandler_Write_MotorDriveValue(uint8_t motor_idx, int8_t value)
+{
+    driveValues[motor_idx] = value;
 }
 
 int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel)
 {
-    return driveValues[2 * driver->idx + channel];
+    switch (driver->idx)
+    {
+        case 0u:
+            if (channel == MotorDriver_8833_Channel_A)
+            {
+                return deratedDriveValues[1];
+            }
+            else
+            {
+                return deratedDriveValues[2];
+            }
+            break;
+
+        case 1u:
+            if (channel == MotorDriver_8833_Channel_A)
+            {
+                return deratedDriveValues[0];
+            }
+            else
+            {
+                return deratedDriveValues[5];
+            }
+            break;
+
+        case 2u:
+            if (channel == MotorDriver_8833_Channel_A)
+            {
+                return deratedDriveValues[3];
+            }
+            else
+            {
+                return deratedDriveValues[4];
+            }
+            break;
+
+        default:
+            ASSERT(0);
+            return 0;
+    }
 }
 
 bool RingLedDisplay_Read_MasterReady(void)

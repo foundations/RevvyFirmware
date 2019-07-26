@@ -11,10 +11,9 @@
 
 #include <stdio.h>
 
-typedef struct {
-    uint8_t motor_idx;
-} MotorDerating_t;
-
-uint8_t MotorDerating_Read_MotorTemperature(MotorDerating_t* motor);
+void MotorDerating_Run_OnUpdate(uint8_t motor_idx);
+float MotorDerating_Read_MotorTemperature(uint8_t motor_idx);
+int8_t MotorDerating_Read_ControlValue(uint8_t motor_idx);
+void MotorDerating_Write_ControlValue(uint8_t motor_idx, int8_t control_value);
 
 #endif /* COMPONENT_MOTOR_DERATING_H_ */
