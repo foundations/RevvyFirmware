@@ -25,13 +25,15 @@ typedef struct {
     uint16_t deleted;
 } BlockInfo_t;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t error_id;
-    uint8_t data[30];
+    uint32_t hardware_version;
+    uint32_t firmware_version;
+    uint8_t data[54];
 } ErrorInfo_t;
 
 void ErrorStorage_Run_OnInit(BlockInfo_t* blocks, size_t num_blocks);
-void ErrorStorage_Run_Store(const ErrorInfo_t* data);
+void ErrorStorage_Run_Store(ErrorInfo_t* data);
 void ErrorStorage_Run_Clear(void);
 
 void ErrorStorage_Write_NumberOfStoredErrors(uint32_t number);

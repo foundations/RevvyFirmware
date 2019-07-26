@@ -10,12 +10,14 @@
 
 #include <peripheral_clk_config.h>
 #include <hal_flash.h>
+#include "rrrc_hal.h"
+#include "fw_version.h"
 
-#define NVM_LAYOUT_VERSION   ((uint8_t) 0x00u)
+#define NVM_LAYOUT_VERSION   ((uint8_t) 0x01u)
 
 #define BLOCK_SIZE          (8192u)
-#define HEADER_OBJECT_SIZE  (32u)
-#define DATA_OBJECT_SIZE    (32u)
+#define HEADER_OBJECT_SIZE  (64u)
+#define DATA_OBJECT_SIZE    (64u)
 #define OBJECTS_PER_BLOCK   ((BLOCK_SIZE - HEADER_OBJECT_SIZE) / DATA_OBJECT_SIZE)
 
 typedef struct {
@@ -24,17 +26,17 @@ typedef struct {
 
 typedef union {
     FlashHeader_t header;
-    uint8_t raw[32];
+    uint8_t raw[64];
 } FlashHeaderObject_t;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     struct {
         uint8_t reserved:5;
         uint8_t deleted:1;
         uint8_t valid:1;
         uint8_t allocated:1;
     } status;
-    uint8_t data[31];
+    uint8_t data[63];
 } FlashData_t;
 
 /* this 32 bytes size is set in stone */
@@ -99,9 +101,9 @@ static void _delete_object(BlockInfo_t* block, uint8_t idx)
     }
 }
 
-static void _write_block_header(BlockInfo_t* block, const FlashHeader_t* header)
+static void _write_block_header(BlockInfo_t* block, FlashHeader_t* header)
 {
-    flash_append(&FLASH_0, block->base_address, (const uint8_t*) header, sizeof(FlashHeader_t));
+    flash_append(&FLASH_0, block->base_address, (uint8_t*) header, sizeof(FlashHeader_t));
 }
 
 static void _store_object(BlockInfo_t* block, const void* data, size_t size)
@@ -263,7 +265,7 @@ void ErrorStorage_Run_Clear(void)
     _update_number_of_stored_errors();
 }
 
-void ErrorStorage_Run_Store(const ErrorInfo_t* data)
+void ErrorStorage_Run_Store(ErrorInfo_t* data)
 {
     __disable_irq();
     if (esBlocks[esActiveBlock].allocated == OBJECTS_PER_BLOCK)
@@ -271,6 +273,9 @@ void ErrorStorage_Run_Store(const ErrorInfo_t* data)
         _cleanup_invalid_and_full_blocks();
         _select_active_block();
     }
+    
+    data->hardware_version = FLASH_HEADER->hw_version;
+    data->firmware_version = FW_VERSION_NUMBER;
 
     _store_object(&esBlocks[esActiveBlock], data, sizeof(ErrorInfo_t));
     _update_number_of_stored_errors();
