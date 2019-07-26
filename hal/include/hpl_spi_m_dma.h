@@ -128,17 +128,6 @@ int32_t _spi_m_dma_set_mode(struct _spi_m_dma_dev *dev, const enum spi_transfer_
 int32_t _spi_m_dma_set_baudrate(struct _spi_m_dma_dev *dev, const uint32_t baud_val);
 
 /**
- *  \brief Set SPI baudrate
- *  \param[in, out] dev Pointer to the SPI device instance.
- *  \param[in] char_size The character size, see \ref spi_char_size.
- *  \return Operation status.
- *  \retval ERR_INVALID_ARG The character size is not supported.
- *  \retval ERR_BUSY SPI is not ready to accept new setting.
- *  \retval 0 Operation done successfully.
- */
-int32_t _spi_m_dma_set_char_size(struct _spi_m_dma_dev *dev, const enum spi_char_size char_size);
-
-/**
  *  \brief Set SPI data order
  *  \param[in] dev Pointer to the SPI device instance.
  *  \param[in] dord SPI data order (LSB/MSB first).

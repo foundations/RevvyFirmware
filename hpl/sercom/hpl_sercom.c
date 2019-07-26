@@ -2350,31 +2350,6 @@ static int32_t _spi_set_baudrate(void *const hw, const uint32_t baud_val)
 	return ERR_NONE;
 }
 
-/** \internal Set SERCOM SPI char size
- *
- * \param[in] hw Pointer to the hardware register base.
- * \param[in] baud_val The baudrate to set
- * \param[out] size Stored char size
- *
- * \return Setting char size status
- */
-static int32_t _spi_set_char_size(void *const hw, const enum spi_char_size char_size, uint8_t *const size)
-{
-	/* Only 8-bit or 9-bit accepted */
-	if (!(char_size == SPI_CHAR_SIZE_8 || char_size == SPI_CHAR_SIZE_9)) {
-		return ERR_INVALID_ARG;
-	}
-
-	if (hri_sercomspi_is_syncing(hw, SERCOM_SPI_SYNCBUSY_SWRST | SERCOM_SPI_SYNCBUSY_CTRLB)) {
-		return ERR_BUSY;
-	}
-
-	hri_sercomspi_write_CTRLB_CHSIZE_bf(hw, char_size);
-	*size = (char_size == SPI_CHAR_SIZE_8) ? 1 : 2;
-
-	return ERR_NONE;
-}
-
 /** \internal Set SERCOM SPI data order
  *
  * \param[in] hw Pointer to the hardware register base.
@@ -2837,34 +2812,6 @@ int32_t _spi_m_async_set_baudrate(struct _spi_async_dev *dev, const uint32_t bau
 	return _spi_set_baudrate(dev->prvt, baud_val);
 }
 
-int32_t _spi_m_sync_set_char_size(struct _spi_m_sync_dev *dev, const enum spi_char_size char_size)
-{
-	ASSERT(dev && dev->prvt);
-
-	return _spi_set_char_size(dev->prvt, char_size, &dev->char_size);
-}
-
-int32_t _spi_m_async_set_char_size(struct _spi_async_dev *dev, const enum spi_char_size char_size)
-{
-	ASSERT(dev && dev->prvt);
-
-	return _spi_set_char_size(dev->prvt, char_size, &dev->char_size);
-}
-
-int32_t _spi_s_async_set_char_size(struct _spi_s_async_dev *dev, const enum spi_char_size char_size)
-{
-	ASSERT(dev && dev->prvt);
-
-	return _spi_set_char_size(dev->prvt, char_size, &dev->char_size);
-}
-
-int32_t _spi_s_sync_set_char_size(struct _spi_s_sync_dev *dev, const enum spi_char_size char_size)
-{
-	ASSERT(dev && dev->prvt);
-
-	return _spi_set_char_size(dev->prvt, char_size, &dev->char_size);
-}
-
 int32_t _spi_m_sync_set_data_order(struct _spi_m_sync_dev *dev, const enum spi_data_order dord)
 {
 	ASSERT(dev && dev->prvt);
@@ -2912,8 +2859,6 @@ struct _spi_trans_ctrl {
 	uint32_t txcnt;
 	/** Count number of data received. */
 	uint32_t rxcnt;
-	/** Data character size. */
-	uint8_t char_size;
 };
 
 /** Check interrupt flag of RXC and update transaction runtime information. */
@@ -2929,10 +2874,6 @@ static inline bool _spi_rx_check_and_receive(void *const hw, const uint32_t ifla
 
 	if (ctrl->rxbuf) {
 		*ctrl->rxbuf++ = (uint8_t)data;
-
-		if (ctrl->char_size > 1) {
-			*ctrl->rxbuf++ = (uint8_t)(data >> 8);
-		}
 	}
 
 	ctrl->rxcnt++;
@@ -2952,11 +2893,6 @@ static inline void _spi_tx_check_and_send(void *const hw, const uint32_t iflag, 
 
 	if (ctrl->txbuf) {
 		data = *ctrl->txbuf++;
-
-		if (ctrl->char_size > 1) {
-			data |= (*ctrl->txbuf) << 8;
-			ctrl->txbuf++;
-		}
 	} else {
 		data = dummy;
 	}
@@ -2977,11 +2913,11 @@ static inline int32_t _spi_err_check(const uint32_t iflag, void *const hw)
 	return ERR_NONE;
 }
 
-int32_t _spi_m_sync_trans(struct _spi_m_sync_dev *dev, const struct spi_msg *msg)
+int32_t _spi_m_sync_trans(struct _spi_m_sync_dev *dev, const struct spi_xfer *msg)
 {
 	void *                 hw   = dev->prvt;
 	int32_t                rc   = 0;
-	struct _spi_trans_ctrl ctrl = {msg->txbuf, msg->rxbuf, 0, 0, dev->char_size};
+	struct _spi_trans_ctrl ctrl = {msg->txbuf, msg->rxbuf, 0, 0};
 
 	ASSERT(dev && hw);
 
@@ -3517,17 +3453,6 @@ int32_t _spi_m_dma_set_data_order(struct _spi_m_dma_dev *dev, const enum spi_dat
 	ASSERT(dev && dev->prvt);
 
 	return _spi_set_data_order(dev->prvt, dord);
-}
-
-int32_t _spi_m_dma_set_char_size(struct _spi_m_dma_dev *dev, const enum spi_char_size char_size)
-{
-	uint8_t size;
-
-	ASSERT(dev && dev->prvt);
-
-	_spi_set_char_size(dev->prvt, char_size, &size);
-
-	return size;
 }
 
 void _spi_m_dma_register_callback(struct _spi_m_dma_dev *dev, enum _spi_dma_dev_cb_type type, _spi_dma_cb_t func)

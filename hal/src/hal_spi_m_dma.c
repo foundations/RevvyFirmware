@@ -100,12 +100,6 @@ int32_t spi_m_dma_set_mode(struct spi_m_dma_descriptor *spi, const enum spi_tran
 	return _spi_m_dma_set_mode(&spi->dev, mode);
 }
 
-int32_t spi_m_dma_set_char_size(struct spi_m_dma_descriptor *spi, const enum spi_char_size char_size)
-{
-	ASSERT(spi);
-	return _spi_m_dma_set_char_size(&spi->dev, char_size);
-}
-
 int32_t spi_m_dma_set_data_order(struct spi_m_dma_descriptor *spi, const enum spi_data_order dord)
 {
 	ASSERT(spi);

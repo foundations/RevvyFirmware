@@ -106,12 +106,6 @@ int32_t spi_m_sync_set_mode(struct spi_m_sync_descriptor *spi, const enum spi_tr
 	return _spi_m_sync_set_mode(&spi->dev, mode);
 }
 
-int32_t spi_m_sync_set_char_size(struct spi_m_sync_descriptor *spi, const enum spi_char_size char_size)
-{
-	ASSERT(spi);
-	return _spi_m_sync_set_char_size(&spi->dev, char_size);
-}
-
 int32_t spi_m_sync_set_data_order(struct spi_m_sync_descriptor *spi, const enum spi_data_order dord)
 {
 	ASSERT(spi);
@@ -174,14 +168,9 @@ static int32_t _spi_m_sync_io_write(struct io_descriptor *const io, const uint8_
 
 int32_t spi_m_sync_transfer(struct spi_m_sync_descriptor *spi, const struct spi_xfer *p_xfer)
 {
-	struct spi_msg msg;
-
 	ASSERT(spi && p_xfer);
 
-	msg.txbuf = p_xfer->txbuf;
-	msg.rxbuf = p_xfer->rxbuf;
-	msg.size  = p_xfer->size;
-	return _spi_m_sync_trans(&spi->dev, &msg);
+	return _spi_m_sync_trans(&spi->dev, p_xfer);
 }
 
 int32_t spi_m_sync_get_io_descriptor(struct spi_m_sync_descriptor *const spi, struct io_descriptor **io)

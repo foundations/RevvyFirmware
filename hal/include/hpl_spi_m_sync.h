@@ -122,17 +122,6 @@ int32_t _spi_m_sync_set_mode(struct _spi_m_sync_dev *dev, const enum spi_transfe
 int32_t _spi_m_sync_set_baudrate(struct _spi_m_sync_dev *dev, const uint32_t baud_val);
 
 /**
- *  \brief Set SPI char size
- *  \param[in, out] dev Pointer to the SPI device instance.
- *  \param[in] char_size The character size, see \ref spi_char_size.
- *  \return Operation status.
- *  \retval ERR_INVALID_ARG The character size is not supported.
- *  \retval ERR_BUSY SPI is not ready to accept new setting.
- *  \retval 0 Operation done successfully.
- */
-int32_t _spi_m_sync_set_char_size(struct _spi_m_sync_dev *dev, const enum spi_char_size char_size);
-
-/**
  *  \brief Set SPI data order
  *  \param[in, out] dev Pointer to the SPI device instance.
  *  \param[in] dord SPI data order (LSB/MSB first).
@@ -155,7 +144,7 @@ int32_t _spi_m_sync_set_data_order(struct _spi_m_sync_dev *dev, const enum spi_d
  *  \retval SPI_ERR_OVERFLOW Overflow error.
  *  \retval >=0 Number of characters transferred.
  */
-int32_t _spi_m_sync_trans(struct _spi_m_sync_dev *dev, const struct spi_msg *msg);
+int32_t _spi_m_sync_trans(struct _spi_m_sync_dev *dev, const struct spi_xfer *msg);
 //@}
 
 #ifdef __cplusplus

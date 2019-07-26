@@ -149,25 +149,6 @@ int32_t spi_m_sync_set_baudrate(struct spi_m_sync_descriptor *spi, const uint32_
  */
 int32_t spi_m_sync_set_mode(struct spi_m_sync_descriptor *spi, const enum spi_transfer_mode mode);
 
-/** \brief Set SPI transfer character size in number of bits
- *
- *  The character size (\ref spi_char_size) influence the way the data is
- *  sent/received.
- *  For char size <= 8-bit, data is stored byte by byte.
- *  For char size between 9-bit ~ 16-bit, data is stored in 2-byte length.
- *  Note that the default and recommended char size is 8-bit since it's
- *  supported by all system.
- *
- *  \param[in] spi Pointer to the HAL SPI instance.
- *  \param[in] char_size The char size (~16, recommended 8).
- *
- *  \return Operation status.
- *  \retval ERR_NONE Success.
- *  \retval ERR_BUSY Busy
- *  \retval ERR_INVALID_ARG The char size is not supported.
- */
-int32_t spi_m_sync_set_char_size(struct spi_m_sync_descriptor *spi, const enum spi_char_size char_size);
-
 /** \brief Set SPI transfer data order
  *
  *  \param[in] spi Pointer to the HAL SPI instance.

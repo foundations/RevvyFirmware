@@ -122,17 +122,6 @@ int32_t _spi_s_async_disable(struct _spi_s_async_dev *dev);
 int32_t _spi_s_async_set_mode(struct _spi_s_async_dev *dev, const enum spi_transfer_mode mode);
 
 /**
- *  \brief Set SPI baudrate
- *  \param[in, out] dev Pointer to the SPI device instance.
- *  \param[in] char_size The character size, see \ref spi_char_size.
- *  \return Operation status.
- *  \retval ERR_INVALID_ARG The character size is not supported.
- *  \retval ERR_BUSY SPI is not ready to accept new setting.
- *  \retval 0 Operation done successfully.
- */
-int32_t _spi_s_async_set_char_size(struct _spi_s_async_dev *dev, const enum spi_char_size char_size);
-
-/**
  *  \brief Set SPI data order
  *  \param[in, out] dev Pointer to the SPI device instance.
  *  \param[in] dord SPI data order (LSB/MSB first).
