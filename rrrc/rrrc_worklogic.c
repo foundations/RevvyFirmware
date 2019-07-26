@@ -35,6 +35,15 @@ static uint8_t motorBatteryPercentage;
 
 static bool masterBooted = false;
 
+static MotorThermalModel_t motorThermalModels[6] = {
+    { .idx = 0u },
+    { .idx = 1u },
+    { .idx = 2u },
+    { .idx = 3u },
+    { .idx = 4u },
+    { .idx = 5u }
+};
+
 static MotorPort_t motorPorts[] = 
 {
     {
@@ -204,6 +213,15 @@ int32_t RRRC_Init(void)
     return result;
 }
 
+static void ProcessTasks_1ms(void)
+{
+    for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
+    {
+        MotorThermalModel_Run_OnUpdate(&motorThermalModels[i]);
+    }
+    ADC_Run_Update();
+}
+
 static void ProcessTasks_10ms(void)
 {
     BatteryCharger_Run_Update();
@@ -271,6 +289,11 @@ void RRRC_ProcessLogic_xTask(void* user)
             RestartManager_Run_RebootToBootloader();
         }
     }
+    
+    for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
+    {
+        MotorThermalModel_Run_OnInit(&motorThermalModels[i]);
+    }
 
     ADC_Run_OnInit();
     BatteryCharger_Run_OnInit();
@@ -322,7 +345,7 @@ void RRRC_ProcessLogic_xTask(void* user)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (uint8_t cycleCounter = 0u;;)
     {
-        ADC_Run_Update();
+        ProcessTasks_1ms();
     
         if (cycleCounter % 10 == 9)
         {
@@ -952,18 +975,7 @@ int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDrive
         case 0u:
             if (channel == MotorDriver_8833_Channel_A)
             {
-                return deratedDriveValues[1];
-            }
-            else
-            {
-                return deratedDriveValues[2];
-            }
-            break;
-
-        case 1u:
-            if (channel == MotorDriver_8833_Channel_A)
-            {
-                return deratedDriveValues[0];
+                return deratedDriveValues[4];
             }
             else
             {
@@ -971,14 +983,25 @@ int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDrive
             }
             break;
 
-        case 2u:
+        case 1u:
             if (channel == MotorDriver_8833_Channel_A)
             {
                 return deratedDriveValues[3];
             }
             else
             {
-                return deratedDriveValues[4];
+                return deratedDriveValues[0];
+            }
+            break;
+
+        case 2u:
+            if (channel == MotorDriver_8833_Channel_A)
+            {
+                return deratedDriveValues[2];
+            }
+            else
+            {
+                return deratedDriveValues[1];
             }
             break;
 
