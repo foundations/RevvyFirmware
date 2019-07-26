@@ -391,15 +391,15 @@ void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t 
         switch (channel_idx)
         {
             case M1_ISEN_CH:
-                motorRawCurrents[1] = adc_data;
+                motorRawCurrents[4] = adc_data;
                 break;
 
             case M3_ISEN_CH:
-                motorRawCurrents[3] = adc_data;
+                motorRawCurrents[2] = adc_data;
                 break;
 
             case M4_ISEN_CH:
-                motorRawCurrents[4] = adc_data;
+                motorRawCurrents[1] = adc_data;
                 break;
 
             case S0_ADC_CH:
@@ -424,15 +424,15 @@ void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t 
                 break;
 
             case M0_ISEN_CH:
-                motorRawCurrents[0] = adc_data;
+                motorRawCurrents[3] = adc_data;
                 break;
 
             case M2_ISEN_CH:
-                motorRawCurrents[2] = adc_data;
+                motorRawCurrents[5] = adc_data;
                 break;
 
             case M5_ISEN_CH:
-                motorRawCurrents[5] = adc_data;
+                motorRawCurrents[0] = adc_data;
                 break;
         }
     }
@@ -451,15 +451,15 @@ void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float volt
         switch (channel_idx)
         {
             case M1_ISEN_CH:
-                _update_current(1, voltage);
+                _update_current(4, voltage);
                 break;
 
             case M3_ISEN_CH:
-                _update_current(3, voltage);
+                _update_current(2, voltage);
                 break;
 
             case M4_ISEN_CH:
-                _update_current(4, voltage);
+                _update_current(1, voltage);
                 break;
         }
     }
@@ -476,15 +476,15 @@ void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float volt
                 break;
 
             case M0_ISEN_CH:
-                _update_current(0, voltage);
+                _update_current(3, voltage);
                 break;
 
             case M2_ISEN_CH:
-                _update_current(2, voltage);
+                _update_current(5, voltage);
                 break;
 
             case M5_ISEN_CH:
-                _update_current(5, voltage);
+                _update_current(0, voltage);
                 break;
         }
     }

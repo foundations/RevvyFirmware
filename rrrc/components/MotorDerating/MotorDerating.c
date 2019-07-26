@@ -11,8 +11,8 @@
 
 #include <math.h>
 
-#define MAX_SAFE_TEMP        (20.0f)
-#define MAX_ALLOWED_TEMP    (100.0f)
+#define MAX_SAFE_TEMP        (70.0f)
+#define MAX_ALLOWED_TEMP    (130.0f)
 
 void MotorDerating_Run_OnUpdate(uint8_t motor_idx)
 {

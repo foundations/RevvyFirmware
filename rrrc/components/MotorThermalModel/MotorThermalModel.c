@@ -10,7 +10,7 @@
 #define T_AMBIENT           (20.0f)
 #define MOTOR_RESISTANCE    (3.5f)
 #define COEFF_OF_COOLING    (0.02f)
-#define COEFF_OF_HEATING    (0.02f)
+#define COEFF_OF_HEATING    (0.2f)
 
 void MotorThermalModel_Run_OnInit(MotorThermalModel_t* model)
 {
