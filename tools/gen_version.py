@@ -6,6 +6,7 @@ template = """
 /* This file is generated during the build process */
 #ifndef FW_VERSION
 #define FW_VERSION "{{FW_VERSION}}"
+#define FW_VERSION_NUMBER {{FW_VERSION}}
 #endif
 """
 
