@@ -29,9 +29,9 @@ typedef struct
     uint32_t bootloader_version;
     uint32_t target_checksum;
     uint32_t target_length;
-} FlashHeader_t;
+} AppFlashHeader_t;
 
-#define FLASH_HEADER  ((FlashHeader_t*) (FLASH_HDR_OFFSET))
+#define FLASH_HEADER  ((AppFlashHeader_t*) (FLASH_HDR_OFFSET))
 
 void high_res_timer_init(struct timer_descriptor* timer);
 uint32_t high_res_timer_get_count(void);
