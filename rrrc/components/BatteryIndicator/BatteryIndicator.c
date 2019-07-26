@@ -13,7 +13,7 @@
 #define BLINK_PERIOD    25
 #define BLINK_LENGTH     1
 
-#define CHARGING_COLOR             (rgb_t) LED_CYAN
+#define CHARGING_COLOR             (rgb_t) LED_BLUE
 #define BATTERY_NOT_DETECTED_COLOR (rgb_t) LED_OFF
 
 static void write_color_based_on_percentage(BatteryIndicator_Context_t* context, uint8_t percentage)
