@@ -68,46 +68,65 @@ static inline void _imu_send_read_address(uint8_t addr)
 
 static void _imu_write_registers(uint8_t reg, uint8_t* pData, size_t data_count)
 {
-    gpio_set_pin_level(IMU_CS_pin, false);
     struct spi_xfer xfer;
 
     xfer.txbuf = pData;
     xfer.rxbuf = NULL;
     xfer.size = data_count;
     
-    _imu_send_write_address(reg);
-    
+    gpio_set_pin_level(IMU_CS_pin, false);
+    _imu_send_write_address(reg);    
     spi_m_sync_transfer(&spi, &xfer);
     gpio_set_pin_level(IMU_CS_pin, true);
 }
 
 static void _imu_read_registers(uint8_t reg, uint8_t* pData, size_t data_count)
 {
-    gpio_set_pin_level(IMU_CS_pin, false);
     struct spi_xfer xfer;
 
     xfer.txbuf = NULL;
     xfer.rxbuf = pData;
     xfer.size = data_count;
-
-    _imu_send_read_address(reg);
     
+    gpio_set_pin_level(IMU_CS_pin, false);
+    _imu_send_read_address(reg);
     spi_m_sync_transfer(&spi, &xfer);
     gpio_set_pin_level(IMU_CS_pin, true);
 }
 
 static void _imu_write_register(uint8_t reg, uint8_t data)
 {
-    _imu_write_registers(reg, &data, 1u);
+    struct spi_xfer xfer;
+    
+    uint8_t address = reg & 0x7Fu;
+    uint8_t buffer[] = {address, data};
+
+    xfer.txbuf = buffer;
+    xfer.rxbuf = NULL;
+    xfer.size = 2u;
+    
+    gpio_set_pin_level(IMU_CS_pin, false);
+    spi_m_sync_transfer(&spi, &xfer);
+    gpio_set_pin_level(IMU_CS_pin, true);
 }
 
 static uint8_t _imu_read_register(uint8_t reg)
 {
-    uint8_t rx;
+    struct spi_xfer xfer;
+    
+    uint8_t address = 0x80u | (reg & 0x7Fu);
+    uint8_t txBuffer[] = {address, 0xFFu};
+    uint8_t rxBuffer[2];
 
-    _imu_read_registers(reg, &rx, 1u);
+    xfer.txbuf = txBuffer;
+    xfer.rxbuf = rxBuffer;
+    xfer.size = 2u;
+    
+    gpio_set_pin_level(IMU_CS_pin, false);    
+    spi_m_sync_transfer(&spi, &xfer);
+    gpio_set_pin_level(IMU_CS_pin, true);
 
-    return rx;
+    return rxBuffer[1];
 }
 
 void IMU_Run_OnUpdate(void)
