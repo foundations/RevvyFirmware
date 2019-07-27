@@ -53,17 +53,25 @@ SensorLibraryStatus_t BumperSwitch_Update(SensorPort_t* sensorPort)
 
 SensorLibraryStatus_t BumperSwitch_SetConfig(SensorPort_t* sensorPort, const uint8_t* data, uint8_t size)
 {
+    (void) sensorPort;
+    (void) data;
+    (void) size;
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t BumperSwitch_PrepareGetValue(SensorPort_t* sensorPort, const uint8_t* parameter, uint8_t parameterLength)
 {
+    (void) sensorPort;
+    (void) parameter;
+    (void) parameterLength;
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t BumperSwitch_GetValue(SensorPort_t* sensorPort, uint8_t* value, uint8_t maxSize, uint8_t* valueSize)
 {
     SensorLibrary_BumperSwitch_Data_t* libdata = (SensorLibrary_BumperSwitch_Data_t*) sensorPort->libraryData;
+
+    ASSERT(maxSize >= 2u);
 
     portENTER_CRITICAL();
     value[0] = libdata->was_pressed ? 1u : 0u;
@@ -78,11 +86,14 @@ SensorLibraryStatus_t BumperSwitch_GetValue(SensorPort_t* sensorPort, uint8_t* v
 
 SensorLibraryStatus_t BumperSwitch_UpdateConfiguration(SensorPort_t* sensorPort)
 {
+    (void) sensorPort;
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t BumperSwitch_InterruptCallback(SensorPort_t* sensorPort, bool status)
 {
+    (void) sensorPort;
+    (void) status;
     return SensorLibraryStatus_Ok;
 }
 

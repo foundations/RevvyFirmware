@@ -65,6 +65,13 @@ static void _init_port(SensorPort_t* port)
 
 Comm_Status_t SensorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload; 
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    ASSERT(responseBufferSize >= 1u);
     response[0] = sensorPortCount;
     *responseCount = 1u;
 
@@ -73,6 +80,12 @@ Comm_Status_t SensorPortHandler_GetPortAmount_Start(const uint8_t* commandPayloa
 
 Comm_Status_t SensorPortHandler_GetPortTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
     uint8_t len = 0u;
     for (uint32_t i = 0u; i < ARRAY_SIZE(libraries); i++)
     {
@@ -95,6 +108,10 @@ Comm_Status_t SensorPortHandler_GetPortTypes_Start(const uint8_t* commandPayload
 
 Comm_Status_t SensorPortHandler_SetPortType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize != 2u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -122,6 +139,10 @@ Comm_Status_t SensorPortHandler_SetPortType_Start(const uint8_t* commandPayload,
 
 Comm_Status_t SensorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (configuredPort == NULL)
     {
         return Comm_Status_Ok;
@@ -134,6 +155,10 @@ Comm_Status_t SensorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t
 
 Comm_Status_t SensorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize < 2u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -160,6 +185,10 @@ Comm_Status_t SensorPortHandler_SetPortConfig_Start(const uint8_t* commandPayloa
 
 Comm_Status_t SensorPortHandler_SetPortConfig_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (configuredPort == NULL)
     {
         return Comm_Status_Ok;
@@ -172,6 +201,10 @@ Comm_Status_t SensorPortHandler_SetPortConfig_GetResult(uint8_t* response, uint8
 
 Comm_Status_t SensorPortHandler_GetSensorData_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize < 1u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -199,6 +232,10 @@ Comm_Status_t SensorPortHandler_GetSensorData_Start(const uint8_t* commandPayloa
 
 Comm_Status_t SensorPortHandler_GetSensorData_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (activePort == NULL)
     {
         return Comm_Status_Error_InvalidOperation;
@@ -268,23 +305,28 @@ void SensorPortHandler_Run_PortUpdate(uint8_t port_idx)
 __attribute__((weak))
 uint8_t SensorPortHandler_Read_AdcData(uint8_t channel_idx)
 {
+    (void) channel_idx;
     return 0u;
 }
 
 __attribute__((weak))
 void* SensorPortHandler_Call_Allocate(size_t size)
 {
+    (void) size;
     return NULL;
 }
 
 __attribute__((weak))
 void SensorPortHandler_Call_Free(void** ptr)
 {
+    ASSERT(ptr);
     *ptr = NULL;
 }
 
 __attribute__((weak))
 void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
-
+    (void) port_idx;
+    (void) pData;
+    (void) dataSize;
 }

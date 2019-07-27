@@ -7,6 +7,8 @@
 
 #include "../rrrc_worklogic.h"
  
+ #include <utils_assert.h>
+
 /* These constants are common between bootloader and application */
 #define OPERATION_MODE_BOOTLOADER   ((uint8_t) 0xBBu)
 #define OPERATION_MODE_APPLICATION  ((uint8_t) 0xAAu)
@@ -67,11 +69,29 @@ const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT] =
 
 static Comm_Status_t PingMessageHandler_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
     return Comm_Status_Ok;
 }
 
 static Comm_Status_t GetOperationMode_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    ASSERT(responseBufferSize >= 1u);
     *response = OPERATION_MODE_APPLICATION;
     *responseCount = 1u;
     return Comm_Status_Ok;
@@ -79,6 +99,16 @@ static Comm_Status_t GetOperationMode_Start(const uint8_t* commandPayload, uint8
 
 static Comm_Status_t RebootToBootloader_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
     RestartManager_Run_RebootToBootloader();
 
     /* will not be reached, device will NACK after this point */

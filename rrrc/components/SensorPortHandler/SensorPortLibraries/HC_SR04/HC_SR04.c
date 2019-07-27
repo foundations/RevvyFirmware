@@ -172,11 +172,19 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
 
 SensorLibraryStatus_t HC_SR04_SetConfig(SensorPort_t* sensorPort, const uint8_t* data, uint8_t size)
 {
+    (void) sensorPort;
+    (void) data;
+    (void) size;
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t HC_SR04_PrepareGetValue(SensorPort_t* sensorPort, const uint8_t* parameter, uint8_t parameterLength)
 {
+    (void) sensorPort;
+    (void) parameter;
+    (void) parameterLength;
+
     return SensorLibraryStatus_Ok;
 }
 
@@ -184,21 +192,28 @@ SensorLibraryStatus_t HC_SR04_GetValue(SensorPort_t* sensorPort, uint8_t* value,
 {
     SensorLibrary_HC_SR04_Data_t* libdata = (SensorLibrary_HC_SR04_Data_t*) sensorPort->libraryData;
     
+    ASSERT(maxSize >= sizeof(uint32_t));
+
     uint32_t cm = _get_cm(libdata->filtered_distance_tick);
 
     memcpy(value, &cm, sizeof(uint32_t));
-    *valueSize = 4u;
+    *valueSize = sizeof(uint32_t);
 
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t HC_SR04_UpdateConfiguration(SensorPort_t* sensorPort)
 {
+    (void) sensorPort;
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t HC_SR04_UpdateAnalogData(SensorPort_t* sensorPort, uint8_t rawValue)
 {
+    (void) sensorPort;
+    (void) rawValue;
+
     return SensorLibraryStatus_Ok;
 }
 

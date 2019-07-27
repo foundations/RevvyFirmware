@@ -293,6 +293,8 @@ static void ProcessTasks_100ms(void)
 //*********************************************************************************************
 void RRRC_ProcessLogic_xTask(void* user)
 {
+    (void) user;
+
     ErrorStorage_Run_OnInit(&errorStorageBlocks[0], ARRAY_SIZE(errorStorageBlocks));
 
     {
