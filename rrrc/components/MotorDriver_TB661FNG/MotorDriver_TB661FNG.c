@@ -112,11 +112,13 @@ void MotorDriver_TB661FNG_Run_Update(TB6612FNG_t* driver)
 __attribute__((weak))
 int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelA(TB6612FNG_t* driver)
 {
+    ASSERT(driver);
     return 0;
 }
 
 __attribute__((weak))
 int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelB(TB6612FNG_t* driver)
 {
+    ASSERT(driver);
     return 0;
 }
