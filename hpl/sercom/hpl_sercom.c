@@ -537,6 +537,7 @@ static uint8_t _sercom_get_hardware_index(const void *const hw)
 			return i;
 		}
 	}
+    ASSERT(0);
 	return 0;
 }
 
