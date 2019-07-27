@@ -20,11 +20,18 @@ static const char* hw_version_strings[] =
 
 Comm_Status_t VersionProvider_GetHardwareVersion_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+    
     uint32_t hw = FLASH_HEADER->hw_version;
 
     if (hw < ARRAY_SIZE(hw_version_strings))
     {
         uint8_t len = strlen(hw_version_strings[hw]);
+        ASSERT(responseBufferSize >= len);
         memcpy(response, hw_version_strings[hw], len);
         *responseCount = len;
     
@@ -38,6 +45,14 @@ Comm_Status_t VersionProvider_GetHardwareVersion_Start(const uint8_t* commandPay
 
 Comm_Status_t VersionProvider_GetFirmwareVersion_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    ASSERT(responseBufferSize >= strlen(FIRMWARE_VERSION_STRING));
+
     memcpy(response, FIRMWARE_VERSION_STRING, strlen(FIRMWARE_VERSION_STRING));
     *responseCount = strlen(FIRMWARE_VERSION_STRING);
 
