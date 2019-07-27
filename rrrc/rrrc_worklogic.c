@@ -222,34 +222,58 @@ static void ProcessTasks_1ms(void)
     ADC_Run_Update();
 }
 
-static void ProcessTasks_10ms(void)
+static void ProcessTasks_10ms(uint8_t offset)
 {
-    BatteryCharger_Run_Update();
-    IMU_Run_OnUpdate();
+    if (offset == 0u)
+    {
+        BatteryCharger_Run_Update();
+        IMU_Run_OnUpdate();
+    }
 }
 
-static void ProcessTasks_20ms(void)
+static void ProcessTasks_20ms(uint8_t offset)
 {
-    /* TODO: Different ports may be handled with a time offset from each other to decrease jitter */
-    MotorPortHandler_Run_Update();
-    for (size_t i = 0u; i < ARRAY_SIZE(motorPorts); i++)
+    switch (offset)
     {
-        MotorPortHandler_Run_PortUpdate(i);
-        MotorDerating_Run_OnUpdate(i);
-    }
+        case 0u:
+            MotorPortHandler_Run_Update();
 
-    SensorPortHandler_Run_Update();
-    for (size_t i = 0u; i < ARRAY_SIZE(sensorPorts); i++)
-    {
-        SensorPortHandler_Run_PortUpdate(i);
+            RingLedDisplay_Run_Update();
+            LEDController_Run_Update();
+            break;
+
+        case 1u:
+            SensorPortHandler_Run_Update();
+            break;
+            
+        case 2u:
+        case 3u:
+        case 4u:
+        case 5u:
+        case 6u:
+        case 7u:
+            MotorPortHandler_Run_PortUpdate(offset - 2u);
+            MotorDerating_Run_OnUpdate(offset - 2u);
+            break;
+            
+        case 8u:
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
+            break;
+            
+        case  9u:
+        case 10u:
+        case 11u:
+        case 12u:
+        case 13u:
+        case 14u:
+            SensorPortHandler_Run_PortUpdate(offset - 9u);
+            break;
+
+        default:
+            break;
     }
-    
-    RingLedDisplay_Run_Update();
-    LEDController_Run_Update();
-    
-    MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
-    MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
-    MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
 }
 
 static void ProcessTasks_100ms(void)
@@ -347,27 +371,12 @@ void RRRC_ProcessLogic_xTask(void* user)
     {
         ProcessTasks_1ms();
     
-        if (cycleCounter % 10 == 9)
+        ProcessTasks_10ms(cycleCounter % 10);
+        ProcessTasks_20ms(cycleCounter % 20);
+        if (cycleCounter == 99u)
         {
-            ProcessTasks_10ms();
-            if (cycleCounter % 20 == 19)
-            {
-                ProcessTasks_20ms();
-        
-                if (cycleCounter == 99u)
-                {
-                    ProcessTasks_100ms();
-                    cycleCounter = 0u;
-                }
-                else
-                {
-                    cycleCounter++;
-                }
-            }
-            else
-            {
-                cycleCounter++;
-            }
+            ProcessTasks_100ms();
+            cycleCounter = 0u;
         }
         else
         {
