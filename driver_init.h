@@ -29,7 +29,6 @@ extern "C" {
 #include <hal_delay.h>
 #include <hal_wdt.h>
 
-#include <hal_i2c_m_sync.h>
 #include <hal_i2c_m_async.h>
 #include <hal_spi_m_dma.h>
 #include <hal_spi_m_sync.h>
@@ -37,22 +36,10 @@ extern "C" {
 #include <hal_evsys.h>
 #include <tc_lite.h>
 
-//#include "hal_usb_device.h"
-
-
-
-#define SERCOM2_I2CS_BUFFER_SIZE 128
-
-// extern struct i2c_m_async_desc I2C_1;
-// extern struct i2c_m_async_desc I2C_2;
-// extern struct i2c_m_async_desc I2C_3;
-// extern struct i2c_m_async_desc I2C_4;
-extern struct i2c_m_sync_desc		I2C_1;
-extern struct i2c_m_sync_desc		I2C_2;
-extern struct i2c_m_sync_desc		I2C_3;
-extern struct i2c_m_sync_desc		I2C_4;
-
-extern struct timer_descriptor TIMER_RTC;
+extern struct i2c_m_sync_desc   I2C_1;
+extern struct i2c_m_sync_desc   I2C_2;
+extern struct i2c_m_sync_desc   I2C_3;
+extern struct i2c_m_sync_desc   I2C_4;
 
 extern struct timer_descriptor TIMER_TC0;
 extern struct timer_descriptor TIMER_TC1;
@@ -64,13 +51,6 @@ extern struct timer_descriptor TIMER_TC6;
 extern struct timer_descriptor TIMER_TC7;
 
 extern struct timer_descriptor TIMER_TCC0;
-extern struct timer_descriptor TIMER_TCC1;
-extern struct timer_descriptor TIMER_TCC2;
-extern struct timer_descriptor TIMER_TCC3;
-extern struct timer_descriptor TIMER_TCC4;
-
-extern struct wdt_descriptor WDT_0;
-
 
 void system_init(void);
 

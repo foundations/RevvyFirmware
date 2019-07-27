@@ -15,7 +15,6 @@
 
 #include "rrrc_hal.h"
 
-struct timer_descriptor TIMER_RTC;
 struct timer_descriptor TIMER_TC0;
 struct timer_descriptor TIMER_TC1;
 struct timer_descriptor TIMER_TC2;
@@ -32,13 +31,6 @@ void EXTERNAL_IRQ_0_init(void)
     hri_mclk_set_APBAMASK_EIC_bit(MCLK);
 
     ext_irq_init();
-}
-
-//*********************************************************************************************
-static void TIMER_RTC_init(void)
-{
-    hri_mclk_set_APBAMASK_RTC_bit(MCLK);
-    timer_init(&TIMER_RTC, RTC, _rtc_get_timer());
 }
 
 //*********************************************************************************************
@@ -161,8 +153,6 @@ void system_init(void)
     IT_init();
 
     EXTERNAL_IRQ_0_init();
-
-    TIMER_RTC_init();
 
     delay_driver_init();
 
