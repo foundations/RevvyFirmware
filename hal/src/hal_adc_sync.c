@@ -52,9 +52,10 @@
 /**
  * \brief Initialize ADC
  */
-int32_t adc_sync_init(struct adc_sync_descriptor *const descr, void *const hw, void *const func)
+int32_t adc_sync_init(struct adc_sync_descriptor *const descr, void *const hw)
 {
-	ASSERT(descr && hw);
+	ASSERT(descr);
+    ASSERT(hw);
 
 	return _adc_sync_init(&descr->device, hw);
 }

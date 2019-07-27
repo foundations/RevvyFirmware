@@ -74,7 +74,7 @@ struct adc_sync_descriptor {
  *
  * \return Initialization status.
  */
-int32_t adc_sync_init(struct adc_sync_descriptor *const descr, void *const hw, void *const func);
+int32_t adc_sync_init(struct adc_sync_descriptor *const descr, void *const hw);
 
 /**
  * \brief Deinitialize ADC

@@ -55,8 +55,7 @@ static void adc_async_error_occured(struct _adc_async_device *device, const uint
  * \brief Initialize ADC
  */
 int32_t adc_async_init(struct adc_async_descriptor *const descr, void *const hw, uint8_t *channel_map,
-                       uint8_t channel_max, uint8_t channel_amount, struct adc_async_channel_descriptor *const descr_ch,
-                       void *const func)
+                       uint8_t channel_max, uint8_t channel_amount, struct adc_async_channel_descriptor *const descr_ch)
 {
 	int32_t                   init_status;
 	struct _adc_async_device *device;
