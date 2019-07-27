@@ -61,6 +61,25 @@ typedef struct
     const adc_pos_input_t input;
 } adc_channel_config_t;
 
+/*
+ ADC channel assingments:
+  - ADC0:
+   - 10 M4
+   - 11 M3
+   - 14 S0
+   - 15 M1
+
+  - ADC1:
+   - 4  M5
+   - 5  S2
+   - 6  M0
+   - 7  S3
+   - 10 M2
+   - 11 S1
+   - 12 V_MOT
+   - 13 V_BAT
+*/
+
 static adc_channel_config_t adc0_channels[] = 
 {
     { .input = S0_ADC_CH },
