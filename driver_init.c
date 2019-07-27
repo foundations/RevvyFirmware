@@ -25,11 +25,6 @@ struct timer_descriptor TIMER_TC5;
 struct timer_descriptor TIMER_TC6;
 struct timer_descriptor TIMER_TC7;
 
-struct timer_descriptor TIMER_TCC1;
-struct timer_descriptor TIMER_TCC2;
-struct timer_descriptor TIMER_TCC3;
-struct timer_descriptor TIMER_TCC4;
-
 //*********************************************************************************************
 void EXTERNAL_IRQ_0_init(void)
 {
@@ -122,42 +117,6 @@ static void TIMER_TC7_init(void)
     hri_gclk_write_PCHCTRL_reg(GCLK, TC7_GCLK_ID, CONF_GCLK_TC7_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
     timer_init(&TIMER_TC7, TC7, _tc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TCC1_init(void)
-{
-    hri_mclk_set_APBBMASK_TCC1_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TCC1_GCLK_ID, CONF_GCLK_TCC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    
-    timer_init(&TIMER_TCC1, TCC1, _tcc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TCC2_init(void)
-{
-    hri_mclk_set_APBCMASK_TCC2_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TCC2_GCLK_ID, CONF_GCLK_TCC2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    
-    timer_init(&TIMER_TCC2, TCC2, _tcc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TCC3_init(void)
-{
-    hri_mclk_set_APBCMASK_TCC3_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TCC3_GCLK_ID, CONF_GCLK_TCC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    
-    timer_init(&TIMER_TCC3, TCC3, _tcc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TCC4_init(void)
-{
-    hri_mclk_set_APBDMASK_TCC4_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TCC4_GCLK_ID, CONF_GCLK_TCC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-    
-    timer_init(&TIMER_TCC4, TCC4, _tcc_get_timer());
 }
 
 static void IT_init(void)
