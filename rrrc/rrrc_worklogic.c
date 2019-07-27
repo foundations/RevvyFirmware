@@ -743,6 +743,7 @@ int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelA(TB6612FNG_t* driver)
     }
     else
     {
+        ASSERT(0);
         return 0;
     }
 }
@@ -763,6 +764,7 @@ int8_t MotorDriver_TB661FNG_Read_DriveValue_ChannelB(TB6612FNG_t* driver)
     }
     else
     {
+        ASSERT(0);
         return 0;
     }
 }
