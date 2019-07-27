@@ -244,7 +244,7 @@ union usart_flow_control_state _usart_sync_get_flow_control_state(const struct _
  *
  * \return The ordinal number of the given USART hardware instance
  */
-uint8_t _usart_sync_get_hardware_index(const struct _usart_sync_device *const device);
+int8_t _usart_sync_get_hardware_index(const struct _usart_sync_device *const device);
 //@}
 
 #ifdef __cplusplus

@@ -175,10 +175,10 @@ static struct _i2c_m_async_device *_sercom3_dev = NULL;
 
 static struct _i2c_m_async_device *_sercom6_dev = NULL;
 
-static uint8_t _get_sercom_index(const void *const hw);
+static int8_t _get_sercom_index(const void *const hw);
 static uint8_t _sercom_get_irq_num(const void *const hw);
 static void    _sercom_init_irq_param(const void *const hw, void *dev);
-static uint8_t _sercom_get_hardware_index(const void *const hw);
+static int8_t _sercom_get_hardware_index(const void *const hw);
 
 static int32_t     _usart_init(void *const hw);
 static inline void _usart_deinit(void *const hw);
@@ -528,7 +528,7 @@ void _usart_async_enable_tx_done_irq(struct _usart_async_device *const device)
 /**
  * \brief Retrieve ordinal number of the given sercom hardware instance
  */
-static uint8_t _sercom_get_hardware_index(const void *const hw)
+static int8_t _sercom_get_hardware_index(const void *const hw)
 {
 	Sercom *const sercom_modules[] = SERCOM_INSTS;
 	/* Find index for SERCOM instance. */
@@ -538,13 +538,13 @@ static uint8_t _sercom_get_hardware_index(const void *const hw)
 		}
 	}
     ASSERT(0);
-	return 0;
+	return -1;
 }
 
 /**
  * \brief Retrieve ordinal number of the given SERCOM USART hardware instance
  */
-uint8_t _usart_sync_get_hardware_index(const struct _usart_sync_device *const device)
+int8_t _usart_sync_get_hardware_index(const struct _usart_sync_device *const device)
 {
 	return _sercom_get_hardware_index(device->hw);
 }
@@ -552,7 +552,7 @@ uint8_t _usart_sync_get_hardware_index(const struct _usart_sync_device *const de
 /**
  * \brief Retrieve ordinal number of the given SERCOM USART hardware instance
  */
-uint8_t _usart_async_get_hardware_index(const struct _usart_async_device *const device)
+int8_t _usart_async_get_hardware_index(const struct _usart_async_device *const device)
 {
 	return _sercom_get_hardware_index(device->hw);
 }
@@ -582,19 +582,18 @@ void _usart_async_set_irq_state(struct _usart_async_device *const device, const 
 
  * \return The ordinal number of the given sercom hardware instance
  */
-static uint8_t _get_sercom_index(const void *const hw)
+static int8_t _get_sercom_index(const void *const hw)
 {
-	uint8_t sercom_offset = _sercom_get_hardware_index(hw);
-	uint8_t i;
+	int8_t sercom_offset = _sercom_get_hardware_index(hw);
 
-	for (i = 0; i < ARRAY_SIZE(_usarts); i++) {
+	for (uint8_t i = 0u; i < ARRAY_SIZE(_usarts); i++) {
 		if (_usarts[i].number == sercom_offset) {
 			return i;
 		}
 	}
 
 	ASSERT(false);
-	return 0;
+	return -1;
 }
 
 /**
@@ -622,6 +621,10 @@ static void _sercom_init_irq_param(const void *const hw, void *dev)
     {
 		_sercom6_dev = (struct _i2c_m_async_device *)dev;
 	}
+    else
+    {
+        ASSERT(0);
+    }
 }
 
 /**
@@ -633,7 +636,11 @@ static void _sercom_init_irq_param(const void *const hw, void *dev)
  */
 static int32_t _usart_init(void *const hw)
 {
-	uint8_t i = _get_sercom_index(hw);
+	int8_t i = _get_sercom_index(hw);
+    if (i == -1)
+    {
+        return ERR_INVALID_ARG;
+    }
 
 	if (!hri_sercomusart_is_syncing(hw, SERCOM_USART_SYNCBUSY_SWRST)) {
 		uint32_t mode = _usarts[i].ctrl_a & SERCOM_USART_CTRLA_MODE_Msk;
@@ -947,7 +954,7 @@ static struct i2cm_configuration _i2cms[] = {
  */
 static int8_t _get_i2cm_index(const void *const hw)
 {
-	uint8_t sercom_offset = _sercom_get_hardware_index(hw);
+	int8_t sercom_offset = _sercom_get_hardware_index(hw);
 
 	for (uint32_t i = 0; i < ARRAY_SIZE(_i2cms); i++) {
 		if (_i2cms[i].number == sercom_offset) {
@@ -1114,6 +1121,7 @@ static void _sercom_i2c_m_irq_handler(struct _i2c_m_async_device *i2c_dev)
 int32_t _i2c_m_async_enable(struct _i2c_m_async_device *const i2c_dev)
 {
 	ASSERT(i2c_dev);
+	ASSERT(i2c_dev->hw);
 
 	_i2c_m_enable_implementation(i2c_dev->hw);
 
@@ -1127,13 +1135,11 @@ int32_t _i2c_m_async_enable(struct _i2c_m_async_device *const i2c_dev)
  */
 int32_t _i2c_m_async_disable(struct _i2c_m_async_device *const i2c_dev)
 {
-	void *hw = i2c_dev->hw;
-
 	ASSERT(i2c_dev);
 	ASSERT(i2c_dev->hw);
 
-	NVIC_DisableIRQ((IRQn_Type)_sercom_get_irq_num(hw));
-	hri_sercomi2cm_clear_CTRLA_ENABLE_bit(hw);
+	NVIC_DisableIRQ((IRQn_Type)_sercom_get_irq_num(i2c_dev->hw));
+	hri_sercomi2cm_clear_CTRLA_ENABLE_bit(i2c_dev->hw);
 
 	return ERR_NONE;
 }
@@ -1147,33 +1153,40 @@ int32_t _i2c_m_async_disable(struct _i2c_m_async_device *const i2c_dev)
  */
 int32_t _i2c_m_async_set_baudrate(struct _i2c_m_async_device *const i2c_dev, uint32_t clkrate, uint32_t baudrate)
 {
-	uint32_t tmp;
-	void *   hw = i2c_dev->hw;
+    ASSERT(i2c_dev);
+    ASSERT(i2c_dev->hw);
 
-	if (hri_sercomi2cm_get_CTRLA_ENABLE_bit(hw)) {
-		return ERR_DENIED;
-	}
+    void * hw = i2c_dev->hw;
 
-	tmp     = _get_i2cm_index(hw);
-	clkrate = _i2cms[tmp].clk / 1000;
+    if (hri_sercomi2cm_get_CTRLA_ENABLE_bit(hw)) {
+        return ERR_DENIED;
+    }
 
-	if (i2c_dev->service.mode == I2C_STANDARD_MODE) {
-		tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
-		                 / (2 * baudrate));
-		hri_sercomi2cm_write_BAUD_BAUD_bf(hw, tmp);
-	} else if (i2c_dev->service.mode == I2C_FASTMODE) {
-		tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
-		                 / (2 * baudrate));
-		hri_sercomi2cm_write_BAUD_BAUD_bf(hw, tmp);
-	} else if (i2c_dev->service.mode == I2C_HIGHSPEED_MODE) {
-		tmp = (clkrate - 2 * baudrate) / (2 * baudrate);
-		hri_sercomi2cm_write_BAUD_HSBAUD_bf(hw, tmp);
-	} else {
-		/* error baudrate */
-		return ERR_INVALID_ARG;
-	}
+    int8_t idx = _get_i2cm_index(hw);
+    if (idx == -1)
+    {
+        return ERR_INVALID_ARG;
+    }
+    clkrate = _i2cms[idx].clk / 1000;
 
-	return ERR_NONE;
+    switch (i2c_dev->service.mode)
+    {
+        case I2C_STANDARD_MODE:
+        case I2C_FASTMODE:
+            hri_sercomi2cm_write_BAUD_BAUD_bf(hw, (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
+                             / (2 * baudrate)));
+            break;
+
+        case I2C_HIGHSPEED_MODE:
+            hri_sercomi2cm_write_BAUD_HSBAUD_bf(hw, (clkrate - 2 * baudrate) / (2 * baudrate));
+            break;
+
+        default:
+            ASSERT(0);
+            return ERR_INVALID_ARG;
+    }
+
+    return ERR_NONE;
 }
 
 /**
@@ -1191,13 +1204,12 @@ static uint8_t _sercom_get_irq_num(const void *const hw)
  */
 int32_t _i2c_m_async_init(struct _i2c_m_async_device *const i2c_dev, void *const hw)
 {
-	int32_t init_status;
-
 	ASSERT(i2c_dev);
+    ASSERT(hw);
 
 	i2c_dev->hw = hw;
 
-	init_status = _i2c_m_sync_init_impl(&i2c_dev->service, hw);
+	int32_t init_status = _i2c_m_sync_init_impl(&i2c_dev->service, hw);
 	if (init_status) {
 		return init_status;
 	}
@@ -1221,6 +1233,7 @@ int32_t _i2c_m_async_init(struct _i2c_m_async_device *const i2c_dev, void *const
 int32_t _i2c_m_async_deinit(struct _i2c_m_async_device *const i2c_dev)
 {
 	ASSERT(i2c_dev);
+	ASSERT(i2c_dev->hw);
 
 	hri_sercomi2cm_clear_CTRLA_ENABLE_bit(i2c_dev->hw);
 	hri_sercomi2cm_set_CTRLA_SWRST_bit(i2c_dev->hw);
@@ -1235,12 +1248,13 @@ int32_t _i2c_m_async_deinit(struct _i2c_m_async_device *const i2c_dev)
  */
 static int32_t _sercom_i2c_send_address(struct _i2c_m_async_device *const i2c_dev)
 {
+	ASSERT(i2c_dev);
+	ASSERT(i2c_dev->hw);
+    
 	void *             hw    = i2c_dev->hw;
 	struct _i2c_m_msg *msg   = &i2c_dev->service.msg;
 	int                sclsm = hri_sercomi2cm_get_CTRLA_SCLSM_bit(hw);
-
-	ASSERT(i2c_dev);
-
+    
 	if (msg->len == 1 && sclsm) {
 		hri_sercomi2cm_set_CTRLB_ACKACT_bit(hw);
 	} else {
@@ -1277,8 +1291,6 @@ static int32_t _sercom_i2c_send_address(struct _i2c_m_async_device *const i2c_de
  */
 int32_t _i2c_m_async_transfer(struct _i2c_m_async_device *i2c_dev, struct _i2c_m_msg *msg)
 {
-	int ret;
-
 	ASSERT(i2c_dev);
 	ASSERT(i2c_dev->hw);
 	ASSERT(msg);
@@ -1295,7 +1307,7 @@ int32_t _i2c_m_async_transfer(struct _i2c_m_async_device *i2c_dev, struct _i2c_m
 	i2c_dev->service.msg = *msg;
 	hri_sercomi2cm_set_CTRLB_SMEN_bit(i2c_dev->hw);
 
-	ret = _sercom_i2c_send_address(i2c_dev);
+	int32_t ret = _sercom_i2c_send_address(i2c_dev);
 
 	if (ret) {
 		i2c_dev->service.msg.flags &= ~I2C_M_BUSY;
@@ -1328,7 +1340,8 @@ int32_t _i2c_m_async_register_callback(struct _i2c_m_async_device *const i2c_dev
 		break;
 	default:
 		/* error */
-		break;
+        ASSERT(0);
+        return ERR_INVALID_ARG;
 	}
 
 	return ERR_NONE;
@@ -1344,28 +1357,12 @@ int32_t _i2c_m_async_register_callback(struct _i2c_m_async_device *const i2c_dev
  */
 int32_t _i2c_m_async_send_stop(struct _i2c_m_async_device *const i2c_dev)
 {
-	void *hw = i2c_dev->hw;
+    ASSERT(i2c_dev);
+    ASSERT(i2c_dev->hw);
 
-	_sercom_i2c_send_stop(hw);
+	_sercom_i2c_send_stop(i2c_dev->hw);
 
 	return I2C_OK;
-}
-
-/**
- * \brief Get number of bytes left in transfer buffer
- *
- * \param i2c_dev Pointer to i2c master device
- *
- * \return Bytes left in buffer
- * \retval =>0 Bytes left in buffer
- */
-int32_t _i2c_m_async_get_bytes_left(struct _i2c_m_async_device *const i2c_dev)
-{
-	if (i2c_dev->service.msg.flags & I2C_M_BUSY) {
-		return i2c_dev->service.msg.len;
-	}
-
-	return 0;
 }
 
 /**
@@ -1376,6 +1373,7 @@ int32_t _i2c_m_async_get_bytes_left(struct _i2c_m_async_device *const i2c_dev)
 int32_t _i2c_m_sync_init(struct _i2c_m_sync_device *const i2c_dev, void *const hw)
 {
 	ASSERT(i2c_dev);
+    ASSERT(hw);
 
 	i2c_dev->hw = hw;
 
@@ -1418,12 +1416,10 @@ int32_t _i2c_m_sync_enable(struct _i2c_m_sync_device *const i2c_dev)
  */
 int32_t _i2c_m_sync_disable(struct _i2c_m_sync_device *const i2c_dev)
 {
-	void *hw = i2c_dev->hw;
-
 	ASSERT(i2c_dev);
 	ASSERT(i2c_dev->hw);
 
-	hri_sercomi2cm_clear_CTRLA_ENABLE_bit(hw);
+	hri_sercomi2cm_clear_CTRLA_ENABLE_bit(i2c_dev->hw);
 
 	return ERR_NONE;
 }
@@ -1437,29 +1433,32 @@ int32_t _i2c_m_sync_disable(struct _i2c_m_sync_device *const i2c_dev)
  */
 int32_t _i2c_m_sync_set_baudrate(struct _i2c_m_sync_device *const i2c_dev, uint32_t clkrate, uint32_t baudrate)
 {
-	uint32_t tmp;
-	void *   hw = i2c_dev->hw;
+    ASSERT(i2c_dev);
+    ASSERT(i2c_dev->hw);
+    
+	void * hw = i2c_dev->hw;
 
 	if (hri_sercomi2cm_get_CTRLA_ENABLE_bit(hw)) {
 		return ERR_DENIED;
 	}
 
-	tmp     = _get_i2cm_index(hw);
-	clkrate = _i2cms[tmp].clk / 1000;
+	int8_t idx = _get_i2cm_index(hw);
+    if (idx == -1)
+    {
+        return ERR_INVALID_ARG;
+    }
+	clkrate = _i2cms[idx].clk / 1000;
 
-	if (i2c_dev->service.mode == I2C_STANDARD_MODE) {
-		tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
-		                 / (2 * baudrate));
-		hri_sercomi2cm_write_BAUD_BAUD_bf(hw, tmp);
-	} else if (i2c_dev->service.mode == I2C_FASTMODE) {
-		tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
+	if (i2c_dev->service.mode == I2C_STANDARD_MODE || i2c_dev->service.mode == I2C_FASTMODE) {
+		uint32_t tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
 		                 / (2 * baudrate));
 		hri_sercomi2cm_write_BAUD_BAUD_bf(hw, tmp);
 	} else if (i2c_dev->service.mode == I2C_HIGHSPEED_MODE) {
-		tmp = (clkrate - 2 * baudrate) / (2 * baudrate);
+		uint32_t tmp = (clkrate - 2 * baudrate) / (2 * baudrate);
 		hri_sercomi2cm_write_BAUD_HSBAUD_bf(hw, tmp);
 	} else {
 		/* error baudrate */
+        ASSERT(0);
 		return ERR_INVALID_ARG;
 	}
 
@@ -1492,13 +1491,16 @@ void _i2c_m_async_set_irq_state(struct _i2c_m_async_device *const device, const 
  */
 inline static int32_t _sercom_i2c_sync_wait_bus(struct _i2c_m_sync_device *const i2c_dev, uint32_t *flags)
 {
-	uint32_t timeout = 65535;
-	void *   hw      = i2c_dev->hw;
+    ASSERT(i2c_dev);
+    ASSERT(i2c_dev->hw);
+	void * hw = i2c_dev->hw;
+
+	uint16_t timeout = 65535;
 
 	do {
 		*flags = hri_sercomi2cm_read_INTFLAG_reg(hw);
 
-		if (timeout-- == 0) {
+		if (timeout-- == 0u) {
 			return I2C_ERR_BUS;
 		}
 	} while (!(*flags & MB_FLAG) && !(*flags & SB_FLAG));
@@ -1513,13 +1515,14 @@ inline static int32_t _sercom_i2c_sync_wait_bus(struct _i2c_m_sync_device *const
  */
 static int32_t _sercom_i2c_sync_send_address(struct _i2c_m_sync_device *const i2c_dev)
 {
+    ASSERT(i2c_dev);
+    ASSERT(i2c_dev->hw);
+
 	void *             hw    = i2c_dev->hw;
 	struct _i2c_m_msg *msg   = &i2c_dev->service.msg;
 	int                sclsm = hri_sercomi2cm_get_CTRLA_SCLSM_bit(hw);
 	uint32_t           flags;
-
-	ASSERT(i2c_dev);
-
+    
 	if (msg->len == 1 && sclsm) {
 		hri_sercomi2cm_set_CTRLB_ACKACT_bit(hw);
 	} else {
@@ -1557,13 +1560,11 @@ static int32_t _sercom_i2c_sync_send_address(struct _i2c_m_sync_device *const i2
  */
 int32_t _i2c_m_sync_transfer(struct _i2c_m_sync_device *const i2c_dev, struct _i2c_m_msg *msg)
 {
-	uint32_t flags;
-	int      ret;
-	void *   hw = i2c_dev->hw;
-
 	ASSERT(i2c_dev);
 	ASSERT(i2c_dev->hw);
 	ASSERT(msg);
+
+	void *   hw = i2c_dev->hw;
 
 	if (i2c_dev->service.msg.flags & I2C_M_BUSY) {
 		return I2C_ERR_BUSY;
@@ -1573,7 +1574,7 @@ int32_t _i2c_m_sync_transfer(struct _i2c_m_sync_device *const i2c_dev, struct _i
 	i2c_dev->service.msg = *msg;
 	hri_sercomi2cm_set_CTRLB_SMEN_bit(hw);
 
-	ret = _sercom_i2c_sync_send_address(i2c_dev);
+	int32_t ret = _sercom_i2c_sync_send_address(i2c_dev);
 
 	if (ret) {
 		i2c_dev->service.msg.flags &= ~I2C_M_BUSY;
@@ -1582,6 +1583,7 @@ int32_t _i2c_m_sync_transfer(struct _i2c_m_sync_device *const i2c_dev, struct _i
 	}
 
 	while (i2c_dev->service.msg.flags & I2C_M_BUSY) {
+        uint32_t flags;
 		ret = _sercom_i2c_sync_wait_bus(i2c_dev, &flags);
 
 		if (ret) {
@@ -1602,34 +1604,35 @@ int32_t _i2c_m_sync_transfer(struct _i2c_m_sync_device *const i2c_dev, struct _i
 
 int32_t _i2c_m_sync_send_stop(struct _i2c_m_sync_device *const i2c_dev)
 {
-	void *hw = i2c_dev->hw;
-
-	_sercom_i2c_send_stop(hw);
+	_sercom_i2c_send_stop(i2c_dev->hw);
 
 	return I2C_OK;
 }
 
 static inline void _i2c_m_enable_implementation(void *const hw)
 {
-	int timeout = 65535;
-
 	ASSERT(hw);
 
 	/* Enable interrupts */
 	hri_sercomi2cm_set_CTRLA_ENABLE_bit(hw);
-
+    
+	uint16_t timeout = 65535;
 	while (hri_sercomi2cm_read_STATUS_BUSSTATE_bf(hw) != I2C_IDLE) {
-		timeout--;
-
-		if (timeout <= 0) {
-			hri_sercomi2cm_clear_STATUS_reg(hw, SERCOM_I2CM_STATUS_BUSSTATE(I2C_IDLE));
+		if (--timeout == 0u) {
+            /* force into bus idle */
+            hri_sercomi2cm_clear_STATUS_BUSSTATE_bf(hw, I2C_IDLE);
+            return;
 		}
 	}
 }
 
 static int32_t _i2c_m_sync_init_impl(struct _i2c_m_service *const service, void *const hw)
 {
-	uint8_t i = _get_i2cm_index(hw);
+    int8_t i = _get_i2cm_index(hw);
+    if (i == -1)
+    {
+        return ERR_INVALID_ARG;
+    }
 
 	if (!hri_sercomi2cm_is_syncing(hw, SERCOM_I2CM_SYNCBUSY_SWRST)) {
 		uint32_t mode = _i2cms[i].ctrl_a & SERCOM_I2CM_CTRLA_MODE_Msk;
@@ -1761,11 +1764,9 @@ static struct i2cs_configuration _i2css[] = {
  */
 int32_t _i2c_s_sync_init(struct _i2c_s_sync_device *const device, void *const hw)
 {
-	int32_t status;
-
 	ASSERT(device);
 
-	status = _i2c_s_init(hw);
+	int32_t status = _i2c_s_init(hw);
 	if (status) {
 		return status;
 	}
@@ -1779,11 +1780,9 @@ int32_t _i2c_s_sync_init(struct _i2c_s_sync_device *const device, void *const hw
  */
 int32_t _i2c_s_async_init(struct _i2c_s_async_device *const device, void *const hw)
 {
-	int32_t init_status;
-
 	ASSERT(device);
 
-	init_status = _i2c_s_init(hw);
+	int32_t init_status = _i2c_s_init(hw);
 	if (init_status) {
 		return init_status;
 	}
@@ -1883,6 +1882,8 @@ int32_t _i2c_s_async_is_10bit_addressing_on(const struct _i2c_s_async_device *co
  */
 int32_t _i2c_s_sync_set_address(struct _i2c_s_sync_device *const device, const uint16_t address)
 {
+    ASSERT(device);
+    ASSERT(device->hw);
 	return _i2c_s_set_address(device->hw, address);
 }
 
@@ -1891,6 +1892,8 @@ int32_t _i2c_s_sync_set_address(struct _i2c_s_sync_device *const device, const u
  */
 int32_t _i2c_s_async_set_address(struct _i2c_s_async_device *const device, const uint16_t address)
 {
+    ASSERT(device);
+    ASSERT(device->hw);
 	return _i2c_s_set_address(device->hw, address);
 }
 
@@ -1976,15 +1979,26 @@ int32_t _i2c_s_async_abort_transmission(const struct _i2c_s_async_device *const 
 int32_t _i2c_s_async_set_irq_state(struct _i2c_s_async_device *const device, const enum _i2c_s_async_callback_type type,
                                    const bool state)
 {
-	ASSERT(device);
+    ASSERT(device);
+    ASSERT(device->hw);
 
-	if (I2C_S_DEVICE_TX == type || I2C_S_DEVICE_RX_COMPLETE == type) {
-		hri_sercomi2cs_write_INTEN_DRDY_bit(device->hw, state);
-	} else if (I2C_S_DEVICE_ERROR == type) {
-		hri_sercomi2cs_write_INTEN_ERROR_bit(device->hw, state);
-	}
+    switch (type)
+    {
+        case I2C_S_DEVICE_TX:
+        case I2C_S_DEVICE_RX_COMPLETE:
+            hri_sercomi2cs_write_INTEN_DRDY_bit(device->hw, state);
+            break;
 
-	return ERR_NONE;
+        case I2C_S_DEVICE_ERROR:
+            hri_sercomi2cs_write_INTEN_ERROR_bit(device->hw, state);
+            break;
+
+        default:
+            ASSERT(0);
+            return ERR_INVALID_ARG;
+    }
+
+    return ERR_NONE;
 }
 
 /**
@@ -1995,16 +2009,14 @@ int32_t _i2c_s_async_set_irq_state(struct _i2c_s_async_device *const device, con
 static void _sercom_i2c_s_irq_handler_0(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
-    if (device->cb.stop_cb)
-    {
-        device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
-    }
+    device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
     hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
 }
 
 static void _sercom_i2c_s_irq_handler_1(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
+    ASSERT(device->cb.addrm_cb);
     device->cb.addrm_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
     hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
 }
@@ -2013,8 +2025,10 @@ static void _sercom_i2c_s_irq_handler_2(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
     if (hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
+        ASSERT(device->cb.tx_cb);
         device->cb.tx_cb(device);
     } else {
+        ASSERT(device->cb.rx_done_cb);
         device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
     }
 }
@@ -2022,6 +2036,7 @@ static void _sercom_i2c_s_irq_handler_2(struct _i2c_s_async_device *device)
 static void _sercom_i2c_s_irq_handler_3(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
+    ASSERT(device->cb.error_cb);
     hri_sercomi2cs_clear_INTFLAG_ERROR_bit(hw);
     device->cb.error_cb(device);
 }
@@ -2066,10 +2081,9 @@ static int32_t _i2c_s_init(void *const hw)
  */
 static int8_t _get_i2c_s_index(const void *const hw)
 {
-	uint8_t sercom_offset = _sercom_get_hardware_index(hw);
-	uint8_t i;
+	int8_t sercom_offset = _sercom_get_hardware_index(hw);
 
-	for (i = 0; i < ARRAY_SIZE(_i2css); i++) {
+	for (uint8_t i = 0u; i < ARRAY_SIZE(_i2css); i++) {
 		if (_i2css[i].number == sercom_offset) {
 			return i;
 		}
@@ -2098,16 +2112,14 @@ static inline void _i2c_s_deinit(void *const hw)
  */
 static int32_t _i2c_s_set_address(void *const hw, const uint16_t address)
 {
-	bool enabled;
-
-	enabled = hri_sercomi2cs_get_CTRLA_ENABLE_bit(hw);
+	bool was_enabled = hri_sercomi2cs_get_CTRLA_ENABLE_bit(hw);
 
 	CRITICAL_SECTION_ENTER()
 	hri_sercomi2cs_clear_CTRLA_ENABLE_bit(hw);
 	hri_sercomi2cs_write_ADDR_ADDR_bf(hw, address);
 	CRITICAL_SECTION_LEAVE()
 
-	if (enabled) {
+	if (was_enabled) {
 		hri_sercomi2cs_set_CTRLA_ENABLE_bit(hw);
 	}
 
@@ -2359,22 +2371,26 @@ static int32_t _spi_set_baudrate(void *const hw, const uint32_t baud_val)
  */
 static int32_t _spi_set_data_order(void *const hw, const enum spi_data_order dord)
 {
-	uint32_t ctrla;
+    ASSERT(hw);
+    if (hri_sercomspi_is_syncing(hw, SERCOM_SPI_SYNCBUSY_SWRST)) {
+        return ERR_BUSY;
+    }
 
-	if (hri_sercomspi_is_syncing(hw, SERCOM_SPI_SYNCBUSY_SWRST)) {
-		return ERR_BUSY;
-	}
+    switch (dord) {
+        case SPI_DATA_ORDER_LSB_1ST:
+            hri_sercomspi_set_CTRLA_DORD_bit(hw);
+            break;
 
-	ctrla = hri_sercomspi_read_CTRLA_reg(hw);
+        case SPI_DATA_ORDER_MSB_1ST:
+            hri_sercomspi_clear_CTRLA_DORD_bit(hw);
+            break;
 
-	if (dord == SPI_DATA_ORDER_LSB_1ST) {
-		ctrla |= SERCOM_SPI_CTRLA_DORD;
-	} else {
-		ctrla &= ~SERCOM_SPI_CTRLA_DORD;
-	}
-	hri_sercomspi_write_CTRLA_reg(hw, ctrla);
+        default:
+            ASSERT(0);
+            return ERR_INVALID_ARG;
+    }
 
-	return ERR_NONE;
+    return ERR_NONE;
 }
 
 /** \brief Load SERCOM registers to init for SPI master mode
@@ -2385,7 +2401,9 @@ static int32_t _spi_set_data_order(void *const hw, const enum spi_data_order dor
  */
 static inline void _spi_load_regs_master(void *const hw, const struct sercomspi_regs_cfg *regs)
 {
-	ASSERT(hw && regs);
+    ASSERT(hw);
+    ASSERT(regs);
+
 	hri_sercomspi_write_CTRLA_reg(
 	    hw, regs->ctrla & ~(SERCOM_SPI_CTRLA_IBON | SERCOM_SPI_CTRLA_ENABLE | SERCOM_SPI_CTRLA_SWRST));
 	hri_sercomspi_write_CTRLB_reg(
@@ -2405,7 +2423,9 @@ static inline void _spi_load_regs_master(void *const hw, const struct sercomspi_
  */
 static inline void _spi_load_regs_slave(void *const hw, const struct sercomspi_regs_cfg *regs)
 {
-	ASSERT(hw && regs);
+    ASSERT(hw);
+    ASSERT(regs);
+
 	hri_sercomspi_write_CTRLA_reg(
 	    hw, regs->ctrla & ~(SERCOM_SPI_CTRLA_IBON | SERCOM_SPI_CTRLA_ENABLE | SERCOM_SPI_CTRLA_SWRST));
 	hri_sercomspi_write_CTRLB_reg(hw,
@@ -2423,10 +2443,9 @@ static inline void _spi_load_regs_slave(void *const hw, const struct sercomspi_r
  */
 static inline const struct sercomspi_regs_cfg *_spi_get_regs(const uint32_t hw_addr)
 {
-	uint8_t n = _sercom_get_hardware_index((const void *)hw_addr);
-	uint8_t i;
+	int8_t n = _sercom_get_hardware_index((const void *)hw_addr);
 
-	for (i = 0; i < sizeof(sercomspi_regs) / sizeof(struct sercomspi_regs_cfg); i++) {
+	for (uint8_t i = 0u; i < ARRAY_SIZE(sercomspi_regs); i++) {
 		if (sercomspi_regs[i].n == n) {
 			return &sercomspi_regs[i];
 		}
@@ -2600,9 +2619,10 @@ void SERCOM6_3_Handler(void)
 
 int32_t _spi_m_sync_init(struct _spi_m_sync_dev *dev, void *const hw)
 {
-	const struct sercomspi_regs_cfg *regs = _spi_get_regs((uint32_t)hw);
+    ASSERT(dev);
+    ASSERT(hw);
 
-	ASSERT(dev && hw);
+    const struct sercomspi_regs_cfg *regs = _spi_get_regs((uint32_t)hw);
 
 	if (regs == NULL) {
 		return ERR_INVALID_ARG;
@@ -2687,155 +2707,173 @@ int32_t _spi_s_async_deinit(struct _spi_s_async_dev *dev)
 
 int32_t _spi_m_sync_deinit(struct _spi_m_sync_dev *dev)
 {
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 	return _spi_deinit(dev->prvt);
 }
 
 int32_t _spi_s_sync_deinit(struct _spi_s_sync_dev *dev)
 {
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 	return _spi_deinit(dev->prvt);
 }
 
 int32_t _spi_m_sync_enable(struct _spi_m_sync_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_sync_enable(dev->prvt);
 }
 
 int32_t _spi_s_sync_enable(struct _spi_s_sync_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_sync_enable(dev->prvt);
 }
 
 int32_t _spi_m_async_enable(struct _spi_async_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_async_enable(dev->prvt);
 }
 
 int32_t _spi_s_async_enable(struct _spi_s_async_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_async_enable(dev->prvt);
 }
 
 int32_t _spi_m_sync_disable(struct _spi_m_sync_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_sync_disable(dev->prvt);
 }
 
 int32_t _spi_s_sync_disable(struct _spi_s_sync_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_sync_disable(dev->prvt);
 }
 
 int32_t _spi_m_async_disable(struct _spi_async_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_async_disable(dev->prvt);
 }
 
 int32_t _spi_s_async_disable(struct _spi_s_async_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_async_disable(dev->prvt);
 }
 
 int32_t _spi_m_sync_set_mode(struct _spi_m_sync_dev *dev, const enum spi_transfer_mode mode)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_mode(dev->prvt, mode);
 }
 
 int32_t _spi_m_async_set_mode(struct _spi_async_dev *dev, const enum spi_transfer_mode mode)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_mode(dev->prvt, mode);
 }
 
 int32_t _spi_s_async_set_mode(struct _spi_s_async_dev *dev, const enum spi_transfer_mode mode)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_mode(dev->prvt, mode);
 }
 
 int32_t _spi_s_sync_set_mode(struct _spi_s_sync_dev *dev, const enum spi_transfer_mode mode)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_mode(dev->prvt, mode);
 }
 
 int32_t _spi_calc_baud_val(struct spi_dev *dev, const uint32_t clk, const uint32_t baud)
 {
-	int32_t rc;
-	ASSERT(dev);
-
-	/* Not accept 0es */
-	if (clk == 0 || baud == 0) {
-		return ERR_INVALID_ARG;
-	}
+    ASSERT(dev);
+    ASSERT(clk);
+    ASSERT(baud);
 
 	/* Check baudrate range of current assigned clock */
 	if (!(baud <= (clk >> 1) && baud >= (clk >> 8))) {
 		return ERR_INVALID_ARG;
 	}
 
-	rc = ((clk >> 1) / baud) - 1;
+	int32_t rc = ((clk >> 1) / baud) - 1;
 	return rc;
 }
 
 int32_t _spi_m_sync_set_baudrate(struct _spi_m_sync_dev *dev, const uint32_t baud_val)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_baudrate(dev->prvt, baud_val);
 }
 
 int32_t _spi_m_async_set_baudrate(struct _spi_async_dev *dev, const uint32_t baud_val)
 {
-	ASSERT(dev && dev->prvt);
+	ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_baudrate(dev->prvt, baud_val);
 }
 
 int32_t _spi_m_sync_set_data_order(struct _spi_m_sync_dev *dev, const enum spi_data_order dord)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_data_order(dev->prvt, dord);
 }
 
 int32_t _spi_m_async_set_data_order(struct _spi_async_dev *dev, const enum spi_data_order dord)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_data_order(dev->prvt, dord);
 }
 
 int32_t _spi_s_async_set_data_order(struct _spi_s_async_dev *dev, const enum spi_data_order dord)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_data_order(dev->prvt, dord);
 }
 
 int32_t _spi_s_sync_set_data_order(struct _spi_s_sync_dev *dev, const enum spi_data_order dord)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_data_order(dev->prvt, dord);
 }
@@ -2864,13 +2902,11 @@ struct _spi_trans_ctrl {
 /** Check interrupt flag of RXC and update transaction runtime information. */
 static inline bool _spi_rx_check_and_receive(void *const hw, const uint32_t iflag, struct _spi_trans_ctrl *ctrl)
 {
-	uint32_t data;
-
 	if (!(iflag & SERCOM_SPI_INTFLAG_RXC)) {
 		return false;
 	}
 
-	data = hri_sercomspi_read_DATA_reg(hw);
+	uint32_t data = hri_sercomspi_read_DATA_reg(hw);
 
 	if (ctrl->rxbuf) {
 		*ctrl->rxbuf++ = (uint8_t)data;
@@ -2885,12 +2921,11 @@ static inline bool _spi_rx_check_and_receive(void *const hw, const uint32_t ifla
 static inline void _spi_tx_check_and_send(void *const hw, const uint32_t iflag, struct _spi_trans_ctrl *ctrl,
                                           uint16_t dummy)
 {
-	uint32_t data;
-
 	if (!(SERCOM_SPI_INTFLAG_DRE & iflag)) {
 		return;
 	}
 
+	uint32_t data;
 	if (ctrl->txbuf) {
 		data = *ctrl->txbuf++;
 	} else {
@@ -2915,11 +2950,10 @@ static inline int32_t _spi_err_check(const uint32_t iflag, void *const hw)
 
 int32_t _spi_m_sync_trans(struct _spi_m_sync_dev *dev, const struct spi_xfer *msg)
 {
-	void *                 hw   = dev->prvt;
-	int32_t                rc   = 0;
-	struct _spi_trans_ctrl ctrl = {msg->txbuf, msg->rxbuf, 0, 0};
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
-	ASSERT(dev && hw);
+	void * hw = dev->prvt;
 
 	/* If settings are not applied (pending), we can not go on */
 	if (hri_sercomspi_is_syncing(
@@ -2932,6 +2966,9 @@ int32_t _spi_m_sync_trans(struct _spi_m_sync_dev *dev, const struct spi_xfer *ms
 		return ERR_NOT_INITIALIZED;
 	}
 
+    struct _spi_trans_ctrl ctrl = {msg->txbuf, msg->rxbuf, 0, 0};
+
+	int32_t rc = 0;
 	for (;;) {
 		uint32_t iflag = hri_sercomspi_read_INTFLAG_reg(hw);
 
@@ -2961,14 +2998,13 @@ int32_t _spi_m_sync_trans(struct _spi_m_sync_dev *dev, const struct spi_xfer *ms
 
 int32_t _spi_m_async_enable_tx(struct _spi_async_dev *dev, bool state)
 {
-	void *hw = dev->prvt;
-
-	ASSERT(dev && hw);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	if (state) {
-		hri_sercomspi_set_INTEN_DRE_bit(hw);
+		hri_sercomspi_set_INTEN_DRE_bit(dev->prvt);
 	} else {
-		hri_sercomspi_clear_INTEN_DRE_bit(hw);
+		hri_sercomspi_clear_INTEN_DRE_bit(dev->prvt);
 	}
 
 	return ERR_NONE;
@@ -2981,15 +3017,13 @@ int32_t _spi_s_async_enable_tx(struct _spi_s_async_dev *dev, bool state)
 
 int32_t _spi_m_async_enable_rx(struct _spi_async_dev *dev, bool state)
 {
-	void *hw = dev->prvt;
-
-	ASSERT(dev);
-	ASSERT(hw);
-
+    ASSERT(dev);
+    ASSERT(dev->prvt);
+    
 	if (state) {
-		hri_sercomspi_set_INTEN_RXC_bit(hw);
+		hri_sercomspi_set_INTEN_RXC_bit(dev->prvt);
 	} else {
-		hri_sercomspi_clear_INTEN_RXC_bit(hw);
+		hri_sercomspi_clear_INTEN_RXC_bit(dev->prvt);
 	}
 
 	return ERR_NONE;
@@ -3002,7 +3036,8 @@ int32_t _spi_s_async_enable_rx(struct _spi_s_async_dev *dev, bool state)
 
 int32_t _spi_m_async_enable_tx_complete(struct _spi_async_dev *dev, bool state)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	if (state) {
 		hri_sercomspi_set_INTEN_TXC_bit(dev->prvt);
@@ -3020,7 +3055,8 @@ int32_t _spi_s_async_enable_ss_detect(struct _spi_s_async_dev *dev, bool state)
 
 int32_t _spi_m_async_write_one(struct _spi_async_dev *dev, uint16_t data)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	hri_sercomspi_write_DATA_reg(dev->prvt, data);
 
@@ -3029,7 +3065,8 @@ int32_t _spi_m_async_write_one(struct _spi_async_dev *dev, uint16_t data)
 
 int32_t _spi_s_async_write_one(struct _spi_s_async_dev *dev, uint16_t data)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	hri_sercomspi_write_DATA_reg(dev->prvt, data);
 
@@ -3038,7 +3075,8 @@ int32_t _spi_s_async_write_one(struct _spi_s_async_dev *dev, uint16_t data)
 
 int32_t _spi_s_sync_write_one(struct _spi_s_sync_dev *dev, uint16_t data)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	hri_sercomspi_write_DATA_reg(dev->prvt, data);
 
@@ -3047,21 +3085,24 @@ int32_t _spi_s_sync_write_one(struct _spi_s_sync_dev *dev, uint16_t data)
 
 uint16_t _spi_m_async_read_one(struct _spi_async_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return hri_sercomspi_read_DATA_reg(dev->prvt);
 }
 
 uint16_t _spi_s_async_read_one(struct _spi_s_async_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return hri_sercomspi_read_DATA_reg(dev->prvt);
 }
 
 uint16_t _spi_s_sync_read_one(struct _spi_s_sync_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return hri_sercomspi_read_DATA_reg(dev->prvt);
 }
@@ -3069,15 +3110,13 @@ uint16_t _spi_s_sync_read_one(struct _spi_s_sync_dev *dev)
 int32_t _spi_m_async_register_callback(struct _spi_async_dev *dev, const enum _spi_async_dev_cb_type cb_type,
                                        const FUNC_PTR func)
 {
-	typedef void (*func_t)(void);
-	struct _spi_async_dev *spid = dev;
+    ASSERT(dev);
+    ASSERT(cb_type < SPI_DEV_CB_N);
 
-	ASSERT(dev && (cb_type < SPI_DEV_CB_N));
+    FUNC_PTR *p_ls  = (FUNC_PTR *)&dev->callbacks;
+    p_ls[cb_type] = (FUNC_PTR)func;
 
-	func_t *p_ls  = (func_t *)&spid->callbacks;
-	p_ls[cb_type] = (func_t)func;
-
-	return ERR_NONE;
+    return ERR_NONE;
 }
 
 int32_t _spi_s_async_register_callback(struct _spi_s_async_dev *dev, const enum _spi_s_async_dev_cb_type cb_type,
@@ -3088,23 +3127,26 @@ int32_t _spi_s_async_register_callback(struct _spi_s_async_dev *dev, const enum 
 
 bool _spi_s_sync_is_tx_ready(struct _spi_s_sync_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return hri_sercomi2cm_get_INTFLAG_reg(dev->prvt, SERCOM_SPI_INTFLAG_DRE);
 }
 
 bool _spi_s_sync_is_rx_ready(struct _spi_s_sync_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return hri_sercomi2cm_get_INTFLAG_reg(dev->prvt, SERCOM_SPI_INTFLAG_RXC);
 }
 
 bool _spi_s_sync_is_ss_deactivated(struct _spi_s_sync_dev *dev)
 {
-	void *hw = dev->prvt;
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
-	ASSERT(dev && hw);
+    void *hw = dev->prvt;
 
 	if (hri_sercomi2cm_get_INTFLAG_reg(hw, SERCOM_SPI_INTFLAG_TXC)) {
 		hri_sercomspi_clear_INTFLAG_reg(hw, SERCOM_SPI_INTFLAG_TXC);
@@ -3115,9 +3157,9 @@ bool _spi_s_sync_is_ss_deactivated(struct _spi_s_sync_dev *dev)
 
 bool _spi_s_sync_is_error(struct _spi_s_sync_dev *dev)
 {
-	void *hw = dev->prvt;
-
-	ASSERT(dev && hw);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
+    void *hw = dev->prvt;
 
 	if (hri_sercomi2cm_get_INTFLAG_reg(hw, SERCOM_SPI_INTFLAG_ERROR)) {
 		hri_sercomspi_clear_STATUS_reg(hw, SERCOM_SPI_STATUS_BUFOVF);
@@ -3240,15 +3282,11 @@ static int32_t _spi_sync_rx_disable(void *const hw)
 
 static int32_t _spi_m_dma_rx_enable(struct _spi_m_dma_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
-
 	return _spi_sync_rx_enable(dev->prvt);
 }
 
 static int32_t _spi_m_dma_rx_disable(struct _spi_m_dma_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
-
 	return _spi_sync_rx_disable(dev->prvt);
 }
 
@@ -3282,7 +3320,7 @@ static uint32_t _spi_m_get_destination_for_dma(void *const hw)
  */
 static uint8_t _spi_get_tx_dma_channel(const void *const hw)
 {
-	uint8_t index = _sercom_get_hardware_index(hw);
+	int8_t index = _sercom_get_hardware_index(hw);
 
 	switch (index) {
 	case 0:
@@ -3302,6 +3340,7 @@ static uint8_t _spi_get_tx_dma_channel(const void *const hw)
 	case 7:
 		return CONF_SERCOM_7_SPI_M_DMA_TX_CHANNEL;
 	default:
+        ASSERT(0);
 		return CONF_SERCOM_0_SPI_M_DMA_TX_CHANNEL;
 	}
 }
@@ -3314,7 +3353,7 @@ static uint8_t _spi_get_tx_dma_channel(const void *const hw)
  */
 static uint8_t _spi_get_rx_dma_channel(const void *const hw)
 {
-	uint8_t index = _sercom_get_hardware_index(hw);
+	int8_t index = _sercom_get_hardware_index(hw);
 
 	switch (index) {
 	case 0:
@@ -3334,6 +3373,7 @@ static uint8_t _spi_get_rx_dma_channel(const void *const hw)
 	case 7:
 		return CONF_SERCOM_7_SPI_M_DMA_RX_CHANNEL;
 	default:
+        ASSERT(0);
 		return CONF_SERCOM_0_SPI_M_DMA_TX_CHANNEL;
 	}
 }
@@ -3381,9 +3421,11 @@ int32_t _spi_m_dma_init(struct _spi_m_dma_dev *dev, void *const hw)
 {
 	const struct sercomspi_regs_cfg *regs = _spi_get_regs((uint32_t)hw);
 
-	ASSERT(dev && hw);
+    ASSERT(dev);
+    ASSERT(hw);
 
 	if (regs == NULL) {
+        ASSERT(0);
 		return ERR_INVALID_ARG;
 	}
 
@@ -3417,40 +3459,48 @@ int32_t _spi_m_dma_init(struct _spi_m_dma_dev *dev, void *const hw)
 
 int32_t _spi_m_dma_deinit(struct _spi_m_dma_dev *dev)
 {
+    ASSERT(dev);
+    ASSERT(dev->prvt);
+
 	return _spi_deinit(dev->prvt);
 }
 
 int32_t _spi_m_dma_enable(struct _spi_m_dma_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_sync_enable(dev->prvt);
 }
 
 int32_t _spi_m_dma_disable(struct _spi_m_dma_dev *dev)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_sync_disable(dev->prvt);
 }
 
 int32_t _spi_m_dma_set_mode(struct _spi_m_dma_dev *dev, const enum spi_transfer_mode mode)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_mode(dev->prvt, mode);
 }
 
 int32_t _spi_m_dma_set_baudrate(struct _spi_m_dma_dev *dev, const uint32_t baud_val)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_baudrate(dev->prvt, baud_val);
 }
 
 int32_t _spi_m_dma_set_data_order(struct _spi_m_dma_dev *dev, const enum spi_data_order dord)
 {
-	ASSERT(dev && dev->prvt);
+    ASSERT(dev);
+    ASSERT(dev->prvt);
 
 	return _spi_set_data_order(dev->prvt, dord);
 }
@@ -3471,7 +3521,9 @@ void _spi_m_dma_register_callback(struct _spi_m_dma_dev *dev, enum _spi_dma_dev_
 		_dma_set_irq_state(_spi_get_rx_dma_channel(dev->prvt), DMA_TRANSFER_ERROR_CB, func != NULL);
 		_dma_set_irq_state(_spi_get_tx_dma_channel(dev->prvt), DMA_TRANSFER_ERROR_CB, func != NULL);
 		break;
+    default:
 	case SPI_DEV_CB_DMA_N:
+        ASSERT(0);
 		break;
 	}
 }
@@ -3479,6 +3531,9 @@ void _spi_m_dma_register_callback(struct _spi_m_dma_dev *dev, enum _spi_dma_dev_
 int32_t _spi_m_dma_transfer(struct _spi_m_dma_dev *dev, uint8_t const *txbuf, uint8_t *const rxbuf,
                             const uint16_t length)
 {
+    ASSERT(dev);
+    ASSERT(dev->prvt);
+
 	const struct sercomspi_regs_cfg *regs  = _spi_get_regs((uint32_t)dev->prvt);
 	uint8_t                          rx_ch = _spi_get_rx_dma_channel(dev->prvt);
 	uint8_t                          tx_ch = _spi_get_tx_dma_channel(dev->prvt);
@@ -3511,4 +3566,3 @@ int32_t _spi_m_dma_transfer(struct _spi_m_dma_dev *dev, uint8_t const *txbuf, ui
 
 	return ERR_NONE;
 }
-

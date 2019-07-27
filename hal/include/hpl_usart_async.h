@@ -250,7 +250,7 @@ void _usart_async_enable_tx_done_irq(struct _usart_async_device *const device);
  *
  * \return The ordinal number of the given USART hardware instance
  */
-uint8_t _usart_async_get_hardware_index(const struct _usart_async_device *const device);
+int8_t _usart_async_get_hardware_index(const struct _usart_async_device *const device);
 
 /**
  * \brief Enable/disable USART interrupt

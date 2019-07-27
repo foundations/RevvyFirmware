@@ -247,6 +247,7 @@ int32_t i2c_m_async_register_callback(struct i2c_m_async_desc *const i2c, enum i
  */
 int32_t i2c_m_async_set_baudrate(struct i2c_m_async_desc *const i2c, uint32_t clkrate, uint32_t baudrate)
 {
+    ASSERT(i2c);
 	return _i2c_m_async_set_baudrate(&i2c->device, clkrate, baudrate);
 }
 
