@@ -31,12 +31,12 @@ static int32_t I2C_0_init(i2c_hal_descriptor* descriptor)
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_SLOW, CONF_GCLK_SERCOM2_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_mclk_set_APBBMASK_SERCOM2_bit(MCLK);
 
-    gpio_set_pin_pull_mode(I2C0_SDApin, GPIO_PULL_OFF);
-    gpio_set_pin_function(I2C0_SDApin, I2C0_SDApin_function);
-    gpio_set_pin_pull_mode(I2C0_SCLpin, GPIO_PULL_OFF);
-    gpio_set_pin_function(I2C0_SCLpin, I2C0_SCLpin_function);
+    gpio_set_pin_pull_mode(I2C4_SDApin, GPIO_PULL_OFF);
+    gpio_set_pin_function(I2C4_SDApin, I2C4_SDApin_function);
+    gpio_set_pin_pull_mode(I2C4_SCLpin, GPIO_PULL_OFF);
+    gpio_set_pin_function(I2C4_SCLpin, I2C4_SCLpin_function);
 
-    return i2c_hal_init(descriptor, I2C0_SERCOM);
+    return i2c_hal_init(descriptor, I2C4_SERCOM);
 }
 
 static void CommunicationTask(void* user_data)

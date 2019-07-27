@@ -33,15 +33,14 @@ static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
 static bool masterBooted = false;
-static float mcuTemperature;
 
 static MotorPort_t motorPorts[] = 
 {
     {
         .port_idx = 0u,
-        .led = M3LED0,
-        .enc0 = M4ENC0,
-        .enc1 = M4ENC1,
+        .led = M3_GREEN_LED,
+        .enc0 = M3_ENC_A,
+        .enc1 = M3_ENC_B,
         .enc0_timer = &TIMER_TC5,
         .enc0_timer_event = TIMER_MC0,
         .enc1_timer = &TIMER_TC5,
@@ -49,9 +48,9 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 1u,
-        .led = M4LED0,
-        .enc0 = M5ENC0,
-        .enc1 = M5ENC1,
+        .led = M4_GREEN_LED,
+        .enc0 = M4_ENC_A,
+        .enc1 = M4_ENC_B,
         .enc0_timer = &TIMER_TC1,
         .enc0_timer_event = TIMER_MC0,
         .enc1_timer = &TIMER_TC1,
@@ -59,9 +58,9 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 2u,
-        .led = M5LED0,
-        .enc0 = M6ENC0,
-        .enc1 = M6ENC1,
+        .led = M5_GREEN_LED,
+        .enc0 = M5_ENC_A,
+        .enc1 = M5_ENC_B,
         .enc0_timer = &TIMER_TC4,
         .enc0_timer_event = TIMER_MC0,
         .enc1_timer = &TIMER_TC4,
@@ -69,9 +68,9 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 3u,
-        .led = M2LED0,
-        .enc0 = M3ENC0,
-        .enc1 = M3ENC1,
+        .led = M2_GREEN_LED,
+        .enc0 = M2_ENC_A,
+        .enc1 = M2_ENC_B,
         .enc0_timer = &TIMER_TC3,
         .enc0_timer_event = TIMER_MC0,
         .enc1_timer = &TIMER_TC3,
@@ -79,9 +78,9 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 4u,
-        .led = M1LED0,
-        .enc0 = M2ENC0,
-        .enc1 = M2ENC1,
+        .led = M1_GREEN_LED,
+        .enc0 = M1_ENC_A,
+        .enc1 = M1_ENC_B,
         .enc0_timer = &TIMER_TC6,
         .enc0_timer_event = TIMER_MC0,
         .enc1_timer = &TIMER_TC6,
@@ -89,9 +88,9 @@ static MotorPort_t motorPorts[] =
     },
     {
         .port_idx = 5u,
-        .led = M0LED0,
-        .enc0 = M1ENC0,
-        .enc1 = M1ENC1,
+        .led = M0_GREEN_LED,
+        .enc0 = M0_ENC_A,
+        .enc1 = M0_ENC_B,
         .enc0_timer = &TIMER_TC0,
         .enc0_timer_event = TIMER_MC0,
         .enc1_timer = &TIMER_TC0,
@@ -103,38 +102,38 @@ static SensorPort_t sensorPorts[] =
 {
     {
         .port_idx = 0u,
-        .led0 = S0LED0,
-        .led1 = S0LED1,
-        .gpio0 = S0GPIO0,
-        .gpio1 = S0GPIO1,
-        .vccio = S0IOVCC,
-        .i2c_hw = I2C4_SERCOM
+        .led0 = S0_LED_GREEN,
+        .led1 = S0_LED_YELLOW,
+        .gpio0 = S0_GPIO_OUT,
+        .gpio1 = S0_GPIO_IN,
+        .vccio = S0_IOVCC,
+        .i2c_hw = I2C0_SERCOM
     },
     {
         .port_idx = 1u,
-        .led0 = S1LED0,
-        .led1 = S1LED1,
-        .gpio0 = S1GPIO0,
-        .gpio1 = S1GPIO1,
-        .vccio = S1IOVCC,
+        .led0 = S1_LED_GREEN,
+        .led1 = S1_LED_YELLOW,
+        .gpio0 = S1_GPIO_OUT,
+        .gpio1 = S1_GPIO_IN,
+        .vccio = S1_IOVCC,
         .i2c_hw = I2C1_SERCOM
     },
     {
         .port_idx = 2u,
-        .led0 = S2LED0,
-        .led1 = S2LED1,
-        .gpio0 = S2GPIO0,
-        .gpio1 = S2GPIO1,
-        .vccio = S2IOVCC,
+        .led0 = S2_LED_GREEN,
+        .led1 = S2_LED_YELLOW,
+        .gpio0 = S2_GPIO_OUT,
+        .gpio1 = S2_GPIO_IN,
+        .vccio = S2_IOVCC,
         .i2c_hw = I2C2_SERCOM
     },
     {
         .port_idx = 3u,
-        .led0 = S3LED0,
-        .led1 = S3LED1,
-        .gpio0 = S3GPIO0,
-        .gpio1 = S3GPIO1,
-        .vccio = S3IOVCC,
+        .led0 = S3_LED_GREEN,
+        .led1 = S3_LED_YELLOW,
+        .gpio0 = S3_GPIO_OUT,
+        .gpio1 = S3_GPIO_IN,
+        .vccio = S3_IOVCC,
         .i2c_hw = I2C3_SERCOM
     }
 };
@@ -158,16 +157,9 @@ void RRRC_ProcessLogic_xTask(void* user_data);
 //*********************************************************************************************
 void SystemMonitorPinsInit(void)
 {
-    gpio_set_pin_direction(SM_MOT_CURRENT_FAULT, GPIO_DIRECTION_IN);
-    gpio_set_pin_pull_mode(SM_MOT_CURRENT_FAULT, GPIO_PULL_UP);
-    gpio_set_pin_function(SM_MOT_CURRENT_FAULT, GPIO_PIN_FUNCTION_OFF);
-
     //adc pins
     gpio_set_pin_direction(SM_MOT_VOLTAGE, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(SM_MOT_VOLTAGE, GPIO_PIN_FUNCTION_B);
-
-    gpio_set_pin_direction(SM_MOT_CURRENT, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(SM_MOT_CURRENT, GPIO_PIN_FUNCTION_B);
 
     gpio_set_pin_direction(SM_BAT_VOLTAGE, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(SM_BAT_VOLTAGE, GPIO_PIN_FUNCTION_B);
@@ -301,8 +293,6 @@ void RRRC_ProcessLogic_xTask(void* user)
     //MotorDriver_DRV8833_Run_OnDriverInit(&motorDriver23);
     //MotorDriver_DRV8833_Run_OnDriverInit(&motorDriver45);
 
-    BatteryCharger_Run_EnableFastCharge();
-
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (uint8_t cycleCounter = 0u;;)
     {
@@ -326,19 +316,69 @@ void RRRC_ProcessLogic_xTask(void* user)
     }
 }
 
-#define SYSMON_ADC_MOTOR_VOLTAGE   ADC_BUFFER_ADC1_04
-#define SYSMON_ADC_MOTOR_CURRENT   ADC_BUFFER_ADC1_10
-#define SYSMON_ADC_BATTERY_VOLTAGE ADC_BUFFER_ADC1_11
-#define SYSMON_ADC_TEMPERATURE_P   ADC_BUFFER_ADC1_28
-#define SYSMON_ADC_TEMPERATURE_C   ADC_BUFFER_ADC1_29
-
 uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
 
-void ADC_Write_RawSamples_ADC0(uint16_t samples[4])
+void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
 {
-    for (uint32_t i = 0u; i < ARRAY_SIZE(sensorPorts); i++)
+    if (adc_idx == 0u)
     {
-        sensorAdcValues[i] = samples[i] >> 4; /* 12 -> 8 bit */
+        switch (channel_idx)
+        {
+            case S0_ADC_CH:
+                sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
+                break;
+        }
+    }
+    else
+    {
+        switch (channel_idx)
+        {
+            case S1_ADC_CH:
+                sensorAdcValues[1] = adc_data >> 4; /* 12 -> 8 bit */
+                break;
+
+            case S2_ADC_CH:
+                sensorAdcValues[2] = adc_data >> 4; /* 12 -> 8 bit */
+                break;
+
+            case S3_ADC_CH:
+                sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
+                break;
+        }
+    }
+}
+
+void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float voltage)
+{
+    if (adc_idx == 0u)
+    {
+        switch (channel_idx)
+        {
+            case M1_ISEN_CH:
+            case M3_ISEN_CH:
+            case M4_ISEN_CH:
+                /* TODO */
+                break;
+        }
+    }
+    else
+    {
+        switch (channel_idx)
+        {
+            case ADC_CH_MOT_VOLTAGE:
+                motorBatteryVoltage = (uint32_t) lroundf(voltage * (130.0f / 30.0f));
+                break;
+
+            case ADC_CH_BAT_VOLTAGE:
+                mainBatteryVoltage = (uint32_t) lroundf(voltage * (130.0f / 30.0f));
+                break;
+
+            case M0_ISEN_CH:
+            case M2_ISEN_CH:
+            case M5_ISEN_CH:
+                /* TODO */
+                break;
+        }
     }
 }
 
@@ -347,19 +387,6 @@ uint8_t SensorPortHandler_Read_AdcData(uint8_t port_idx)
     ASSERT(port_idx < ARRAY_SIZE(sensorPorts));
 
     return sensorAdcValues[port_idx];
-}
-
-void ADC_Write_Samples_ADC1(float samples[5])
-{
-    uint32_t motor_voltage   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_VOLTAGE] * (130.0f / 30.0f));
-    uint32_t battery_voltage = (uint32_t) lroundf(samples[SYSMON_ADC_BATTERY_VOLTAGE] * (340.0f / 240.0f));
-//    sysmon.motor_current   = (uint32_t) lroundf(samples[SYSMON_ADC_MOTOR_CURRENT]);
-
-//    float temperature;
-    InternalTemperatureSensor_Run_Convert(samples[SYSMON_ADC_TEMPERATURE_P], samples[SYSMON_ADC_TEMPERATURE_C], &mcuTemperature);
-
-    mainBatteryVoltage = battery_voltage;
-    motorBatteryVoltage = motor_voltage;
 }
 
 static bool statusLedsChanged;

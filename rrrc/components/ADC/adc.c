@@ -61,31 +61,49 @@ typedef struct
     const adc_pos_input_t input;
 } adc_channel_config_t;
 
+/*
+ ADC channel assingments:
+  - ADC0:
+   - 10 M4
+   - 11 M3
+   - 14 S0
+   - 15 M1
+
+  - ADC1:
+   - 4  M5
+   - 5  S2
+   - 6  M0
+   - 7  S3
+   - 10 M2
+   - 11 S1
+   - 12 V_MOT
+   - 13 V_BAT
+*/
+
 static adc_channel_config_t adc0_channels[] = 
 {
-    { .input = ADC_CH_SEN_0 },
-    { .input = ADC_CH_SEN_1 },
-    { .input = ADC_CH_SEN_2 },
-    { .input = ADC_CH_SEN_3 }
+    { .input = S0_ADC_CH },
+    { .input = M1_ISEN_CH },
+    { .input = M3_ISEN_CH },
+    { .input = M4_ISEN_CH }
 };
 
 static adc_channel_config_t adc1_channels[] = 
 {
-    { .input = ADC_CH_MOT_CURRENT },
+    { .input = S1_ADC_CH },
+    { .input = S2_ADC_CH },
+    { .input = S3_ADC_CH },
+    { .input = M0_ISEN_CH },
+    { .input = M2_ISEN_CH },
+    { .input = M5_ISEN_CH },
     { .input = ADC_CH_BAT_VOLTAGE },
     { .input = ADC_CH_MOT_VOLTAGE },
-    { .input = ADC_CH_TEMP_SENSOR_P },
-    { .input = ADC_CH_TEMP_SENSOR_C },
 };
-
-static uint16_t adc0_buffer[ARRAY_SIZE(adc0_channels)];
-static uint16_t adc1_buffer[ARRAY_SIZE(adc1_channels)];
 
 typedef struct 
 {
     struct adc_async_descriptor* const hwDescriptor;
     adc_channel_config_t * const channels;
-    uint16_t* const samples;
     const size_t channelCount;
     uint32_t currentChannel;
     bool conversionRunning;
@@ -96,7 +114,6 @@ static adc_context_t adc[] =
     {
         .hwDescriptor = &ADC_0,
         .channels = &adc0_channels[0],
-        .samples = &adc0_buffer[0],
         .channelCount = ARRAY_SIZE(adc0_channels),
         .currentChannel = 0u,
         .conversionRunning = false
@@ -105,7 +122,6 @@ static adc_context_t adc[] =
     {
         .hwDescriptor = &ADC_1,
         .channels = &adc1_channels[0],
-        .samples = &adc1_buffer[0],
         .channelCount = ARRAY_SIZE(adc1_channels),
         .currentChannel = 0u,
         .conversionRunning = false
@@ -138,7 +154,8 @@ static int32_t adc_convert_channel(uint32_t adc_idx, uint32_t channel_idx)
 static void conversion_complete(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
 {
     /* we can assume that adc_idx and channel_idx are valid */
-    ADC_Write_ChannelData(adc_idx, channel_idx, adc_data);
+    ADC_Write_ChannelData_Raw(adc_idx, adc[adc_idx].channels[channel_idx].input, adc_data);
+    ADC_Write_ChannelVoltage(adc_idx, adc[adc_idx].channels[channel_idx].input, adc_to_mv(adc_data));
 
     if (channel_idx < adc[adc_idx].channelCount - 1u)
     {
@@ -179,75 +196,39 @@ void ADC_Run_OnInit(void)
     ADC_0_init();
     adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
     adc_async_enable_channel(&ADC_0, 0);
-    memset(adc0_buffer, 0u, sizeof(adc0_buffer));
 
     ADC_1_init();
     adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
     adc_async_enable_channel(&ADC_1, 0);
-    memset(adc1_buffer, 0u, sizeof(adc1_buffer));
 }
 
 void ADC_Run_Update(void)
 {
     if (!adc[0].conversionRunning)
     {
-        /* update outputs */
-        ADC_Write_RawSamples_ADC0(adc0_buffer);
-
-        float samples[ARRAY_SIZE(adc0_buffer)];
-        for (uint32_t i = 0u; i < ARRAY_SIZE(adc0_buffer); i++)
-        {
-            samples[i] = adc_to_mv(adc0_buffer[i]);
-        }
-        ADC_Write_Samples_ADC0(samples);
-
         /* start new conversion */
         adc_convertion_start(0);
     }
     
     if (!adc[1].conversionRunning)
     {
-        /* update outputs */
-        ADC_Write_RawSamples_ADC1(adc1_buffer);
-
-        float samples[ARRAY_SIZE(adc1_buffer)];
-        for (uint32_t i = 0u; i < ARRAY_SIZE(adc1_buffer); i++)
-        {
-            samples[i] = adc_to_mv(adc1_buffer[i]);
-        }
-        ADC_Write_Samples_ADC1(samples);
-
         /* start new conversion */
         adc_convertion_start(1);
     }
 }
 
 __attribute__((weak))
-void ADC_Write_ChannelData(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
+void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
 {
-    adc[adc_idx].samples[channel_idx] = adc_data;
+    (void) adc_idx;
+    (void) channel_idx;
+    (void) adc_data;
 }
 
 __attribute__((weak))
-void ADC_Write_RawSamples_ADC0(uint16_t samples[4])
+void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float voltage)
 {
-    (void) samples;
-}
-
-__attribute__((weak))
-void ADC_Write_RawSamples_ADC1(uint16_t samples[5])
-{
-    (void) samples;
-}
-
-__attribute__((weak))
-void ADC_Write_Samples_ADC0(float samples[4])
-{
-    (void) samples;
-}
-
-__attribute__((weak))
-void ADC_Write_Samples_ADC1(float samples[5])
-{
-    (void) samples;
+    (void) adc_idx;
+    (void) channel_idx;
+    (void) voltage;
 }

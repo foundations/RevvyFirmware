@@ -190,162 +190,183 @@
 #define PE30 GPIO(GPIO_PORTE, 30)
 #define PE31 GPIO(GPIO_PORTE, 31)
 
-//for RRRC motors
-#define M0LED0 PC28
-#define M0LED1 PC19
-#define M1LED0 PC25
-#define M1LED1 PB26
-#define M2LED0 PB28
-#define M2LED1 PB23
-#define M3LED0 PD10
-#define M3LED1 PD12
-#define M4LED0 PD11
-#define M4LED1 PA11
-#define M5LED0 PA10
-#define M5LED1 PC17
+/* Hardware version v2.3 */
 
-#define M1DIR1 PB17
-#define M1DIR2 PD20
-#define M2DIR1 PB21
-#define M2DIR2 PC23
+/* ========== Motor ports ========== */
+#define DRV8833_Channel_A 0
+#define DRV8833_Channel_B 1
 
-#define M3DIR1 PC27
-#define M3DIR2 PC31
-#define M4DIR1 PC30
-#define M4DIR2 PB02
+/* Motor port 0 */
+#define M0_GREEN_LED        PB22
+#define M0_DRIVER_IDX       2
+#define M0_DRIVER_CHANNEL   DRV8833_Channel_A
+#define M0_ISEN_AIN         PB04
+#define M0_ISEN_ADC         1
+#define M0_ISEN_CH          6
+#define M0_ENC_A            PB25
+#define M0_ENC_B            PB24
 
-#define M6DIR1 PD01
-#define M6DIR2 PD00
-#define M5DIR1 PB04
-#define M5DIR2 PC22
+/* Motor port 1 */
+#define M1_GREEN_LED        PC24
+#define M1_DRIVER_IDX       0
+#define M1_DRIVER_CHANNEL   DRV8833_Channel_A
+#define M1_ISEN_AIN         PB03
+#define M1_ISEN_ADC         0
+#define M1_ISEN_CH          15
+#define M1_ENC_A            PB27
+#define M1_ENC_B            PA20
 
-#define M1ENC0 PB30
-#define M1ENC1 PB31
-#define M2ENC0 PB16
-#define M2ENC1 PB03
-#define M3ENC0 PA14
-#define M3ENC1 PA15
-#define M4ENC0 PB14
-#define M4ENC1 PB15
-#define M5ENC0 PA06
-#define M5ENC1 PA07
-#define M6ENC0 PB08
-#define M6ENC1 PB09
+/* Motor port 2 */
+#define M2_GREEN_LED        PC26
+#define M2_DRIVER_IDX       0
+#define M2_DRIVER_CHANNEL   DRV8833_Channel_B
+#define M2_ISEN_AIN         PC00
+#define M2_ISEN_ADC         1
+#define M2_ISEN_CH          10
+#define M2_ENC_A            PA02
+#define M2_ENC_B            PA21
 
-#define M0PWM0 PC10
-#define M1PWM0 PC11
-#define M2PWM0 PC15
-#define M3PWM0 PC12
-#define M4PWM0 PC14
-#define M5PWM0 PC13
+/* Motor port 3 */
+#define M3_GREEN_LED        PC12
+#define M3_DRIVER_IDX       1
+#define M3_DRIVER_CHANNEL   DRV8833_Channel_A
+#define M3_ISEN_AIN         PA11
+#define M3_ISEN_ADC         0
+#define M3_ISEN_CH          11
+#define M3_ENC_A            PB17
+#define M3_ENC_B            PB07
 
-#define M12STBY PD21
-#define M34STBY PA27
-#define M56STBY PB06
+/* Motor port 4 */
+#define M4_GREEN_LED        PD12
+#define M4_DRIVER_IDX       1
+#define M4_DRIVER_CHANNEL   DRV8833_Channel_B
+#define M4_ISEN_AIN         PA10
+#define M4_ISEN_ADC         0
+#define M4_ISEN_CH          10
+#define M4_ENC_A            PB15
+#define M4_ENC_B            PC10
 
-#define MOTPWEN PB20
+/* Motor port 5 */
+#define M5_GREEN_LED        PC14
+#define M5_DRIVER_IDX       2
+#define M5_DRIVER_CHANNEL   DRV8833_Channel_B
+#define M5_ISEN_AIN         PC02
+#define M5_ISEN_ADC         1
+#define M5_ISEN_CH          4
+#define M5_ENC_A            PB16
+#define M5_ENC_B            PB14
 
-//for RRRC sensors
-#define S0GPIO0 PA18
-#define S0GPIO1 PB11
-#define S1GPIO0 PA19
-#define S1GPIO1 PB10
-#define S2GPIO0 PA20
-#define S2GPIO1 PB13
-#define S3GPIO0 PA21
-#define S3GPIO1 PB12
+/* Motor drivers */
+#define MOTOR_DRIVER_0_YELLOW   PB23
+#define MOTOR_DRIVER_0_EN       PB20
+#define MOTOR_DRIVER_0_FAULT    PC13
 
-#define S0ADC PA03
-#define S1ADC PA02
-#define S2ADC PB01
-#define S3ADC PB00
+#define MOTOR_DRIVER_1_YELLOW   PB13
+#define MOTOR_DRIVER_1_EN       PD01
+#define MOTOR_DRIVER_1_FAULT    PB23
 
-#define S0LED0 PC16
-#define S0LED1 PC18
-#define S1LED0 PC21
-#define S1LED1 PB07
-#define S2LED0 PB24
-#define S2LED1 PB25
-#define S3LED0 PC26
-#define S3LED1 PB27
+#define MOTOR_DRIVER_2_YELLOW   PC13
+#define MOTOR_DRIVER_2_EN       PA18
+#define MOTOR_DRIVER_2_FAULT    PB13
 
-#define S0IOVCC PC07
-#define S1IOVCC PC04
-#define S2IOVCC PC05
-#define S3IOVCC PC06
+#define EN_PWR_MOTOR        PC28
 
+/* ========== Sensor ports ========== */
+/* Sensor port 0 */
+#define S0_IOVCC        PC04
+#define S0_AIN          PB02
+#define S0_ADC_PER      0
+#define S0_ADC_CH       14
+#define S0_GPIO_OUT     PC27
+#define S0_GPIO_IN      PA27
+#define S0_LED_GREEN    PB21
+#define S0_LED_YELLOW   PC25
 
-//SERCOM2!!
-#define I2C0_SERCOM SERCOM2
-#define I2C0_SDApin	PA12
+#define I2C0_SERCOM          SERCOM3
+#define I2C0_SDApin          PA22
 #define I2C0_SDApin_function GPIO_PIN_FUNCTION_C
-#define I2C0_SCLpin PA13
+#define I2C0_SCLpin          PA23
 #define I2C0_SCLpin_function GPIO_PIN_FUNCTION_C
 
-//SERCOM0
-#define I2C1_SERCOM SERCOM0
-#define I2C1_SDApin PA08
+/* Sensor port 1 */
+#define S1_IOVCC        PC05
+#define S1_AIN          PC01
+#define S1_ADC_PER      1
+#define S1_ADC_CH       11
+#define S1_GPIO_OUT     PB19
+#define S1_GPIO_IN      PA03
+#define S1_LED_GREEN    PC17
+#define S1_LED_YELLOW   PD00
+
+#define I2C1_SERCOM          SERCOM1
+#define I2C1_SDApin          PA16
 #define I2C1_SDApin_function GPIO_PIN_FUNCTION_C
-#define I2C1_SCLpin PA09
+#define I2C1_SCLpin          PA17
 #define I2C1_SCLpin_function GPIO_PIN_FUNCTION_C
 
-//SERCOM1
-#define I2C2_SERCOM SERCOM1
-#define I2C2_SDApin PA16
+/* Sensor port 2 */
+#define S2_IOVCC        PC06
+#define S2_AIN          PC03
+#define S2_ADC_PER      1
+#define S2_ADC_CH       5
+#define S2_GPIO_OUT     PC16
+#define S2_GPIO_IN      PB12
+#define S2_LED_GREEN    PC15
+#define S2_LED_YELLOW   PA19
+
+#define I2C2_SERCOM          SERCOM0
+#define I2C2_SDApin          PA08
 #define I2C2_SDApin_function GPIO_PIN_FUNCTION_C
-#define I2C2_SCLpin PA17
+#define I2C2_SCLpin          PA09
 #define I2C2_SCLpin_function GPIO_PIN_FUNCTION_C
 
-//SERCOM3
-#define I2C3_SERCOM SERCOM3
-#define I2C3_SDApin PA22
-#define I2C3_SDApin_function GPIO_PIN_FUNCTION_C
-#define I2C3_SCLpin PA23
-#define I2C3_SCLpin_function GPIO_PIN_FUNCTION_C
+/* Sensor port 3 */
+#define S3_IOVCC        PC07
+#define S3_AIN          PB05
+#define S3_ADC_PER      1
+#define S3_ADC_CH       7
+#define S3_GPIO_OUT     PD11
+#define S3_GPIO_IN      PB06
+#define S3_LED_GREEN    PD10
+#define S3_LED_YELLOW   PC11
 
-//SERCOM6
-#define I2C4_SERCOM SERCOM6
-#define I2C4_SDApin PD09
+#define I2C3_SERCOM          SERCOM6
+#define I2C3_SDApin          PD09
+#define I2C3_SDApin_function GPIO_PIN_FUNCTION_D
+#define I2C3_SCLpin          PD08
+#define I2C3_SCLpin_function GPIO_PIN_FUNCTION_D
+
+// IMU SPI is SERCOM 5 or 7
+
+// PAD[0] Digital I/O SDA
+// PAD[1] Digital I/O SCL
+// PAD[2] Digital I/O SDA_OUT (4-wire operation)
+// PAD[3] Digital I/O SCL_OUT (4-wire operation)
+
+/* Misc */
+/* SERCOM2!! (RPi) */
+#define I2C4_SERCOM          SERCOM2
+#define I2C4_SDApin          PA12
 #define I2C4_SDApin_function GPIO_PIN_FUNCTION_D
-#define I2C4_SCLpin PD08
+#define I2C4_SCLpin          PA13
 #define I2C4_SCLpin_function GPIO_PIN_FUNCTION_D
 
+#define RPi_I2C_sda          I2C4_SDApin
+#define RPi_I2C_scl          I2C4_SCLpin
 
-#define RPiI2Csda I2C0_SDApin
-#define RPiI2Cscl I2C0_SCLpin
-#define S0I2Csda I2C4_SDApin
-#define S0I2Cscl I2C4_SCLpin
-#define S1I2Csda I2C1_SDApin
-#define S1I2Cscl I2C1_SCLpin
-#define S2I2Csda I2C2_SDApin
-#define S2I2Cscl I2C2_SCLpin
-#define S3I2Csda I2C3_SDApin
-#define S3I2Cscl I2C3_SCLpin
+#define WS2812spi           SERCOM4
+#define WS2812pin           PB29
+#define WS2812pin_function  GPIO_PIN_FUNCTION_D
 
-#define WS2812pin PB29
-#define WS2812pin_function GPIO_PIN_FUNCTION_D
+#define CHARGER_STBY        PC21
+#define CHARGER_STAT        PC23
 
-#define SM_BAT_EN		PB22 //OUT
-#define SM_BAT_CHG		PB19 //IN
-#define SM_BAT_PG		PC20 //PB22 //IN
-#define SM_BAT_ISET2	PB18 //OUT
+#define SM_MOT_VOLTAGE          PC30
+#define SM_BAT_VOLTAGE          PC31
 
-#define SM_MOT_CURRENT_FAULT	PB05 //IN
-#define SM_MOT_VOLTAGE	PC02
-#define SM_MOT_CURRENT	PC00
-#define SM_BAT_VOLTAGE	PC01
+#define ADC_CH_MOT_VOLTAGE      12
+#define ADC_CH_BAT_VOLTAGE      13
 
-#define ADC_CH_SEN_0  0
-#define ADC_CH_SEN_1  13
-#define ADC_CH_SEN_2  12
-#define ADC_CH_SEN_3  1
-
-#define ADC_CH_MOT_VOLTAGE      04
-#define ADC_CH_BAT_VOLTAGE      11
-#define ADC_CH_MOT_CURRENT      10
-#define ADC_CH_TEMP_SENSOR_P  0x1C
-#define ADC_CH_TEMP_SENSOR_C  0x1D
-
-#define ADC_CHN_INT_GND 0x18
+#define ADC_CHN_INT_GND       0x18
 
 #endif // ATMEL_START_PINS_H_INCLUDED

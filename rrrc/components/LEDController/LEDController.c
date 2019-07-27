@@ -39,7 +39,7 @@ static void SPI_0_Init(void)
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM4_GCLK_ID_SLOW, CONF_GCLK_SERCOM4_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_mclk_set_APBDMASK_SERCOM4_bit(MCLK);
 
-    spi_m_dma_init(&SPI_0, SERCOM4);
+    spi_m_dma_init(&SPI_0, WS2812spi);
 
     gpio_set_pin_level(WS2812pin, false);
     gpio_set_pin_direction(WS2812pin, GPIO_DIRECTION_OUT);
