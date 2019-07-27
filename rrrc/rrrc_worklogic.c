@@ -14,7 +14,6 @@
 #include <math.h>
 #include <string.h>
 
-/* TODO */
 static BlockInfo_t errorStorageBlocks[] = {
     { .base_address = 0x3C000u },
     { .base_address = 0x3E000u },
@@ -334,13 +333,13 @@ void RRRC_ProcessLogic_xTask(void* user)
     
     /* 1 cell LiPoly */
     mainBattery.detectionVoltage = 2000.0f;
-    mainBattery.minVoltage = 3300.0f;
+    mainBattery.minVoltage = 3400.0f;
     mainBattery.maxVoltage = 4100.0f;
 
     BatteryCalculator_Run_OnInit(&mainBattery);
     BatteryIndicator_Run_OnInit(&mainBatteryIndicator);
     
-    /* 6xAAA rechargeable */
+    /* 6xAA rechargeable */
     motorBattery.detectionVoltage = 4000.0f;
     motorBattery.minVoltage = 5400.0f;
     motorBattery.maxVoltage = 7000.0f;
