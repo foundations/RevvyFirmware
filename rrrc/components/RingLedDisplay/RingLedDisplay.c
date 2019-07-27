@@ -15,6 +15,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <utils_assert.h>
 
 typedef void (*ledRingFn)(void* data);
 
@@ -74,6 +75,12 @@ static indication_handler_t scenarioHandlers[] =
 
 Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
     uint8_t len = 0u;
     for (uint32_t i = 0u; i < ARRAY_SIZE(scenarioHandlers); i++)
     {
@@ -84,6 +91,7 @@ Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayloa
             *responseCount = 0u;
             return Comm_Status_Error_InternalError;
         }
+
         response[len] = i;
         response[len + 1] = name_length;
         memcpy(&response[len + 2], lib->name, name_length);
@@ -96,6 +104,10 @@ Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayloa
 
 Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseCount;
+    (void) responseBufferSize;
+
     if (commandSize != 1u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -115,6 +127,14 @@ Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload
 
 Comm_Status_t RingLedDisplay_GetRingLedAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    ASSERT(responseBufferSize >= 1u);
+
     *response = RING_LEDS_AMOUNT;
     *responseCount = 1u;
 
@@ -123,6 +143,10 @@ Comm_Status_t RingLedDisplay_GetRingLedAmount_Start(const uint8_t* commandPayloa
 
 Comm_Status_t RingLedDisplay_SetUserFrame_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseCount;
+    (void) responseBufferSize;
+
     if (commandSize != RING_LEDS_AMOUNT * 2u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -135,6 +159,7 @@ Comm_Status_t RingLedDisplay_SetUserFrame_Start(const uint8_t* commandPayload, u
 
 static void ledRingOffWriter(void* data)
 {
+    (void) data;
     for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
     {
         RingLedDisplay_Write_LedColor(idx, (rgb_t) LED_OFF);
@@ -153,6 +178,7 @@ static void ledRingFrameWriter(void* frameData)
 
 static void colorWheelWriter1(void* data)
 {
+    (void) data;
     uint32_t phase = (xTaskGetTickCount() * 6) / 20;
     
     for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
@@ -170,6 +196,7 @@ static void colorWheelWriter1(void* data)
 
 static void rainbowFadeWriter(void* data)
 {
+    (void) data;
     uint32_t phase = xTaskGetTickCount() / 40u;
     
     hsv_t hsv = {
@@ -305,6 +332,8 @@ void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario)
 __attribute__((weak))
 void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 {
+    (void) led_idx;
+    (void) color;
     /* nothing to do */
 }
 
