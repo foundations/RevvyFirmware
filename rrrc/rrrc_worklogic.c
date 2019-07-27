@@ -9,8 +9,6 @@
 #include "rrrc_worklogic.h"
 #include "rrrc_indication.h"
 
-#include "jscope/jscope.h"
-
 #include <math.h>
 #include <string.h>
 
@@ -235,8 +233,6 @@ void SystemMonitorPinsInit(void)
 int32_t RRRC_Init(void)
 {
     int32_t result = ERR_NONE;
-
-    jscope_init();
 
     SystemMonitorPinsInit();
 

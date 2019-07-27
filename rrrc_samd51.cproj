@@ -1371,12 +1371,6 @@
     <Compile Include="rrrc\controller\pid.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\jscope\jscope.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\jscope\jscope.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\rrrc_hal.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1503,21 +1497,6 @@
     <Compile Include="third_party\FreeRTOSV10.0.0\Source\timers.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="third_party\segger\SEGGER_RTT.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="third_party\segger\SEGGER_RTT.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="third_party\segger\SEGGER_RTT_ASM_ARMv7M.S">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="third_party\segger\SEGGER_RTT_Conf.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="third_party\segger\SEGGER_RTT_printf.c">
-      <SubType>compile</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Config\" />
@@ -1584,7 +1563,6 @@
     <Folder Include="rrrc\components\VersionProvider" />
     <Folder Include="rrrc\components\BatteryStatusProvider" />
     <Folder Include="rrrc\components\RingLedDisplay" />
-    <Folder Include="rrrc\jscope" />
     <Folder Include="rrrc\components" />
     <Folder Include="rrrc\runtime" />
     <Folder Include="rrrc\utils" />
@@ -1599,7 +1577,6 @@
     <Folder Include="third_party\FreeRTOSV10.0.0\Source\portable\GCC\" />
     <Folder Include="third_party\FreeRTOSV10.0.0\Source\portable\GCC\ARM_CM4F\" />
     <Folder Include="third_party\FreeRTOSV10.0.0\Source\portable\MemMang\" />
-    <Folder Include="third_party\segger" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\samd51p19a_flash.ld">
