@@ -33,8 +33,8 @@
 
 
 
-#ifndef _HAL_EVSYS_H_INCLUDED
-#define _HAL_EVSYS_H_INCLUDED
+#ifndef _HPL_EVSYS_H_INCLUDED
+#define _HPL_EVSYS_H_INCLUDED
 
 #include <compiler.h>
 #include <stdint.h>
@@ -54,14 +54,14 @@ extern "C" {
  *
  * \return Initialization status.
  */
-int32_t event_system_init(void);
+int32_t _event_system_init(void);
 
 /**
  * \brief Deinitialize event system.
  *
  * \return De-initialization status.
  */
-int32_t event_system_deinit(void);
+int32_t _event_system_deinit(void);
 
 /**
  * \brief Enable event reception by the given user from the given channel
@@ -71,7 +71,7 @@ int32_t event_system_deinit(void);
  *
  * \return Status of operation.
  */
-int32_t event_system_enable_user(const uint16_t user, const uint16_t channel);
+int32_t _event_system_enable_user(const uint16_t user, const uint16_t channel, const bool on);
 
 /**
  * \brief Disable event reception by the given user from the given channel
@@ -81,7 +81,7 @@ int32_t event_system_enable_user(const uint16_t user, const uint16_t channel);
  *
  * \return Status of operation.
  */
-int32_t event_system_disable_user(const uint16_t user, const uint16_t channel);
+int32_t _event_system_disable_user(const uint16_t user, const uint16_t channel);
 
 /**
  * \brief Enable event generation by the given generator for the given channel
@@ -91,7 +91,7 @@ int32_t event_system_disable_user(const uint16_t user, const uint16_t channel);
  *
  * \return Status of operation.
  */
-int32_t event_system_enable_generator(const uint16_t generator, const uint16_t channel);
+int32_t _event_system_enable_generator(const uint16_t generator, const uint16_t channel, const bool on);
 
 /**
  * \brief Disable event generation by the given generator for the given channel
@@ -101,17 +101,10 @@ int32_t event_system_enable_generator(const uint16_t generator, const uint16_t c
  *
  * \return Status of operation.
  */
-int32_t event_system_disable_generator(const uint16_t generator, const uint16_t channel);
-
-/**
- * \brief Retrieve the current driver version
- *
- * \return Current driver version.
- */
-uint32_t event_system_get_version(void);
+int32_t _event_system_disable_generator(const uint16_t generator, const uint16_t channel);
 
 /**@}*/
 #ifdef __cplusplus
 }
 #endif
-#endif /* _HAL_EVSYS_H_INCLUDED */
+#endif /* _HPL_EVSYS_H_INCLUDED */
