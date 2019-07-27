@@ -41,16 +41,7 @@ extern struct i2c_m_sync_desc   I2C_2;
 extern struct i2c_m_sync_desc   I2C_3;
 extern struct i2c_m_sync_desc   I2C_4;
 
-extern struct timer_descriptor TIMER_TC0;
-extern struct timer_descriptor TIMER_TC1;
-extern struct timer_descriptor TIMER_TC2;
-extern struct timer_descriptor TIMER_TC3;
-extern struct timer_descriptor TIMER_TC4;
-extern struct timer_descriptor TIMER_TC5;
 extern struct timer_descriptor TIMER_TC6;
-extern struct timer_descriptor TIMER_TC7;
-
-extern struct timer_descriptor TIMER_TCC0;
 
 void system_init(void);
 

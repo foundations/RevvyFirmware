@@ -41,60 +41,36 @@ static MotorPort_t motorPorts[] =
         .led = M3_GREEN_LED,
         .enc0 = M3_ENC_A,
         .enc1 = M3_ENC_B,
-        .enc0_timer = &TIMER_TC5,
-        .enc0_timer_event = TIMER_MC0,
-        .enc1_timer = &TIMER_TC5,
-        .enc1_timer_event = TIMER_MC1
     },
     {
         .port_idx = 1u,
         .led = M4_GREEN_LED,
         .enc0 = M4_ENC_A,
         .enc1 = M4_ENC_B,
-        .enc0_timer = &TIMER_TC1,
-        .enc0_timer_event = TIMER_MC0,
-        .enc1_timer = &TIMER_TC1,
-        .enc1_timer_event = TIMER_MC1
     },
     {
         .port_idx = 2u,
         .led = M5_GREEN_LED,
         .enc0 = M5_ENC_A,
         .enc1 = M5_ENC_B,
-        .enc0_timer = &TIMER_TC4,
-        .enc0_timer_event = TIMER_MC0,
-        .enc1_timer = &TIMER_TC4,
-        .enc1_timer_event = TIMER_MC1
     },
     {
         .port_idx = 3u,
         .led = M2_GREEN_LED,
         .enc0 = M2_ENC_A,
         .enc1 = M2_ENC_B,
-        .enc0_timer = &TIMER_TC3,
-        .enc0_timer_event = TIMER_MC0,
-        .enc1_timer = &TIMER_TC3,
-        .enc1_timer_event = TIMER_MC1
     },
     {
         .port_idx = 4u,
         .led = M1_GREEN_LED,
         .enc0 = M1_ENC_A,
         .enc1 = M1_ENC_B,
-        .enc0_timer = &TIMER_TC6,
-        .enc0_timer_event = TIMER_MC0,
-        .enc1_timer = &TIMER_TC6,
-        .enc1_timer_event = TIMER_MC1
     },
     {
         .port_idx = 5u,
         .led = M0_GREEN_LED,
         .enc0 = M0_ENC_A,
         .enc1 = M0_ENC_B,
-        .enc0_timer = &TIMER_TC0,
-        .enc0_timer_event = TIMER_MC0,
-        .enc1_timer = &TIMER_TC0,
-        .enc1_timer_event = TIMER_MC1
     }
 };
 

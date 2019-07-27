@@ -11,18 +11,9 @@
 #include <utils.h>
 #include <hal_init.h>
 
-#include <hpl_rtc_base.h>
-
 #include "rrrc_hal.h"
 
-struct timer_descriptor TIMER_TC0;
-struct timer_descriptor TIMER_TC1;
-struct timer_descriptor TIMER_TC2;
-struct timer_descriptor TIMER_TC3;
-struct timer_descriptor TIMER_TC4;
-struct timer_descriptor TIMER_TC5;
 struct timer_descriptor TIMER_TC6;
-struct timer_descriptor TIMER_TC7;
 
 //*********************************************************************************************
 void EXTERNAL_IRQ_0_init(void)
@@ -40,75 +31,12 @@ void delay_driver_init(void)
 }
 
 //*********************************************************************************************
-static void TIMER_TC0_init(void)
-{
-    hri_mclk_set_APBAMASK_TC0_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    timer_init(&TIMER_TC0, TC0, _tc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TC1_init(void)
-{
-    hri_mclk_set_APBAMASK_TC1_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC1_GCLK_ID, CONF_GCLK_TC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    timer_init(&TIMER_TC1, TC1, _tc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TC2_init(void)
-{
-    hri_mclk_set_APBBMASK_TC2_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, CONF_GCLK_TC2_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    timer_init(&TIMER_TC2, TC2, _tc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TC3_init(void)
-{
-    hri_mclk_set_APBBMASK_TC3_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, CONF_GCLK_TC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    timer_init(&TIMER_TC3, TC3, _tc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TC4_init(void)
-{
-    hri_mclk_set_APBCMASK_TC4_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    timer_init(&TIMER_TC4, TC4, _tc_get_timer());
-}
-
-//*********************************************************************************************
-static void TIMER_TC5_init(void)
-{
-    hri_mclk_set_APBCMASK_TC5_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC5_GCLK_ID, CONF_GCLK_TC5_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    timer_init(&TIMER_TC5, TC5, _tc_get_timer());
-}
-
-//*********************************************************************************************
 static void TIMER_TC6_init(void)
 {
     hri_mclk_set_APBDMASK_TC6_bit(MCLK);
     hri_gclk_write_PCHCTRL_reg(GCLK, TC6_GCLK_ID, CONF_GCLK_TC6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
     timer_init(&TIMER_TC6, TC6, _tc_get_timer());    
-}
-
-//*********************************************************************************************
-static void TIMER_TC7_init(void)
-{
-    hri_mclk_set_APBDMASK_TC7_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC7_GCLK_ID, CONF_GCLK_TC7_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    timer_init(&TIMER_TC7, TC7, _tc_get_timer());
 }
 
 static void IT_init(void)
@@ -156,14 +84,7 @@ void system_init(void)
 
     delay_driver_init();
 
-    TIMER_TC0_init();
-    TIMER_TC1_init();
-    TIMER_TC2_init();
-    TIMER_TC3_init();
-    TIMER_TC4_init();
-    TIMER_TC5_init();
     TIMER_TC6_init();
-    TIMER_TC7_init();
 
-    high_res_timer_init(&TIMER_TC2);
+    high_res_timer_init(&TIMER_TC6);
 }
