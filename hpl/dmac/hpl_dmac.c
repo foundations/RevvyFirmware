@@ -73,7 +73,7 @@ struct dmac_channel_cfg {
 };
 
 /* DMAC channel configurations */
-const static struct dmac_channel_cfg _cfgs[] = {REPEAT_MACRO(DMAC_CHANNEL_CFG, i, DMAC_CH_NUM)};
+static const struct dmac_channel_cfg _cfgs[] = {REPEAT_MACRO(DMAC_CHANNEL_CFG, i, DMAC_CH_NUM)};
 
 /**
  * \brief Initialize DMAC

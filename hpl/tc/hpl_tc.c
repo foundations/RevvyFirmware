@@ -78,7 +78,7 @@
 		        | TC_CTRLA_PRESCALER(CONF_TC##n##_PRESCALER) | (CONF_TC##n##_ALOCK << TC_CTRLA_ALOCK_Pos)			   \
 				| CONF_TC##n##_COPEN0<<TC_CTRLA_COPEN0_Pos | CONF_TC##n##_CAPTEN0<<TC_CTRLA_CAPTEN0_Pos				   \
 				| CONF_TC##n##_COPEN1<<TC_CTRLA_COPEN1_Pos | CONF_TC##n##_CAPTEN1<<TC_CTRLA_CAPTEN1_Pos				   \
-				| CONF_TC##n##_CAPTMODE0<<TC_CTRLA_CAPTMODE0_Pos | CONF_TC##n##_CAPTMODE1<<TC_CTRLA_CAPTMODE1_Pos ,							\
+				| CONF_TC##n##_CAPTMODE0<<TC_CTRLA_CAPTMODE0_Pos | CONF_TC##n##_CAPTMODE1<<TC_CTRLA_CAPTMODE1_Pos ,	   \
 		    (CONF_TC##n##_OVFEO << TC_EVCTRL_OVFEO_Pos) | (CONF_TC##n##_TCEI << TC_EVCTRL_TCEI_Pos)                    \
 		        | (CONF_TC##n##_TCINV << TC_EVCTRL_TCINV_Pos) | (CONF_TC##n##_EVACT << TC_EVCTRL_EVACT_Pos)            \
 		        | (CONF_TC##n##_MCEO0 << TC_EVCTRL_MCEO0_Pos) | (CONF_TC##n##_MCEO1 << TC_EVCTRL_MCEO1_Pos),           \
@@ -133,14 +133,15 @@ static struct tc_configuration _tcs[] = {
  * \brief Set of pointer to hal_timer helper functions
  */
 static struct _timer_hpl_interface _tc_timer_functions = {
-    _tc_timer_init,
-    _tc_timer_deinit,
-    _tc_timer_start,
-    _tc_timer_stop,
-    _tc_timer_set_period,
-    _tc_timer_get_period,
-    _tc_timer_is_started,
-    _tc_timer_set_irq,
+    &_tc_timer_init,
+    &_tc_timer_deinit,
+    &_tc_timer_start,
+    &_tc_timer_stop,
+    &_tc_timer_set_period,
+    &_tc_timer_get_period,
+    &_tc_timer_is_started,
+    &_tc_timer_set_irq,
+    NULL
 };
 
 static struct _timer_device *_tc0_dev = NULL;
@@ -161,7 +162,7 @@ static struct _timer_device *_tc7_dev = NULL;
 
 static int8_t         get_tc_index(const void *const hw);
 static void           _tc_init_irq_param(const void *const hw, void *dev);
-static inline uint8_t _get_hardware_offset(const void *const hw);
+static inline int8_t _get_hardware_offset(const void *const hw);
 /**
  * \brief Initialize TC
  */
@@ -409,10 +410,9 @@ void TC7_Handler(void)
  */
 static int8_t get_tc_index(const void *const hw)
 {
-	uint8_t index = _get_hardware_offset(hw);
-	uint8_t i;
+	int8_t index = _get_hardware_offset(hw);
 
-	for (i = 0; i < ARRAY_SIZE(_tcs); i++) {
+	for (uint8_t i = 0u; i < ARRAY_SIZE(_tcs); i++) {
 		if (_tcs[i].number == index) {
 			return i;
 		}
@@ -451,6 +451,10 @@ static void _tc_init_irq_param(const void *const hw, void *dev)
 	if (hw == TC7) {
 		_tc7_dev = (struct _timer_device *)dev;
 	}
+    else
+    {
+        ASSERT(0);
+    }
 }
 
 /**
@@ -458,7 +462,7 @@ static void _tc_init_irq_param(const void *const hw, void *dev)
  *
  * \param[in] hw The pointer to hardware instance
  */
-static inline uint8_t _get_hardware_offset(const void *const hw)
+static inline int8_t _get_hardware_offset(const void *const hw)
 {
 	/* List of available TC modules. */
 	Tc *const tc_modules[TC_INST_NUM] = TC_INSTS;
@@ -469,5 +473,5 @@ static inline uint8_t _get_hardware_offset(const void *const hw)
 			return i;
 		}
 	}
-	return 0;
+	return -1;
 }

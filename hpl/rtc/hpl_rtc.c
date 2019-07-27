@@ -162,14 +162,15 @@ static void _rtc_timer_interrupt_handler(struct _timer_device *dev)
 /**
  * \brief Set of pointer to hal_timer helper functions
  */
-static struct _timer_hpl_interface _rtc_timer_functions = {_rtc_timer_init,
-                                                           _rtc_timer_deinit,
-                                                           _rtc_timer_start,
-                                                           _rtc_timer_stop,
-                                                           _rtc_timer_set_period,
-                                                           _rtc_timer_get_period,
-                                                           _rtc_timer_is_started,
-                                                           _rtc_timer_set_irq};
+static struct _timer_hpl_interface _rtc_timer_functions = {&_rtc_timer_init,
+                                                           &_rtc_timer_deinit,
+                                                           &_rtc_timer_start,
+                                                           &_rtc_timer_stop,
+                                                           &_rtc_timer_set_period,
+                                                           &_rtc_timer_get_period,
+                                                           &_rtc_timer_is_started,
+                                                           &_rtc_timer_set_irq,
+                                                           NULL};
 
 /**
  * \brief Retrieve timer helper functions
