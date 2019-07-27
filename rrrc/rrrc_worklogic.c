@@ -7,7 +7,6 @@
  
 #include "rrrc_hal.h"
 #include "rrrc_worklogic.h"
-#include "rrrc_indication.h"
 
 #include <math.h>
 #include <string.h>
@@ -22,8 +21,8 @@ static TaskHandle_t xRRRC_Main_xTask;
 static BatteryCalculator_Context_t mainBattery;
 static BatteryCalculator_Context_t motorBattery;
 
-static BatteryIndicator_Context_t mainBatteryIndicator;
-static BatteryIndicator_Context_t motorBatteryIndicator;
+BatteryIndicator_Context_t mainBatteryIndicator;
+BatteryIndicator_Context_t motorBatteryIndicator;
 
 static bool mainBatteryDetected;
 static bool motorBatteryDetected;
@@ -194,7 +193,6 @@ static TB6612FNG_t motorDriver45 =
     .standby = M56STBY
 };
 
-static MasterStatus_t masterStatus;
 static BluetoothStatus_t isBleConnected;
 
 static MasterCommunicationInterface_Config_t communicationConfig = 
@@ -418,52 +416,6 @@ void ADC_Write_Samples_ADC1(float samples[5])
     motorBatteryVoltage = motor_voltage;
 }
 
-static bool statusLedsChanged;
-static bool ringLedsChanged;
-static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
-static rgb_t ringLeds[RING_LEDS_AMOUNT] = { 0 };
-
-rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
-{
-    if (led_idx >= ARRAY_SIZE(statusLeds))
-    {
-        return (rgb_t) LED_OFF;
-    }
-    else
-    {
-        return statusLeds[led_idx];
-    }
-}
-
-rgb_t LEDController_Read_RingLED(uint32_t led_idx)
-{
-    if (led_idx >= ARRAY_SIZE(ringLeds))
-    {
-        return (rgb_t) LED_OFF;
-    }
-    else
-    {
-        return ringLeds[led_idx];
-    }
-}
-
-#define MAIN_BATTERY_INDICATOR_LED  0
-#define MOTOR_BATTERY_INDICATOR_LED 1
-#define BLUETOOTH_INDICATOR_LED     2
-#define STATUS_INDICATOR_LED        3
-
-void BluetoothIndicator_Write_LedColor(rgb_t color)
-{
-    statusLeds[BLUETOOTH_INDICATOR_LED] = color;
-    statusLedsChanged = true;
-}
-
-void BrainStatusIndicator_Write_LedColor(rgb_t color)
-{
-    statusLeds[STATUS_INDICATOR_LED] = color;
-    statusLedsChanged = true;
-}
-
 float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
 {
     if (context == &mainBattery)
@@ -571,54 +523,6 @@ BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context
     return BatteryStatus_NotPresent;
 }
 
-void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t color)
-{
-    if (context == &mainBatteryIndicator)
-    {
-        if (!rgb_equals(color, statusLeds[MAIN_BATTERY_INDICATOR_LED]))
-        {
-            statusLeds[MAIN_BATTERY_INDICATOR_LED] = color;
-            statusLedsChanged = true;
-        }
-    }
-    else if (context == &motorBatteryIndicator)
-    {
-        if (!rgb_equals(color, statusLeds[MOTOR_BATTERY_INDICATOR_LED]))
-        {
-            statusLeds[MOTOR_BATTERY_INDICATOR_LED] = color;
-            statusLedsChanged = true;
-        }
-    }
-    else
-    {
-        ASSERT(0);
-    }
-}
-
-bool LEDController_Read_StatusLEDs_Changed(void)
-{
-    bool changed = statusLedsChanged;
-    statusLedsChanged = false;
-    return changed;
-}
-
-bool LEDController_Read_RingLEDs_Changed(void)
-{
-    bool changed = ringLedsChanged;
-    ringLedsChanged = false;
-    return changed;
-}
-
-void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
-{
-    ASSERT(led_idx < RING_LEDS_AMOUNT);
-    if (!rgb_equals(ringLeds[led_idx], color))
-    {
-        ringLeds[led_idx] = color;
-        ringLedsChanged = true;
-    }
-}
-
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
 {
     if (bufferSize >= 2u)
@@ -666,61 +570,6 @@ void CommunicationObserver_Call_ErrorThresholdReached(void)
 {
     /* don't try to be clever */
     RestartManager_Run_Reset();
-}
-
-void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
-{
-    if (masterStatus != status)
-    {
-        masterStatus = status;
-        statusLedsChanged = true;
-
-        /* TODO this should be moved to a separate component, probably */
-        switch (status)
-        {
-            default:
-            case MasterStatus_Unknown:
-                portENTER_CRITICAL();
-                statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_RED;
-                portEXIT_CRITICAL();
-                break;
-
-            case MasterStatus_Operational:
-                portENTER_CRITICAL();
-                statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_ORANGE;
-                portEXIT_CRITICAL();
-                break;
-
-            case MasterStatus_Controlled:
-                portENTER_CRITICAL();
-                statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_GREEN;
-                portEXIT_CRITICAL();
-                break;
-        }
-    }
-}
-
-SystemState_t BrainStatusIndicator_Read_SystemState(void)
-{
-    SystemState_t systemState = SystemState_Error;
-    switch (masterStatus)
-    {
-        default:
-        case MasterStatus_Unknown:
-            systemState = SystemState_Startup;
-            break;
-
-        case MasterStatus_Operational:
-        case MasterStatus_Controlled:
-            systemState = SystemState_Operational;
-            break;
-    }
-    return systemState;
-}
-
-bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
-{
-    return masterStatus == MasterStatus_Controlled;
 }
 
 void BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_t status)
@@ -792,68 +641,65 @@ static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
 
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
-    {
-        motorControlledByDriveTrain[port_idx] = isAssigned;
-    }
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts);
+    motorControlledByDriveTrain[port_idx] = isAssigned;
 }
 
 void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+
+    portENTER_CRITICAL();
+    if (!motorControlledByDriveTrain[port_idx])
     {
-        portENTER_CRITICAL();
-        if (!motorControlledByDriveTrain[port_idx])
+        motorDriveRequests[port_idx] = *command;
+    }
+    else
+    {
+        if (motorDriveRequests[port_idx].type == MotorPort_DriveRequest_Position_Relative)
         {
-            motorDriveRequests[port_idx] = *command;
-        }
-        else
-        {
-            if (motorDriveRequests[port_idx].type == MotorPort_DriveRequest_Position_Relative)
+            if (command->type == MotorPort_DriveRequest_Position)
             {
-                if (command->type == MotorPort_DriveRequest_Position)
-                {
-                    /* allow converting relative request to absolute */
-                    /* TODO: motor status should be exposed and this request should be handled by an external component */
-                    motorDriveRequests[port_idx] = *command;
-                }
+                /* allow converting relative request to absolute */
+                /* TODO: motor status should be exposed and this request should be handled by an external component */
+                motorDriveRequests[port_idx] = *command;
             }
         }
-        portEXIT_CRITICAL();
     }
+    portEXIT_CRITICAL();
 }
 
 void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+
+    portENTER_CRITICAL();
+    switch (command->type)
     {
-        portENTER_CRITICAL();
-        switch (command->type)
-        {
-            case DriveTrain_Request_Power:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
-                motorDriveRequests[port_idx].v.pwm = command->v.power;
-                break;
+        case DriveTrain_Request_Power:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+            motorDriveRequests[port_idx].v.pwm = command->v.power;
+            break;
 
-            case DriveTrain_Request_Speed:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Speed;
-                motorDriveRequests[port_idx].v.speed = command->v.speed;
-                break;
+        case DriveTrain_Request_Speed:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Speed;
+            motorDriveRequests[port_idx].v.speed = command->v.speed;
+            break;
 
-            case DriveTrain_Request_Position:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position_Relative;
-                motorDriveRequests[port_idx].v.position = command->v.position;
-                break;
+        case DriveTrain_Request_Position:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position_Relative;
+            motorDriveRequests[port_idx].v.position = command->v.position;
+            break;
 
-            default:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
-                motorDriveRequests[port_idx].v.pwm = 0;
-                break;
-        }
-        motorDriveRequests[port_idx].speed_limit = command->speed_limit;
-        motorDriveRequests[port_idx].power_limit = command->power_limit;
-        portEXIT_CRITICAL();
+        default:
+            ASSERT(0);
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+            motorDriveRequests[port_idx].v.pwm = 0;
+            break;
     }
+    motorDriveRequests[port_idx].speed_limit = command->speed_limit;
+    motorDriveRequests[port_idx].power_limit = command->power_limit;
+    portEXIT_CRITICAL();
 }
 
 void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst)
@@ -866,6 +712,7 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
     }
     else
     {
+        ASSERT(0);
         *dst = (MotorPort_DriveRequest_t) {
             .type = MotorPort_DriveRequest_Power,
             .v.pwm = 0,
@@ -1010,7 +857,7 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
         }
         else
         {
-
+            ASSERT(0);
         }
     }
     portEXIT_CRITICAL();

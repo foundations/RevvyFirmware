@@ -1392,6 +1392,9 @@
     <Compile Include="rrrc\runtime\connections_error_storage.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\runtime\connections_leds.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\utils\color.c">
       <SubType>compile</SubType>
     </Compile>
