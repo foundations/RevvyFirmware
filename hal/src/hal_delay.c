@@ -36,6 +36,7 @@
 #include <hpl_sleep.h>
 #include "hal_delay.h"
 #include <hpl_delay.h>
+#include <hpl_time_measure.h>
 
 /**
  * \brief Driver version
