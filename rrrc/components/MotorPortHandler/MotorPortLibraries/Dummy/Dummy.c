@@ -8,47 +8,65 @@
 
 MotorLibraryStatus_t Dummy_Init(MotorPort_t* motorPort)
 {
+    (void) motorPort;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_DeInit(MotorPort_t* motorPort)
 {
+    (void) motorPort;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_Update(MotorPort_t* motorPort)
 {
+    (void) motorPort;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_Gpio0Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
+    (void) motorPort;
+    (void) pin0state;
+    (void) pin1state;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_Gpio1Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
+    (void) motorPort;
+    (void) pin0state;
+    (void) pin1state;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_SetConfig(MotorPort_t* motorPort, const uint8_t* data, uint8_t size)
 {
+    (void) motorPort;
+    (void) data;
+    (void) size;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_UpdateConfiguration(MotorPort_t* motorPort)
 {
+    (void) motorPort;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_GetStatus(MotorPort_t* motorPort, uint8_t* data, uint8_t* dataSize)
 {
+    (void) motorPort;
+    (void) data;
     *dataSize = 0u;
     return MotorLibraryStatus_Ok;
 }
 
 MotorLibraryStatus_t Dummy_SetControlReference(MotorPort_t* motorPort, const uint8_t* data, uint8_t size)
 {
+    (void) motorPort;
+    (void) data;
+    (void) size;
     return MotorLibraryStatus_Ok;
 }
 
