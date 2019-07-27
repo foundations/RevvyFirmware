@@ -7,6 +7,7 @@
 
 #include "MasterCommunication.h"
 #include "utils/crc.h"
+#include <utils_assert.h>
 
 static uint8_t responseBuffer[256];
 

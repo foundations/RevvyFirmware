@@ -6,6 +6,7 @@
  */ 
 
 #include "McuStatusCollectorWrapper.h"
+#include <utils_assert.h>
 
 Comm_Status_t McuStatusCollectorWrapper_Reset_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
