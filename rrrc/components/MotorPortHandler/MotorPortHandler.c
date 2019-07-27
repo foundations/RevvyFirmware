@@ -54,18 +54,27 @@ static void _init_port(MotorPort_t* port)
 
 static void MotorPort_gpio0_ext_cb(uint32_t data, void* port)
 {
+    (void) data;
     MotorPort_t* motorPort = (MotorPort_t*) port;
     motorPort->library->Gpio0Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
 }
 
 static void MotorPort_gpio1_ext_cb(uint32_t data, void* port)
 {
+    (void) data;
     MotorPort_t* motorPort = (MotorPort_t*) port;
     motorPort->library->Gpio1Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
 }
 
 Comm_Status_t MotorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+    ASSERT(responseBufferSize >= 1u);
+
     response[0] = motorPortCount;
     *responseCount = 1u;
 
@@ -74,6 +83,12 @@ Comm_Status_t MotorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload
 
 Comm_Status_t MotorPortHandler_GetPortTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
     uint8_t len = 0u;
     for (uint32_t i = 0u; i < ARRAY_SIZE(libraries); i++)
     {
@@ -96,6 +111,10 @@ Comm_Status_t MotorPortHandler_GetPortTypes_Start(const uint8_t* commandPayload,
 
 Comm_Status_t MotorPortHandler_SetPortType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize != 2u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -123,6 +142,10 @@ Comm_Status_t MotorPortHandler_SetPortType_Start(const uint8_t* commandPayload, 
 
 Comm_Status_t MotorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (configuredPort == NULL)
     {
         return Comm_Status_Ok;
@@ -135,6 +158,10 @@ Comm_Status_t MotorPortHandler_SetPortType_GetResult(uint8_t* response, uint8_t 
 
 Comm_Status_t MotorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize < 2u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -161,6 +188,10 @@ Comm_Status_t MotorPortHandler_SetPortConfig_Start(const uint8_t* commandPayload
 
 Comm_Status_t MotorPortHandler_SetPortConfig_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (configuredPort == NULL)
     {
         return Comm_Status_Ok;
@@ -173,6 +204,10 @@ Comm_Status_t MotorPortHandler_SetPortConfig_GetResult(uint8_t* response, uint8_
 
 Comm_Status_t MotorPortHandler_SetControlValue_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize < 2u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -202,10 +237,7 @@ Comm_Status_t MotorPortHandler_GetStatus_Start(const uint8_t* commandPayload, ui
     {
         return Comm_Status_Error_PayloadLengthError;
     }
-    if (responseBufferSize < 4u)
-    {
-        return Comm_Status_Error_InternalError;
-    }
+    ASSERT (responseBufferSize >= 4u);
     uint8_t port_idx = commandPayload[0];
     if (port_idx == 0u || port_idx > motorPortCount)
     {
@@ -270,36 +302,45 @@ void MotorPortHandler_Run_PortUpdate(uint8_t port_idx)
 __attribute__((weak))
 void MotorPortHandler_Write_MotorDriveValue(uint8_t port_idx, int8_t value)
 {
+    (void) port_idx;
+    (void) value;
     /* nothing to do */
 }
 
 __attribute__((weak))
 bool MotorPortHandler_Read_DriverFault(uint8_t port_idx)
 {
+    (void) port_idx;
     return false;
 }
 
 __attribute__((weak))
 void* MotorPortHandler_Call_Allocate(size_t size)
 {
+    (void) size;
     return NULL;
 }
 
 __attribute__((weak))
 void MotorPortHandler_Call_Free(void** ptr)
 {
+    ASSERT(ptr);
     *ptr = NULL;
 }
 
 __attribute__((weak))
 void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
 {
+    (void) port_idx;
+    ASSERT(command);
     /* nothing to do */
 }
 
 __attribute__((weak))
 void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst)
 {
+    (void) port_idx;
+    ASSERT(dst);
     *dst = (MotorPort_DriveRequest_t) {
         .type = MotorPort_DriveRequest_Power,
         .v.pwm = 0,
