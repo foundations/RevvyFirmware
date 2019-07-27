@@ -78,6 +78,7 @@ bool BluetoothIndicator_Read_IsConnected(void)
 __attribute__((weak))
 void BluetoothIndicator_Write_LedColor(rgb_t color)
 {
+    (void) color;
     /* nothing to do */
 }
 

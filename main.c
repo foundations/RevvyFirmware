@@ -143,6 +143,8 @@ void DebugMon_Handler( void )
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
+    (void) xTask;
+
     ErrorInfo_t data = {
         .error_id = ERROR_ID_STACK_OVERFLOW,
         .data = {0}

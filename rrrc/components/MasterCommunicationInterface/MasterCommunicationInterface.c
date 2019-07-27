@@ -77,6 +77,12 @@ void i2c_hal_rx_started(i2c_hal_descriptor* descr)
 
 void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_t bufferSize, size_t bytesReceived)
 {
+    (void) descr;
+    (void) buffer;
+    (void) bufferSize;
+
+    ASSERT(communicationTaskHandle);
+
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xTaskNotifyFromISR(communicationTaskHandle, bytesReceived, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -84,13 +90,15 @@ void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_
 
 void MasterCommunicationInterface_Run_OnInit(MasterCommunicationInterface_Config_t* config)
 {
-    BaseType_t success = xTaskCreate(&CommunicationTask, "RPiComm", 1024, config, taskPriority_Communication, &communicationTaskHandle);
+    BaseType_t success = xTaskCreate(&CommunicationTask, "RPiComm", 1024u, config, taskPriority_Communication, &communicationTaskHandle);
     ASSERT(success == pdPASS);
 }
 
 __attribute__((weak))
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
 {
+    (void) buffer;
+    (void) bufferSize;
     /* nothing to do */
 }
 

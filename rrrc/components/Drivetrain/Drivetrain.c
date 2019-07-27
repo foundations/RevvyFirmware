@@ -115,6 +115,10 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
 
 Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize != ARRAY_SIZE(motors) + 1u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -132,6 +136,10 @@ Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t comman
 
 Comm_Status_t DriveTrain_SetControlValue_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     if (commandSize < 1u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -163,11 +171,15 @@ void DriveTrain_Run_OnInit(void)
 __attribute__((weak))
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
 {
+    (void) port_idx;
+    (void) isAssigned;
     /* nothing to do */
 }
 
 __attribute__((weak))
 void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command)
 {
+    (void) port_idx;
+    (void) command;
     /* nothing to do */
 }

@@ -313,5 +313,6 @@ bool ErrorStorage_Run_Read(uint32_t index, ErrorInfo_t* pDst)
 __attribute__((weak))
 void ErrorStorage_Write_NumberOfStoredErrors(uint32_t number)
 {
+    (void) number;
     /* nothing to do */
 }

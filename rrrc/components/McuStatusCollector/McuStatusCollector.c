@@ -118,11 +118,15 @@ void McuStatusCollector_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t
 __attribute__((weak))
 void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotDataSize)
 {
+    (void) slot;
+    ASSERT(pData);
+    ASSERT(bufferSize);
+
     *slotDataSize = 0u;
 }
 
 __attribute__((weak))
 void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
 {
-
+    (void) slot;
 }

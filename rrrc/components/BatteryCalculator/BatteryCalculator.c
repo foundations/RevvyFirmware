@@ -47,17 +47,22 @@ void BatteryCalculator_Run_Update(BatteryCalculator_Context_t* context)
 __attribute__((weak))
 float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
 {
+    (void) context;
     return 0.0f;
 }
 
 __attribute__((weak))
 void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, uint8_t percent)
 {
+    (void) context;
+    (void) percent;
     /* nothing to do */
 }
 
 __attribute__((weak))
 void BatteryCalculator_Write_BatteryPresent(BatteryCalculator_Context_t* context, bool present)
 {
+    (void) context;
+    (void) present;
     /* nothing to do */
 }

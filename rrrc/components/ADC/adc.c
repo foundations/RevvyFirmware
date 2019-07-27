@@ -152,11 +152,17 @@ static void conversion_complete(uint32_t adc_idx, uint32_t channel_idx, uint16_t
 
 static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
 {
+    (void) descr;
+    (void) channel;
+
     conversion_complete(0, adc[0].currentChannel, adc_data);
 }
 
 static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
 {
+    (void) descr;
+    (void) channel;
+
     conversion_complete(1, adc[1].currentChannel, adc_data);
 }
 
@@ -223,13 +229,25 @@ void ADC_Write_ChannelData(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_
 }
 
 __attribute__((weak))
-void ADC_Write_RawSamples_ADC0(uint16_t samples[4]) {}
+void ADC_Write_RawSamples_ADC0(uint16_t samples[4])
+{
+    (void) samples;
+}
 
 __attribute__((weak))
-void ADC_Write_RawSamples_ADC1(uint16_t samples[5]) {}
+void ADC_Write_RawSamples_ADC1(uint16_t samples[5])
+{
+    (void) samples;
+}
 
 __attribute__((weak))
-void ADC_Write_Samples_ADC0(float samples[4]) {}
+void ADC_Write_Samples_ADC0(float samples[4])
+{
+    (void) samples;
+}
 
 __attribute__((weak))
-void ADC_Write_Samples_ADC1(float samples[5]) {}
+void ADC_Write_Samples_ADC1(float samples[5])
+{
+    (void) samples;
+}

@@ -75,13 +75,16 @@ void i2c_hal_set_tx_buffer(i2c_hal_descriptor* descr, const uint8_t* buffer, siz
 __attribute__((weak))
 void i2c_hal_rx_started(i2c_hal_descriptor* descr)
 {
-
+    (void) descr;
 }
 
 __attribute__((weak))
 void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_t bufferSize, size_t bytesReceived)
 {
-
+    (void) descr;
+    (void) buffer;
+    (void) bufferSize;
+    (void) bytesReceived;
 }
 
 /* interrupt handlers */
@@ -104,6 +107,7 @@ static void i2c_hal_on_address_matched(struct _i2c_s_async_device *const device,
 static void i2c_hal_on_error(struct _i2c_s_async_device *const device)
 {
     /* ignore for now */
+    (void) device;
 }
 
 static void i2c_hal_on_rx_done(struct _i2c_s_async_device *const device, const uint32_t data)

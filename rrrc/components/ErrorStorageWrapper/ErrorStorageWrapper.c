@@ -12,10 +12,13 @@
 
 Comm_Status_t ErrorStorageWrapper_ReadCount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
     if (commandSize != 0u)
     {
         return Comm_Status_Error_PayloadLengthError;
     }
+
+    ASSERT(responseBufferSize >= sizeof(uint32_t));
 
     uint32_t count = ErrorStorageWrapper_Read_NumberOfStoredErrors();
 
@@ -31,6 +34,8 @@ Comm_Status_t ErrorStorageWrapper_ReadErrors_Start(const uint8_t* commandPayload
     {
         return Comm_Status_Error_PayloadLengthError;
     }
+
+    ASSERT(responseBufferSize >= sizeof(ErrorInfo_t));
 
     uint32_t count = ErrorStorageWrapper_Read_NumberOfStoredErrors();
     uint32_t start = get_uint32(commandPayload);
@@ -57,6 +62,11 @@ Comm_Status_t ErrorStorageWrapper_ReadErrors_Start(const uint8_t* commandPayload
 
 Comm_Status_t ErrorStorageWrapper_ClearMemory_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    (void) response;
+    (void) responseCount;
+    (void) responseBufferSize;
+
     if (commandSize != 0u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -68,6 +78,16 @@ Comm_Status_t ErrorStorageWrapper_ClearMemory_Start(const uint8_t* commandPayloa
 
 Comm_Status_t ErrorStorageWrapper_StoreTestError_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) commandPayload;
+    (void) response;
+    (void) responseCount;
+    (void) responseBufferSize;
+
+    if (commandSize != 0u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
     ErrorInfo_t error;
     error.error_id = ERROR_ID_TEST_ERROR;
     for (uint32_t i = 0u; i < sizeof(error.data); i++)
@@ -82,6 +102,9 @@ Comm_Status_t ErrorStorageWrapper_StoreTestError_Start(const uint8_t* commandPay
 __attribute__((weak))
 bool ErrorStorageWrapper_Call_Read(uint32_t index, ErrorInfo_t* pDst)
 {
+    (void) index;
+    (void) pDst;
+
     return false;
 }
 

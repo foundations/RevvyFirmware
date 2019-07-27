@@ -13,6 +13,10 @@ void BluetoothStatusObserver_Run_OnInit(void)
 
 Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
     Comm_Status_t status = Comm_Status_Ok;
     if  (commandSize != 1u)
     {
@@ -42,5 +46,6 @@ Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* co
 __attribute__((weak))
 void BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_t status)
 {
+    (void) status;
     /* nothing to do */
 }

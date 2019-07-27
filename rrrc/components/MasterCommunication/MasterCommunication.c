@@ -69,5 +69,7 @@ void MasterCommunication_Run_HandleCommand(const uint8_t* buffer, size_t bufferS
 __attribute__((weak))
 void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize)
 {
+    ASSERT(responseBuffer);
+    (void) responseSize;
     /* nothing to do */
 }

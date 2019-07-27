@@ -14,6 +14,10 @@ void MasterStatusObserver_Run_OnInit(void)
 
 Comm_Status_t MasterStatusObserver_SetMasterStatus_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
+    (void) response;
+    (void) responseCount;
+    (void) responseBufferSize;
+
     Comm_Status_t status = Comm_Status_Ok;
     if  (commandSize != 1u)
     {
@@ -47,5 +51,6 @@ Comm_Status_t MasterStatusObserver_SetMasterStatus_Start(const uint8_t* commandP
 __attribute__((weak))
 void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
 {
+    (void) status;
     /* nothing to do */
 }

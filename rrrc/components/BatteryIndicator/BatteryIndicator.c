@@ -70,17 +70,21 @@ void BatteryIndicator_Run_Update(BatteryIndicator_Context_t* context)
 __attribute__((weak))
 uint8_t BatteryIndicator_Read_Percentage(BatteryIndicator_Context_t* context)
 {
+    (void) context;
     return 0u;
 }
 
 __attribute__((weak))
 BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context)
 {
+    (void) context;
     return BatteryStatus_NotPresent;
 }
 
 __attribute__((weak))
 void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t color)
 {
+    (void) context;
+    (void) color;
     /* nothing to do */
 }

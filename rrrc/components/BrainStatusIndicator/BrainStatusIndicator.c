@@ -54,5 +54,6 @@ bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
 __attribute__((weak))
 void BrainStatusIndicator_Write_LedColor(rgb_t color)
 {
+    (void) color;
     /* nothing to do */
 }
