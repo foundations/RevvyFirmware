@@ -1047,31 +1047,3 @@ void McuStatusCollectorWrapper_Run_ReadData(uint8_t* pData, uint8_t bufferSize, 
 {
     McuStatusCollector_Run_ReadData(pData, bufferSize, dataSize);
 }
-
-bool ErrorStorageWrapper_Call_Read(uint32_t index, ErrorInfo_t* pDst)
-{
-    __disable_irq();
-    bool found = ErrorStorage_Run_Read(index, pDst);
-    __enable_irq();
-
-    return found;
-}
-
-void ErrorStorageWrapper_Call_ClearMemory(void)
-{
-    __disable_irq();
-    ErrorStorage_Run_Clear();
-    __enable_irq();
-}
-
-static uint32_t number_of_errors = 0u;
-
-void ErrorStorage_Write_NumberOfStoredErrors(uint32_t number)
-{
-    number_of_errors = number;
-}
-
-uint32_t ErrorStorageWrapper_Read_NumberOfStoredErrors(void)
-{
-    return number_of_errors;
-}
