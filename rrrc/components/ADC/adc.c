@@ -31,8 +31,6 @@ static struct adc_async_descriptor         ADC_1;
 static struct adc_async_channel_descriptor ADC_0_ch[ADC_0_CH_AMOUNT];
 static struct adc_async_channel_descriptor ADC_1_ch[ADC_1_CH_AMOUNT];
 
-//static uint8_t ADC_0_buffer[ADC_0_BUFFER_SIZE];
-//static uint8_t ADC_1_buffer[ADC_1_BUFFER_SIZE];
 static uint8_t ADC_0_map[ADC_0_CH_MAX + 1];
 static uint8_t ADC_1_map[ADC_1_CH_MAX + 1];
 
@@ -43,7 +41,6 @@ static void ADC_0_init(void)
     hri_gclk_write_PCHCTRL_reg(GCLK, ADC0_GCLK_ID, CONF_GCLK_ADC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
     adc_async_init(&ADC_0, ADC0, ADC_0_map, ADC_0_CH_MAX, ADC_0_CH_AMOUNT, &ADC_0_ch[0]);
-//    adc_async_register_channel_buffer(&ADC_0, 0, ADC_0_buffer, ADC_0_BUFFER_SIZE);
 }
 
 //*********************************************************************************************
@@ -53,7 +50,6 @@ static void ADC_1_init(void)
     hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
     adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, &ADC_1_ch[0]);
-//    adc_async_register_channel_buffer(&ADC_1, 0, ADC_1_buffer, ADC_1_BUFFER_SIZE);
 }
 
 typedef struct 

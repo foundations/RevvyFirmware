@@ -13,7 +13,7 @@
 #include <hal_gpio.h>
 #include "atmel_start_pins.h"
 
-#define MOTOR_SPEED_RESOLUTION (100u)
+#define MOTOR_SPEED_RESOLUTION (100)
 
 static Tc* timers[6];
 
@@ -188,5 +188,8 @@ void MotorDriver_8833_Call_OnFault(MotorDriver_8833_t* driver)
 __attribute__((weak))
 int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel)
 {
+    (void) driver;
+    (void) channel;
+
     return 0;
 }

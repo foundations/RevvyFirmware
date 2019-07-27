@@ -27,17 +27,22 @@ void MotorDerating_Run_OnUpdate(uint8_t motor_idx)
 __attribute__((weak))
 float MotorDerating_Read_MotorTemperature(uint8_t motor_idx)
 {
+    (void) motor_idx;
+
     return 20.0f;
 }
 
 __attribute__((weak))
 int8_t MotorDerating_Read_ControlValue(uint8_t motor_idx)
 {
+    (void) motor_idx;
+
     return 0;
 }
 
 __attribute__((weak))
 void MotorDerating_Write_ControlValue(uint8_t motor_idx, int8_t control_value)
 {
-
+    (void) motor_idx;
+    (void) control_value;
 }

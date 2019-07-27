@@ -25,11 +25,12 @@ static void rxcomplete(struct i2c_m_async_desc *const i2c)
 
 static void txcomplete(struct i2c_m_async_desc *const i2c)
 {
-
+    (void) i2c;
 }
 
 static void error(struct i2c_m_async_desc *const i2c, int32_t error)
 {
+    (void) error;
     SensorPort_t *port = CONTAINER_OF(i2c, SensorPort_t, i2c);
     SensorLibrary_DebugRTC_Data_t* libdata = port->libraryData;
     libdata->reading = false;
@@ -92,32 +93,52 @@ SensorLibraryStatus_t DebugRTC_Update(SensorPort_t* sensorPort)
 
 SensorLibraryStatus_t DebugRTC_SetConfig(SensorPort_t* sensorPort, const uint8_t* data, uint8_t size)
 {
+    (void) sensorPort;
+    (void) data;
+    (void) size;
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t DebugRTC_PrepareGetValue(SensorPort_t* sensorPort, const uint8_t* parameter, uint8_t parameterLength)
 {
+    (void) sensorPort;
+    (void) parameter;
+    (void) parameterLength;
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t DebugRTC_GetValue(SensorPort_t* sensorPort, uint8_t* value, uint8_t maxSize, uint8_t* valueSize)
 {
+    (void) sensorPort;
+    (void) value;
+    (void) maxSize;
+
     *valueSize = 0u;
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t DebugRTC_UpdateConfiguration(SensorPort_t* sensorPort)
 {
+    (void) sensorPort;
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t DebugRTC_UpdateAnalogData(SensorPort_t* sensorPort, uint8_t rawValue)
 {
+    (void) sensorPort;
+    (void) rawValue;
+
     return SensorLibraryStatus_Ok;
 }
 
 SensorLibraryStatus_t DebugRTC_InterruptCallback(SensorPort_t* sensorPort, bool status)
 {
+    (void) sensorPort;
+    (void) status;
+
     return SensorLibraryStatus_Ok;
 }
 

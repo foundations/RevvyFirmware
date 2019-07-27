@@ -33,11 +33,13 @@ void MotorThermalModel_Run_OnUpdate(MotorThermalModel_t* model)
 __attribute__((weak))
 float MotorThermalModel_Read_MotorCurrent(MotorThermalModel_t* model)
 {
+    (void) model;
     return 0.0f;
 }
 
 __attribute__((weak))
 void MotorThermalModel_Write_Temperature(MotorThermalModel_t* model, float temp)
 {
-
+    (void) model;
+    (void) temp;
 }

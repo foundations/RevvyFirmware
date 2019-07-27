@@ -227,6 +227,10 @@ MotorLibraryStatus_t DcMotor_Gpio0Callback(MotorPort_t* motorPort, uint32_t pin0
 
 MotorLibraryStatus_t DcMotor_Gpio1Callback(MotorPort_t* motorPort, uint32_t pin0state, uint32_t pin1state)
 {
+    (void) motorPort;
+    (void) pin0state;
+    (void) pin1state;
+
     /* no-op for compatibility with v1 settings */
     return MotorLibraryStatus_Ok;
 }

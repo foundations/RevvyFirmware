@@ -59,14 +59,12 @@ static void _init_port(MotorPort_t* port)
 
 static void MotorPort_gpio0_ext_cb(void* port)
 {
-    (void) data;
     MotorPort_t* motorPort = (MotorPort_t*) port;
     motorPort->library->Gpio0Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
 }
 
 static void MotorPort_gpio1_ext_cb(void* port)
 {
-    (void) data;
     MotorPort_t* motorPort = (MotorPort_t*) port;
     motorPort->library->Gpio1Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
 }
@@ -307,7 +305,7 @@ void MotorPortHandler_Run_PortUpdate(uint8_t port_idx)
 __attribute__((weak))
 void MotorPortHandler_Write_MotorDriveValue(uint8_t motor, int8_t value)
 {
-    (void) port_idx;
+    (void) motor;
     (void) value;
     /* nothing to do */
 }

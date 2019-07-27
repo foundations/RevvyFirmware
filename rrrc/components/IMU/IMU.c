@@ -138,5 +138,6 @@ void IMU_Run_OnUpdate(void)
 __attribute__((weak))
 void IMU_Write_Sample(const IMU_Sample_t* sample)
 {
+    (void) sample;
     /* nothing to do here */
 }
