@@ -82,7 +82,7 @@ void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void MasterCommunicationInterface_Run_OnInit(const MasterCommunicationInterface_Config_t* config)
+void MasterCommunicationInterface_Run_OnInit(MasterCommunicationInterface_Config_t* config)
 {
     BaseType_t success = xTaskCreate(&CommunicationTask, "RPiComm", 1024, config, taskPriority_Communication, &communicationTaskHandle);
     ASSERT(success == pdPASS);
