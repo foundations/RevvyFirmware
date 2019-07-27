@@ -223,13 +223,13 @@ void ADC_Write_ChannelData(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_
 }
 
 __attribute__((weak))
-void ADC_Write_RawSamples_ADC0(uint16_t smaples[4]) {}
+void ADC_Write_RawSamples_ADC0(uint16_t samples[4]) {}
 
 __attribute__((weak))
-void ADC_Write_RawSamples_ADC1(uint16_t smaples[5]) {}
+void ADC_Write_RawSamples_ADC1(uint16_t samples[5]) {}
 
 __attribute__((weak))
-void ADC_Write_Samples_ADC0(float smaples[4]) {}
+void ADC_Write_Samples_ADC0(float samples[4]) {}
 
 __attribute__((weak))
-void ADC_Write_Samples_ADC1(float smaples[5]) {}
+void ADC_Write_Samples_ADC1(float samples[5]) {}
