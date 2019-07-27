@@ -37,6 +37,7 @@
 #include "hal_delay.h"
 #include <hpl_delay.h>
 #include <hpl_time_measure.h>
+#include <utils_assert.h>
 
 /**
  * \brief Driver version
@@ -53,7 +54,9 @@ static void *hardware;
  */
 void delay_init(void *const hw)
 {
-	_delay_init(hardware = hw);
+    ASSERT(hw);
+    hardware = hw;
+    _delay_init(hardware);
 }
 
 /**
