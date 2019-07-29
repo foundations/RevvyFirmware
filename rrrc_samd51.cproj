@@ -539,8 +539,7 @@
 </ArmGcc>
     </ToolchainSettings>
     <PreBuildEvent>python ../tools/gen_version.py</PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>python ../tools/prepare.py</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="atmel_start_pins.h">

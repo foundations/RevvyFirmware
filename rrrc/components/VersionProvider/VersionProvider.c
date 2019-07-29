@@ -12,11 +12,11 @@
 
 static const char* hw_version_strings[] = 
 {
-    "1.0",
-    "1.1"
+    "1.0.0",
+    "1.0.1"
 };
 
-#define FIRMWARE_VERSION_STRING "0.1-r" FW_VERSION
+#define FIRMWARE_VERSION_STRING "0.1." FW_VERSION
 
 Comm_Status_t VersionProvider_GetHardwareVersion_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {

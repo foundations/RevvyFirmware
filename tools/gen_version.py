@@ -1,4 +1,4 @@
-#/usr/bin/python3
+#!/usr/bin/python3
 import os
 
 file = "../config/fw_version.h"
@@ -13,4 +13,4 @@ template = """
 version = os.popen('git rev-list --count HEAD').read()
 version = version.strip()
 with open(file, 'w') as out:
-	out.write(template.replace("{{FW_VERSION}}", version))
+    out.write(template.replace("{{FW_VERSION}}", version))
