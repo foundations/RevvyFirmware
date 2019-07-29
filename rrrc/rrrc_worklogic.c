@@ -641,7 +641,7 @@ static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
 
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
 {
-    ASSERT(port_idx < ARRAY_SIZE(motorPorts);
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
     motorControlledByDriveTrain[port_idx] = isAssigned;
 }
 
