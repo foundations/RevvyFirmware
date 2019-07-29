@@ -67,13 +67,17 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
     lr = pulFaultStackAddress[ 5 ];
     pc = pulFaultStackAddress[ 6 ];
     psr = pulFaultStackAddress[ 7 ];
-    
+        
     /* suppress warnings */
     (void) r0;
     (void) r1;
     (void) r2;
     (void) r3;
     (void) r12;
+    
+    uint32_t cfsr = SCB->CFSR;
+    uint32_t dfsr = SCB->DFSR;
+    uint32_t hfsr = SCB->HFSR;
     
     /* log the most important registers */
     ErrorInfo_t data = {
@@ -82,6 +86,9 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
     memcpy(&data.data[0], &pc, sizeof(uint32_t));
     memcpy(&data.data[4], &psr, sizeof(uint32_t));
     memcpy(&data.data[8], &lr, sizeof(uint32_t));
+    memcpy(&data.data[12], &cfsr, sizeof(uint32_t));
+    memcpy(&data.data[16], &dfsr, sizeof(uint32_t));
+    memcpy(&data.data[20], &hfsr, sizeof(uint32_t));
     ErrorStorage_Run_Store(&data);
 
     /* When the following line is hit, the variables contain the register values. */
