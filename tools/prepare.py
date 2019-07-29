@@ -14,8 +14,8 @@ def file_hash(file):
 
 # parameters
 version_major = 0
-version_minor = 1
-hardware_versions = ["1.0.0", "1.0.1"]
+version_minor = 2
+hardware_versions = ["2.0.0"]
 build_config = "Debug"
 firmware_filename = "rrrc_samd51.bin"
 output_dir = "../output"
