@@ -55,7 +55,7 @@ static inline uint8_t getLedBitPattern(uint8_t bitValue)
 
 static inline void write_led_byte(uint32_t led_idx, uint32_t byte_idx, uint8_t byte_value)
 {
-    const uint32_t startIdx = 8u * (3u * led_idx + byte_idx); // TODO optimizer handles this?
+    const uint32_t startIdx = LED_RESET_SIZE + 8u * (3u * led_idx + byte_idx); // TODO optimizer handles this?
     for (uint32_t i = 0u; i < 8u; i++)
     {
         frame_leds[startIdx + i] = getLedBitPattern(byte_value & (0x80u >> i));
@@ -89,13 +89,18 @@ static void update_frame(void)
 static void send_frame(void)
 {
     ledsUpdating = true;
+
     io_write(io_descr, frame_leds, ARRAY_SIZE(frame_leds));
+    gpio_set_pin_function(WS2812pin, WS2812pin_function);
 }
 
 static void tx_complete_cb_SPI_0(struct _dma_resource *resource)
 {
     (void) resource;
     ledsUpdating = false;
+    bool inverted = (FLASH_HEADER->hw_version != 0u);
+    gpio_set_pin_level(WS2812pin, inverted ? true : false);
+    gpio_set_pin_function(WS2812pin, GPIO_PIN_FUNCTION_OFF);
 }
 
 void LEDController_Run_OnInit(void)
