@@ -974,7 +974,7 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
         }
         else
         {
-
+            ASSERT(0);
         }
     }
     portEXIT_CRITICAL();
