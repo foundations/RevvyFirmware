@@ -266,8 +266,6 @@ static void ProcessTasks_20ms(uint8_t offset)
         case 10u:
         case 11u:
         case 12u:
-        case 13u:
-        case 14u:
             SensorPortHandler_Run_PortUpdate(offset - 9u);
             break;
 

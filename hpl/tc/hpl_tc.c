@@ -430,25 +430,25 @@ static void _tc_init_irq_param(const void *const hw, void *dev)
 	if (hw == TC0) {
 		_tc0_dev = (struct _timer_device *)dev;
 	}
-	if (hw == TC1) {
+	else if (hw == TC1) {
 		_tc1_dev = (struct _timer_device *)dev;
 	}
-	if (hw == TC2) {
+	else if (hw == TC2) {
 		_tc2_dev = (struct _timer_device *)dev;
 	}
-	if (hw == TC3) {
+	else if (hw == TC3) {
 		_tc3_dev = (struct _timer_device *)dev;
 	}
-	if (hw == TC4) {
+	else if (hw == TC4) {
 		_tc4_dev = (struct _timer_device *)dev;
 	}
-	if (hw == TC5) {
+	else if (hw == TC5) {
 		_tc5_dev = (struct _timer_device *)dev;
 	}
-	if (hw == TC6) {
+	else if (hw == TC6) {
 		_tc6_dev = (struct _timer_device *)dev;
 	}
-	if (hw == TC7) {
+	else if (hw == TC7) {
 		_tc7_dev = (struct _timer_device *)dev;
 	}
     else
