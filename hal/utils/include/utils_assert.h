@@ -40,10 +40,6 @@ extern "C" {
 
 #include <compiler.h>
 
-#ifndef USE_SIMPLE_ASSERT
-#define USE_SIMPLE_ASSERT
-#endif
-
 /**
  * \brief Assert macro
  *
