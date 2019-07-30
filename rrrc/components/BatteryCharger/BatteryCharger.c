@@ -55,8 +55,8 @@ static ChargerState_t get_charger_state( void )
     {
         if (isCharging)
         {
-            /* Should not occur */
-            return ChargerState_Fault;
+            /* Should not occur so let's just believe the charging signal */
+            return ChargerState_Charging;
         }
         else
         {
