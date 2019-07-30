@@ -882,6 +882,25 @@ void McuStatusCollectorWrapper_Run_ResetSlots(void)
 
 void McuStatusCollectorWrapper_Run_EnableSlot(uint8_t slot)
 {
+    status_changed[slot] = false;
+    if (slot < 6u)
+    {
+        uint8_t motor_idx = slot;
+        motor_status[motor_idx][0] = 0u;
+    }
+    else if (slot < 10u)
+    {
+        uint8_t sensor_idx = slot - 6u;
+        sensor_status[sensor_idx][0] = 0u;
+    }
+    else if (slot == 10u)
+    {
+        /* nothing to do for battery slot */
+    }
+    else
+    {
+        ASSERT(0);
+    }
     McuStatusCollector_Run_EnableSlot(slot);
 }
 
