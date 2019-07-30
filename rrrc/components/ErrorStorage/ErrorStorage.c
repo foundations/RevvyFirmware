@@ -103,7 +103,7 @@ static void _delete_object(BlockInfo_t* block, uint8_t idx)
 
 static void _write_block_header(BlockInfo_t* block, FlashHeader_t* header)
 {
-    flash_append(&FLASH_0, block->base_address, (uint8_t*) header, sizeof(FlashHeader_t));
+    flash_append(&FLASH_0, block->base_address, (uint8_t*) header, sizeof(*header));
 }
 
 static void _store_object(BlockInfo_t* block, const void* data, size_t size)
@@ -119,7 +119,9 @@ static void _store_object(BlockInfo_t* block, const void* data, size_t size)
         const FlashHeader_t* header = _block_header(block);
         if (header->layout_version == 0xFFu)
         {
-            FlashHeader_t new_header = {};
+            FlashHeader_t new_header = {
+                .layout_version = NVM_LAYOUT_VERSION
+            };
             _write_block_header(block, &new_header);
         }
     }
