@@ -157,5 +157,5 @@ rgb_t LEDController_Read_RingLED(uint32_t led_idx)
 __attribute__((weak))
 uint8_t LEDController_Read_MaxBrightness(void)
 {
-    return 32u;
+    return 24u;
 }
