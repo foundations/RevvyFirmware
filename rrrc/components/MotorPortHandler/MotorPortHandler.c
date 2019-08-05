@@ -47,6 +47,10 @@ static void _init_port(MotorPort_t* port)
     gpio_set_pin_pull_mode(port->enc1, GPIO_PULL_OFF);
     
     __disable_irq();
+
+    //_gpio_set_continuous_sampling(port->enc0);
+    //_gpio_set_continuous_sampling(port->enc1);
+
     ext_irq_register(port->enc0, &MotorPort_gpio0_ext_cb, port);
     ext_irq_register(port->enc1, &MotorPort_gpio1_ext_cb, port);
     

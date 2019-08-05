@@ -58,6 +58,9 @@ static void _init_port(SensorPort_t* port)
     gpio_set_pin_function(port->vccio, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(port->vccio, GPIO_DIRECTION_OUT);
     gpio_set_pin_level(port->vccio, false);
+    
+    _gpio_set_continuous_sampling(port->gpio0);
+    //_gpio_set_continuous_sampling(port->gpio1);
 
     ext_irq_register(port->gpio1, &SensorPort_ext1_callback, port);
 

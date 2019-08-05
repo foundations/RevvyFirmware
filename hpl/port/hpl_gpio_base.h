@@ -181,6 +181,14 @@ static inline void _gpio_set_drive_mode(const enum gpio_port port, const uint8_t
     }
 }
 
+static inline void _gpio_set_continuous_sampling(const uint32_t gpio)
+{
+    uint8_t port = GPIO_PORT(gpio);
+    uint8_t pin  = GPIO_PIN(gpio);
+
+    hri_port_set_CTRL_SAMPLING_bf(PORT, port, (1u << pin));
+}
+
 static inline void _port_event_init()
 {
 	hri_port_set_EVCTRL_reg(PORT, 0, CONF_PORTA_EVCTRL);
