@@ -538,11 +538,11 @@
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
 </ArmGcc>
     </ToolchainSettings>
-    <PreBuildEvent>cd..
-python -m tools.gen_version
+    <PreBuildEvent>cd ..
+python -m Build.tools.gen_version
 cd Debug</PreBuildEvent>
-    <PostBuildEvent>cd..
-python -m tools.prepare</PostBuildEvent>
+    <PostBuildEvent>cd ..
+python -m Build.tools.prepare --build-dir=Debug</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="atmel_start_pins.h">

@@ -92,6 +92,8 @@ hpl/sercom/hpl_sercom.c
 
 hpl/systick/hpl_systick.c
 
+hpl/tcc/hpl_tcc.c
+
 hpl/tc/hpl_tc.c
 
 hpl/tc/tc_lite.c
@@ -126,17 +128,13 @@ rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.c
 
 rrrc/components/ErrorStorage/ErrorStorage.c
 
-rrrc/components/IMU/IMU.c
-
 rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.c
 
 rrrc/components/McuStatusCollector/McuStatusCollector.c
 
 rrrc/components/MemoryAllocator/MemoryAllocator.c
 
-rrrc/components/MotorDerating/MotorDerating.c
-
-rrrc/components/MotorDriver_8833/MotorDriver_8833.c
+rrrc/components/MotorDriver_TB661FNG/MotorDriver_TB661FNG.c
 
 rrrc/components/MotorPortHandler/MotorPortHandler.c
 
@@ -146,8 +144,6 @@ rrrc/components/MotorPortHandler/MotorPortLibraries/DcMotor/DcMotor.c
 
 rrrc/components/MotorPortHandler/MotorPortLibraries/Dummy/Dummy.c
 
-rrrc/components/MotorThermalModel/MotorThermalModel.c
-
 rrrc/components/RestartManager/RestartManager.c
 
 rrrc/components/SensorPortHandler/SensorPortHandlerInternal.c
@@ -155,8 +151,6 @@ rrrc/components/SensorPortHandler/SensorPortHandlerInternal.c
 rrrc/components/SensorPortHandler/SensorPortHandler.c
 
 rrrc/components/SensorPortHandler/SensorPortLibraries/BumperSwitch/BumperSwitch.c
-
-rrrc/components/SensorPortHandler/SensorPortLibraries/DebugRTC/DebugRTC.c
 
 rrrc/components/SensorPortHandler/SensorPortLibraries/Dummy/Dummy.c
 
