@@ -1,0 +1,20 @@
+os: linux
+dist: trusty
+sudo: required
+language: c
+before_install:
+  - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996 -O atmel_toolchain.tar.gz
+  - wget http://packs.download.atmel.com/Atmel.SAMD51_DFP.1.1.96.atpack -O dfp.zip
+  - wget http://packs.download.atmel.com/ARM.CMSIS.5.0.1.atpack -O cmsis.zip
+install:
+  - mkdir Build/tmp
+  - tar -zxf atmel_toolchain.tar.gz
+  - unzip dfp.zip -d Build/tmp/dfp
+  - unzip cmsis.zip -d Build/tmp/cmsis
+  - export PATH="$PATH:$TRAVIS_BUILD_DIR/arm-none-eabi/bin"
+before_script:
+  - cd Build
+script:
+- make all
+notifications:
+  slack: revolution-robotics:sXlaetqFuXuT3Vr4atwogEdK

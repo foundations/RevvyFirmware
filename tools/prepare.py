@@ -18,7 +18,7 @@ version_minor = 1
 hardware_versions = ["1.0.0", "1.0.1"]
 build_config = "Debug"
 firmware_filename = "rrrc_samd51.bin"
-output_dir = "../output"
+output_dir = "output"
 
 # prepare
 os.makedirs(output_dir, exist_ok=True)
@@ -27,7 +27,7 @@ commit_count = os.popen('git rev-list --count HEAD').read()
 version_patch = commit_count.strip()
 
 version_str = "{}.{}.{}".format(version_major, version_minor, version_patch)
-firmware_file = "../{}/{}".format(build_config, firmware_filename)
+firmware_file = "{}/{}".format(build_config, firmware_filename)
 catalog_file = os.path.join(output_dir, "catalog.json")
 
 # noinspection PyBroadException

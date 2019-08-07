@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 
-file = "../config/fw_version.h"
+file = "config/fw_version.h"
 template = """
 /* This file is generated during the build process */
 #ifndef FW_VERSION
