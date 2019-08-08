@@ -12,6 +12,7 @@ prepare_firmware_files() {
   cd ../..
   python3 -m Build.tools.prepare --build-dir=Build --out=Build/framework/data/firmware
   cd Build/framework
+  python3 -m tools.gen_version
   git add data/firmware
   git commit --message "Firmware update, Travis build: $TRAVIS_BUILD_NUMBER"
 }
