@@ -122,7 +122,7 @@ static uint8_t _imu_read_register(uint8_t reg)
     xfer.rxbuf = rxBuffer;
     xfer.size = 2u;
     
-    gpio_set_pin_level(IMU_CS_pin, false);    
+    gpio_set_pin_level(IMU_CS_pin, false);
     spi_m_sync_transfer(&spi, &xfer);
     gpio_set_pin_level(IMU_CS_pin, true);
 
@@ -132,7 +132,6 @@ static uint8_t _imu_read_register(uint8_t reg)
 void IMU_Run_OnUpdate(void)
 {
     uint8_t whoami = _imu_read_register(IMU_REGISTER_WHOAMI);
-    ASSERT(whoami == 0x6Au);
 }
 
 __attribute__((weak))
