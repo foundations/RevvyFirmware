@@ -19,11 +19,12 @@ int main(void)
 void assert_failed(const char *file, uint32_t line)
 {
     ErrorInfo_t data = {
-        .error_id = ERROR_ID_ASSERTION_FAILURE,
-        .data = {0}
+        .error_id = ERROR_ID_ASSERTION_FAILURE
     };
 
+    memset(&data.data[0], 0u, sizeof(data.data));
     memcpy(&data.data[0], &line, sizeof(uint32_t));
+
     /* save as much from the end of the filename as possible */
     size_t len = strlen(file);
     size_t available = sizeof(data.data) - sizeof(uint32_t);
@@ -83,6 +84,8 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
     ErrorInfo_t data = {
         .error_id = ERROR_ID_HARD_FAULT
     };
+    memset(&data.data[0], 0u, sizeof(data.data));
+
     memcpy(&data.data[0], &pc, sizeof(uint32_t));
     memcpy(&data.data[4], &psr, sizeof(uint32_t));
     memcpy(&data.data[8], &lr, sizeof(uint32_t));
@@ -153,13 +156,13 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
     (void) xTask;
 
     ErrorInfo_t data = {
-        .error_id = ERROR_ID_STACK_OVERFLOW,
-        .data = {0}
+        .error_id = ERROR_ID_STACK_OVERFLOW
     };
+    memset(&data.data[0], 0u, sizeof(data.data));
+
     strncpy((char*) &data.data[0], pcTaskName, sizeof(data.data));
     ErrorStorage_Run_Store(&data);
-
-    while (1) {
-        __BKPT(1);
-    }
+    
+    __BKPT(1);
+    while (1);
 }
