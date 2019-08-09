@@ -401,7 +401,12 @@ static void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_
 	}
 
 	hri_nvmctrl_write_ADDR_reg(hw, dst_addr);
-	hri_nvmctrl_write_CTRLB_reg(hw, NVMCTRL_CTRLB_CMD_WP | NVMCTRL_CTRLB_CMDEX_KEY);
+    hri_nvmctrl_clear_INTFLAG_DONE_bit(hw);
+    hri_nvmctrl_write_CTRLB_reg(hw, NVMCTRL_CTRLB_CMD_WP | NVMCTRL_CTRLB_CMDEX_KEY);
+    while (!hri_nvmctrl_get_INTFLAG_DONE_bit(hw))
+    {
+
+    }
 }
 
 /**
