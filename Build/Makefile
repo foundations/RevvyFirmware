@@ -181,6 +181,7 @@ C_SRCS +=  \
 ../rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.c \
 ../rrrc/components/ErrorStorage/ErrorStorage.c \
 ../rrrc/components/IMU/IMU.c \
+../rrrc/components/IMU/imu_ll.c \
 ../rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.c \
 ../rrrc/components/McuStatusCollector/McuStatusCollector.c \
 ../rrrc/components/MemoryAllocator/MemoryAllocator.c \
@@ -300,6 +301,7 @@ rrrc/components/Drivetrain/Drivetrain.o \
 rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.o \
 rrrc/components/ErrorStorage/ErrorStorage.o \
 rrrc/components/IMU/IMU.o \
+rrrc/components/IMU/imu_ll.o \
 rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.o \
 rrrc/components/McuStatusCollector/McuStatusCollector.o \
 rrrc/components/MemoryAllocator/MemoryAllocator.o \
@@ -412,6 +414,7 @@ rrrc/components/Drivetrain/Drivetrain.o \
 rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.o \
 rrrc/components/ErrorStorage/ErrorStorage.o \
 rrrc/components/IMU/IMU.o \
+rrrc/components/IMU/imu_ll.o \
 rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.o \
 rrrc/components/McuStatusCollector/McuStatusCollector.o \
 rrrc/components/MemoryAllocator/MemoryAllocator.o \
@@ -524,6 +527,7 @@ rrrc/components/Drivetrain/Drivetrain.d \
 rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.d \
 rrrc/components/ErrorStorage/ErrorStorage.d \
 rrrc/components/IMU/IMU.d \
+rrrc/components/IMU/imu_ll.d \
 rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.d \
 rrrc/components/McuStatusCollector/McuStatusCollector.d \
 rrrc/components/MemoryAllocator/MemoryAllocator.d \
@@ -636,6 +640,7 @@ rrrc/components/Drivetrain/Drivetrain.d \
 rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.d \
 rrrc/components/ErrorStorage/ErrorStorage.d \
 rrrc/components/IMU/IMU.d \
+rrrc/components/IMU/imu_ll.d \
 rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.d \
 rrrc/components/McuStatusCollector/McuStatusCollector.d \
 rrrc/components/MemoryAllocator/MemoryAllocator.d \
@@ -1197,6 +1202,14 @@ rrrc/components/ErrorStorage/ErrorStorage.o: ../rrrc/components/ErrorStorage/Err
 	
 
 rrrc/components/IMU/IMU.o: ../rrrc/components/IMU/IMU.c
+	@echo Building file: $<
+	mkdir -p $(@D)
+	@echo Invoking: ARM/GNU C Compiler : 6.3.1
+	$(QUOTE)arm-none-eabi-gcc$(QUOTE)  -x c -mthumb -D__SAMD51P19A__ -DDEBUG -DCOMPATIBLE_HW_VERSIONS=2  -I"tmp/cmsis/CMSIS/Include" -I"../Config" -I".." -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/adc" -I"../hpl/cmcc" -I"../hpl/core" -I"../hpl/dmac" -I"../hpl/eic" -I"../hpl/gclk" -I"../hpl/mclk" -I"../hpl/osc32kctrl" -I"../hpl/oscctrl" -I"../hpl/pm" -I"../hpl/port" -I"../hpl/ramecc" -I"../hpl/rtc" -I"../hpl/sercom" -I"../hpl/systick" -I"../hpl/tc" -I"../hpl/tcc" -I"../hpl/usb" -I"../hpl/wdt" -I"../hri" -I"../rrrc" -I"../rrrc/motors" -I"../rrrc/sensors" -I"tmp/dfp/samd51a/include" -I"../third_party" -I"../third_party/FreeRTOSV10.0.0" -I"../third_party/FreeRTOSV10.0.0/Source" -I"../third_party/FreeRTOSV10.0.0/Source/include" -I"../third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F" -I"../third_party/FreeRTOSV10.0.0/Source/portable/MemMang" -I"../third_party/FreeRTOSV10.0.0/Source/portable/RVDS/ARM_CM4F"  -O0 -ffunction-sections -mlong-calls -g3 -Wall -Wextra -Wundef -mcpu=cortex-m4 -c -std=gnu99 -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+rrrc/components/IMU/imu_ll.o: ../rrrc/components/IMU/imu_ll.c
 	@echo Building file: $<
 	mkdir -p $(@D)
 	@echo Invoking: ARM/GNU C Compiler : 6.3.1

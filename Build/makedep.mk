@@ -128,6 +128,8 @@ rrrc/components/ErrorStorage/ErrorStorage.c
 
 rrrc/components/IMU/IMU.c
 
+rrrc/components/IMU/imu_ll.c
+
 rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.c
 
 rrrc/components/McuStatusCollector/McuStatusCollector.c
