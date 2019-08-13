@@ -37,7 +37,6 @@ void BatteryIndicator_Run_Update(BatteryIndicator_Context_t* context)
     switch (BatteryIndicator_Read_Status(context))
     {
         case BatteryStatus_Present:
-            context->blinkTimer = 0u;
             write_color_based_on_percentage(context, percentage);
             break;
 
@@ -61,7 +60,6 @@ void BatteryIndicator_Run_Update(BatteryIndicator_Context_t* context)
 
         default:
         case BatteryStatus_NotPresent:
-            context->blinkTimer = 0u;
             BatteryIndicator_Write_LedColor(context, BATTERY_NOT_DETECTED_COLOR);
             break;
     }
