@@ -741,15 +741,12 @@ void _adc_async_set_irq_state(struct _adc_async_device *const device, const uint
  *
  * \param[in] p The pointer to interrupt parameter
  */
-static void _adc_interrupt_handler(struct _adc_async_device *device)
+static void _adc_interrupt_handler0(struct _adc_async_device *device)
 {
 	void *const hw      = device->hw;
 	uint8_t     intflag = hri_adc_read_INTFLAG_reg(hw);
 	intflag &= hri_adc_read_INTEN_reg(hw);
-	if (intflag & ADC_INTFLAG_RESRDY) {
-//		hri_adc_clear_interrupt_RESRDY_bit(hw); // not necessary
-		device->adc_async_ch_cb.convert_done(device, 0, hri_adc_read_RESULT_reg(hw));
-	} else if (intflag & ADC_INTFLAG_OVERRUN) {
+	if (intflag & ADC_INTFLAG_OVERRUN) {
 		hri_adc_clear_interrupt_OVERRUN_bit(hw);
 		device->adc_async_cb.error_cb(device, 0);
 	} else if (intflag & ADC_INTFLAG_WINMON) {
@@ -759,28 +756,38 @@ static void _adc_interrupt_handler(struct _adc_async_device *device)
 }
 
 /**
+ * \internal ADC interrupt handler
+ *
+ * \param[in] p The pointer to interrupt parameter
+ */
+static void _adc_interrupt_handler1(struct _adc_async_device *device)
+{
+    device->adc_async_ch_cb.convert_done(device, 0, hri_adc_read_RESULT_reg(device->hw));
+}
+
+/**
  * \brief DMAC interrupt handler
  */
 void ADC0_0_Handler(void)
 {
-	_adc_interrupt_handler(_adc0_dev);
+	_adc_interrupt_handler0(_adc0_dev);
 }
 /**
  * \brief DMAC interrupt handler
  */
 void ADC0_1_Handler(void)
 {
-	_adc_interrupt_handler(_adc0_dev);
+	_adc_interrupt_handler1(_adc0_dev);
 }
 
 void ADC1_0_Handler(void)
 {
-	_adc_interrupt_handler(_adc1_dev);
+	_adc_interrupt_handler0(_adc1_dev);
 }
 
 void ADC1_1_Handler(void)
 {
-	_adc_interrupt_handler(_adc1_dev);
+	_adc_interrupt_handler1(_adc1_dev);
 }
 /**
  * \brief Retrieve ADC sync helper functions

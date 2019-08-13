@@ -18,11 +18,6 @@
 #define ADC_MAX 4095
 #define adc_to_mv(x)     ((3300.0f / ADC_MAX) * x)
 
-/* The maximal channel number of enabled channels */
-#define ADC_0_CH_MAX 15
-#define ADC_1_CH_MAX 0x1D
-
-
 typedef struct 
 {
     const adc_pos_input_t input;
@@ -71,7 +66,6 @@ typedef struct
 {
     uint8_t idx;
     struct adc_async_descriptor hwDescriptor;
-    struct adc_async_channel_descriptor channelDescriptor;
     adc_channel_config_t * const channels;
     const size_t channelCount;
     uint32_t currentChannel;
@@ -97,16 +91,13 @@ static adc_context_t adc[] =
     }
 };
 
-static uint8_t ADC_0_map[ADC_0_CH_MAX + 1];
-static uint8_t ADC_1_map[ADC_1_CH_MAX + 1];
-
 //*********************************************************************************************
 static void ADC_0_init(void)
 {
     hri_mclk_set_APBDMASK_ADC0_bit(MCLK);
     hri_gclk_write_PCHCTRL_reg(GCLK, ADC0_GCLK_ID, CONF_GCLK_ADC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-    adc_async_init(&adc[0].hwDescriptor, ADC0, ADC_0_map, ADC_0_CH_MAX, 1u, &adc[0].channelDescriptor);
+    adc_async_init(&adc[0].hwDescriptor, ADC0);
 }
 
 //*********************************************************************************************
@@ -115,7 +106,7 @@ static void ADC_1_init(void)
     hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
     hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-    adc_async_init(&adc[1].hwDescriptor, ADC1, ADC_1_map, ADC_1_CH_MAX, 1u, &adc[1].channelDescriptor);
+    adc_async_init(&adc[1].hwDescriptor, ADC1);
 }
 
 static int32_t adc_convert_channel(adc_context_t* ctx, uint32_t channel_idx)

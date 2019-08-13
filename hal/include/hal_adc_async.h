@@ -109,14 +109,8 @@ struct adc_async_descriptor {
 	struct _adc_async_device device;
 	/** ADC callbacks type */
 	struct adc_async_callbacks adc_async_cb;
-	/** Enabled channel map */
-	uint8_t *channel_map;
-	/** Enabled maximum channel number */
-	uint8_t channel_max;
-	/** Enabled channel amount */
-	uint8_t channel_amount;
 	/** ADC channel descriptor */
-	struct adc_async_channel_descriptor *descr_ch;
+	struct adc_async_channel_descriptor descr_ch;
 };
 
 /**
@@ -138,8 +132,7 @@ struct adc_async_descriptor {
  * \retval -1 Passed parameters were invalid or an ADC is already initialized
  * \retval 0 The initialization is completed successfully
  */
-int32_t adc_async_init(struct adc_async_descriptor *const descr, void *const hw, uint8_t *channel_map,
-                       uint8_t channel_max, uint8_t channel_amount, struct adc_async_channel_descriptor *const descr_ch);
+int32_t adc_async_init(struct adc_async_descriptor *const descr, void *const hw);
 
 /**
  * \brief Deinitialize ADC
@@ -153,23 +146,6 @@ int32_t adc_async_init(struct adc_async_descriptor *const descr, void *const hw,
  * \return De-initialization status.
  */
 int32_t adc_async_deinit(struct adc_async_descriptor *const descr);
-
-/**
- * \brief Register ADC channel buffer
- *
- * This function initializes the given ADC channel buffer descriptor.
- *
- * \param[in] descr          An ADC descriptor to initialize
- * \param[in] channel        Channel number
- * \param[in] convert_buffer A buffer to keep converted values
- * \param[in] convert_buffer_length The length of the buffer above
- *
- * \return Initialization status.
- * \retval -1 Passed parameters were invalid or an ADC is already initialized
- * \retval 0 The initialization is completed successfully
- */
-int32_t adc_async_register_channel_buffer(struct adc_async_descriptor *const descr, const uint8_t channel,
-                                          uint8_t *const convert_buffer, const uint16_t convert_buffer_length);
 
 /**
  * \brief Enable channel of ADC
@@ -211,19 +187,6 @@ int32_t adc_async_disable_channel(struct adc_async_descriptor *const descr, cons
  */
 int32_t adc_async_register_callback(struct adc_async_descriptor *const descr, const uint8_t channel,
                                     const enum adc_async_callback_type type, adc_async_cb_t cb);
-
-/**
- * \brief Read data from the ADC
- *
- * \param[in] descr     The pointer to the ADC descriptor
- * \param[in] channel   Channel number
- * \param[in] buf       A buffer to read data to
- * \param[in] length    The size of a buffer
- *
- * \return The number of bytes read.
- */
-int32_t adc_async_read_channel(struct adc_async_descriptor *const descr, const uint8_t channel, uint8_t *const buffer,
-                               const uint16_t length);
 
 /**
  * \brief Start conversion
@@ -368,18 +331,6 @@ int32_t adc_async_get_threshold_state(const struct adc_async_descriptor *const d
  * \retval 0 The conversion is not complete
  */
 int32_t adc_async_is_channel_conversion_complete(const struct adc_async_descriptor *const descr, const uint8_t channel);
-
-/**
- * \brief Flush ADC ringbuf
- *
- * This function flush ADC RX ringbuf.
- *
- * \param[in] descr    The pointer to the ADC descriptor
- * \param[in] channel  Channel number
- *
- * \return ERR_NONE
- */
-int32_t adc_async_flush_rx_buffer(struct adc_async_descriptor *const descr, const uint8_t channel);
 
 /**
  * \brief Retrieve the current driver version
