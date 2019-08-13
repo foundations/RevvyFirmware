@@ -10,7 +10,7 @@
 #include <string.h>
 #include <math.h>
 
-#define HCSR05_MEDIAN_FITLER_SIZE ((uint8_t) 5u)
+#define HCSR05_MEDIAN_FITLER_SIZE ((uint8_t) 7u)
 
 typedef struct 
 {
@@ -33,7 +33,9 @@ static uint32_t _get_cm(uint32_t distance_tick)
     uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
 
     float distance_ms = (float)distance_tick / ticks_in_ms;
-    return (uint32_t)lroundf(distance_ms * 17.0f);
+    uint32_t cm = (uint32_t)lroundf(distance_ms * 17.0f);
+
+    return cm;
 }
 
 static inline void swap_uint32(uint32_t* a, uint32_t* b)
@@ -143,7 +145,6 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
         /* this sensor is currently measuring - check if it has finished */
         if (libdata->finished)
         {
-            libdata->isMeasuring = false;
             update_filtered_distance(libdata);
             
             uint32_t cm = _get_cm(libdata->filtered_distance_tick);
@@ -151,6 +152,16 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             
             /* mark next sensor as active */
             ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
+
+            /* delay next start */
+            if (libdata->timeout == 1u)
+            {
+                libdata->isMeasuring = false;
+            }
+            else
+            {
+                ++libdata->timeout;
+            }
         }
         else
         {
@@ -235,6 +246,8 @@ SensorLibraryStatus_t HC_SR04_InterruptCallback(SensorPort_t* sensorPort, bool s
             {
                 libdata->distance_tick = dist;
             }
+
+            libdata->timeout = 0u;
             libdata->finished = true;
         }
     }
