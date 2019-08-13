@@ -585,13 +585,12 @@ BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context
     {
         if (mainBatteryDetected)
         {
-            if (BatteryCharger_Run_GetChargerState() == ChargerState_Charging)
+            ChargerState_t charger_state = BatteryCharger_Run_GetChargerState();
+            switch (charger_state)
             {
-                return BatteryStatus_Charging;
-            }
-            else
-            {
-                return BatteryStatus_Present;
+                case ChargerState_Charging: return BatteryStatus_Charging;
+                case ChargerState_Fault:    return BatteryStatus_Charging_Fault;
+                default:                    return BatteryStatus_Present;
             }
         }
         else

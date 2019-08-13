@@ -13,8 +13,9 @@
 #define BLINK_PERIOD    25
 #define BLINK_LENGTH     1
 
-#define CHARGING_COLOR             (rgb_t) LED_BLUE
-#define BATTERY_NOT_DETECTED_COLOR (rgb_t) LED_OFF
+#define CHARGING_COLOR              (rgb_t) LED_BLUE
+#define CHARGING_FAULT_COLOR        (rgb_t) LED_RED
+#define BATTERY_NOT_DETECTED_COLOR  (rgb_t) LED_OFF
 
 static void write_color_based_on_percentage(BatteryIndicator_Context_t* context, uint8_t percentage)
 {
@@ -34,17 +35,26 @@ void BatteryIndicator_Run_OnInit(BatteryIndicator_Context_t* context)
 void BatteryIndicator_Run_Update(BatteryIndicator_Context_t* context)
 {
     uint8_t percentage = BatteryIndicator_Read_Percentage(context);
-    switch (BatteryIndicator_Read_Status(context))
+    BatteryStatus_t status = BatteryIndicator_Read_Status(context);
+    switch (status)
     {
         case BatteryStatus_Present:
             write_color_based_on_percentage(context, percentage);
             break;
 
         case BatteryStatus_Charging:
+        case BatteryStatus_Charging_Fault:
             if (context->blinkTimer < BLINK_LENGTH)
             {
                 context->blinkTimer++;
-                BatteryIndicator_Write_LedColor(context, CHARGING_COLOR);
+                if (status == BatteryStatus_Charging_Fault)
+                {
+                    BatteryIndicator_Write_LedColor(context, CHARGING_FAULT_COLOR);
+                }
+                else
+                {
+                    BatteryIndicator_Write_LedColor(context, CHARGING_COLOR);
+                }
             }
             else if (context->blinkTimer < BLINK_PERIOD)
             {

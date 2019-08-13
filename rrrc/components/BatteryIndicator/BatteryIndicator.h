@@ -17,7 +17,8 @@ typedef enum
 {
     BatteryStatus_NotPresent,
     BatteryStatus_Present,
-    BatteryStatus_Charging
+    BatteryStatus_Charging,
+    BatteryStatus_Charging_Fault,
 } BatteryStatus_t;
 
 typedef struct
