@@ -18,39 +18,10 @@
 #define ADC_MAX 4095
 #define adc_to_mv(x)     ((3300.0f / ADC_MAX) * x)
 
-/* The channel amount for ADC */
-#define ADC_0_CH_AMOUNT 1
-#define ADC_1_CH_AMOUNT 1
-
 /* The maximal channel number of enabled channels */
 #define ADC_0_CH_MAX 15
 #define ADC_1_CH_MAX 0x1D
 
-static struct adc_async_descriptor         ADC_0;
-static struct adc_async_descriptor         ADC_1;
-static struct adc_async_channel_descriptor ADC_0_ch[ADC_0_CH_AMOUNT];
-static struct adc_async_channel_descriptor ADC_1_ch[ADC_1_CH_AMOUNT];
-
-static uint8_t ADC_0_map[ADC_0_CH_MAX + 1];
-static uint8_t ADC_1_map[ADC_1_CH_MAX + 1];
-
-//*********************************************************************************************
-static void ADC_0_init(void)
-{
-    hri_mclk_set_APBDMASK_ADC0_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, ADC0_GCLK_ID, CONF_GCLK_ADC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    adc_async_init(&ADC_0, ADC0, ADC_0_map, ADC_0_CH_MAX, ADC_0_CH_AMOUNT, &ADC_0_ch[0]);
-}
-
-//*********************************************************************************************
-static void ADC_1_init(void)
-{
-    hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    adc_async_init(&ADC_1, ADC1, ADC_1_map, ADC_1_CH_MAX, ADC_1_CH_AMOUNT, &ADC_1_ch[0]);
-}
 
 typedef struct 
 {
@@ -98,7 +69,9 @@ static adc_channel_config_t adc1_channels[] =
 
 typedef struct 
 {
-    struct adc_async_descriptor* const hwDescriptor;
+    uint8_t idx;
+    struct adc_async_descriptor hwDescriptor;
+    struct adc_async_channel_descriptor channelDescriptor;
     adc_channel_config_t * const channels;
     const size_t channelCount;
     uint32_t currentChannel;
@@ -108,7 +81,7 @@ typedef struct
 static adc_context_t adc[] = 
 {
     {
-        .hwDescriptor = &ADC_0,
+        .idx = 0u,
         .channels = &adc0_channels[0],
         .channelCount = ARRAY_SIZE(adc0_channels),
         .currentChannel = 0u,
@@ -116,7 +89,7 @@ static adc_context_t adc[] =
     },
 
     {
-        .hwDescriptor = &ADC_1,
+        .idx = 1u,
         .channels = &adc1_channels[0],
         .channelCount = ARRAY_SIZE(adc1_channels),
         .currentChannel = 0u,
@@ -124,64 +97,66 @@ static adc_context_t adc[] =
     }
 };
 
-static int32_t adc_convert_channel(uint32_t adc_idx, uint32_t channel_idx)
+static uint8_t ADC_0_map[ADC_0_CH_MAX + 1];
+static uint8_t ADC_1_map[ADC_1_CH_MAX + 1];
+
+//*********************************************************************************************
+static void ADC_0_init(void)
+{
+    hri_mclk_set_APBDMASK_ADC0_bit(MCLK);
+    hri_gclk_write_PCHCTRL_reg(GCLK, ADC0_GCLK_ID, CONF_GCLK_ADC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+    adc_async_init(&adc[0].hwDescriptor, ADC0, ADC_0_map, ADC_0_CH_MAX, 1u, &adc[0].channelDescriptor);
+}
+
+//*********************************************************************************************
+static void ADC_1_init(void)
+{
+    hri_mclk_set_APBDMASK_ADC1_bit(MCLK);
+    hri_gclk_write_PCHCTRL_reg(GCLK, ADC1_GCLK_ID, CONF_GCLK_ADC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+    adc_async_init(&adc[1].hwDescriptor, ADC1, ADC_1_map, ADC_1_CH_MAX, 1u, &adc[1].channelDescriptor);
+}
+
+static int32_t adc_convert_channel(adc_context_t* ctx, uint32_t channel_idx)
 {
     int32_t result = ERR_INVALID_ARG;
-    
-    if (adc_idx < ARRAY_SIZE(adc))
-    {
-        adc_context_t* ctx = &adc[adc_idx];
 
-        if (channel_idx < ctx->channelCount)
-        {
-            ctx->conversionRunning = true;
-            ctx->currentChannel = channel_idx;
+    if (channel_idx < ctx->channelCount)
+    {
+        ctx->conversionRunning = true;
+        ctx->currentChannel = channel_idx;
     
-            adc_async_set_inputs(ctx->hwDescriptor, ctx->channels[channel_idx].input, ADC_CHN_INT_GND, 0);
-            adc_async_start_conversion(ctx->hwDescriptor);
+        adc_async_set_inputs(&ctx->hwDescriptor, ctx->channels[channel_idx].input, ADC_CHN_INT_GND, 0);
+        adc_async_start_conversion(&ctx->hwDescriptor);
     
-            result = ERR_NONE;
-        }
+        result = ERR_NONE;
     }
 
     return result;
 }
 
-static void conversion_complete(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
+static void conversion_complete(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
 {
-    /* we can assume that adc_idx and channel_idx are valid */
-    ADC_Write_ChannelData_Raw(adc_idx, adc[adc_idx].channels[channel_idx].input, adc_data);
-    ADC_Write_ChannelVoltage(adc_idx, adc[adc_idx].channels[channel_idx].input, adc_to_mv(adc_data));
+    (void) channel;
 
-    if (channel_idx < adc[adc_idx].channelCount - 1u)
+    adc_context_t* ctx = CONTAINER_OF(descr, adc_context_t, hwDescriptor);
+    uint32_t channel_idx = ctx->currentChannel;
+    uint32_t input = ctx->channels[channel_idx].input;
+    uint8_t adc_idx = ctx->idx;
+
+    /* we can assume that adc_idx and channel_idx are valid */
+    ADC_Write_ChannelData_Raw(adc_idx, input, adc_data);
+    ADC_Write_ChannelVoltage(adc_idx, input, adc_to_mv(adc_data));
+
+    if (channel_idx < ctx->channelCount - 1u)
     {
-        adc_convert_channel(adc_idx, channel_idx + 1u);
+        adc_convert_channel(ctx, channel_idx + 1u);
     }
     else
     {
-        adc[adc_idx].conversionRunning = false;
+        ctx->conversionRunning = false;
     }
-}
-
-static void convert_cb_ADC_0(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
-{
-    (void) descr;
-    (void) channel;
-
-    conversion_complete(0, adc[0].currentChannel, adc_data);
-}
-
-static void convert_cb_ADC_1(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
-{
-    (void) descr;
-    (void) channel;
-
-    conversion_complete(1, adc[1].currentChannel, adc_data);
-}
-
-int32_t adc_convertion_start(uint32_t adc_idx)
-{
-    return adc_convert_channel(adc_idx, 0u);
 }
 
 void ADC_Run_OnInit(void)
@@ -190,12 +165,12 @@ void ADC_Run_OnInit(void)
     adc[1].conversionRunning = false;
 
     ADC_0_init();
-    adc_async_register_callback(&ADC_0, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_0);
-    adc_async_enable_channel(&ADC_0, 0);
+    adc_async_register_callback(&adc[0].hwDescriptor, 0, ADC_ASYNC_CONVERT_CB, conversion_complete);
+    adc_async_enable_channel(&adc[0].hwDescriptor, 0);
 
     ADC_1_init();
-    adc_async_register_callback(&ADC_1, 0, ADC_ASYNC_CONVERT_CB, convert_cb_ADC_1);
-    adc_async_enable_channel(&ADC_1, 0);
+    adc_async_register_callback(&adc[1].hwDescriptor, 0, ADC_ASYNC_CONVERT_CB, conversion_complete);
+    adc_async_enable_channel(&adc[1].hwDescriptor, 0);
 }
 
 void ADC_Run_Update(void)
@@ -203,13 +178,13 @@ void ADC_Run_Update(void)
     if (!adc[0].conversionRunning)
     {
         /* start new conversion */
-        adc_convertion_start(0);
+        adc_convert_channel(&adc[0], 0u);
     }
     
     if (!adc[1].conversionRunning)
     {
         /* start new conversion */
-        adc_convertion_start(1);
+        adc_convert_channel(&adc[1], 1u);
     }
 }
 

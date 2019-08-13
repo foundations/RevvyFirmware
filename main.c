@@ -16,8 +16,16 @@ int main(void)
     configASSERT(0);
 }
 
+static void _stop(void)
+{
+    __BKPT(1);
+    while (1);
+}
+
 void assert_failed(const char *file, uint32_t line)
 {
+    __disable_irq();
+
     ErrorInfo_t data = {
         .error_id = ERROR_ID_ASSERTION_FAILURE
     };
@@ -39,8 +47,7 @@ void assert_failed(const char *file, uint32_t line)
     }
     ErrorStorage_Run_Store(&data);
 
-    __BKPT(1);
-    while(1);
+    _stop();
 }
 
 /* Cortex-M4 core handlers */
@@ -93,16 +100,12 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
     memcpy(&data.data[16], &dfsr, sizeof(uint32_t));
     memcpy(&data.data[20], &hfsr, sizeof(uint32_t));
     ErrorStorage_Run_Store(&data);
-
-    /* When the following line is hit, the variables contain the register values. */
-    __BKPT(1);
-    for( ;; );
+    
+    _stop();
 }
 
 void NMI_Handler( void ){
-    while (1) {
-        __BKPT(1);
-    }
+    _stop();
 }
 
 __attribute__((naked))
@@ -122,37 +125,29 @@ void HardFault_Handler( void )
 }
 void MemManage_Handler( void )
 {
-    while (1) {
-        __BKPT(1);
-    }
+    _stop();
 }
 void BusFault_Handler( void )
 {
-    while (1) {
-        __BKPT(1);
-    }
+    _stop();
 }
 void UsageFault_Handler( void )
 {
-    while (1) {
-        __BKPT(1);
-    }
+    _stop();
 }
 void SVC_Handler( void )
 {
-    while (1) {
-        __BKPT(1);
-    }
+    _stop();
 }
 void DebugMon_Handler( void )
 {
-    while (1) {
-        __BKPT(1);
-    }
+    _stop();
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
+    __disable_irq();
+
     (void) xTask;
 
     ErrorInfo_t data = {
@@ -163,6 +158,5 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
     strncpy((char*) &data.data[0], pcTaskName, sizeof(data.data));
     ErrorStorage_Run_Store(&data);
     
-    __BKPT(1);
-    while (1);
+    _stop();
 }
