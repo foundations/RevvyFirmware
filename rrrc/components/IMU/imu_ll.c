@@ -47,7 +47,7 @@ void _imu_write_registers(uint8_t reg, uint8_t* pData, size_t data_count)
     xfer.size = data_count;
     
     gpio_set_pin_level(IMU_CS_pin, false);
-    _imu_send_write_address(reg);    
+    _imu_send_write_address(reg);
     spi_m_sync_transfer(&spi, &xfer);
     gpio_set_pin_level(IMU_CS_pin, true);
 }
