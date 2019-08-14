@@ -214,6 +214,7 @@ C_SRCS +=  \
 ../rrrc/rrrc_worklogic.c \
 ../rrrc/runtime/comm_handlers.c \
 ../rrrc/runtime/connections_error_storage.c \
+../rrrc/runtime/connections_imu.c \
 ../rrrc/runtime/connections_leds.c \
 ../rrrc/utils/color.c \
 ../rrrc/utils/converter.c \
@@ -334,6 +335,7 @@ rrrc/rrrc_hal.o \
 rrrc/rrrc_worklogic.o \
 rrrc/runtime/comm_handlers.o \
 rrrc/runtime/connections_error_storage.o \
+rrrc/runtime/connections_imu.o \
 rrrc/runtime/connections_leds.o \
 rrrc/utils/color.o \
 rrrc/utils/converter.o \
@@ -447,6 +449,7 @@ rrrc/rrrc_hal.o \
 rrrc/rrrc_worklogic.o \
 rrrc/runtime/comm_handlers.o \
 rrrc/runtime/connections_error_storage.o \
+rrrc/runtime/connections_imu.o \
 rrrc/runtime/connections_leds.o \
 rrrc/utils/color.o \
 rrrc/utils/converter.o \
@@ -560,6 +563,7 @@ rrrc/rrrc_hal.d \
 rrrc/rrrc_worklogic.d \
 rrrc/runtime/comm_handlers.d \
 rrrc/runtime/connections_error_storage.d \
+rrrc/runtime/connections_imu.d \
 rrrc/runtime/connections_leds.d \
 rrrc/utils/color.d \
 rrrc/utils/converter.d \
@@ -673,6 +677,7 @@ rrrc/rrrc_hal.d \
 rrrc/rrrc_worklogic.d \
 rrrc/runtime/comm_handlers.d \
 rrrc/runtime/connections_error_storage.d \
+rrrc/runtime/connections_imu.d \
 rrrc/runtime/connections_leds.d \
 rrrc/utils/color.d \
 rrrc/utils/converter.d \
@@ -1466,6 +1471,14 @@ rrrc/runtime/comm_handlers.o: ../rrrc/runtime/comm_handlers.c
 	
 
 rrrc/runtime/connections_error_storage.o: ../rrrc/runtime/connections_error_storage.c
+	@echo Building file: $<
+	mkdir -p $(@D)
+	@echo Invoking: ARM/GNU C Compiler : 6.3.1
+	$(QUOTE)arm-none-eabi-gcc$(QUOTE)  -x c -mthumb -D__SAMD51P19A__ -DDEBUG -DCOMPATIBLE_HW_VERSIONS=2  -I"tmp/cmsis/CMSIS/Include" -I"../Config" -I".." -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/adc" -I"../hpl/cmcc" -I"../hpl/core" -I"../hpl/dmac" -I"../hpl/eic" -I"../hpl/gclk" -I"../hpl/mclk" -I"../hpl/osc32kctrl" -I"../hpl/oscctrl" -I"../hpl/pm" -I"../hpl/port" -I"../hpl/ramecc" -I"../hpl/rtc" -I"../hpl/sercom" -I"../hpl/systick" -I"../hpl/tc" -I"../hpl/tcc" -I"../hpl/usb" -I"../hpl/wdt" -I"../hri" -I"../rrrc" -I"../rrrc/motors" -I"../rrrc/sensors" -I"tmp/dfp/samd51a/include" -I"../third_party" -I"../third_party/FreeRTOSV10.0.0" -I"../third_party/FreeRTOSV10.0.0/Source" -I"../third_party/FreeRTOSV10.0.0/Source/include" -I"../third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F" -I"../third_party/FreeRTOSV10.0.0/Source/portable/MemMang" -I"../third_party/FreeRTOSV10.0.0/Source/portable/RVDS/ARM_CM4F"  -O0 -ffunction-sections -mlong-calls -g3 -Wall -Wextra -Wundef -mcpu=cortex-m4 -c -std=gnu99 -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+rrrc/runtime/connections_imu.o: ../rrrc/runtime/connections_imu.c
 	@echo Building file: $<
 	mkdir -p $(@D)
 	@echo Invoking: ARM/GNU C Compiler : 6.3.1

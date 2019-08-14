@@ -194,6 +194,8 @@ rrrc/runtime/comm_handlers.c
 
 rrrc/runtime/connections_error_storage.c
 
+rrrc/runtime/connections_imu.c
+
 rrrc/runtime/connections_leds.c
 
 rrrc/utils/color.c

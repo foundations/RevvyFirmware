@@ -1418,6 +1418,9 @@ python -m Build.tools.prepare --build-dir=Debug</PostBuildEvent>
     <Compile Include="rrrc\runtime\connections_error_storage.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\runtime\connections_imu.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\runtime\connections_leds.c">
       <SubType>compile</SubType>
     </Compile>

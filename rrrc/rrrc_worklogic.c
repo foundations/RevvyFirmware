@@ -220,6 +220,7 @@ static void ProcessTasks_1ms(void)
         MotorThermalModel_Run_OnUpdate(&motorThermalModels[i]);
     }
     ADC_Run_Update();
+    IMU_Run_OnUpdate();
 }
 
 static void ProcessTasks_10ms(uint8_t offset)
@@ -227,7 +228,6 @@ static void ProcessTasks_10ms(uint8_t offset)
     if (offset == 0u)
     {
         BatteryCharger_Run_Update();
-        IMU_Run_OnUpdate();
     }
 }
 
