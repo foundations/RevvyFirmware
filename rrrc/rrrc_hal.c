@@ -19,7 +19,7 @@ void high_res_timer_init(struct timer_descriptor* timer)
     timer_start(timer);
 }
 
-uint32_t high_res_timer_get_count(void)
+uint16_t high_res_timer_get_count(void)
 {
     hri_tc_set_CTRLB_CMD_bf(high_res_timer->device.hw, TC_CTRLBSET_CMD_READSYNC_Val);
     while (hri_tc_read_CTRLB_CMD_bf(high_res_timer->device.hw) != 0);
@@ -27,7 +27,7 @@ uint32_t high_res_timer_get_count(void)
     return hri_tccount16_get_COUNT_COUNT_bf(high_res_timer->device.hw, 0xFFFF);
 }
 
-uint32_t high_res_timer_ticks_per_ms(void)
+uint16_t high_res_timer_ticks_per_ms(void)
 {
-    return 24;
+    return 24u;
 }

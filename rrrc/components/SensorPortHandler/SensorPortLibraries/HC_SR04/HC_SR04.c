@@ -10,13 +10,13 @@
 #include <string.h>
 #include <math.h>
 
-#define HCSR05_MEDIAN_FITLER_SIZE ((uint8_t) 7u)
+#define HCSR05_MEDIAN_FITLER_SIZE ((uint8_t) 5u)
 
 typedef struct 
 {
     bool isMeasuring;
     bool finished;
-    uint32_t start_time;
+    uint16_t start_time;
     uint32_t distance_tick;
     uint32_t filtered_distance_tick;
     uint32_t distanceBuffer[HCSR05_MEDIAN_FITLER_SIZE - 1];
@@ -28,11 +28,19 @@ typedef struct
 static bool ultrasonic_used[] = {false, false, false, false};
 static uint8_t ultrasonic_active = 0u;
 
-static uint32_t _get_cm(uint32_t distance_tick)
+
+static float _get_ms(uint32_t distance_tick)
 {
     uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
 
     float distance_ms = (float)distance_tick / ticks_in_ms;
+
+    return distance_ms;
+}
+
+static uint32_t _get_cm(uint32_t distance_tick)
+{
+    float distance_ms = _get_ms(distance_tick);
     uint32_t cm = (uint32_t)lroundf(distance_ms * 17.0f);
 
     return cm;
@@ -130,14 +138,17 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
         /* if the current sensor is active, start measurement */
         if (ultrasonic_active == sensorPort->port_idx)
         {
-            SensorPort_SetGpio0_Output(sensorPort, true);
-            delay_us(30);
-            SensorPort_SetGpio0_Output(sensorPort, false);
+            if (SensorPort_Read_Gpio1(sensorPort) == false)
+            {
+                SensorPort_SetGpio0_Output(sensorPort, true);
+                delay_us(30);
+                SensorPort_SetGpio0_Output(sensorPort, false);
 
-            libdata->timeout = 0u;
+                libdata->timeout = 0u;
 
-            libdata->finished = false;
-            libdata->isMeasuring = true;
+                libdata->finished = false;
+                libdata->isMeasuring = true;
+            }
         }
     }
     else
@@ -152,20 +163,11 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             
             /* mark next sensor as active */
             ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
-
-            /* delay next start */
-            if (libdata->timeout == 1u)
-            {
-                libdata->isMeasuring = false;
-            }
-            else
-            {
-                ++libdata->timeout;
-            }
+            libdata->isMeasuring = false;
         }
         else
         {
-            if (libdata->timeout == 100u)
+            if (libdata->timeout == 99u)
             {
                 libdata->finished = false;
                 libdata->isMeasuring = false;
@@ -173,7 +175,7 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             }
             else
             {
-                libdata->timeout++;
+                ++libdata->timeout;
             }
         }
     }
@@ -239,15 +241,14 @@ SensorLibraryStatus_t HC_SR04_InterruptCallback(SensorPort_t* sensorPort, bool s
         }
         else
         {
-            uint32_t finish_time = high_res_timer_get_count();
-            uint32_t dist = finish_time - libdata->start_time;
+            uint16_t finish_time = high_res_timer_get_count();
+            uint16_t dist = finish_time - libdata->start_time;
 
-            if (dist < 0x7FFFu) /* FIXME: this is a hack to prevent start > finish cases (unknown root cause) */
+            if (_get_ms(dist) < 40.0f) /**< arbitrary limit that is shorter than sensor timeout */
             {
                 libdata->distance_tick = dist;
             }
 
-            libdata->timeout = 0u;
             libdata->finished = true;
         }
     }
