@@ -1214,6 +1214,9 @@ python -m Build.tools.prepare --build-dir=Debug</PostBuildEvent>
     <Compile Include="rrrc\components\IMU\IMU.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\IMU\imu_defs.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\IMU\imu_ll.c">
       <SubType>compile</SubType>
     </Compile>
