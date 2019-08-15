@@ -51,6 +51,7 @@ extern "C" {
 #include "components/MotorThermalModel/MotorThermalModel.h"
 #include "components/MotorDerating/MotorDerating.h"
 #include "components/YawAngleTracker/YawAngleTracker.h"
+#include "components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.h"
 
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);

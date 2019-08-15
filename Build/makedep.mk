@@ -126,6 +126,8 @@ rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.c
 
 rrrc/components/ErrorStorage/ErrorStorage.c
 
+rrrc/components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.c
+
 rrrc/components/IMU/IMU.c
 
 rrrc/components/IMU/imu_ll.c

@@ -1208,6 +1208,12 @@ python -m Build.tools.prepare --build-dir=Debug</PostBuildEvent>
     <Compile Include="rrrc\components\ErrorStorage\ErrorStorage.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\GyroscopeOffsetCompensator\GyroscopeOffsetCompensator.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\GyroscopeOffsetCompensator\GyroscopeOffsetCompensator.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\IMU\IMU.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1597,6 +1603,7 @@ python -m Build.tools.prepare --build-dir=Debug</PostBuildEvent>
     <Folder Include="rrrc\components\IMU" />
     <Folder Include="rrrc\components\MotorThermalModel" />
     <Folder Include="rrrc\components\MotorDerating" />
+    <Folder Include="rrrc\components\GyroscopeOffsetCompensator" />
     <Folder Include="rrrc\components\YawAngleTracker" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />

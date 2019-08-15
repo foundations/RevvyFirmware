@@ -221,6 +221,7 @@ static void ProcessTasks_1ms(void)
     }
     ADC_Run_Update();
     IMU_Run_OnUpdate();
+    GyroscopeOffsetCompensator_Run_Update();
     YawAngleTracker_Run_Update();
 }
 
@@ -364,7 +365,8 @@ void RRRC_ProcessLogic_xTask(void* user)
     MotorDriver_8833_Run_OnInit(&motorDrivers[0]);
     MotorDriver_8833_Run_OnInit(&motorDrivers[1]);
     MotorDriver_8833_Run_OnInit(&motorDrivers[2]);
-    
+
+    GyroscopeOffsetCompensator_Run_OnInit();
     YawAngleTracker_Run_OnInit();
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
