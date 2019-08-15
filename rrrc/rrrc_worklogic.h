@@ -50,6 +50,7 @@ extern "C" {
 #include "components/IMU/IMU.h"
 #include "components/MotorThermalModel/MotorThermalModel.h"
 #include "components/MotorDerating/MotorDerating.h"
+#include "components/YawAngleTracker/YawAngleTracker.h"
 
 int32_t RRRC_Init(void);
 int32_t RRRC_DeInit(void);

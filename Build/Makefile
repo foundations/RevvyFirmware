@@ -90,6 +90,7 @@ SUBDIRS :=  \
 ../rrrc/components/IMU \
 ../rrrc/components/MotorThermalModel \
 ../rrrc/components/MotorDerating \
+../rrrc/components/YawAngleTracker \
 ../rrrc/components/RestartManager \
 ../rrrc/components/SensorPortHandler \
 ../rrrc/components/SensorPortHandler/SensorPortLibraries \
@@ -209,6 +210,7 @@ C_SRCS +=  \
 ../rrrc/components/MasterCommunication/MasterCommunication.c \
 ../rrrc/components/MasterStatusObserver/MasterStatusObserver.c \
 ../rrrc/components/RingLedDisplay/RingLedDisplay.c \
+../rrrc/components/YawAngleTracker/YawAngleTracker.c \
 ../rrrc/controller/pid.c \
 ../rrrc/rrrc_hal.c \
 ../rrrc/rrrc_worklogic.c \
@@ -330,6 +332,7 @@ rrrc/components/MasterCommunication/CommunicationManager.o \
 rrrc/components/MasterCommunication/MasterCommunication.o \
 rrrc/components/MasterStatusObserver/MasterStatusObserver.o \
 rrrc/components/RingLedDisplay/RingLedDisplay.o \
+rrrc/components/YawAngleTracker/YawAngleTracker.o \
 rrrc/controller/pid.o \
 rrrc/rrrc_hal.o \
 rrrc/rrrc_worklogic.o \
@@ -444,6 +447,7 @@ rrrc/components/MasterCommunication/CommunicationManager.o \
 rrrc/components/MasterCommunication/MasterCommunication.o \
 rrrc/components/MasterStatusObserver/MasterStatusObserver.o \
 rrrc/components/RingLedDisplay/RingLedDisplay.o \
+rrrc/components/YawAngleTracker/YawAngleTracker.o \
 rrrc/controller/pid.o \
 rrrc/rrrc_hal.o \
 rrrc/rrrc_worklogic.o \
@@ -558,6 +562,7 @@ rrrc/components/MasterCommunication/CommunicationManager.d \
 rrrc/components/MasterCommunication/MasterCommunication.d \
 rrrc/components/MasterStatusObserver/MasterStatusObserver.d \
 rrrc/components/RingLedDisplay/RingLedDisplay.d \
+rrrc/components/YawAngleTracker/YawAngleTracker.d \
 rrrc/controller/pid.d \
 rrrc/rrrc_hal.d \
 rrrc/rrrc_worklogic.d \
@@ -672,6 +677,7 @@ rrrc/components/MasterCommunication/CommunicationManager.d \
 rrrc/components/MasterCommunication/MasterCommunication.d \
 rrrc/components/MasterStatusObserver/MasterStatusObserver.d \
 rrrc/components/RingLedDisplay/RingLedDisplay.d \
+rrrc/components/YawAngleTracker/YawAngleTracker.d \
 rrrc/controller/pid.d \
 rrrc/rrrc_hal.d \
 rrrc/rrrc_worklogic.d \
@@ -1431,6 +1437,14 @@ rrrc/components/MasterStatusObserver/MasterStatusObserver.o: ../rrrc/components/
 	
 
 rrrc/components/RingLedDisplay/RingLedDisplay.o: ../rrrc/components/RingLedDisplay/RingLedDisplay.c
+	@echo Building file: $<
+	mkdir -p $(@D)
+	@echo Invoking: ARM/GNU C Compiler : 6.3.1
+	$(QUOTE)arm-none-eabi-gcc$(QUOTE)  -x c -mthumb -D__SAMD51P19A__ -DDEBUG -DCOMPATIBLE_HW_VERSIONS=2  -I"tmp/cmsis/CMSIS/Include" -I"../Config" -I".." -I"../examples" -I"../hal/include" -I"../hal/utils/include" -I"../hpl/adc" -I"../hpl/cmcc" -I"../hpl/core" -I"../hpl/dmac" -I"../hpl/eic" -I"../hpl/gclk" -I"../hpl/mclk" -I"../hpl/osc32kctrl" -I"../hpl/oscctrl" -I"../hpl/pm" -I"../hpl/port" -I"../hpl/ramecc" -I"../hpl/rtc" -I"../hpl/sercom" -I"../hpl/systick" -I"../hpl/tc" -I"../hpl/tcc" -I"../hpl/usb" -I"../hpl/wdt" -I"../hri" -I"../rrrc" -I"../rrrc/motors" -I"../rrrc/sensors" -I"tmp/dfp/samd51a/include" -I"../third_party" -I"../third_party/FreeRTOSV10.0.0" -I"../third_party/FreeRTOSV10.0.0/Source" -I"../third_party/FreeRTOSV10.0.0/Source/include" -I"../third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F" -I"../third_party/FreeRTOSV10.0.0/Source/portable/MemMang" -I"../third_party/FreeRTOSV10.0.0/Source/portable/RVDS/ARM_CM4F"  -O0 -ffunction-sections -mlong-calls -g3 -Wall -Wextra -Wundef -mcpu=cortex-m4 -c -std=gnu99 -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+rrrc/components/YawAngleTracker/YawAngleTracker.o: ../rrrc/components/YawAngleTracker/YawAngleTracker.c
 	@echo Building file: $<
 	mkdir -p $(@D)
 	@echo Invoking: ARM/GNU C Compiler : 6.3.1

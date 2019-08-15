@@ -30,6 +30,8 @@ void IMU_Run_OnInit(void)
 
 static void _send_configuration(void)
 {
+    _imu_write_register(LSM6DS3_REG(CTRL3_C), LSM6DS3_FIELD_ENABLE(SW_RESET));
+
     _imu_write_register(LSM6DS3_REG(INT1_CTRL), LSM6DS3_FIELD_ENABLE(INT1_DRDY_XL));
     _imu_write_register(LSM6DS3_REG(INT2_CTRL), LSM6DS3_FIELD_ENABLE(INT2_DRDY_G));
 
@@ -37,8 +39,8 @@ static void _send_configuration(void)
     _imu_write_register(LSM6DS3_REG(CTRL2_G),  LSM6DS3_FIELD_NAMED(FS_G, 245) | LSM6DS3_FIELD_NAMED(ODR_G, 416));
     
     _imu_write_register(LSM6DS3_REG(CTRL4_C),  LSM6DS3_FIELD_ENABLE(I2C_disable));
-
-    _imu_write_register(LSM6DS3_REG(CTRL7_G),  LSM6DS3_FIELD_ENABLE(HP_EN_G));
+    
+    _imu_write_register(LSM6DS3_REG(CTRL5_C), 0);
 }
 
 static void _read_data(uint8_t addr, imu_raw_data_t* data)

@@ -184,6 +184,8 @@ rrrc/components/MasterStatusObserver/MasterStatusObserver.c
 
 rrrc/components/RingLedDisplay/RingLedDisplay.c
 
+rrrc/components/YawAngleTracker/YawAngleTracker.c
+
 rrrc/controller/pid.c
 
 rrrc/rrrc_hal.c

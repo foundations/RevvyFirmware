@@ -1391,6 +1391,12 @@ python -m Build.tools.prepare --build-dir=Debug</PostBuildEvent>
     <Compile Include="rrrc\components\RingLedDisplay\RingLedDisplay.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\YawAngleTracker\YawAngleTracker.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\YawAngleTracker\YawAngleTracker.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\controller\pid.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1591,6 +1597,7 @@ python -m Build.tools.prepare --build-dir=Debug</PostBuildEvent>
     <Folder Include="rrrc\components\IMU" />
     <Folder Include="rrrc\components\MotorThermalModel" />
     <Folder Include="rrrc\components\MotorDerating" />
+    <Folder Include="rrrc\components\YawAngleTracker" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
