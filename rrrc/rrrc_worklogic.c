@@ -181,9 +181,18 @@ static MasterCommunicationInterface_Config_t communicationConfig =
 #define MAX_MOTOR_STATUS_SIZE 10
 #define MAX_SENSOR_STATUS_SIZE 4
 
+#define STATUS_SLOT_BATTERY ((uint8_t) 10u)
+#define STATUS_SLOT_AXL     ((uint8_t) 11u)
+#define STATUS_SLOT_GYRO    ((uint8_t) 12u)
+
 static uint8_t motor_status[6][MAX_MOTOR_STATUS_SIZE + 1] = {0};
 static uint8_t sensor_status[4][MAX_SENSOR_STATUS_SIZE + 1] = {0};
+static uint8_t gyro_status[6];
+static uint8_t axl_status[6];
 static bool status_changed[32] = {0};
+
+_Static_assert(sizeof(axl_status) == sizeof(IMU_RawSample_t), "Accelerometer slot size does not match data size");
+_Static_assert(sizeof(gyro_status) == sizeof(IMU_RawSample_t), "Gyroscope slot size does not match data size");
 
 void RRRC_ProcessLogic_xTask(void* user_data);
 
@@ -893,24 +902,33 @@ bool RingLedDisplay_Read_MasterReady(void)
     return masterBooted;
 }
 
+static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)
+{
+    bool equal = true;
+    for (uint8_t i = 0u; i < size; i++)
+    {
+        if (pSrc[i] != pDst[i])
+        {
+            pDst[i] = pSrc[i];
+            equal = false;
+        }
+    }
+
+    return equal;
+}
+
 void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
     portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_MOTOR_STATUS_SIZE);
 
-    bool changed = motor_status[port_idx][0] != dataSize;
+    bool size_changed = motor_status[port_idx][0] != dataSize;
     motor_status[port_idx][0] = dataSize;
-    for (uint8_t i = 0u; i < dataSize; i++)
-    {
-        if (motor_status[port_idx][i + 1u] != pData[i])
-        {
-            motor_status[port_idx][i + 1u] = pData[i];
-            changed = true;
-        }
-    }
+
+    bool data_changed = !compare_and_copy(&motor_status[port_idx][1u], pData, dataSize);
 
     uint8_t slot = port_idx;
-    status_changed[slot] = changed;
+    status_changed[slot] = size_changed || data_changed;
 
     portEXIT_CRITICAL();
 }
@@ -920,19 +938,13 @@ void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSi
     portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_SENSOR_STATUS_SIZE);
 
-    bool changed = dataSize != sensor_status[port_idx][0];
+    bool size_changed = dataSize != sensor_status[port_idx][0];
     sensor_status[port_idx][0] = dataSize;
-    for (uint8_t i = 0u; i < dataSize; i++)
-    {
-        if (sensor_status[port_idx][i + 1u] != pData[i])
-        {
-            sensor_status[port_idx][i + 1u] = pData[i];
-            changed = true;
-        }
-    }
+
+    bool data_changed = !compare_and_copy(&sensor_status[port_idx][1u], pData, dataSize);
     
     uint8_t slot = port_idx + 6u;
-    status_changed[slot] = changed;
+    status_changed[slot] = size_changed || data_changed;
 
     portEXIT_CRITICAL();
 }
@@ -964,7 +976,7 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
                 memcpy(pData, &sensor_status[sensor_idx][1], sensor_status[sensor_idx][0]);
             }
         }
-        else if (slot == 10u)
+        else if (slot == STATUS_SLOT_BATTERY)
         {
             /* battery */
             if (bufferSize >= 4u)
@@ -974,6 +986,22 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
                 pData[2] = BatteryIndicator_Read_Status(&motorBatteryIndicator);
                 pData[3] = motorBatteryPercentage;
                 *slotDataSize = 4u;
+            }
+        }
+        else if (slot == STATUS_SLOT_AXL)
+        {
+            if (bufferSize >= sizeof(axl_status))
+            {
+                memcpy(pData, axl_status, sizeof(axl_status));
+                *slotDataSize = sizeof(axl_status);
+            }
+        }
+        else if (slot == STATUS_SLOT_GYRO)
+        {
+            if (bufferSize >= sizeof(gyro_status))
+            {
+                memcpy(pData, gyro_status, sizeof(gyro_status));
+                *slotDataSize = sizeof(gyro_status);
             }
         }
         else
@@ -1014,9 +1042,13 @@ void McuStatusCollectorWrapper_Run_EnableSlot(uint8_t slot)
         uint8_t sensor_idx = slot - 6u;
         sensor_status[sensor_idx][0] = 0u;
     }
-    else if (slot == 10u)
+    else if (slot == STATUS_SLOT_BATTERY)
     {
         /* nothing to do for battery slot */
+    }
+    else if (slot == STATUS_SLOT_AXL || slot == STATUS_SLOT_GYRO)
+    {
+        status_changed[slot] = false;
     }
     else
     {
@@ -1033,4 +1065,14 @@ void McuStatusCollectorWrapper_Run_DisableSlot(uint8_t slot)
 void McuStatusCollectorWrapper_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
 {
     McuStatusCollector_Run_ReadData(pData, bufferSize, dataSize);
+}
+
+void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample)
+{
+    status_changed[STATUS_SLOT_AXL] = !compare_and_copy(axl_status, (const uint8_t*) sample, sizeof(axl_status));
+}
+
+void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
+{
+    status_changed[STATUS_SLOT_GYRO] = !compare_and_copy(gyro_status, (const uint8_t*) sample, sizeof(gyro_status));
 }

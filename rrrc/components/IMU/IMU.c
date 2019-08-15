@@ -15,13 +15,6 @@
 
 static bool imu_enabled;
 
-typedef struct 
-{
-    int16_t x;
-    int16_t y;
-    int16_t z;
-} imu_raw_data_t;
-
 void IMU_Run_OnInit(void)
 {
     imu_enabled = false;
@@ -43,7 +36,7 @@ static void _send_configuration(void)
     _imu_write_register(LSM6DS3_REG(CTRL5_C), 0);
 }
 
-static void _read_data(uint8_t addr, imu_raw_data_t* data)
+static void _read_data(uint8_t addr, IMU_RawSample_t* data)
 {
     uint8_t regs[6];
     _imu_read_registers(addr, regs, sizeof(regs));
@@ -70,7 +63,7 @@ void IMU_Run_OnUpdate(void)
     {
         if (imu_axl_data_ready())
         {
-            imu_raw_data_t data;
+            IMU_RawSample_t data;
             _read_data(LSM6DS3_ACCEL_REGISTERS, &data);
 
             IMU_AxlSample_t converted = {
@@ -78,12 +71,13 @@ void IMU_Run_OnUpdate(void)
                 .y = data.y * IMU_AXL_LSB,
                 .z = data.z * IMU_AXL_LSB
             };
+            IMU_Write_RawAccelerometerSample(&data);
             IMU_Write_AccelerometerSample(&converted);
         }
 
         if (imu_gyro_data_ready())
         {
-            imu_raw_data_t data;
+            IMU_RawSample_t data;
             _read_data(LSM6DS3_GYRO_REGISTERS, &data);
 
             IMU_GyroSample_t converted = {
@@ -91,6 +85,7 @@ void IMU_Run_OnUpdate(void)
                 .y = data.y * IMU_GYRO_LSB,
                 .z = data.z * IMU_GYRO_LSB
             };
+            IMU_Write_RawGyroscopeSample(&data);
             IMU_Write_GyroscopeSample(&converted);
         }
     }
@@ -105,6 +100,20 @@ void IMU_Write_AccelerometerSample(const IMU_AxlSample_t* sample)
 
 __attribute__((weak))
 void IMU_Write_GyroscopeSample(const IMU_GyroSample_t* sample)
+{
+    (void) sample;
+    /* nothing to do here */
+}
+
+__attribute__((weak))
+void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample)
+{
+    (void) sample;
+    /* nothing to do here */
+}
+
+__attribute__((weak))
+void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
 {
     (void) sample;
     /* nothing to do here */

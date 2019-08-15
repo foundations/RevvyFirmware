@@ -54,12 +54,12 @@ const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT] =
     [0x31u] = { .Start = &RingLedDisplay_SetScenarioType_Start, .GetResult = NULL, .Cancel = NULL },
     [0x32u] = { .Start = &RingLedDisplay_GetRingLedAmount_Start, .GetResult = NULL, .Cancel = NULL },
     [0x33u] = { .Start = &RingLedDisplay_SetUserFrame_Start, .GetResult = NULL, .Cancel = NULL },
-    
+
     /* MCU status updater commands */
     [0x3Au] = { .Start = &McuStatusCollectorWrapper_Reset_Start, .GetResult = NULL, .Cancel = NULL },
     [0x3Bu] = { .Start = &McuStatusCollectorWrapper_ControlSlot_Start, .GetResult = NULL, .Cancel = NULL },
     [0x3Cu] = { .Start = &McuStatusCollectorWrapper_ReadStatus_Start, .GetResult = NULL, .Cancel = NULL },
-    
+
     /* Error storage commands */
     [0x3Du] = { .Start = &ErrorStorageWrapper_ReadCount_Start, .GetResult = NULL, .Cancel = NULL }, /* Read stored error count */
     [0x3Eu] = { .Start = &ErrorStorageWrapper_ReadErrors_Start, .GetResult = NULL, .Cancel = NULL }, /* Read errors starting with the given index */
