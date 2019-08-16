@@ -182,11 +182,13 @@ static MasterCommunicationInterface_Config_t communicationConfig =
 #define STATUS_SLOT_BATTERY ((uint8_t) 10u)
 #define STATUS_SLOT_AXL     ((uint8_t) 11u)
 #define STATUS_SLOT_GYRO    ((uint8_t) 12u)
+#define STATUS_SLOT_YAW     ((uint8_t) 13u)
 
 static uint8_t motor_status[6][MAX_MOTOR_STATUS_SIZE + 1] = {0};
 static uint8_t sensor_status[4][MAX_SENSOR_STATUS_SIZE + 1] = {0};
 static uint8_t gyro_status[6];
 static uint8_t axl_status[6];
+static uint8_t yaw_status[8];
 static bool status_changed[32] = {0};
 
 _Static_assert(sizeof(axl_status) == sizeof(IMU_RawSample_t), "Accelerometer slot size does not match data size");
@@ -977,6 +979,14 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
                 *slotDataSize = sizeof(gyro_status);
             }
         }
+        else if (slot == STATUS_SLOT_YAW)
+        {
+            if (bufferSize >= sizeof(yaw_status))
+            {
+                memcpy(pData, yaw_status, sizeof(yaw_status));
+                *slotDataSize = sizeof(yaw_status);
+            }
+        }
         else
         {
             ASSERT(0);
@@ -1023,6 +1033,11 @@ void McuStatusCollectorWrapper_Run_EnableSlot(uint8_t slot)
     {
         status_changed[slot] = false;
     }
+    else if (slot == STATUS_SLOT_YAW)
+    {
+        /* yaw may or may not change often, make sure it's value is read */
+        status_changed[slot] = true;
+    }
     else
     {
         ASSERT(0);
@@ -1048,4 +1063,13 @@ void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample)
 void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
 {
     status_changed[STATUS_SLOT_GYRO] = !compare_and_copy(gyro_status, (const uint8_t*) sample, sizeof(gyro_status));
+}
+
+void UpdateMcuStatus_YawAngle(int32_t angle, int32_t relativeAngle)
+{
+    uint8_t buffer[8];
+    memcpy(buffer, &angle, sizeof(int32_t));
+    memcpy(&buffer[4], &relativeAngle, sizeof(int32_t));
+    
+    status_changed[STATUS_SLOT_YAW] = !compare_and_copy(yaw_status, (const uint8_t*) buffer, sizeof(buffer));
 }

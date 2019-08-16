@@ -7,6 +7,8 @@
 
 #include "../rrrc_worklogic.h"
 
+#include <math.h>
+
 static IMU_AxlSample_t raw_acceleration;
 static bool has_new_acceleration;
 static IMU_GyroSample_t raw_rotation;
@@ -71,4 +73,6 @@ void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle)
 {
     current_yaw_angle = angle;
     current_relative_yaw_angle = relativeAngle;
+
+    UpdateMcuStatus_YawAngle((int32_t) lroundf(angle), (int32_t) lroundf(relativeAngle));
 }
