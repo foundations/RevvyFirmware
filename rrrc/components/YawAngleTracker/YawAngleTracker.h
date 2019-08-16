@@ -19,7 +19,6 @@ void YawAngleTracker_Run_Update(void);
 /* ports */
 bool YawAngleTracker_Read_AngularSpeedZ(float* angularSpeed);
 float YawAngleTracker_Read_SampleTime(void);
-void YawAngleTracker_Write_YawAngle(float angle);
-void YawAngleTracker_Write_RelativeYawAngle(float angle);
+void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle);
 
 #endif /* YAWANGLETRACKER_H_ */

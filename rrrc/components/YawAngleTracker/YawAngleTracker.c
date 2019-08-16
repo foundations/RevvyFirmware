@@ -34,8 +34,7 @@ void YawAngleTracker_Run_Update(void)
         }
         while (YawAngleTracker_Read_AngularSpeedZ(&angleSpeed));
         
-        YawAngleTracker_Write_YawAngle(_current_angle);
-        YawAngleTracker_Write_RelativeYawAngle(_current_angle - _pinned_angle);
+        YawAngleTracker_Write_YawAngle(_current_angle ,_current_angle - _pinned_angle);
     }
 }
 
@@ -54,13 +53,8 @@ float YawAngleTracker_Read_SampleTime(void)
 }
 
 __attribute__((weak))
-void YawAngleTracker_Write_YawAngle(float angle)
+void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle)
 {
     (void) angle;
-}
-
-__attribute__((weak))
-void YawAngleTracker_Write_RelativeYawAngle(float angle)
-{
-    (void) angle;
+    (void) relativeAngle;
 }

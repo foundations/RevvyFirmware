@@ -67,12 +67,8 @@ float YawAngleTracker_Read_SampleTime(void)
     return 1.0f / 416;
 }
 
-void YawAngleTracker_Write_YawAngle(float angle)
+void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle)
 {
     current_yaw_angle = angle;
-}
-
-void YawAngleTracker_Write_RelativeYawAngle(float angle)
-{
-    current_relative_yaw_angle = angle;
+    current_relative_yaw_angle = relativeAngle;
 }
