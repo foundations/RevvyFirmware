@@ -11,7 +11,7 @@
 #include "imu_defs.h"
 
 #define IMU_AXL_LSB     ((float) 0.06103f)
-#define IMU_GYRO_LSB    ((float) 0.007477f)
+#define IMU_GYRO_LSB    ((float) 1000.0f / 32768)
 
 static bool imu_enabled;
 
@@ -29,7 +29,7 @@ static void _send_configuration(void)
     _imu_write_register(LSM6DS3_REG(INT2_CTRL), LSM6DS3_FIELD_ENABLE(INT2_DRDY_G));
 
     _imu_write_register(LSM6DS3_REG(CTRL1_XL), LSM6DS3_FIELD_NAMED(FS_XL, 2g) | LSM6DS3_FIELD_NAMED(ODR_XL, 416));
-    _imu_write_register(LSM6DS3_REG(CTRL2_G),  LSM6DS3_FIELD_NAMED(FS_G, 245) | LSM6DS3_FIELD_NAMED(ODR_G, 416));
+    _imu_write_register(LSM6DS3_REG(CTRL2_G),  LSM6DS3_FIELD_NAMED(FS_G, 1000) | LSM6DS3_FIELD_NAMED(ODR_G, 416));
     
     _imu_write_register(LSM6DS3_REG(CTRL4_C),  LSM6DS3_FIELD_ENABLE(I2C_disable));
     
