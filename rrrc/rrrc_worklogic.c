@@ -18,8 +18,6 @@ static BlockInfo_t errorStorageBlocks[] = {
     { .base_address = 0x3E000u },
 };
 
-static TaskHandle_t xRRRC_Main_xTask;
-
 static BatteryCalculator_Context_t mainBattery;
 static BatteryCalculator_Context_t motorBattery;
 
@@ -194,34 +192,6 @@ static bool status_changed[32] = {0};
 _Static_assert(sizeof(axl_status) == sizeof(IMU_RawSample_t), "Accelerometer slot size does not match data size");
 _Static_assert(sizeof(gyro_status) == sizeof(IMU_RawSample_t), "Gyroscope slot size does not match data size");
 
-void RRRC_ProcessLogic_xTask(void* user_data);
-
-//*********************************************************************************************
-void SystemMonitorPinsInit(void)
-{
-    //adc pins
-    gpio_set_pin_direction(SM_MOT_VOLTAGE, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(SM_MOT_VOLTAGE, GPIO_PIN_FUNCTION_B);
-
-    gpio_set_pin_direction(SM_BAT_VOLTAGE, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(SM_BAT_VOLTAGE, GPIO_PIN_FUNCTION_B);
-}
-
-//*********************************************************************************************
-int32_t RRRC_Init(void)
-{
-    int32_t result = ERR_NONE;
-
-    SystemMonitorPinsInit();
-
-    if (pdPASS != xTaskCreate(RRRC_ProcessLogic_xTask, "RRRC_Main", 1024u, NULL, taskPriority_Main, &xRRRC_Main_xTask))
-    {
-        result = ERR_FAILURE;
-    }
-
-    return result;
-}
-
 static void ProcessTasks_1ms(void)
 {
     for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
@@ -297,10 +267,9 @@ static void ProcessTasks_100ms(void)
     BrainStatusIndicator_Run_Update();
 }
 
-//*********************************************************************************************
-void RRRC_ProcessLogic_xTask(void* user)
+void RRRC_ProcessLogic_Init(void)
 {
-    (void) user;
+    system_init();
 
     ErrorStorage_Run_OnInit(&errorStorageBlocks[0], ARRAY_SIZE(errorStorageBlocks));
 
@@ -377,6 +346,12 @@ void RRRC_ProcessLogic_xTask(void* user)
 
     GyroscopeOffsetCompensator_Run_OnInit();
     YawAngleTracker_Run_OnInit();
+}
+
+//*********************************************************************************************
+void RRRC_ProcessLogic_xTask(void* user)
+{
+    (void) user;
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (uint8_t cycleCounter = 0u;;)
@@ -917,18 +892,22 @@ static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)
     return equal;
 }
 
+static bool _update_port(uint8_t* pBuffer, uint8_t* pData, uint8_t dataSize)
+{
+    bool size_changed = pBuffer[0] != dataSize;
+    pBuffer[0] = dataSize;
+
+    bool data_changed = !compare_and_copy(&pBuffer[1u], pData, dataSize);
+
+    return data_changed || size_changed;
+}
+
 void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
     portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_MOTOR_STATUS_SIZE);
 
-    bool size_changed = motor_status[port_idx][0] != dataSize;
-    motor_status[port_idx][0] = dataSize;
-
-    bool data_changed = !compare_and_copy(&motor_status[port_idx][1u], pData, dataSize);
-
-    uint8_t slot = port_idx;
-    status_changed[slot] = size_changed || data_changed;
+    status_changed[port_idx] = _update_port(motor_status[port_idx], pData, dataSize);
 
     portEXIT_CRITICAL();
 }
@@ -938,13 +917,7 @@ void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSi
     portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_SENSOR_STATUS_SIZE);
 
-    bool size_changed = dataSize != sensor_status[port_idx][0];
-    sensor_status[port_idx][0] = dataSize;
-
-    bool data_changed = !compare_and_copy(&sensor_status[port_idx][1u], pData, dataSize);
-    
-    uint8_t slot = port_idx + 6u;
-    status_changed[slot] = size_changed || data_changed;
+    status_changed[port_idx + 6u] = _update_port(sensor_status[port_idx], pData, dataSize);
 
     portEXIT_CRITICAL();
 }

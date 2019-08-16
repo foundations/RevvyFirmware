@@ -53,8 +53,8 @@ extern "C" {
 #include "components/YawAngleTracker/YawAngleTracker.h"
 #include "components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.h"
 
-int32_t RRRC_Init(void);
-int32_t RRRC_DeInit(void);
+void RRRC_ProcessLogic_Init(void);
+void RRRC_ProcessLogic_xTask(void* user_data);
 
 #define COMM_HANDLER_COUNT  ((uint8_t) 0x41u)
 const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT];

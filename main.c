@@ -4,15 +4,16 @@
 
 #include <string.h>
 
+static TaskHandle_t xRRRC_Main_xTask;
+
 int main(void)
 {
-    system_init();
+    RRRC_ProcessLogic_Init();
+    
+    BaseType_t success = xTaskCreate(&RRRC_ProcessLogic_xTask, "Main", 1024u, NULL, taskPriority_Main, &xRRRC_Main_xTask);
+    configASSERT(success == pdPASS);
 
-    if (ERR_NONE == RRRC_Init())
-    {
-        vTaskStartScheduler();
-    }
-
+    vTaskStartScheduler();
     configASSERT(0);
 }
 
