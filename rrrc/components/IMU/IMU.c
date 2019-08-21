@@ -10,8 +10,8 @@
 
 #include "imu_defs.h"
 
-#define IMU_AXL_LSB     ((float) 0.06103f)
-#define IMU_GYRO_LSB    ((float) 1000.0f / 32768)
+#define IMU_AXL_LSB     ((float) 0.061f)
+#define IMU_GYRO_LSB    ((float) 0.035f)
 
 static bool imu_enabled;
 
