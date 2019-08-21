@@ -1060,7 +1060,7 @@ void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample)
     status_changed[STATUS_SLOT_AXL] = !compare_and_copy(axl_status, (const uint8_t*) sample, sizeof(axl_status));
 }
 
-void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
+void UpdateMcuStatus_Gyroscope(const IMU_RawSample_t* sample)
 {
     status_changed[STATUS_SLOT_GYRO] = !compare_and_copy(gyro_status, (const uint8_t*) sample, sizeof(gyro_status));
 }

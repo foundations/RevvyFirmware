@@ -25,6 +25,11 @@ void IMU_Write_AccelerometerSample(const IMU_AxlSample_t* sample)
     has_new_acceleration = true;
 }
 
+void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
+{
+    UpdateMcuStatus_Gyroscope(sample);
+}
+
 void IMU_Write_GyroscopeSample(const IMU_GyroSample_t* sample)
 {
     raw_rotation = *sample;

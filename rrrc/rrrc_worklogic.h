@@ -59,6 +59,7 @@ void RRRC_ProcessLogic_xTask(void* user_data);
 #define COMM_HANDLER_COUNT  ((uint8_t) 0x41u)
 const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT];
 
+void UpdateMcuStatus_Gyroscope(const IMU_RawSample_t* sample);
 void UpdateMcuStatus_YawAngle(int32_t angle, int32_t relativeAngle);
 
 #ifdef __cplusplus
