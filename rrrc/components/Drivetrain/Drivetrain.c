@@ -8,6 +8,9 @@
 #include "Drivetrain.h"
 #include "utils.h"
 #include "utils/converter.h"
+#include "controller/pid.h"
+
+#include <math.h>
 
 #define DRIVETRAIN_CONTROL_GO_POS ((uint8_t) 0u)
 #define DRIVETRAIN_CONTROL_GO_SPD ((uint8_t) 1u)
@@ -24,6 +27,16 @@ typedef enum {
 static MotorAssingment_t motors[6];
 static uint8_t driveTrainType;
 
+static bool turnCommandActive;
+static bool turnStartAngleRead;
+
+static int32_t turnAngle;
+static float turnTargetAngle;
+static float turnPowerLimit;
+static PID_t yawAngleController;
+static float errorFilterValue;
+static const float errorFilterAlpha = 0.95f;
+
 static void assign_motor(uint8_t motor_idx, MotorAssingment_t assignment)
 {
     if (assignment > Motor_Right)
@@ -32,6 +45,26 @@ static void assign_motor(uint8_t motor_idx, MotorAssingment_t assignment)
     }
     DriveTrain_Write_MotorAssigned(motor_idx, assignment != Motor_NotAssigned);
     motors[motor_idx] = assignment;
+}
+
+static void _apply(const DriveTrain_DriveRequest_t* left, const DriveTrain_DriveRequest_t* right)
+{
+    for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
+    {
+        switch (motors[i])
+        {
+            case Motor_Left:
+                DriveTrain_Write_DriveRequest(i, left);
+                break;
+
+            case Motor_Right:
+                DriveTrain_Write_DriveRequest(i, right);
+                break;
+
+            default:
+                break;
+        }
+    }
 }
 
 static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8_t commandSize)
@@ -93,22 +126,8 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
             break;
     }
 
-    for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
-    {
-        switch (motors[i])
-        {
-            case Motor_Left:
-                DriveTrain_Write_DriveRequest(i, &leftDriveRequest);
-                break;
-
-            case Motor_Right:
-                DriveTrain_Write_DriveRequest(i, &rightDriveRequest);
-                break;
-
-            default:
-                break;
-        }
-    }
+    turnCommandActive = false;
+    _apply(&leftDriveRequest, &rightDriveRequest);
 
     return Comm_Status_Ok;
 }
@@ -160,12 +179,102 @@ Comm_Status_t DriveTrain_SetControlValue_Start(const uint8_t* commandPayload, ui
     }
 }
 
+Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+    
+    if (commandSize != 9u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+    else
+    {
+        turnCommandActive = true;
+        turnStartAngleRead = false;
+
+        turnAngle = -1 * get_int32(&commandPayload[0]);
+        float wheelSpeed = get_float(&commandPayload[4]);
+        turnPowerLimit = (float) commandPayload[8];
+        
+        yawAngleController.config.LowerLimit = -wheelSpeed;
+        yawAngleController.config.UpperLimit = wheelSpeed;
+
+        errorFilterValue = turnAngle;
+    }
+    
+    return Comm_Status_Ok;
+}
+
 void DriveTrain_Run_OnInit(void)
 {
     for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
     {
         assign_motor(i, Motor_NotAssigned);
     }
+
+    pid_initialize(&yawAngleController);
+    yawAngleController.config.P = 10.0f;
+    yawAngleController.config.I = 0.0f;
+    yawAngleController.config.D = 0.0f;
+}
+
+void DriveTrain_Run_Update(void)
+{
+    if (turnCommandActive)
+    {
+        float currentAngle = DriveTrain_Read_YawAngle();
+        if (!isnan(currentAngle))
+        {
+            if (!turnStartAngleRead)
+            {
+                turnStartAngleRead = true;
+                turnTargetAngle = currentAngle + turnAngle;
+            }
+
+            errorFilterValue = errorFilterValue * errorFilterAlpha + (turnTargetAngle - currentAngle) * (1.0f - errorFilterAlpha);
+            float u = pid_update(&yawAngleController, turnTargetAngle, currentAngle);
+
+            DriveTrain_DriveRequest_t leftDriveRequest;
+            DriveTrain_DriveRequest_t rightDriveRequest;
+
+            leftDriveRequest.speed_limit  = 0.0f;
+            rightDriveRequest.speed_limit  = 0.0f;
+
+            leftDriveRequest.power_limit  = 0.0f;
+            rightDriveRequest.power_limit  = 0.0f;
+
+            if (fabsf(u) < 10.0f && fabsf(errorFilterValue) < 1.0f)
+            {
+                turnCommandActive = false;
+                leftDriveRequest.type = DriveTrain_Request_Power;
+                rightDriveRequest.type = DriveTrain_Request_Power;
+
+                leftDriveRequest.v.power = 0;
+                rightDriveRequest.v.power = 0;
+            }
+            else
+            {
+                leftDriveRequest.type = DriveTrain_Request_Speed;
+                rightDriveRequest.type = DriveTrain_Request_Speed;
+
+                leftDriveRequest.v.speed = u;
+                rightDriveRequest.v.speed = -u;
+
+                leftDriveRequest.power_limit  = turnPowerLimit;
+                rightDriveRequest.power_limit = turnPowerLimit;
+            }
+
+            _apply(&leftDriveRequest, &rightDriveRequest);
+        }
+    }
+}
+
+__attribute__((weak))
+float DriveTrain_Read_YawAngle(void)
+{
+    return 0.0f;
 }
 
 __attribute__((weak))

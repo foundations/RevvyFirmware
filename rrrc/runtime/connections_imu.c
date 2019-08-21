@@ -81,3 +81,8 @@ void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle)
 
     UpdateMcuStatus_YawAngle((int32_t) lroundf(angle), (int32_t) lroundf(relativeAngle));
 }
+
+float DriveTrain_Read_YawAngle(void)
+{
+    return current_yaw_angle;
+}

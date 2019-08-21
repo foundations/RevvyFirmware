@@ -219,6 +219,7 @@ static void ProcessTasks_20ms(uint8_t offset)
     switch (offset)
     {
         case 0u:
+            DriveTrain_Run_Update();
             MotorPortHandler_Run_Update();
 
             RingLedDisplay_Run_Update();

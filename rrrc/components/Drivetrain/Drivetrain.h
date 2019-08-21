@@ -33,9 +33,12 @@ typedef struct {
 
 Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t DriveTrain_SetControlValue_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 
 void DriveTrain_Run_OnInit(void);
+void DriveTrain_Run_Update(void);
 
+float DriveTrain_Read_YawAngle(void);
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned);
 void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command);
 
