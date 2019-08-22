@@ -1,78 +1,4 @@
-ifeq ($(OS),Windows_NT)
-	SHELL := cmd.exe
-	MKDIR := -md
-	IGNORE := >NUL 2>NUL
-	GCC_BINARY_PREFIX := "C:/Program Files (x86)/Atmel/Studio/7.0/toolchain/arm/arm-gnu-toolchain/bin/
-	GCC_BINARY_SUFFIX := .exe"
-else
-	SHELL := /bin/bash
-	MKDIR := mkdir -p
-	IGNORE :=
-	GCC_BINARY_PREFIX :=
-	GCC_BINARY_SUFFIX :=
-endif
-
-RM := rm -rf
-
-C_SRCS := \
-Atmel/Device_Startup/startup_samd51.c \
-Atmel/Device_Startup/system_samd51.c \
-Atmel/hal/src/hal_adc_async.c \
-Atmel/hal/src/hal_adc_sync.c \
-Atmel/hal/src/hal_atomic.c \
-Atmel/hal/src/hal_cache.c \
-Atmel/hal/src/hal_delay.c \
-Atmel/hal/src/hal_evsys.c \
-Atmel/hal/src/hal_ext_irq.c \
-Atmel/hal/src/hal_flash.c \
-Atmel/hal/src/hal_gpio.c \
-Atmel/hal/src/hal_i2c_m_async.c \
-Atmel/hal/src/hal_i2c_m_sync.c \
-Atmel/hal/src/hal_i2c_s_async.c \
-Atmel/hal/src/hal_init.c \
-Atmel/hal/src/hal_io.c \
-Atmel/hal/src/hal_sleep.c \
-Atmel/hal/src/hal_spi_m_dma.c \
-Atmel/hal/src/hal_spi_m_sync.c \
-Atmel/hal/src/hal_timer.c \
-Atmel/hal/src/hal_usb_device.c \
-Atmel/hal/src/hal_wdt.c \
-Atmel/hal/utils/src/utils_assert.c \
-Atmel/hal/utils/src/utils_event.c \
-Atmel/hal/utils/src/utils_list.c \
-Atmel/hal/utils/src/utils_ringbuffer.c \
-Atmel/hal/utils/src/utils_syscalls.c \
-Atmel/hpl/adc/hpl_adc.c \
-Atmel/hpl/cmcc/hpl_cmcc.c \
-Atmel/hpl/core/hpl_core_m4.c \
-Atmel/hpl/core/hpl_init.c \
-Atmel/hpl/dmac/hpl_dmac.c \
-Atmel/hpl/eic/hpl_eic.c \
-Atmel/hpl/evsys/hpl_evsys.c \
-Atmel/hpl/gclk/hpl_gclk.c \
-Atmel/hpl/mclk/hpl_mclk.c \
-Atmel/hpl/nvmctrl/hpl_nvmctrl.c \
-Atmel/hpl/osc32kctrl/hpl_osc32kctrl.c \
-Atmel/hpl/oscctrl/hpl_oscctrl.c \
-Atmel/hpl/pm/hpl_pm.c \
-Atmel/hpl/ramecc/hpl_ramecc.c \
-Atmel/hpl/rtc/hpl_rtc.c \
-Atmel/hpl/sercom/hpl_sercom.c \
-Atmel/hpl/systick/hpl_systick.c \
-Atmel/hpl/tc/hpl_tc.c \
-Atmel/hpl/tc/tc_lite.c \
-Atmel/hpl/usb/hpl_usb.c \
-Atmel/hpl/wdt/hpl_wdt.c \
-third_party/FreeRTOSV10.0.0/rtos_port.c \
-third_party/FreeRTOSV10.0.0/Source/croutine.c \
-third_party/FreeRTOSV10.0.0/Source/event_groups.c \
-third_party/FreeRTOSV10.0.0/Source/list.c \
-third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F/port.c \
-third_party/FreeRTOSV10.0.0/Source/portable/MemMang/heap_4.c \
-third_party/FreeRTOSV10.0.0/Source/queue.c \
-third_party/FreeRTOSV10.0.0/Source/stream_buffer.c \
-third_party/FreeRTOSV10.0.0/Source/tasks.c \
-third_party/FreeRTOSV10.0.0/Source/timers.c \
+C_SRCS += \
 driver_init.c \
 main.c \
 rrrc/controller/pid.c \
@@ -130,8 +56,63 @@ rrrc/components/MasterStatusObserver/MasterStatusObserver.c \
 rrrc/components/RingLedDisplay/RingLedDisplay.c \
 rrrc/components/YawAngleTracker/YawAngleTracker.c
 
-INCLUDE_PATHS := \
+INCLUDE_PATHS += \
 -I. \
+-Irrrc
+
+C_SRCS += \
+Atmel/Device_Startup/startup_samd51.c \
+Atmel/Device_Startup/system_samd51.c \
+Atmel/hal/src/hal_adc_async.c \
+Atmel/hal/src/hal_atomic.c \
+Atmel/hal/src/hal_cache.c \
+Atmel/hal/src/hal_delay.c \
+Atmel/hal/src/hal_evsys.c \
+Atmel/hal/src/hal_ext_irq.c \
+Atmel/hal/src/hal_flash.c \
+Atmel/hal/src/hal_gpio.c \
+Atmel/hal/src/hal_i2c_m_async.c \
+Atmel/hal/src/hal_i2c_s_async.c \
+Atmel/hal/src/hal_init.c \
+Atmel/hal/src/hal_io.c \
+Atmel/hal/src/hal_sleep.c \
+Atmel/hal/src/hal_spi_m_dma.c \
+Atmel/hal/src/hal_spi_m_sync.c \
+Atmel/hal/src/hal_timer.c \
+Atmel/hal/utils/src/utils_assert.c \
+Atmel/hal/utils/src/utils_event.c \
+Atmel/hal/utils/src/utils_list.c \
+Atmel/hal/utils/src/utils_syscalls.c \
+Atmel/hpl/adc/hpl_adc.c \
+Atmel/hpl/cmcc/hpl_cmcc.c \
+Atmel/hpl/core/hpl_core_m4.c \
+Atmel/hpl/core/hpl_init.c \
+Atmel/hpl/dmac/hpl_dmac.c \
+Atmel/hpl/eic/hpl_eic.c \
+Atmel/hpl/evsys/hpl_evsys.c \
+Atmel/hpl/gclk/hpl_gclk.c \
+Atmel/hpl/mclk/hpl_mclk.c \
+Atmel/hpl/nvmctrl/hpl_nvmctrl.c \
+Atmel/hpl/osc32kctrl/hpl_osc32kctrl.c \
+Atmel/hpl/oscctrl/hpl_oscctrl.c \
+Atmel/hpl/pm/hpl_pm.c \
+Atmel/hpl/rtc/hpl_rtc.c \
+Atmel/hpl/sercom/hpl_sercom.c \
+Atmel/hpl/systick/hpl_systick.c \
+Atmel/hpl/tc/hpl_tc.c \
+Atmel/hpl/tc/tc_lite.c \
+third_party/FreeRTOSV10.0.0/rtos_port.c \
+third_party/FreeRTOSV10.0.0/Source/croutine.c \
+third_party/FreeRTOSV10.0.0/Source/event_groups.c \
+third_party/FreeRTOSV10.0.0/Source/list.c \
+third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F/port.c \
+third_party/FreeRTOSV10.0.0/Source/portable/MemMang/heap_4.c \
+third_party/FreeRTOSV10.0.0/Source/queue.c \
+third_party/FreeRTOSV10.0.0/Source/stream_buffer.c \
+third_party/FreeRTOSV10.0.0/Source/tasks.c \
+third_party/FreeRTOSV10.0.0/Source/timers.c
+
+INCLUDE_PATHS += \
 -IConfig \
 -IAtmel/hal/include \
 -IAtmel/hal/utils/include \
@@ -146,22 +127,18 @@ INCLUDE_PATHS := \
 -IAtmel/hpl/oscctrl \
 -IAtmel/hpl/pm \
 -IAtmel/hpl/port \
--IAtmel/hpl/ramecc \
 -IAtmel/hpl/rtc \
 -IAtmel/hpl/sercom \
 -IAtmel/hpl/systick \
 -IAtmel/hpl/tc \
 -IAtmel/hpl/tcc \
--IAtmel/hpl/usb \
--IAtmel/hpl/wdt \
 -IAtmel/hri \
 -IAtmel/samd51a/include \
 -Ithird_party \
 -Ithird_party/CMSIS/Include \
 -Ithird_party/FreeRTOSV10.0.0 \
 -Ithird_party/FreeRTOSV10.0.0/Source/include \
--Ithird_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F \
--Irrrc
+-Ithird_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F
 
 COMPILE_FLAGS += \
 -x c \
@@ -180,6 +157,20 @@ COMPILE_FLAGS += \
 -mfpu=fpv4-sp-d16 \
 -MD \
 -MP
+
+ifeq ($(OS),Windows_NT)
+	SHELL := cmd.exe
+	MKDIR := -md
+	IGNORE := >NUL 2>NUL
+	GCC_BINARY_PREFIX := "C:/Program Files (x86)/Atmel/Studio/7.0/toolchain/arm/arm-gnu-toolchain/bin/
+	GCC_BINARY_SUFFIX := .exe"
+else
+	SHELL := /bin/bash
+	MKDIR := mkdir -p
+	IGNORE :=
+	GCC_BINARY_PREFIX :=
+	GCC_BINARY_SUFFIX :=
+endif
 
 ifeq ($(config), debug)
 OUTPUT_DIR :=Debug
@@ -214,5 +205,5 @@ $(OUTPUT_FILE).elf: $(OBJS)
 	$(GCC_BINARY_PREFIX)arm-none-eabi-size$(GCC_BINARY_SUFFIX) $(OUTPUT_FILE).elf
 
 clean:
-	-$(RM) Debug
-	-$(RM) Release
+	-rm -rf Debug
+	-rm -rf Release
