@@ -155,7 +155,7 @@ INCLUDE_PATHS := \
 -IAtmel/hpl/usb \
 -IAtmel/hpl/wdt \
 -IAtmel/hri \
--I"Atmel/samd51a/include" \
+-IAtmel/samd51a/include \
 -Ithird_party \
 -Ithird_party/CMSIS/Include \
 -Ithird_party/FreeRTOSV10.0.0 \
@@ -181,9 +181,6 @@ COMPILE_FLAGS += \
 -MD \
 -MP
 
-LINK_DIRS := \
--LAtmel/Device_Startup
-
 ifeq ($(config), debug)
 OUTPUT_DIR :=Debug
 COMPILE_FLAGS += -DDEBUG -O0 -g3
@@ -207,7 +204,7 @@ $(OUTPUT_DIR)/%.o: %.c
 
 $(OUTPUT_FILE).elf: $(OBJS)
 	@echo Building target: $@
-	$(GCC_BINARY_PREFIX)arm-none-eabi-gcc$(GCC_BINARY_SUFFIX) -o$(OUTPUT_FILE).elf $(OBJS) -mthumb -Wl,-Map=$(OUTPUT_FILE).map --specs=nano.specs -Wl,--start-group -lm  -Wl,--end-group $(LINK_DIRS) -Wl,--gc-sections -mcpu=cortex-m4 -Tsamd51p19a_flash.ld  
+	$(GCC_BINARY_PREFIX)arm-none-eabi-gcc$(GCC_BINARY_SUFFIX) -o$(OUTPUT_FILE).elf $(OBJS) -mthumb -Wl,-Map=$(OUTPUT_FILE).map --specs=nano.specs -Wl,--start-group -lm  -Wl,--end-group $(LINK_DIRS) -Wl,--gc-sections -mcpu=cortex-m4 -TAtmel/Device_Startup/samd51p19a_flash.ld  
 	@echo Finished building target: $@
 	$(GCC_BINARY_PREFIX)arm-none-eabi-objcopy$(GCC_BINARY_SUFFIX) -O binary $(OUTPUT_FILE).elf $(OUTPUT_FILE).bin
 	$(GCC_BINARY_PREFIX)arm-none-eabi-objcopy$(GCC_BINARY_SUFFIX) -O ihex -R .eeprom -R .fuse -R .lock -R .signature  $(OUTPUT_FILE).elf $(OUTPUT_FILE).hex
