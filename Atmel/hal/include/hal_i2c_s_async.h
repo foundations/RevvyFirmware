@@ -35,7 +35,6 @@
 #define _HAL_I2C_S_ASYNC_H_INCLUDED
 
 #include <hal_io.h>
-#include <utils_ringbuffer.h>
 #include <hpl_i2c_s_async.h>
 
 #ifdef __cplusplus
@@ -80,7 +79,6 @@ struct i2c_s_async_descriptor {
 	struct _i2c_s_async_device   device;
 	struct io_descriptor         io;
 	struct i2c_s_async_callbacks cbs;
-	struct ringbuffer            rx;
 	uint8_t *                    tx_buffer;
 	uint16_t                     tx_buffer_length;
 	uint16_t                     tx_por;
@@ -206,17 +204,6 @@ int32_t i2c_s_async_get_bytes_received(const struct i2c_s_async_descriptor *cons
  * \return The amount of bytes sent
  */
 int32_t i2c_s_async_get_bytes_sent(const struct i2c_s_async_descriptor *const descr);
-
-/**
- * \brief Flush received data
- *
- * This function flushes all received data
- *
- * \param[in] descr An I2C slave descriptor which is used to communicate through
- *
- * \return The status of data flushing
- */
-int32_t i2c_s_async_flush_rx_buffer(struct i2c_s_async_descriptor *const descr);
 
 /**
  * \brief Abort sending

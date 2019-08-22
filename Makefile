@@ -80,7 +80,6 @@ Atmel/hal/src/hal_spi_m_dma.c \
 Atmel/hal/src/hal_spi_m_sync.c \
 Atmel/hal/src/hal_timer.c \
 Atmel/hal/utils/src/utils_assert.c \
-Atmel/hal/utils/src/utils_event.c \
 Atmel/hal/utils/src/utils_syscalls.c \
 Atmel/hpl/adc/hpl_adc.c \
 Atmel/hpl/cmcc/hpl_cmcc.c \
@@ -95,7 +94,6 @@ Atmel/hpl/nvmctrl/hpl_nvmctrl.c \
 Atmel/hpl/osc32kctrl/hpl_osc32kctrl.c \
 Atmel/hpl/oscctrl/hpl_oscctrl.c \
 Atmel/hpl/pm/hpl_pm.c \
-Atmel/hpl/rtc/hpl_rtc.c \
 Atmel/hpl/sercom/hpl_sercom.c \
 Atmel/hpl/systick/hpl_systick.c \
 Atmel/hpl/tc/hpl_tc.c \

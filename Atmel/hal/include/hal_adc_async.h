@@ -35,7 +35,6 @@
 #define HAL_ADC_ASYNC_H_INCLUDED
 
 #include <hpl_adc_async.h>
-#include <utils_ringbuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,8 +94,6 @@ struct adc_async_ch_callbacks {
 struct adc_async_channel_descriptor {
 	/** ADC channel callbacks type */
 	struct adc_async_ch_callbacks adc_async_ch_cb;
-	/** Convert buffer  */
-	struct ringbuffer convert;
 	/** Bytes in buffer  */
 	uint16_t bytes_in_buffer;
 };

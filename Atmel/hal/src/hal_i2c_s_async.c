@@ -32,8 +32,8 @@
  */
 #include <hal_i2c_s_async.h>
 #include <hal_atomic.h>
-#include <utils_ringbuffer.h>
 #include <utils.h>
+#include <utils_assert.h>
 
 /**
  * \brief Driver version
@@ -41,7 +41,6 @@
 #define DRIVER_VERSION 0x00000001u
 
 static int32_t i2c_s_async_write(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length);
-static int32_t i2c_s_async_read(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length);
 
 // static void i2c_s_async_tx(struct _i2c_s_async_device *const device);
 // static void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data);
@@ -65,7 +64,7 @@ int32_t i2c_s_async_init(struct i2c_s_async_descriptor *const descr, void *const
 		return init_status;
 	}
 
-	descr->io.read  = i2c_s_async_read;
+	descr->io.read  = NULL;
 	descr->io.write = i2c_s_async_write;
 
 // 	descr->tx_por           = 0;
@@ -184,16 +183,6 @@ int32_t i2c_s_async_get_io_descriptor(struct i2c_s_async_descriptor *const descr
 }
 
 /**
- * \brief Return the number of received bytes in the buffer
- */
-int32_t i2c_s_async_get_bytes_received(const struct i2c_s_async_descriptor *const descr)
-{
-	ASSERT(descr);
-
-	return ringbuffer_num((struct ringbuffer *)&descr->rx);
-}
-
-/**
  * \brief Retrieve the number of bytes sent
  */
 int32_t i2c_s_async_get_bytes_sent(const struct i2c_s_async_descriptor *const descr)
@@ -201,16 +190,6 @@ int32_t i2c_s_async_get_bytes_sent(const struct i2c_s_async_descriptor *const de
 	ASSERT(descr);
 
 	return descr->tx_por;
-}
-
-/**
- * \brief Flush received data
- */
-int32_t i2c_s_async_flush_rx_buffer(struct i2c_s_async_descriptor *const descr)
-{
-	ASSERT(descr);
-
-	return ringbuffer_flush(&descr->rx);
 }
 
 /**
@@ -241,88 +220,6 @@ int32_t i2c_s_async_get_status(const struct i2c_s_async_descriptor *const descr,
 uint32_t i2c_s_async_get_version(void)
 {
 	return DRIVER_VERSION;
-}
-
-/**
- * \internal Callback function for data sending
- *
- * \param[in] device The pointer to i2c slave device
- */
-// static void i2c_s_async_tx(struct _i2c_s_async_device *const device)
-// {
-// 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
-// 
-// 	if (!descr->tx_buffer_length) {
-// 		if (descr->cbs.tx_pending) {
-// 			descr->cbs.tx_pending(descr);
-// 		}
-// 	} else if (++descr->tx_por != descr->tx_buffer_length) {
-// 		_i2c_s_async_write_byte(&descr->device, descr->tx_buffer[descr->tx_por]);
-// 	} else {
-// 		descr->tx_por           = 0;
-// 		descr->tx_buffer_length = 0;
-// 		if (descr->cbs.tx) {
-// 			descr->cbs.tx(descr);
-// 		}
-// 	}
-// }
-
-/**
- * \internal Callback function for data receipt
- *
- * \param[in] device The pointer to i2c slave device
- */
-// static void i2c_s_async_byte_received(struct _i2c_s_async_device *const device, const uint8_t data)
-// {
-// 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
-// 
-// 	ringbuffer_put(&descr->rx, data);
-// 
-// 	if (descr->cbs.rx) {
-// 		descr->cbs.rx(descr);
-// 	}
-// }
-
-/**
- * \internal Callback function for error
- *
- * \param[in] device The pointer to i2c slave device
- */
-// static void i2c_s_async_error(struct _i2c_s_async_device *const device)
-// {
-// 	struct i2c_s_async_descriptor *descr = CONTAINER_OF(device, struct i2c_s_async_descriptor, device);
-// 
-// 	if (descr->cbs.error) {
-// 		descr->cbs.error(descr);
-// 	}
-// }
-
-/*
- * \internal Read data from i2c slave interface
- *
- * \param[in] descr The pointer to an io descriptor
- * \param[in] buf A buffer to read data to
- * \param[in] length The size of a buffer
- *
- * \return The number of bytes read.
- */
-static int32_t i2c_s_async_read(struct io_descriptor *const io, uint8_t *const buf, const uint16_t length)
-{
-	uint16_t                       was_read = 0;
-	uint32_t                       num;
-	struct i2c_s_async_descriptor *descr = CONTAINER_OF(io, struct i2c_s_async_descriptor, io);
-
-	ASSERT(io && buf && length);
-
-	CRITICAL_SECTION_ENTER()
-	num = ringbuffer_num(&descr->rx);
-	CRITICAL_SECTION_LEAVE()
-
-	while ((was_read < num) && (was_read < length)) {
-		ringbuffer_get(&descr->rx, &buf[was_read++]);
-	}
-
-	return (int32_t)was_read;
 }
 
 /*

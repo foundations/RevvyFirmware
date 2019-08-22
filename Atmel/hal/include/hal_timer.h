@@ -34,7 +34,6 @@
 #ifndef _HAL_TIMER_H_INCLUDED
 #define _HAL_TIMER_H_INCLUDED
 
-#include <utils_list.h>
 #include <hpl_timer.h>
 
 #ifdef __cplusplus
@@ -78,26 +77,12 @@ typedef struct _timer_callback_t{
 }timer_callbacks_t;
 
 /**
- * \brief Timer task structure
- */
-struct timer_task {
-	struct list_element elem;       /*! List element. */
-	uint32_t            time_label; /*! Absolute timer start time. */
-
-	uint32_t             interval; /*! Number of timer ticks before calling the task. */
-	timer_task_cb_t           cb;       /*! Function pointer to the task. */
-	enum timer_task_mode mode;     /*! Task mode: one shot or repeat. */
-	void*	user_data;
-};
-
-/**
  * \brief Timer structure
  */
 struct timer_descriptor {
 	struct _timer_hpl_interface *func;
 	struct _timer_device         device;
 	uint32_t                     time;
-	struct list_descriptor       tasks; /*! Timer tasks list. */
 	volatile uint8_t             flags;
 	timer_callbacks_t cbs[TIMER_CB_FUNC_MAX];
 };

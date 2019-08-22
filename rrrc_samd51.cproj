@@ -274,127 +274,127 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <ArmGcc>
-        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
-        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
-        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
-        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
-        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
-        <armgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>NDEBUG</Value>
-          </ListValues>
-        </armgcc.compiler.symbols.DefSymbols>
-        <armgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/adc</Value>
-            <Value>../hpl/cmcc</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/eic</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/ramecc</Value>
-            <Value>../hpl/rtc</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hpl/tc</Value>
-            <Value>../hpl/tcc</Value>
-            <Value>../hpl/usb</Value>
-            <Value>../hpl/wdt</Value>
-            <Value>../hri</Value>
-            <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
-          </ListValues>
-        </armgcc.compiler.directories.IncludePaths>
-        <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
-        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-        <armgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -mfloat-abi=softfp -mfpu=fpv4-sp-d16</armgcc.compiler.miscellaneous.OtherFlags>
-        <armgcc.linker.general.UseNewlibNano>True</armgcc.linker.general.UseNewlibNano>
-        <armgcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </armgcc.linker.libraries.Libraries>
-        <armgcc.linker.libraries.LibrarySearchPaths>
-          <ListValues>
-            <Value>%24(ProjectDir)\Device_Startup</Value>
-          </ListValues>
-        </armgcc.linker.libraries.LibrarySearchPaths>
-        <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
-        <armgcc.linker.miscellaneous.LinkerFlags>-Tsamd51p19a_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
-        <armgcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/adc</Value>
-            <Value>../hpl/cmcc</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/eic</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/ramecc</Value>
-            <Value>../hpl/rtc</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hpl/tc</Value>
-            <Value>../hpl/tcc</Value>
-            <Value>../hpl/usb</Value>
-            <Value>../hpl/wdt</Value>
-            <Value>../hri</Value>
-            <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
-          </ListValues>
-        </armgcc.assembler.general.IncludePaths>
-        <armgcc.preprocessingassembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/adc</Value>
-            <Value>../hpl/cmcc</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/eic</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/ramecc</Value>
-            <Value>../hpl/rtc</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hpl/tc</Value>
-            <Value>../hpl/tcc</Value>
-            <Value>../hpl/usb</Value>
-            <Value>../hpl/wdt</Value>
-            <Value>../hri</Value>
-            <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
-          </ListValues>
-        </armgcc.preprocessingassembler.general.IncludePaths>
-      </ArmGcc>
+  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+  <armgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>NDEBUG</Value>
+    </ListValues>
+  </armgcc.compiler.symbols.DefSymbols>
+  <armgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/adc</Value>
+      <Value>../hpl/cmcc</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/eic</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/ramecc</Value>
+      <Value>../hpl/rtc</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
+      <Value>../hpl/tcc</Value>
+      <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
+      <Value>../hri</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
+    </ListValues>
+  </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
+  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+  <armgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -mfloat-abi=softfp -mfpu=fpv4-sp-d16</armgcc.compiler.miscellaneous.OtherFlags>
+  <armgcc.linker.general.UseNewlibNano>True</armgcc.linker.general.UseNewlibNano>
+  <armgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </armgcc.linker.libraries.Libraries>
+  <armgcc.linker.libraries.LibrarySearchPaths>
+    <ListValues>
+      <Value>%24(ProjectDir)\Device_Startup</Value>
+    </ListValues>
+  </armgcc.linker.libraries.LibrarySearchPaths>
+  <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.miscellaneous.LinkerFlags>-Tsamd51p19a_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+  <armgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/adc</Value>
+      <Value>../hpl/cmcc</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/eic</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/ramecc</Value>
+      <Value>../hpl/rtc</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
+      <Value>../hpl/tcc</Value>
+      <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
+      <Value>../hri</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
+    </ListValues>
+  </armgcc.assembler.general.IncludePaths>
+  <armgcc.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/adc</Value>
+      <Value>../hpl/cmcc</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/eic</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/ramecc</Value>
+      <Value>../hpl/rtc</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
+      <Value>../hpl/tcc</Value>
+      <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
+      <Value>../hri</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
+    </ListValues>
+  </armgcc.preprocessingassembler.general.IncludePaths>
+</ArmGcc>
     </ToolchainSettings>
     <UsesExternalMakeFile>True</UsesExternalMakeFile>
     <OutputDirectory>C:\_RevolutionRobotics\Firmware</OutputDirectory>
@@ -408,143 +408,143 @@ cp Release/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <ArmGcc>
-        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
-        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
-        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
-        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
-        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
-        <armgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>COMPATIBLE_HW_VERSIONS=2</Value>
-          </ListValues>
-        </armgcc.compiler.symbols.DefSymbols>
-        <armgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/adc</Value>
-            <Value>../hpl/cmcc</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/eic</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/ramecc</Value>
-            <Value>../hpl/rtc</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hpl/tc</Value>
-            <Value>../hpl/tcc</Value>
-            <Value>../hpl/usb</Value>
-            <Value>../hpl/wdt</Value>
-            <Value>../hri</Value>
-            <Value>../rrrc</Value>
-            <Value>../rrrc/motors</Value>
-            <Value>../rrrc/sensors</Value>
-            <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
-            <Value>../third_party</Value>
-            <Value>../third_party/FreeRTOSV10.0.0</Value>
-            <Value>../third_party/FreeRTOSV10.0.0/Source</Value>
-            <Value>../third_party/FreeRTOSV10.0.0/Source/include</Value>
-            <Value>../third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F</Value>
-            <Value>../third_party/FreeRTOSV10.0.0/Source/portable/MemMang</Value>
-            <Value>../third_party/FreeRTOSV10.0.0/Source/portable/RVDS/ARM_CM4F</Value>
-          </ListValues>
-        </armgcc.compiler.directories.IncludePaths>
-        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
-        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-        <armgcc.compiler.warnings.ExtraWarnings>True</armgcc.compiler.warnings.ExtraWarnings>
-        <armgcc.compiler.warnings.Undefined>True</armgcc.compiler.warnings.Undefined>
-        <armgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -mfloat-abi=softfp -mfpu=fpv4-sp-d16</armgcc.compiler.miscellaneous.OtherFlags>
-        <armgcc.linker.general.UseNewlibNano>True</armgcc.linker.general.UseNewlibNano>
-        <armgcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </armgcc.linker.libraries.Libraries>
-        <armgcc.linker.libraries.LibrarySearchPaths>
-          <ListValues>
-            <Value>%24(ProjectDir)\Device_Startup</Value>
-          </ListValues>
-        </armgcc.linker.libraries.LibrarySearchPaths>
-        <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
-        <armgcc.linker.memorysettings.ExternalRAM />
-        <armgcc.linker.miscellaneous.LinkerFlags>-Tsamd51p19a_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
-        <armgcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/adc</Value>
-            <Value>../hpl/cmcc</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/eic</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/ramecc</Value>
-            <Value>../hpl/rtc</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hpl/tc</Value>
-            <Value>../hpl/tcc</Value>
-            <Value>../hpl/usb</Value>
-            <Value>../hpl/wdt</Value>
-            <Value>../hri</Value>
-            <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
-          </ListValues>
-        </armgcc.assembler.general.IncludePaths>
-        <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
-        <armgcc.preprocessingassembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
-            <Value>../Config</Value>
-            <Value>../</Value>
-            <Value>../examples</Value>
-            <Value>../hal/include</Value>
-            <Value>../hal/utils/include</Value>
-            <Value>../hpl/adc</Value>
-            <Value>../hpl/cmcc</Value>
-            <Value>../hpl/core</Value>
-            <Value>../hpl/dmac</Value>
-            <Value>../hpl/eic</Value>
-            <Value>../hpl/gclk</Value>
-            <Value>../hpl/mclk</Value>
-            <Value>../hpl/osc32kctrl</Value>
-            <Value>../hpl/oscctrl</Value>
-            <Value>../hpl/pm</Value>
-            <Value>../hpl/port</Value>
-            <Value>../hpl/ramecc</Value>
-            <Value>../hpl/rtc</Value>
-            <Value>../hpl/sercom</Value>
-            <Value>../hpl/systick</Value>
-            <Value>../hpl/tc</Value>
-            <Value>../hpl/tcc</Value>
-            <Value>../hpl/usb</Value>
-            <Value>../hpl/wdt</Value>
-            <Value>../hri</Value>
-            <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
-          </ListValues>
-        </armgcc.preprocessingassembler.general.IncludePaths>
-        <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
-      </ArmGcc>
+  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+  <armgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>COMPATIBLE_HW_VERSIONS=2</Value>
+    </ListValues>
+  </armgcc.compiler.symbols.DefSymbols>
+  <armgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/adc</Value>
+      <Value>../hpl/cmcc</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/eic</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/ramecc</Value>
+      <Value>../hpl/rtc</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
+      <Value>../hpl/tcc</Value>
+      <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
+      <Value>../hri</Value>
+      <Value>../rrrc</Value>
+      <Value>../rrrc/motors</Value>
+      <Value>../rrrc/sensors</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
+      <Value>../third_party</Value>
+      <Value>../third_party/FreeRTOSV10.0.0</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/include</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/portable/MemMang</Value>
+      <Value>../third_party/FreeRTOSV10.0.0/Source/portable/RVDS/ARM_CM4F</Value>
+    </ListValues>
+  </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
+  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+  <armgcc.compiler.warnings.ExtraWarnings>True</armgcc.compiler.warnings.ExtraWarnings>
+  <armgcc.compiler.warnings.Undefined>True</armgcc.compiler.warnings.Undefined>
+  <armgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -mfloat-abi=softfp -mfpu=fpv4-sp-d16</armgcc.compiler.miscellaneous.OtherFlags>
+  <armgcc.linker.general.UseNewlibNano>True</armgcc.linker.general.UseNewlibNano>
+  <armgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </armgcc.linker.libraries.Libraries>
+  <armgcc.linker.libraries.LibrarySearchPaths>
+    <ListValues>
+      <Value>%24(ProjectDir)\Device_Startup</Value>
+    </ListValues>
+  </armgcc.linker.libraries.LibrarySearchPaths>
+  <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.memorysettings.ExternalRAM />
+  <armgcc.linker.miscellaneous.LinkerFlags>-Tsamd51p19a_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+  <armgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/adc</Value>
+      <Value>../hpl/cmcc</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/eic</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/ramecc</Value>
+      <Value>../hpl/rtc</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
+      <Value>../hpl/tcc</Value>
+      <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
+      <Value>../hri</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
+    </ListValues>
+  </armgcc.assembler.general.IncludePaths>
+  <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
+  <armgcc.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
+      <Value>../Config</Value>
+      <Value>../</Value>
+      <Value>../examples</Value>
+      <Value>../hal/include</Value>
+      <Value>../hal/utils/include</Value>
+      <Value>../hpl/adc</Value>
+      <Value>../hpl/cmcc</Value>
+      <Value>../hpl/core</Value>
+      <Value>../hpl/dmac</Value>
+      <Value>../hpl/eic</Value>
+      <Value>../hpl/gclk</Value>
+      <Value>../hpl/mclk</Value>
+      <Value>../hpl/osc32kctrl</Value>
+      <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pm</Value>
+      <Value>../hpl/port</Value>
+      <Value>../hpl/ramecc</Value>
+      <Value>../hpl/rtc</Value>
+      <Value>../hpl/sercom</Value>
+      <Value>../hpl/systick</Value>
+      <Value>../hpl/tc</Value>
+      <Value>../hpl/tcc</Value>
+      <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
+      <Value>../hri</Value>
+      <Value>%24(PackRepoDir)\Atmel\SAMD51_DFP\1.1.96\samd51a\include</Value>
+    </ListValues>
+  </armgcc.preprocessingassembler.general.IncludePaths>
+  <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
+</ArmGcc>
     </ToolchainSettings>
     <PreBuildEvent>python -m Build.gen_version</PreBuildEvent>
     <PostBuildEvent>python -m Build.prepare --build-dir=Debug --out=Build/output
@@ -631,9 +631,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="Atmel\hal\include\hpl_adc_sync.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Atmel\hal\include\hpl_calendar.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Atmel\hal\include\hpl_cmcc.h">
       <SubType>compile</SubType>
     </Compile>
@@ -661,13 +658,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="Atmel\hal\include\hpl_i2c_m_async.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Atmel\hal\include\hpl_i2c_m_sync.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Atmel\hal\include\hpl_i2c_s_async.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Atmel\hal\include\hpl_i2c_s_sync.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\include\hpl_init.h">
@@ -733,15 +724,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="Atmel\hal\include\hpl_usart_sync.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Atmel\hal\include\hpl_usb.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Atmel\hal\include\hpl_usb_device.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Atmel\hal\include\hpl_usb_host.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Atmel\hal\include\hpl_user_area.h">
       <SubType>compile</SubType>
     </Compile>
@@ -749,9 +731,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\src\hal_adc_async.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Atmel\hal\src\hal_adc_sync.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\src\hal_atomic.c">
@@ -778,9 +757,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="Atmel\hal\src\hal_i2c_m_async.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Atmel\hal\src\hal_i2c_m_sync.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Atmel\hal\src\hal_i2c_s_async.c">
       <SubType>compile</SubType>
     </Compile>
@@ -800,9 +776,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\src\hal_timer.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Atmel\hal\src\hal_usb_device.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\src\hal_wdt.c">
@@ -829,9 +802,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="Atmel\hal\utils\include\utils_decrement_macro.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Atmel\hal\utils\include\utils_event.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Atmel\hal\utils\include\utils_increment_macro.h">
       <SubType>compile</SubType>
     </Compile>
@@ -842,9 +812,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\utils\src\utils_assert.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Atmel\hal\utils\src\utils_event.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\utils\src\utils_syscalls.c">
