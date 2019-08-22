@@ -81,7 +81,6 @@ Atmel/hal/src/hal_spi_m_sync.c \
 Atmel/hal/src/hal_timer.c \
 Atmel/hal/utils/src/utils_assert.c \
 Atmel/hal/utils/src/utils_event.c \
-Atmel/hal/utils/src/utils_list.c \
 Atmel/hal/utils/src/utils_syscalls.c \
 Atmel/hpl/adc/hpl_adc.c \
 Atmel/hpl/cmcc/hpl_cmcc.c \

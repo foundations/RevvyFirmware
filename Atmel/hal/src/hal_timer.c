@@ -48,7 +48,6 @@
 #define TIMER_FLAG_QUEUE_IS_TAKEN 1
 #define TIMER_FLAG_INTERRUPT_TRIGERRED 2
 
-static void timer_add_timer_task(struct list_descriptor *list, struct timer_task *const new_task, const uint32_t time);
 static void timer_process_counted(struct _timer_device *device);
 static void timer_error(struct _timer_device *device);
 static void capture_chan0(struct _timer_device *device);
@@ -128,58 +127,6 @@ int32_t timer_set_chan_compare_value(struct timer_descriptor *const descr, const
 	descr->func->set_compare_value(&descr->device, value, chan);
 	return ERR_NONE;
 }
-/**
- * \brief Add timer task
- */
-int32_t timer_add_task(struct timer_descriptor *const descr, struct timer_task *const task)
-{
-	ASSERT(descr && task && descr->func);
-
-	descr->flags |= TIMER_FLAG_QUEUE_IS_TAKEN;
-	if (is_list_element(&descr->tasks, task)) {
-		descr->flags &= ~TIMER_FLAG_QUEUE_IS_TAKEN;
-		ASSERT(false);
-		return ERR_ALREADY_INITIALIZED;
-	}
-	task->time_label = descr->time;
-	timer_add_timer_task(&descr->tasks, task, descr->time);
-
-	descr->flags &= ~TIMER_FLAG_QUEUE_IS_TAKEN;
-	if (descr->flags & TIMER_FLAG_INTERRUPT_TRIGERRED) {
-		CRITICAL_SECTION_ENTER()
-		descr->flags &= ~TIMER_FLAG_INTERRUPT_TRIGERRED;
-		descr->func->set_timer_irq(&descr->device);
-		CRITICAL_SECTION_LEAVE()
-	}
-
-	return ERR_NONE;
-}
-
-/**
- * \brief Remove timer task
- */
-int32_t timer_remove_task(struct timer_descriptor *const descr, const struct timer_task *const task)
-{
-	ASSERT(descr && task && descr->func);
-
-	descr->flags |= TIMER_FLAG_QUEUE_IS_TAKEN;
-	if (!is_list_element(&descr->tasks, task)) {
-		descr->flags &= ~TIMER_FLAG_QUEUE_IS_TAKEN;
-		//ASSERT(false);
-		return ERR_NOT_FOUND;
-	}
-	list_delete_element(&descr->tasks, task);
-
-	descr->flags &= ~TIMER_FLAG_QUEUE_IS_TAKEN;
-	if (descr->flags & TIMER_FLAG_INTERRUPT_TRIGERRED) {
-		CRITICAL_SECTION_ENTER()
-		descr->flags &= ~TIMER_FLAG_INTERRUPT_TRIGERRED;
-		descr->func->set_timer_irq(&descr->device);
-		CRITICAL_SECTION_LEAVE()
-	}
-
-	return ERR_NONE;
-}
 
 /**
  * \brief Retrieve the amount of clock cycles in a tick
@@ -200,67 +147,11 @@ uint32_t timer_get_version(void)
 }
 
 /**
- * \internal Insert a timer task into sorted timer's list
- *
- * \param[in] head The pointer to the head of timer task list
- * \param[in] task The pointer to task to add
- * \param[in] time Current timer time
- */
-static void timer_add_timer_task(struct list_descriptor *list, struct timer_task *const new_task, const uint32_t time)
-{
-	struct timer_task *it, *prev = NULL, *head = (struct timer_task *)list_get_head(list);
-
-	if (!head) {
-		list_insert_as_head(list, new_task);
-		return;
-	}
-
-	for (it = head; it; it = (struct timer_task *)list_get_next_element(it)) {
-		uint32_t time_left;
-
-		if (it->time_label <= time) {
-			time_left = it->interval - (time - it->time_label);
-		} else {
-			time_left = it->interval - (0xFFFFFFFF - it->time_label) - time;
-		}
-		if (time_left >= new_task->interval)
-			break;
-		prev = it;
-	}
-
-	if (it == head) {
-		list_insert_as_head(list, new_task);
-	} else {
-		list_insert_after(prev, new_task);
-	}
-}
-
-/**
  * \internal Process interrupts
  */
 static void timer_process_counted(struct _timer_device *device)
 {
-	struct timer_descriptor *timer = CONTAINER_OF(device, struct timer_descriptor, device);
-	struct timer_task *      it    = (struct timer_task *)list_get_head(&timer->tasks);
-	uint32_t                 time  = ++timer->time;
-
-	if ((timer->flags & TIMER_FLAG_QUEUE_IS_TAKEN) || (timer->flags & TIMER_FLAG_INTERRUPT_TRIGERRED)) {
-		timer->flags |= TIMER_FLAG_INTERRUPT_TRIGERRED;
-		return;
-	}
-
-	while (it && ((time - it->time_label) >= it->interval)) {
-		struct timer_task *tmp = it;
-
-		list_remove_head(&timer->tasks);
-		if (TIMER_TASK_REPEAT == tmp->mode) {
-			tmp->time_label = time;
-			timer_add_timer_task(&timer->tasks, tmp, time);
-		}
-		it = (struct timer_task *)list_get_head(&timer->tasks);
-
-		tmp->cb(tmp);
-	}
+    (void) device;
 }
 
 static int capt0_count = 0;
@@ -308,7 +199,7 @@ static void capture_chan0(struct _timer_device *device)
 
 static void capture_chan1(struct _timer_device *device)
 {
-	capt1_count++;	
+	capt1_count++;
 
 	struct timer_descriptor *timer = CONTAINER_OF(device, struct timer_descriptor, device);
 
@@ -343,7 +234,7 @@ int32_t timer_register_cb(struct timer_descriptor *const descr, enum TIMER_CB_FU
 	descr->cbs[type].user_data = user_data;
 
     return 0;
-};
+}
 
 int32_t timer_unregister_cb(struct timer_descriptor *const descr, enum TIMER_CB_FUNC_TUPE type)
 {
@@ -353,4 +244,4 @@ int32_t timer_unregister_cb(struct timer_descriptor *const descr, enum TIMER_CB_
 	descr->cbs[type].user_data = NULL;
 
     return 0;
-};
+}

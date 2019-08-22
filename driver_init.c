@@ -93,7 +93,7 @@ static void TIMER_TC6_init(void)
     hri_mclk_set_APBDMASK_TC6_bit(MCLK);
     hri_gclk_write_PCHCTRL_reg(GCLK, TC6_GCLK_ID, CONF_GCLK_TC6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
-    timer_init(&TIMER_TC6, TC6, _tc_get_timer());    
+    timer_init(&TIMER_TC6, TC6, _tc_get_timer());
 }
 
 static void IT_init(void)

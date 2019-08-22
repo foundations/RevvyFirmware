@@ -189,32 +189,6 @@ int32_t timer_get_clock_cycles_in_tick(const struct timer_descriptor *const desc
 int32_t timer_set_chan_compare_value(struct timer_descriptor *const descr, const uint8_t chan, const uint32_t clock_cycles);
 
 /**
- * \brief Add timer task
- *
- * This function adds the given timer task to the given timer.
- * It checks if the given hardware is initialized.
- *
- * \param[in] descr The timer descriptor of a timer to add task to
- * \param[in] task A task to add
- *
- * \return Timer's task adding status.
- */
-int32_t timer_add_task(struct timer_descriptor *const descr, struct timer_task *const task);
-
-/**
- * \brief Remove timer task
- *
- * This function removes the given timer task from the given timer.
- * It checks if the given hardware is initialized.
- *
- * \param[in] descr The timer descriptor of a timer to remove task from
- * \param[in] task A task to remove
- *
- * \return Timer's task removing status.
- */
-int32_t timer_remove_task(struct timer_descriptor *const descr, const struct timer_task *const task);
-
-/**
  * \brief Retrieve the current driver version
  *
  * \return Current driver version.
