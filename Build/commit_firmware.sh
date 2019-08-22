@@ -9,9 +9,9 @@ prepare_firmware_files() {
   git clone https://github.com/RevolutionRobotics/RevvyFramework.git framework
   cd framework
   git checkout master
-  cd ../..
-  python3 -m Build.tools.prepare --build-dir=Build --out=Build/framework/data/firmware
-  cd Build/framework
+  cd ..
+  python3 -m Build.prepare --build-dir=Release --out=framework/data/firmware
+  cd framework
   python3 -m tools.gen_version
   git add data/firmware
   git commit --message "Firmware update, Travis build: $TRAVIS_BUILD_NUMBER"
