@@ -33,7 +33,7 @@ typedef struct
 
 #define FLASH_HEADER  ((AppFlashHeader_t*) (FLASH_HDR_OFFSET))
 
-void high_res_timer_init(struct timer_descriptor* timer);
+void high_res_timer_init(struct _timer_device* timer);
 uint16_t high_res_timer_get_count(void);
 uint16_t high_res_timer_ticks_per_ms(void);
 

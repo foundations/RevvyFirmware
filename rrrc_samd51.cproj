@@ -613,9 +613,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="Atmel\hal\include\hal_spi_m_sync.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Atmel\hal\include\hal_timer.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Atmel\hal\include\hal_usb_device.h">
       <SubType>compile</SubType>
     </Compile>
@@ -773,9 +770,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\src\hal_spi_m_sync.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Atmel\hal\src\hal_timer.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Atmel\hal\src\hal_wdt.c">
@@ -1661,6 +1655,9 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </None>
     <None Include="Atmel\Device_Startup\samd51p19a_sram.ld">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Makefile">
       <SubType>compile</SubType>
     </None>
     <None Include="rrrc\utils\functions.h">

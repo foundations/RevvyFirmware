@@ -78,7 +78,6 @@ Atmel/hal/src/hal_io.c \
 Atmel/hal/src/hal_sleep.c \
 Atmel/hal/src/hal_spi_m_dma.c \
 Atmel/hal/src/hal_spi_m_sync.c \
-Atmel/hal/src/hal_timer.c \
 Atmel/hal/utils/src/utils_assert.c \
 Atmel/hal/utils/src/utils_syscalls.c \
 Atmel/hpl/adc/hpl_adc.c \
@@ -128,7 +127,6 @@ INCLUDE_PATHS += \
 -IAtmel/hpl/sercom \
 -IAtmel/hpl/systick \
 -IAtmel/hpl/tc \
--IAtmel/hpl/tcc \
 -IAtmel/hri \
 -IAtmel/samd51a/include \
 -Ithird_party \
@@ -183,6 +181,12 @@ all: $(OUTPUT_FILE).elf
 
 OBJS := $(C_SRCS:%.c=$(OUTPUT_DIR)/%.o)
 C_DEPS := $(OBJS:%.o=%.d)
+
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
+endif
 
 $(OUTPUT_DIR)/%.o: %.c
 	@echo Building file: $<
