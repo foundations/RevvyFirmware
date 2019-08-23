@@ -10,7 +10,10 @@ rrrc/runtime/connections_leds.c \
 rrrc/utils/color.c \
 rrrc/utils/converter.c \
 rrrc/utils/crc.c \
-rrrc/utils/functions.c \
+rrrc/utils/functions.c
+
+# Software Component Source Files
+C_SRCS += \
 rrrc/components/ADC/adc.c \
 rrrc/components/BatteryCalculator/BatteryCalculator.c \
 rrrc/components/BatteryCharger/BatteryCharger.c \
@@ -55,6 +58,7 @@ rrrc/components/MasterCommunication/MasterCommunication.c \
 rrrc/components/MasterStatusObserver/MasterStatusObserver.c \
 rrrc/components/RingLedDisplay/RingLedDisplay.c \
 rrrc/components/YawAngleTracker/YawAngleTracker.c
+# End of Software Component Source Files
 
 INCLUDE_PATHS += \
 -I. \
