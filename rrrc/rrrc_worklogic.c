@@ -350,6 +350,8 @@ void RRRC_ProcessLogic_Init(void)
 
     GyroscopeOffsetCompensator_Run_OnInit();
     YawAngleTracker_Run_OnInit();
+
+    /* end of component initializers */
 }
 
 //*********************************************************************************************

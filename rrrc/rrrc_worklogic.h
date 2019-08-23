@@ -53,6 +53,7 @@ extern "C" {
 #include "components/YawAngleTracker/YawAngleTracker.h"
 #include "components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.h"
 #include "components/HighResolutionTimer/HighResolutionTimer.h"
+/* end of component includes */
 
 void RRRC_ProcessLogic_Init(void);
 void RRRC_ProcessLogic_xTask(void* user_data);
