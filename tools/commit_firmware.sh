@@ -10,7 +10,7 @@ prepare_firmware_files() {
   cd framework
   git checkout master
   cd ..
-  python3 -m Build.prepare --build-dir=Release --out=framework/data/firmware
+  python3 -m tools.prepare --build-dir=Release --out=framework/data/firmware
   cd framework
   python3 -m tools.gen_version
   git add data/firmware
