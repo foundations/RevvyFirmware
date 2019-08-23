@@ -5,7 +5,6 @@
  *  Author: Dániel Buga
  */ 
 #include "HC_SR04.h"
-#include "rrrc_hal.h"
 #include <hal_delay.h>
 #include <string.h>
 #include <math.h>
@@ -28,19 +27,9 @@ typedef struct
 static bool ultrasonic_used[] = {false, false, false, false};
 static uint8_t ultrasonic_active = 0u;
 
-
-static float _get_ms(uint32_t distance_tick)
-{
-    uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
-
-    float distance_ms = (float)distance_tick / ticks_in_ms;
-
-    return distance_ms;
-}
-
 static uint32_t _get_cm(uint32_t distance_tick)
 {
-    float distance_ms = _get_ms(distance_tick);
+    float distance_ms = SensorPort_Call_GetMsFromTicks(distance_tick);
     uint32_t cm = (uint32_t)lroundf(distance_ms * 17.0f);
 
     return cm;
@@ -237,14 +226,14 @@ SensorLibraryStatus_t HC_SR04_InterruptCallback(SensorPort_t* sensorPort, bool s
     {
         if (status)
         {
-            libdata->start_time = high_res_timer_get_count();
+            libdata->start_time = SensorPort_Read_CurrentTicks();
         }
         else
         {
-            uint16_t finish_time = high_res_timer_get_count();
+            uint16_t finish_time = SensorPort_Read_CurrentTicks();
             uint16_t dist = finish_time - libdata->start_time;
 
-            if (_get_ms(dist) < 40.0f) /**< arbitrary limit that is shorter than sensor timeout */
+            if (SensorPort_Call_GetMsFromTicks(dist) < 40.0f) /**< arbitrary limit that is shorter than sensor timeout */
             {
                 libdata->distance_tick = dist;
             }

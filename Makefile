@@ -2,7 +2,6 @@ C_SRCS += \
 driver_init.c \
 main.c \
 rrrc/controller/pid.c \
-rrrc/rrrc_hal.c \
 rrrc/rrrc_worklogic.c \
 rrrc/runtime/comm_handlers.c \
 rrrc/runtime/connections_error_storage.c \
@@ -27,6 +26,7 @@ rrrc/components/ErrorStorage/ErrorStorage.c \
 rrrc/components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.c \
 rrrc/components/IMU/IMU.c \
 rrrc/components/IMU/imu_ll.c \
+rrrc/components/HighResolutionTimer/HighResolutionTimer.c \
 rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.c \
 rrrc/components/McuStatusCollector/McuStatusCollector.c \
 rrrc/components/MemoryAllocator/MemoryAllocator.c \

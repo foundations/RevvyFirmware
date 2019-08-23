@@ -1024,7 +1024,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="Atmel\hri\hri_wdt_d51.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="atmel_start_pins.h">
+    <Compile Include="Config\atmel_start_pins.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Config\FreeRTOSConfig.h">
@@ -1172,6 +1172,12 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\GyroscopeOffsetCompensator\GyroscopeOffsetCompensator.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\HighResolutionTimer\HighResolutionTimer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\HighResolutionTimer\HighResolutionTimer.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\IMU\IMU.c">
@@ -1369,9 +1375,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\controller\pid.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\rrrc_hal.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\rrrc_hal.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1394,6 +1397,9 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\runtime\connections_leds.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\runtime\connections_timers.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\utils\color.c">
@@ -1622,6 +1628,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\MotorThermalModel" />
     <Folder Include="rrrc\components\MotorDerating" />
     <Folder Include="rrrc\components\GyroscopeOffsetCompensator" />
+    <Folder Include="rrrc\components\HighResolutionTimer" />
     <Folder Include="rrrc\components\YawAngleTracker" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />

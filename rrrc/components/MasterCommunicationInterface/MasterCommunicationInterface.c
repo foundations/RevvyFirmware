@@ -22,7 +22,7 @@ static TaskHandle_t communicationTaskHandle;
 static uint8_t rxBuffer[255 + 6];
 
 static i2c_hal_descriptor I2C_4;
-const MasterCommunicationInterface_Config_t* config;
+static const MasterCommunicationInterface_Config_t* config;
 
 //*********************************************************************************************
 static int32_t I2C_4_init(i2c_hal_descriptor* descriptor)
@@ -49,7 +49,7 @@ static void CommunicationTask(void* user_data)
     for(;;)
     {
         uint32_t bytesReceived;
-        BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, rtos_ms_to_ticks(config->rxTimeout));
+        BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, config->rxTimeout);
 
         if (!notified)
         {

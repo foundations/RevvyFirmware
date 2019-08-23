@@ -10,10 +10,6 @@
 
 #include "atmel_start_pins.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <hal_atomic.h>
 #include <hal_delay.h>
 #include <hal_gpio.h>
@@ -39,11 +35,6 @@ extern struct i2c_m_async_desc I2C_1;
 extern struct i2c_m_async_desc I2C_2;
 extern struct i2c_m_async_desc I2C_3;
 
-extern struct timer_descriptor TIMER_TC6;
-
 void system_init(void);
 
-#ifdef __cplusplus
-}
-#endif
 #endif // DRIVER_INIT_INCLUDED

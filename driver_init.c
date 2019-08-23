@@ -13,8 +13,6 @@
 
 #include "rrrc_hal.h"
 
-struct _timer_device tc6_device;
-
 struct i2c_m_async_desc I2C_0;
 struct i2c_m_async_desc I2C_1;
 struct i2c_m_async_desc I2C_2;
@@ -87,15 +85,6 @@ void delay_driver_init(void)
     delay_init(SysTick);
 }
 
-//*********************************************************************************************
-static void TIMER_TC6_init(void)
-{
-    hri_mclk_set_APBDMASK_TC6_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC6_GCLK_ID, CONF_GCLK_TC6_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-    _tc_timer_init(&tc6_device, TC6);
-}
-
 static void IT_init(void)
 {
     /* Set everything to 3, interrupts that access FreeRTOS API must not be at priority 0 */
@@ -145,8 +134,4 @@ void system_init(void)
     EXTERNAL_IRQ_0_init();
 
     delay_driver_init();
-
-    TIMER_TC6_init();
-
-    high_res_timer_init(&tc6_device);
 }

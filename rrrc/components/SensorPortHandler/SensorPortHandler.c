@@ -335,3 +335,15 @@ void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSi
     (void) pData;
     (void) dataSize;
 }
+
+__attribute__((weak))
+uint16_t SensorPort_Read_CurrentTicks(void)
+{
+    return 0u;
+}
+
+__attribute__((weak))
+float SensorPort_Call_GetMsFromTicks(uint16_t ticks)
+{
+    return (float) ticks;
+}
