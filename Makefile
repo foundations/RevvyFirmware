@@ -24,14 +24,21 @@ rrrc/components/BluetoothStatusObserver/BluetoothStatusObserver.c \
 rrrc/components/BrainStatusIndicator/BrainStatusIndicator.c \
 rrrc/components/CommunicationObserver/CommunicationObserver.c \
 rrrc/components/Drivetrain/Drivetrain.c \
-rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.c \
 rrrc/components/ErrorStorage/ErrorStorage.c \
+rrrc/components/ErrorStorageWrapper/ErrorStorageWrapper.c \
 rrrc/components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.c \
+rrrc/components/HighResolutionTimer/HighResolutionTimer.c \
 rrrc/components/IMU/IMU.c \
 rrrc/components/IMU/imu_ll.c \
-rrrc/components/HighResolutionTimer/HighResolutionTimer.c \
-rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.c \
+rrrc/components/InternalTemperatureSensor/InternalTemperatureSensor.c \
+rrrc/components/LEDController/LEDController.c \
+rrrc/components/MasterCommunication/CommunicationManager.c \
+rrrc/components/MasterCommunication/MasterCommunication.c \
+rrrc/components/MasterCommunicationInterface/i2cHal.c \
+rrrc/components/MasterCommunicationInterface/MasterCommunicationInterface.c \
+rrrc/components/MasterStatusObserver/MasterStatusObserver.c \
 rrrc/components/McuStatusCollector/McuStatusCollector.c \
+rrrc/components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.c \
 rrrc/components/MemoryAllocator/MemoryAllocator.c \
 rrrc/components/MotorDerating/MotorDerating.c \
 rrrc/components/MotorDriver_8833/MotorDriver_8833.c \
@@ -41,6 +48,7 @@ rrrc/components/MotorPortHandler/MotorPortLibraries/DcMotor/DcMotor.c \
 rrrc/components/MotorPortHandler/MotorPortLibraries/Dummy/Dummy.c \
 rrrc/components/MotorThermalModel/MotorThermalModel.c \
 rrrc/components/RestartManager/RestartManager.c \
+rrrc/components/RingLedDisplay/RingLedDisplay.c \
 rrrc/components/SensorPortHandler/SensorPortHandlerInternal.c \
 rrrc/components/SensorPortHandler/SensorPortHandler.c \
 rrrc/components/SensorPortHandler/SensorPortLibraries/BumperSwitch/BumperSwitch.c \
@@ -49,14 +57,6 @@ rrrc/components/SensorPortHandler/SensorPortLibraries/Dummy/Dummy.c \
 rrrc/components/SensorPortHandler/SensorPortLibraries/HC_SR04/HC_SR04.c \
 rrrc/components/SensorPortHandler/SensorPortLibraries/SensorPort_I2C.c \
 rrrc/components/VersionProvider/VersionProvider.c \
-rrrc/components/InternalTemperatureSensor/InternalTemperatureSensor.c \
-rrrc/components/LEDController/LEDController.c \
-rrrc/components/MasterCommunicationInterface/i2cHal.c \
-rrrc/components/MasterCommunicationInterface/MasterCommunicationInterface.c \
-rrrc/components/MasterCommunication/CommunicationManager.c \
-rrrc/components/MasterCommunication/MasterCommunication.c \
-rrrc/components/MasterStatusObserver/MasterStatusObserver.c \
-rrrc/components/RingLedDisplay/RingLedDisplay.c \
 rrrc/components/YawAngleTracker/YawAngleTracker.c
 # End of Software Component Source Files
 
