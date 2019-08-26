@@ -87,11 +87,6 @@ def add_initializer_call(new_component_name):
         worklogic.write(m)
 
 
-def insert_action_info(element, file):
-    c_file = ET.SubElement(element, 'AcmeProjectActionInfo')
-    c_file.attrib = {'Action': 'File', 'Hash': '', 'IsConfig': 'true', 'Source': file}
-
-
 def add_compile_item(itemgroup, file):
     new_compile_item = ET.SubElement(itemgroup, 'Compile')
     new_compile_item.attrib = {'Include': file}
@@ -157,12 +152,6 @@ if __name__ == "__main__":
 
     ET.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
     tree = ET.fromstring(xml_in)
-
-    # add new files to AcmeActionInfos
-    action_infos = tree.findall('./PropertyGroup/AcmeProjectConfig/AcmeProjectConfig/AcmeActionInfos')[0]
-
-    insert_action_info(action_infos, cproj_file_pattern.format(new_component_name, 'h'))
-    insert_action_info(action_infos, cproj_file_pattern.format(new_component_name, 'c'))
 
     itemgroups = tree.findall('./ItemGroup')
 
