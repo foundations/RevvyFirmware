@@ -4,6 +4,7 @@ import sys
 import os
 import datetime
 import getpass
+import shutil
 import xml.etree.ElementTree as ET
 
 header_template = '''#ifndef {{GUARD_DEF}}
@@ -32,58 +33,58 @@ init_fn_call_pattern = "{}_Run_OnInit();"
 makefile_component_files_start_marker = '# Software Component Source Files\n'
 makefile_component_files_end_marker = '# End of Software Component Source Files\n'
 
+worklogic_file_path = 'rrrc/rrrc_worklogic.c'
+worklogic_header_path = 'rrrc/rrrc_worklogic.h'
+
 
 def to_underscore(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
-def create_files(new_component_name):
-    component_dir = dir_pattern.format(new_component_name)
-    h_file_path = file_pattern.format(new_component_name, new_component_name + '.h')
-    c_file_path = file_pattern.format(new_component_name, new_component_name + '.c')
+def create_files(component_name, dst):
+    h_file_path = file_pattern.format(component_name, component_name + '.h')
+    c_file_path = file_pattern.format(component_name, component_name + '.c')
 
-    guard_def = 'COMPONENT_{}_H_'.format(to_underscore(new_component_name).upper())
+    guard_def = 'COMPONENT_{}_H_'.format(to_underscore(component_name).upper())
 
-    os.makedirs(component_dir, exist_ok=True)
+    os.makedirs(dst, exist_ok=True)
     with open(h_file_path, "w") as h_file:
         h_file.write(header_template
-                     .replace('{{COMPONENT_NAME}}', new_component_name)
+                     .replace('{{COMPONENT_NAME}}', component_name)
                      .replace('{{GUARD_DEF}}', guard_def)
                      .replace('{{DATE}}', datetime.datetime.now().strftime("%Y. %m. %d")))
 
     with open(c_file_path, "w") as c_file:
         c_file.write(source_template
-                     .replace('{{COMPONENT_NAME}}', new_component_name)
+                     .replace('{{COMPONENT_NAME}}', component_name)
                      .replace('{{GUARD_DEF}}', guard_def)
                      .replace('{{DATE}}', datetime.datetime.now().strftime("%Y. %m. %d")))
 
 
-def add_include(new_component_name):
-    worklogic_header_path = 'rrrc/rrrc_worklogic.h'
-    with open(worklogic_header_path, "r") as worklogic:
+def add_include(component_name, file):
+    with open(file, "r") as worklogic:
         c = worklogic.read()
 
         def prepend_include(match):
-            return match.group(1) + include_pattern.format(new_component_name) + "\n" + match.group(0)
+            return match.group(1) + include_pattern.format(component_name) + "\n" + match.group(0)
 
         m = re.sub('([ \\t]*)/\\* end of component includes \\*/', prepend_include, c)
 
-    with open(worklogic_header_path, "w") as worklogic:
+    with open(file + ".tmp", "w") as worklogic:
         worklogic.write(m)
 
 
-def add_initializer_call(new_component_name):
-    worklogic_file_path = 'rrrc/rrrc_worklogic.c'
-    with open(worklogic_file_path, "r") as worklogic:
+def add_initializer_call(component_name, file):
+    with open(file, "r") as worklogic:
         c = worklogic.read()
 
         def prepend_init_fn(match):
-            return match.group(1) + init_fn_call_pattern.format(new_component_name) + "\n" + match.group(0)
+            return match.group(1) + init_fn_call_pattern.format(component_name) + "\n" + match.group(0)
 
         m = re.sub('([ \\t]*)/\\* end of component initializers \\*/', prepend_init_fn, c)
 
-    with open(worklogic_file_path, "w") as worklogic:
+    with open(file + ".tmp", "w") as worklogic:
         worklogic.write(m)
 
 
@@ -111,12 +112,12 @@ if __name__ == "__main__":
 
         component_sources = {}
 
-        for file in contents[start + 2:end]:
-            m = re.match('rrrc/components/(?P<component>[^/]+?)/(?P<file>[^ \n]+)', file)
+        for mk_file in contents[start + 2:end]:
+            mk_match = re.match('rrrc/components/(?P<component>[^/]+?)/(?P<file>[^ \n]+)', mk_file)
             try:
-                component_sources[m.group('component')].append(m.group('file'))
+                component_sources[mk_match.group('component')].append(mk_match.group('file'))
             except KeyError:
-                component_sources[m.group('component')] = [m.group('file')]
+                component_sources[mk_match.group('component')] = [mk_match.group('file')]
 
         # stop if component exists
         if new_component_name in component_sources:
@@ -124,61 +125,86 @@ if __name__ == "__main__":
             sys.exit(1)
 
     # Create component skeleton
-    create_files(new_component_name)
-    add_include(new_component_name)
-    add_initializer_call(new_component_name)
+    component_dir = dir_pattern.format(new_component_name)
+    create_files(new_component_name, component_dir)
 
-    component_sources[new_component_name] = ["{}.c".format(new_component_name)]
+    try:
+        add_include(new_component_name, worklogic_header_path)
+        add_initializer_call(new_component_name, worklogic_file_path)
 
-    contents_str = "".join(contents[0:start + 1]) + "".join(contents[end:])
+        component_sources[new_component_name] = ["{}.c".format(new_component_name)]
 
-    # assemble new sources list
-    new_file_list_str = makefile_component_files_start_marker + "C_SRCS +="
-    for component in sorted(component_sources.keys()):
-        for file in component_sources[component]:
-            new_file_list_str += " \\\n" + file_pattern.format(component, file)
+        contents_str = "".join(contents[0:start + 1]) + "".join(contents[end:])
 
-    new_file_list_str += "\n" + makefile_component_files_end_marker
+        # assemble new sources list
+        new_file_list_str = makefile_component_files_start_marker + "C_SRCS +="
+        for component in sorted(component_sources.keys()):
+            for component_file in component_sources[component]:
+                new_file_list_str += " \\\n" + file_pattern.format(component, component_file)
 
-    # replace sources list with new one
-    new_contents = contents_str.replace(makefile_component_files_start_marker + makefile_component_files_end_marker,
-                                        new_file_list_str)
+        new_file_list_str += "\n" + makefile_component_files_end_marker
 
-    # update Atmel Studio project xml
-    with open('rrrc_samd51.cproj', 'r') as xml:
-        xml_in = xml.read().replace('\xef\xbb\xbf', '')  # remove Byte order mark
-        # preprocessing
-        xml_in = xml_in.replace('<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">', '<Project DefaultTargets="Build" ToolsVersion="14.0">')
+        # replace sources list with new one
+        new_contents = contents_str.replace(makefile_component_files_start_marker + makefile_component_files_end_marker,
+                                            new_file_list_str)
 
-    ET.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
-    tree = ET.fromstring(xml_in)
+        # update Atmel Studio project xml
+        with open('rrrc_samd51.cproj', 'r') as xml:
+            xml_in = xml.read().replace('\xef\xbb\xbf', '')  # remove Byte order mark
+            # preprocessing
+            xml_in = xml_in.replace('<Project DefaultTargets="Build" '
+                                    'xmlns="http://schemas.microsoft.com/developer/msbuild/2003" '
+                                    'ToolsVersion="14.0">',
+                                    '<Project DefaultTargets="Build" ToolsVersion="14.0">')
 
-    itemgroups = tree.findall('./ItemGroup')
+        ET.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
+        tree = ET.fromstring(xml_in)
 
-    # add new files to Compile itemgroup
-    compile_itemgroup = itemgroups[0]
+        itemgroups = tree.findall('./ItemGroup')
 
-    add_compile_item(compile_itemgroup, cproj_file_pattern.format(new_component_name, 'h'))
-    add_compile_item(compile_itemgroup, cproj_file_pattern.format(new_component_name, 'c'))
+        # add new files to Compile itemgroup
+        compile_itemgroup = itemgroups[0]
 
-    # add new folder to folders itemgroup
-    folders_itemgroup = itemgroups[1]
+        add_compile_item(compile_itemgroup, cproj_file_pattern.format(new_component_name, 'h'))
+        add_compile_item(compile_itemgroup, cproj_file_pattern.format(new_component_name, 'c'))
 
-    new_folder = ET.SubElement(folders_itemgroup, 'Folder')
-    new_folder.attrib = {'Include': cproj_dir_pattern.format(new_component_name)}
+        # add new folder to folders itemgroup
+        folders_itemgroup = itemgroups[1]
 
-    # save new cproject file
-    xml = ET.tostring(tree, encoding='utf8')
+        new_folder = ET.SubElement(folders_itemgroup, 'Folder')
+        new_folder.attrib = {'Include': cproj_dir_pattern.format(new_component_name)}
 
-    # postprocess to better match atmel's
-    xml = xml.decode('utf8') \
-        .replace("<?xml version='1.0' encoding='utf8'?>", '<?xml version="1.0" encoding="utf-8"?>') \
-        .replace('<Project DefaultTargets="Build" ToolsVersion="14.0">', '<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">') \
-        .replace('      <framework-data>', '      <framework-data xmlns="">') \
-        .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
+        # save new cproject file
+        xml = ET.tostring(tree, encoding='utf8')
 
-    with open('Makefile', 'w') as makefile:
-        makefile.write(new_contents)
+        # postprocess to better match atmel's
+        xml = xml.decode('utf8') \
+            .replace("<?xml version='1.0' encoding='utf8'?>", '<?xml version="1.0" encoding="utf-8"?>') \
+            .replace('<Project DefaultTargets="Build" ToolsVersion="14.0">',
+                     '<Project DefaultTargets="Build" '
+                     'xmlns="http://schemas.microsoft.com/developer/msbuild/2003" '
+                     'ToolsVersion="14.0">') \
+            .replace('      <framework-data>', '      <framework-data xmlns="">') \
+            .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
 
-    with open('rrrc_samd51.cproj', 'w') as f:
-        f.write(xml)
+        with open('Makefile', 'w') as makefile:
+            makefile.write(new_contents)
+
+        with open('rrrc_samd51.cproj', 'w') as f:
+            f.write(xml)
+
+        shutil.move(worklogic_header_path + ".tmp", worklogic_header_path)
+        shutil.move(worklogic_file_path + ".tmp", worklogic_file_path)
+    except Exception:
+        shutil.rmtree(component_dir)
+
+        def delete(file):
+            try:
+                os.remove(file)
+            except FileNotFoundError:
+                pass
+
+        delete(worklogic_header_path + ".tmp")
+        delete(worklogic_file_path + ".tmp")
+
+        raise
