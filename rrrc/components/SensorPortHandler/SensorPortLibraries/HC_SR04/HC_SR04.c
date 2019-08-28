@@ -28,7 +28,6 @@ typedef struct
 static bool ultrasonic_used[] = {false, false, false, false};
 static uint8_t ultrasonic_active = 0u;
 
-
 static float _get_ms(uint32_t distance_tick)
 {
     uint32_t ticks_in_ms = high_res_timer_ticks_per_ms();
@@ -62,7 +61,6 @@ static void update_filtered_distance(SensorLibrary_HC_SR04_Data_t* sens_data)
     {
         memcpy(&ordered[0], &sens_data->distanceBuffer[0], sizeof(sens_data->distanceBuffer));
         ordered[HCSR05_MEDIAN_FITLER_SIZE - 1] = distance;
-
         sens_data->distanceBuffer[sens_data->distanceBufferWriteIdx] = distance;
         sens_data->distanceBufferWriteIdx = (sens_data->distanceBufferWriteIdx + 1) % ARRAY_SIZE(sens_data->distanceBuffer);
 
@@ -87,6 +85,7 @@ SensorLibraryStatus_t HC_SR04_Init(SensorPort_t* sensorPort)
 
     libdata->finished = false;
     libdata->isMeasuring = false;
+    libdata->distanceBufferWriteIdx = 0u;
 
     sensorPort->libraryData = libdata;
     SensorPort_SetGreenLed(sensorPort, true);
