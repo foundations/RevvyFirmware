@@ -12,7 +12,7 @@
 #ifndef LSM6DS3_DEFS_H_
 #define LSM6DS3_DEFS_H_
 
-#define LSM6DS3_WHOAMI_VALUE ((uint8_t) 0x6Au)
+#define LSM6DS3_WHOAMI_VALUES ((uint8_t) 0x6Au), ((uint8_t) 0x69u)
 
 /* ---------- register addresses ---------- */
 /* r/w registers */

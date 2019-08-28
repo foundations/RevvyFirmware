@@ -9,6 +9,7 @@
 #include "imu_ll.h"
 
 #include "imu_defs.h"
+#include "utils.h"
 
 #define IMU_AXL_LSB     ((float) 0.061f)
 #define IMU_GYRO_LSB    ((float) 0.035f)
@@ -50,13 +51,18 @@ void IMU_Run_OnUpdate(void)
 {
     if (!imu_enabled)
     {
+        const uint8_t accepted_whoami[] = { LSM6DS3_WHOAMI_VALUES };
         uint8_t whoami = _imu_read_register(LSM6DS3_REG(WHOAMI));
 
-        if (whoami == LSM6DS3_WHOAMI_VALUE)
+        for (size_t i = 0u; i < ARRAY_SIZE(accepted_whoami); i++)
         {
-            /* todo configure */
-            _send_configuration();
-            imu_enabled = true;
+            if (whoami == accepted_whoami[i])
+            {
+                /* todo configure */
+                _send_configuration();
+                imu_enabled = true;
+                break;
+            }
         }
     }
     else
