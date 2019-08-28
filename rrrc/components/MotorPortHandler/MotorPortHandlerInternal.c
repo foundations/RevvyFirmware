@@ -21,20 +21,24 @@ void MotorPort_SetDriveValue(struct _MotorPort_t* port, int8_t value)
 
 void MotorPort_DisableExti0(struct _MotorPort_t* motorPort)
 {
-    ext_irq_disable(motorPort->enc0);
+    int32_t res = ext_irq_disable(motorPort->enc0);
+    ASSERT(res == ERR_NONE);
 }
 
 void MotorPort_DisableExti1(struct _MotorPort_t* motorPort)
 {
-    ext_irq_disable(motorPort->enc1);
+    int32_t res = ext_irq_disable(motorPort->enc1);
+    ASSERT(res == ERR_NONE);
 }
 
 void MotorPort_EnableExti0(struct _MotorPort_t* motorPort)
 {
-    ext_irq_enable(motorPort->enc0);
+    int32_t res = ext_irq_enable(motorPort->enc0);
+    ASSERT(res == ERR_NONE);
 }
 
 void MotorPort_EnableExti1(struct _MotorPort_t* motorPort)
 {
-    ext_irq_enable(motorPort->enc1);
+    int32_t res = ext_irq_enable(motorPort->enc1);
+    ASSERT(res == ERR_NONE);
 }

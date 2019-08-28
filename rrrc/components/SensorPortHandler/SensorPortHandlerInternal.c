@@ -48,7 +48,8 @@ void SensorPort_ConfigureGpio1_Input(SensorPort_t* port)
     gpio_set_pin_direction(port->gpio1, GPIO_DIRECTION_IN);
     gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_OFF);
 
-    ext_irq_disable(port->gpio1);
+    int32_t res = ext_irq_disable(port->gpio1);
+    ASSERT(res == ERR_NONE);
 }
 
 void SensorPort_ConfigureGpio1_Output(SensorPort_t* port)
@@ -58,7 +59,8 @@ void SensorPort_ConfigureGpio1_Output(SensorPort_t* port)
     gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_level(port->gpio1, false);
 
-    ext_irq_disable(port->gpio1);
+    int32_t res = ext_irq_disable(port->gpio1);
+    ASSERT(res == ERR_NONE);
 }
 
 void SensorPort_ConfigureGpio1_Interrupt(SensorPort_t* port)
@@ -67,7 +69,8 @@ void SensorPort_ConfigureGpio1_Interrupt(SensorPort_t* port)
     gpio_set_pin_direction(port->gpio1, GPIO_DIRECTION_IN);
     gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_A);
 
-    ext_irq_enable(port->gpio1);
+    int32_t res = ext_irq_enable(port->gpio1);
+    ASSERT(res == ERR_NONE);
 }
 
 bool SensorPort_Read_Gpio0(SensorPort_t* port)
