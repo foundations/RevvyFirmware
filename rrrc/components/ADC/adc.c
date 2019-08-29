@@ -175,7 +175,7 @@ void ADC_Run_Update(void)
     if (!adc[1].conversionRunning)
     {
         /* start new conversion */
-        adc_convert_channel(&adc[1], 1u);
+        adc_convert_channel(&adc[1], 0u);
     }
 }
 
