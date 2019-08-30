@@ -19,6 +19,7 @@ extern "C" {
 #define ERROR_ID_STACK_OVERFLOW    (1u)
 #define ERROR_ID_ASSERTION_FAILURE (2u)
 #define ERROR_ID_TEST_ERROR        (3u)
+#define ERROR_ID_IMU_ERROR         (4u)
 
 #include "components/ErrorStorage/ErrorStorage.h"
 #include "components/ErrorStorageWrapper/ErrorStorageWrapper.h"

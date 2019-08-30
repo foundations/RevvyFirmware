@@ -14,11 +14,15 @@
 #define IMU_AXL_LSB     ((float) 0.061f)
 #define IMU_GYRO_LSB    ((float) 0.035f)
 
+#define MAX_N_RETRIES   ((uint32_t) 100u)
+
 static bool imu_enabled;
+static uint32_t init_retry_count;
 
 void IMU_Run_OnInit(void)
 {
     imu_enabled = false;
+    init_retry_count = 0u;
     IMU_Call_LowLevelInit();
 }
 
@@ -51,17 +55,30 @@ void IMU_Run_OnUpdate(void)
 {
     if (!imu_enabled)
     {
-        const uint8_t accepted_whoami[] = { LSM6DS3_WHOAMI_VALUES };
-        uint8_t whoami = _imu_read_register(LSM6DS3_REG(WHOAMI));
-
-        for (size_t i = 0u; i < ARRAY_SIZE(accepted_whoami); i++)
+        if (init_retry_count < MAX_N_RETRIES)
         {
-            if (whoami == accepted_whoami[i])
+            const uint8_t accepted_whoami[] = { LSM6DS3_WHOAMI_VALUES };
+            uint8_t whoami = _imu_read_register(LSM6DS3_REG(WHOAMI));
+
+            for (size_t i = 0u; i < ARRAY_SIZE(accepted_whoami); i++)
             {
-                /* todo configure */
-                _send_configuration();
-                imu_enabled = true;
-                break;
+                if (whoami == accepted_whoami[i])
+                {
+                    /* todo configure */
+                    _send_configuration();
+                    imu_enabled = true;
+                    break;
+                }
+            }
+
+            if (!imu_enabled)
+            {
+                ++init_retry_count;
+
+                if (init_retry_count == MAX_N_RETRIES)
+                {
+                    IMU_Call_LogError();
+                }
             }
         }
     }
@@ -95,6 +112,13 @@ void IMU_Run_OnUpdate(void)
             IMU_Write_GyroscopeSample(&converted);
         }
     }
+}
+
+/* TODO add possibility to store data here */
+__attribute__((weak))
+void IMU_Call_LogError(void)
+{
+
 }
 
 __attribute__((weak))

@@ -34,3 +34,14 @@ uint32_t ErrorStorageWrapper_Read_NumberOfStoredErrors(void)
 {
     return number_of_errors;
 }
+
+void IMU_Call_LogError(void)
+{
+    ErrorInfo_t errorInfo = {0};
+
+    errorInfo.error_id = ERROR_ID_IMU_ERROR;
+
+    /* TODO add debug data here */
+
+    ErrorStorage_Run_Store(&errorInfo);
+}
