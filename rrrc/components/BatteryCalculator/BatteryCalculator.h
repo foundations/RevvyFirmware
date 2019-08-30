@@ -19,6 +19,7 @@ typedef struct
     float maxVoltage;
     float filterPreviousValue;
     float biasCorrection;
+    bool batteryLow;
 } BatteryCalculator_Context_t;
 
 void BatteryCalculator_Run_OnInit(BatteryCalculator_Context_t* context);
@@ -26,5 +27,6 @@ void BatteryCalculator_Run_Update(BatteryCalculator_Context_t* context);
 float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context);
 void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, uint8_t percent);
 void BatteryCalculator_Write_BatteryPresent(BatteryCalculator_Context_t* context, bool present);
+void BatteryCalculator_Write_LowBatteryCondition(BatteryCalculator_Context_t* context, bool low);
 
 #endif /* COMPONENT_BATTERY_CALCULATOR_H_ */

@@ -9,6 +9,7 @@
 #include "../rrrc_worklogic.h"
 #include "../rrrc_indication.h"
 
+extern BatteryCalculator_Context_t mainBattery;
 extern BatteryIndicator_Context_t mainBatteryIndicator;
 extern BatteryIndicator_Context_t motorBatteryIndicator;
 
@@ -18,6 +19,7 @@ static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
 static rgb_t ringLeds[RING_LEDS_AMOUNT] = { 0 };
 
 static MasterStatus_t masterStatus;
+static bool battery_low = true;
 
 rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
 {
@@ -27,13 +29,20 @@ rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
     }
     else
     {
-        return statusLeds[led_idx];
+        if (battery_low && led_idx != 0u)
+        {
+            return (rgb_t) LED_OFF;
+        }
+        else
+        {
+            return statusLeds[led_idx];
+        }
     }
 }
 
 rgb_t LEDController_Read_RingLED(uint32_t led_idx)
 {
-    if (led_idx >= ARRAY_SIZE(ringLeds))
+    if (led_idx >= ARRAY_SIZE(ringLeds) || battery_low)
     {
         return (rgb_t) LED_OFF;
     }
@@ -161,4 +170,12 @@ SystemState_t BrainStatusIndicator_Read_SystemState(void)
 bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
 {
     return masterStatus == MasterStatus_Controlled;
+}
+
+void BatteryCalculator_Write_LowBatteryCondition(BatteryCalculator_Context_t* context, bool low)
+{
+    if (context == &mainBattery)
+    {
+        battery_low = low;
+    }
 }

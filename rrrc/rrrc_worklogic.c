@@ -18,8 +18,8 @@ static BlockInfo_t errorStorageBlocks[] = {
     { .base_address = 0x3E000u },
 };
 
-static BatteryCalculator_Context_t mainBattery;
-static BatteryCalculator_Context_t motorBattery;
+BatteryCalculator_Context_t mainBattery;
+BatteryCalculator_Context_t motorBattery;
 
 BatteryIndicator_Context_t mainBatteryIndicator;
 BatteryIndicator_Context_t motorBatteryIndicator;
