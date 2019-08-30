@@ -179,3 +179,8 @@ void BatteryCalculator_Write_LowBatteryCondition(BatteryCalculator_Context_t* co
         battery_low = low;
     }
 }
+
+uint8_t LEDController_Read_MaxBrightness(void)
+{
+    return battery_low ? 10u : 24u;
+}
