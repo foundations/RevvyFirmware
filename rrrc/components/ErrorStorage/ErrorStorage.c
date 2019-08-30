@@ -50,6 +50,7 @@ static struct flash_descriptor FLASH_0;
 static BlockInfo_t* esBlocks;
 static size_t esBlockCount;
 static uint32_t esActiveBlock;
+static bool esInitialized = false;
 
 static inline const FlashHeader_t* _block_header(BlockInfo_t* block)
 {
@@ -252,59 +253,70 @@ void ErrorStorage_Run_OnInit(BlockInfo_t* blocks, size_t num_blocks)
     _select_active_block();
 
     _update_number_of_stored_errors();
+    esInitialized = true;
 }
 
 void ErrorStorage_Run_Clear(void)
 {
-    /* delete every allocated object */
-    for (size_t i = 0u; i < esBlockCount; i++)
+    if (esInitialized)
     {
-        for (uint32_t j = 0u; j < esBlocks[i].allocated; j++)
+        /* delete every allocated object */
+        for (size_t i = 0u; i < esBlockCount; i++)
         {
-            _delete_object(&esBlocks[i], j);
+            for (uint32_t j = 0u; j < esBlocks[i].allocated; j++)
+            {
+                _delete_object(&esBlocks[i], j);
+            }
         }
+        _update_number_of_stored_errors();
     }
-    _update_number_of_stored_errors();
 }
 
 void ErrorStorage_Run_Store(ErrorInfo_t* data)
 {
-    __disable_irq();
-    if (esBlocks[esActiveBlock].allocated == OBJECTS_PER_BLOCK)
+    if (esInitialized)
     {
-        _cleanup_invalid_and_full_blocks();
-        _select_active_block();
-    }
+        __disable_irq();
+        if (esBlocks[esActiveBlock].allocated == OBJECTS_PER_BLOCK)
+        {
+            _cleanup_invalid_and_full_blocks();
+            _select_active_block();
+        }
     
-    data->hardware_version = FLASH_HEADER->hw_version;
-    data->firmware_version = FW_VERSION_NUMBER;
+        data->hardware_version = FLASH_HEADER->hw_version;
+        data->firmware_version = FW_VERSION_NUMBER;
 
-    _store_object(&esBlocks[esActiveBlock], data, sizeof(ErrorInfo_t));
-    _update_number_of_stored_errors();
-    __enable_irq();
+        _store_object(&esBlocks[esActiveBlock], data, sizeof(ErrorInfo_t));
+        _update_number_of_stored_errors();
+        __enable_irq();
+    }
 }
 
 bool ErrorStorage_Run_Read(uint32_t index, ErrorInfo_t* pDst)
 {
-    uint32_t distance = index;
     bool found = false;
-    for (size_t i = 0u; i < esBlockCount; i++)
-    {
-        uint32_t errors_in_block = esBlocks[i].allocated - esBlocks[i].deleted;
-        if (errors_in_block <= distance)
-        {
-            distance -= errors_in_block;
-            /* check next block */
-        }
-        else
-        {
-            /* assume linear deletion */
-            found = true;
-            FlashData_t data = _read_data_obj(&esBlocks[i], esBlocks[i].deleted + distance);
 
-            if (data.status.valid == 0u && data.status.deleted == 1u)
+    if (esInitialized)
+    {
+        uint32_t distance = index;
+        for (size_t i = 0u; i < esBlockCount; i++)
+        {
+            uint32_t errors_in_block = esBlocks[i].allocated - esBlocks[i].deleted;
+            if (errors_in_block <= distance)
             {
-                memcpy(pDst, &data.data[0], sizeof(ErrorInfo_t));
+                distance -= errors_in_block;
+                /* check next block */
+            }
+            else
+            {
+                /* assume linear deletion */
+                found = true;
+                FlashData_t data = _read_data_obj(&esBlocks[i], esBlocks[i].deleted + distance);
+
+                if (data.status.valid == 0u && data.status.deleted == 1u)
+                {
+                    memcpy(pDst, &data.data[0], sizeof(ErrorInfo_t));
+                }
             }
         }
     }
