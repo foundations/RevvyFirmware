@@ -24,8 +24,6 @@ void {{COMPONENT_NAME}}_Run_OnInit(void)
 
 dir_pattern = 'rrrc/components/{}'
 file_pattern = 'rrrc/components/{}/{}'
-cproj_dir_pattern = 'rrrc\\components\\{}'
-cproj_file_pattern = 'rrrc\\components\\{0}\\{0}.{1}'
 include_pattern = '#include "components/{0}/{0}.h"'
 init_fn_call_pattern = "{}_Run_OnInit();"
 
@@ -79,11 +77,17 @@ def add_initializer_call(component_name, file):
     return re.sub('([ \\t]*)/\\* end of component initializers \\*/', prepend_init_fn, c)
 
 
-def add_compile_item(itemgroup, file):
-    new_compile_item = ET.SubElement(itemgroup, 'Compile')
-    new_compile_item.attrib = {'Include': file}
+def read_cproject(path):
+    with open(path, 'r') as xml:
+        xml_in = xml.read().replace('\xef\xbb\xbf', '')  # remove Byte order mark
+        # preprocessing
+        xml_in = xml_in.replace('<Project DefaultTargets="Build" '
+                                'xmlns="http://schemas.microsoft.com/developer/msbuild/2003" '
+                                'ToolsVersion="14.0">',
+                                '<Project DefaultTargets="Build" ToolsVersion="14.0">')
+    ET.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
 
-    ET.SubElement(new_compile_item, 'SubType').text = 'compile'
+    return ET.fromstring(xml_in)
 
 
 def create_component(component_name, dry_run=False):
@@ -108,12 +112,17 @@ def create_component(component_name, dry_run=False):
         print('Component already exists')
         sys.exit(1)
 
+    # list of new folders' paths
     new_folders = []
+
+    # map of original file path -> new contents
     modified_files = {}
 
     # Create component skeleton
     component_dir = dir_pattern.format(component_name)
     new_folders.append(component_dir)
+
+    # map of file path -> contents
     new_files = create_files(component_name)
 
     # noinspection PyBroadException
@@ -133,39 +142,32 @@ def create_component(component_name, dry_run=False):
 
         new_file_list_str += "\n" + makefile_component_files_end_marker
 
-        # replace sources list with new one
-        new_contents = contents_str.replace(makefile_component_files_start_marker + makefile_component_files_end_marker,
-                                            new_file_list_str)
-
-        modified_files['Makefile'] = new_contents
+        # replace sources list with new one and set for file modification
+        modified_files['Makefile'] = contents_str.replace(
+            makefile_component_files_start_marker + makefile_component_files_end_marker,
+            new_file_list_str)
 
         # update Atmel Studio project xml
-        with open('rrrc_samd51.cproj', 'r') as xml:
-            xml_in = xml.read().replace('\xef\xbb\xbf', '')  # remove Byte order mark
-            # preprocessing
-            xml_in = xml_in.replace('<Project DefaultTargets="Build" '
-                                    'xmlns="http://schemas.microsoft.com/developer/msbuild/2003" '
-                                    'ToolsVersion="14.0">',
-                                    '<Project DefaultTargets="Build" ToolsVersion="14.0">')
-
-        ET.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
-        tree = ET.fromstring(xml_in)
+        tree = read_cproject('rrrc_samd51.cproj')
 
         itemgroups = tree.findall('./ItemGroup')
 
         # add new files to Compile itemgroup
         compile_itemgroup = itemgroups[0]
 
-        add_compile_item(compile_itemgroup, cproj_file_pattern.format(component_name, 'h'))
-        add_compile_item(compile_itemgroup, cproj_file_pattern.format(component_name, 'c'))
+        for file_name in new_files:
+            new_compile_item = ET.SubElement(compile_itemgroup, 'Compile')
+            new_compile_item.attrib = {'Include': file_name.replace('/', '\\')}
+            ET.SubElement(new_compile_item, 'SubType').text = 'compile'
 
         # add new folder to folders itemgroup
         folders_itemgroup = itemgroups[1]
 
-        new_folder = ET.SubElement(folders_itemgroup, 'Folder')
-        new_folder.attrib = {'Include': cproj_dir_pattern.format(component_name)}
+        for folder in new_folders:
+            new_folder = ET.SubElement(folders_itemgroup, 'Folder')
+            new_folder.attrib = {'Include': folder.replace('/', '\\')}
 
-        # save new cproject file
+        # generate xml string
         xml = ET.tostring(tree, encoding='utf8')
 
         # postprocess to better match atmel's
