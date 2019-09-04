@@ -3,7 +3,6 @@ import re
 import sys
 import os
 import datetime
-import getpass
 import shutil
 import xml.etree.ElementTree as ET
 
@@ -42,50 +41,42 @@ def to_underscore(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
-def create_files(component_name, dst):
+def create_files(component_name):
     h_file_path = file_pattern.format(component_name, component_name + '.h')
     c_file_path = file_pattern.format(component_name, component_name + '.c')
 
     guard_def = 'COMPONENT_{}_H_'.format(to_underscore(component_name).upper())
 
-    os.makedirs(dst, exist_ok=True)
-    with open(h_file_path, "w") as h_file:
-        h_file.write(header_template
-                     .replace('{{COMPONENT_NAME}}', component_name)
-                     .replace('{{GUARD_DEF}}', guard_def)
-                     .replace('{{DATE}}', datetime.datetime.now().strftime("%Y. %m. %d")))
+    def format_template(template):
+        return template\
+            .replace('{{COMPONENT_NAME}}', component_name)\
+            .replace('{{GUARD_DEF}}', guard_def)\
+            .replace('{{DATE}}', datetime.datetime.now().strftime("%Y. %m. %d"))
 
-    with open(c_file_path, "w") as c_file:
-        c_file.write(source_template
-                     .replace('{{COMPONENT_NAME}}', component_name)
-                     .replace('{{GUARD_DEF}}', guard_def)
-                     .replace('{{DATE}}', datetime.datetime.now().strftime("%Y. %m. %d")))
+    return {
+        h_file_path: format_template(header_template),
+        c_file_path: format_template(source_template)
+    }
 
 
 def add_include(component_name, file):
     with open(file, "r") as worklogic:
         c = worklogic.read()
 
-        def prepend_include(match):
-            return match.group(1) + include_pattern.format(component_name) + "\n" + match.group(0)
+    def prepend_include(match):
+        return match.group(1) + include_pattern.format(component_name) + "\n" + match.group(0)
 
-        m = re.sub('([ \\t]*)/\\* end of component includes \\*/', prepend_include, c)
-
-    with open(file + ".tmp", "w") as worklogic:
-        worklogic.write(m)
+    return re.sub('([ \\t]*)/\\* end of component includes \\*/', prepend_include, c)
 
 
 def add_initializer_call(component_name, file):
     with open(file, "r") as worklogic:
         c = worklogic.read()
 
-        def prepend_init_fn(match):
-            return match.group(1) + init_fn_call_pattern.format(component_name) + "\n" + match.group(0)
+    def prepend_init_fn(match):
+        return match.group(1) + init_fn_call_pattern.format(component_name) + "\n" + match.group(0)
 
-        m = re.sub('([ \\t]*)/\\* end of component initializers \\*/', prepend_init_fn, c)
-
-    with open(file + ".tmp", "w") as worklogic:
-        worklogic.write(m)
+    return re.sub('([ \\t]*)/\\* end of component initializers \\*/', prepend_init_fn, c)
 
 
 def add_compile_item(itemgroup, file):
@@ -95,15 +86,8 @@ def add_compile_item(itemgroup, file):
     ET.SubElement(new_compile_item, 'SubType').text = 'compile'
 
 
-if __name__ == "__main__":
-    # inquire name of new component
-    parser = argparse.ArgumentParser()
-    parser.add_argument('name', help='Component name')
+def create_component(component_name, dry_run=False):
 
-    args = parser.parse_args()
-
-    # gather software component names
-    new_component_name = args.name
     with open('Makefile', 'r') as makefile:
         contents = makefile.readlines()
 
@@ -119,20 +103,25 @@ if __name__ == "__main__":
             except KeyError:
                 component_sources[mk_match.group('component')] = [mk_match.group('file')]
 
-        # stop if component exists
-        if new_component_name in component_sources:
-            print('Component already exists')
-            sys.exit(1)
+    # stop if component exists
+    if component_name in component_sources:
+        print('Component already exists')
+        sys.exit(1)
+
+    new_folders = []
+    modified_files = {}
 
     # Create component skeleton
-    component_dir = dir_pattern.format(new_component_name)
-    create_files(new_component_name, component_dir)
+    component_dir = dir_pattern.format(component_name)
+    new_folders.append(component_dir)
+    new_files = create_files(component_name)
 
+    # noinspection PyBroadException
     try:
-        add_include(new_component_name, worklogic_header_path)
-        add_initializer_call(new_component_name, worklogic_file_path)
+        modified_files[worklogic_header_path] = add_include(component_name, worklogic_header_path)
+        modified_files[worklogic_file_path] = add_initializer_call(component_name, worklogic_file_path)
 
-        component_sources[new_component_name] = ["{}.c".format(new_component_name)]
+        component_sources[component_name] = ["{}.c".format(component_name)]
 
         contents_str = "".join(contents[0:start + 1]) + "".join(contents[end:])
 
@@ -147,6 +136,8 @@ if __name__ == "__main__":
         # replace sources list with new one
         new_contents = contents_str.replace(makefile_component_files_start_marker + makefile_component_files_end_marker,
                                             new_file_list_str)
+
+        modified_files['Makefile'] = new_contents
 
         # update Atmel Studio project xml
         with open('rrrc_samd51.cproj', 'r') as xml:
@@ -165,14 +156,14 @@ if __name__ == "__main__":
         # add new files to Compile itemgroup
         compile_itemgroup = itemgroups[0]
 
-        add_compile_item(compile_itemgroup, cproj_file_pattern.format(new_component_name, 'h'))
-        add_compile_item(compile_itemgroup, cproj_file_pattern.format(new_component_name, 'c'))
+        add_compile_item(compile_itemgroup, cproj_file_pattern.format(component_name, 'h'))
+        add_compile_item(compile_itemgroup, cproj_file_pattern.format(component_name, 'c'))
 
         # add new folder to folders itemgroup
         folders_itemgroup = itemgroups[1]
 
         new_folder = ET.SubElement(folders_itemgroup, 'Folder')
-        new_folder.attrib = {'Include': cproj_dir_pattern.format(new_component_name)}
+        new_folder.attrib = {'Include': cproj_dir_pattern.format(component_name)}
 
         # save new cproject file
         xml = ET.tostring(tree, encoding='utf8')
@@ -187,24 +178,63 @@ if __name__ == "__main__":
             .replace('      <framework-data>', '      <framework-data xmlns="">') \
             .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
 
-        with open('Makefile', 'w') as makefile:
-            makefile.write(new_contents)
+        modified_files['rrrc_samd51.cproj'] = xml
 
-        with open('rrrc_samd51.cproj', 'w') as f:
-            f.write(xml)
+        if not dry_run:
+            for folder in new_folders:
+                os.makedirs(folder, exist_ok=True)
 
-        shutil.move(worklogic_header_path + ".tmp", worklogic_header_path)
-        shutil.move(worklogic_file_path + ".tmp", worklogic_file_path)
+            for file_name in new_files:
+                with open(file_name, 'w+') as file:
+                    file.write(new_files[file_name])
+
+            # apply changed
+            def modify_file(fn, modified_contents):
+                shutil.copy(fn, fn + ".bak")
+
+                with open(fn, "w") as f:
+                    f.write(modified_contents)
+
+                os.remove(fn + ".bak")
+
+            for file_name in modified_files:
+                modify_file(file_name, modified_files[file_name])
+        else:
+            print('Dry run prevented the following changes:')
+            for folder in new_folders:
+                print('NF: {}'.format(folder))
+
+            for file_name in new_files:
+                print('N: {}'.format(file_name))
+
+            for file_name in modified_files:
+                print('C: {}'.format(file_name))
+
     except Exception:
-        shutil.rmtree(component_dir)
-
         def delete(file):
             try:
                 os.remove(file)
             except FileNotFoundError:
                 pass
 
-        delete(worklogic_header_path + ".tmp")
-        delete(worklogic_file_path + ".tmp")
+        for file_name in new_files:
+            delete(file_name)
 
-        raise
+        for file_name in modified_files:
+            delete(file_name)
+            shutil.move(file_name + ".bak", file_name)
+
+        for folder in new_folders:
+            shutil.rmtree(folder)
+
+
+if __name__ == "__main__":
+    # inquire name of new component
+    parser = argparse.ArgumentParser()
+    parser.add_argument('name', help='Component name')
+    parser.add_argument('--dry-run', help='Don\'t execute changes', action='store_true')
+
+    args = parser.parse_args()
+
+    # gather software component names
+    create_component(args.name, dry_run=args.dry_run)
