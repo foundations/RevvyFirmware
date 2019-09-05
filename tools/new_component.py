@@ -5,21 +5,30 @@ import os
 import datetime
 import shutil
 import xml.etree.ElementTree as ET
+import pystache
 
-header_template = '''#ifndef {{GUARD_DEF}}
-#define {{GUARD_DEF}}
+argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
+argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
+fn_header_template = '{{return_type}} {{ component_name }}_{{name}}(' + argument_list_template + ')'
 
-void {{COMPONENT_NAME}}_Run_OnInit(void);
+header_template = '''#ifndef {{ guard_def }}
+#define {{ guard_def }}
 
-#endif /* {{GUARD_DEF}} */
+{{#functions}}
+''' + fn_header_template + ''';
+{{/functions}}
+
+#endif /* {{ guard_def }} */
 '''
 
-source_template = '''#include "{{COMPONENT_NAME}}.h"
-
-void {{COMPONENT_NAME}}_Run_OnInit(void)
+source_template = '''#include "{{ component_name }}.h"
+{{#functions}}{{#weak}}
+__attribute__((weak)){{/weak}}
+''' + fn_header_template + '''
 {
 
 }
+{{/functions}}
 '''
 
 dir_pattern = 'rrrc/components/{}'
@@ -37,24 +46,6 @@ worklogic_header_path = 'rrrc/rrrc_worklogic.h'
 def to_underscore(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
-
-def create_files(component_name):
-    h_file_path = file_pattern.format(component_name, component_name + '.h')
-    c_file_path = file_pattern.format(component_name, component_name + '.c')
-
-    guard_def = 'COMPONENT_{}_H_'.format(to_underscore(component_name).upper())
-
-    def format_template(template):
-        return template\
-            .replace('{{COMPONENT_NAME}}', component_name)\
-            .replace('{{GUARD_DEF}}', guard_def)\
-            .replace('{{DATE}}', datetime.datetime.now().strftime("%Y. %m. %d"))
-
-    return {
-        h_file_path: format_template(header_template),
-        c_file_path: format_template(source_template)
-    }
 
 
 def add_include(component_name, file):
@@ -90,7 +81,25 @@ def read_cproject(path):
     return ET.fromstring(xml_in)
 
 
-def create_component(component_name, dry_run=False):
+def convert_functions(runnable_data):
+    functions = []
+
+    for runnable in runnable_data:
+        arguments = runnable_data[runnable]['arguments']
+
+        if arguments:
+            arguments[len(arguments) - 1]['last'] = True
+
+        functions.append({
+            'name': 'Run_{}'.format(runnable),
+            'return_type': 'void',
+            'args': arguments
+        })
+
+    return functions
+
+
+def create_component(component_name, dry_run=False, runnables=None):
 
     with open('Makefile', 'r') as makefile:
         contents = makefile.readlines()
@@ -122,8 +131,25 @@ def create_component(component_name, dry_run=False):
     component_dir = dir_pattern.format(component_name)
     new_folders.append(component_dir)
 
+    if not runnables:
+        print('Component must include at least one runnable')
+        sys.exit(2)
+
+    template_ctx = {
+        'component_name': component_name,
+        'guard_def': 'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
+        'date': datetime.datetime.now().strftime("%Y. %m. %d"),
+        'functions': convert_functions(runnables)
+    }
+
     # map of file path -> contents
-    new_files = create_files(component_name)
+    h_file_path = file_pattern.format(component_name, component_name + '.h')
+    c_file_path = file_pattern.format(component_name, component_name + '.c')
+
+    new_files = {
+        h_file_path: pystache.render(header_template, template_ctx),
+        c_file_path: pystache.render(source_template, template_ctx)
+    }
 
     # noinspection PyBroadException
     try:
@@ -238,5 +264,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    runnable_config = {
+        'OnInit': {
+            'return_type': 'void',
+            'arguments':   []
+        }
+    }
+
     # gather software component names
-    create_component(args.name, dry_run=args.dry_run)
+    create_component(args.name, dry_run=args.dry_run, runnables=runnable_config)
