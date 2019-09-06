@@ -8,6 +8,7 @@ install:
   - pip install --user -r tools/requirements.txt
   - tar -zxf atmel_toolchain.tar.gz
   - export PATH="$PATH:$TRAVIS_BUILD_DIR/arm-none-eabi/bin"
+  - python -m tools.generate_makefile
 script:
   - make all
 after_success:

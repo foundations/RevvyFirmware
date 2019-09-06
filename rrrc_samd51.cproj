@@ -354,7 +354,8 @@ cp Release/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
 </ArmGcc>
     </ToolchainSettings>
-    <PreBuildEvent>python -m tools.gen_version</PreBuildEvent>
+    <PreBuildEvent>python -m tools.generate_makefile
+python -m tools.gen_version</PreBuildEvent>
     <PostBuildEvent>python -m tools.prepare --build-dir=Debug --out=output
 cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <UsesExternalMakeFile>True</UsesExternalMakeFile>
