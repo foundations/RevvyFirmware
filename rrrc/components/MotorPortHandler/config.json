@@ -6,5 +6,10 @@
         "rrrc/components/MotorPortHandler/MotorPortLibraries/DcMotor/DcMotor.c",
         "rrrc/components/MotorPortHandler/MotorPortLibraries/Dummy/Dummy.c"
     ],
-    "runnables": {}
+    "runnables": {
+        "Update": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

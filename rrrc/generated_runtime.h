@@ -35,5 +35,37 @@
 #include "components/YawAngleTracker/YawAngleTracker.h"
 
 void RunnableGroup_OnInit(void);
+void RunnableGroup_1ms(void);
+void RunnableGroup_10ms_offset0(void);
+void RunnableGroup_10ms_offset1(void);
+void RunnableGroup_10ms_offset2(void);
+void RunnableGroup_10ms_offset3(void);
+void RunnableGroup_10ms_offset4(void);
+void RunnableGroup_10ms_offset5(void);
+void RunnableGroup_10ms_offset6(void);
+void RunnableGroup_10ms_offset7(void);
+void RunnableGroup_10ms_offset8(void);
+void RunnableGroup_10ms_offset9(void);
+void RunnableGroup_20ms_offset0(void);
+void RunnableGroup_20ms_offset1(void);
+void RunnableGroup_20ms_offset2(void);
+void RunnableGroup_20ms_offset3(void);
+void RunnableGroup_20ms_offset4(void);
+void RunnableGroup_20ms_offset5(void);
+void RunnableGroup_20ms_offset6(void);
+void RunnableGroup_20ms_offset7(void);
+void RunnableGroup_20ms_offset8(void);
+void RunnableGroup_20ms_offset9(void);
+void RunnableGroup_20ms_offset10(void);
+void RunnableGroup_20ms_offset11(void);
+void RunnableGroup_20ms_offset12(void);
+void RunnableGroup_20ms_offset13(void);
+void RunnableGroup_20ms_offset14(void);
+void RunnableGroup_20ms_offset15(void);
+void RunnableGroup_20ms_offset16(void);
+void RunnableGroup_20ms_offset17(void);
+void RunnableGroup_20ms_offset18(void);
+void RunnableGroup_20ms_offset19(void);
+void RunnableGroup_100ms(void);
 
 #endif /* GENERATED_RUNTIME_H */

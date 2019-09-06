@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import sys
+from json import JSONDecodeError
 
 import pystache
 
@@ -23,16 +24,15 @@ void RunnableGroup_{{ group_name }}(void);
 """
 
 source_template = """#include "{{ output_filename }}.h"
-
 {{#runnable_groups}}
+
 void RunnableGroup_{{ group_name }}(void)
 {
     {{ #runnables }}
     {{ component }}_Run_{{ runnable }}();
     {{ /runnables }}
 }
-{{/runnable_groups}}
-"""
+{{/runnable_groups}}"""
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -68,7 +68,11 @@ if __name__ == "__main__":
             else:
                 component_config_file = 'rrrc/components/{}/config.json'.format(component_name)
                 with open(component_config_file, "r") as f:
-                    component_config = json.load(f)
+                    try:
+                        component_config = json.load(f)
+                    except JSONDecodeError:
+                        print("Could not read config for {}".format(component_name))
+                        continue
                 runnable_name = runnable['runnable']
                 if runnable_name not in component_config.get('runnables', {}):
                     print('Component {} does not have a runnable called {}'.format(component_name, runnable_name))

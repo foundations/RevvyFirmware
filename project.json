@@ -186,6 +186,91 @@
                     "component": "YawAngleTracker",
                     "runnable": "OnInit"
                 }
+            ],
+            "1ms": [
+                {
+                    "component": "ADC",
+                    "runnable": "Update"
+                },
+                {
+                    "component": "IMU",
+                    "runnable": "OnUpdate"
+                },
+                {
+                    "component": "GyroscopeOffsetCompensator",
+                    "runnable": "Update"
+                },
+                {
+                    "component": "YawAngleTracker",
+                    "runnable": "Update"
+                }
+            ],
+            "10ms_offset0": [
+                {
+                    "component": "BatteryCharger",
+                    "runnable": "Update"
+                }
+            ],
+            "10ms_offset1": [],
+            "10ms_offset2": [],
+            "10ms_offset3": [],
+            "10ms_offset4": [],
+            "10ms_offset5": [],
+            "10ms_offset6": [],
+            "10ms_offset7": [],
+            "10ms_offset8": [],
+            "10ms_offset9": [],
+            "20ms_offset0": [
+                {
+                    "component": "DriveTrain",
+                    "runnable": "Update"
+                },
+                {
+                    "component": "MotorPortHandler",
+                    "runnable": "Update"
+                },
+                {
+                    "component": "RingLedDisplay",
+                    "runnable": "Update"
+                },
+                {
+                    "component": "LEDController",
+                    "runnable": "Update"
+                }
+            ],
+            "20ms_offset1": [
+                {
+                    "component": "SensorPortHandler",
+                    "runnable": "Update"
+                }
+            ],
+            "20ms_offset2": [],
+            "20ms_offset3": [],
+            "20ms_offset4": [],
+            "20ms_offset5": [],
+            "20ms_offset6": [],
+            "20ms_offset7": [],
+            "20ms_offset8": [],
+            "20ms_offset9": [],
+            "20ms_offset10": [],
+            "20ms_offset11": [],
+            "20ms_offset12": [],
+            "20ms_offset13": [],
+            "20ms_offset14": [],
+            "20ms_offset15": [],
+            "20ms_offset16": [],
+            "20ms_offset17": [],
+            "20ms_offset18": [],
+            "20ms_offset19": [],
+            "100ms": [
+                {
+                    "component": "BluetoothIndicator",
+                    "runnable": "Update"
+                },
+                {
+                    "component": "BrainStatusIndicator",
+                    "runnable": "Update"
+                }
             ]
         }
     }

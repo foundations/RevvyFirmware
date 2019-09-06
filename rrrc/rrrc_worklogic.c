@@ -195,17 +195,52 @@ static void ProcessTasks_1ms(void)
     {
         MotorThermalModel_Run_OnUpdate(&motorThermalModels[i]);
     }
-    ADC_Run_Update();
-    IMU_Run_OnUpdate();
-    GyroscopeOffsetCompensator_Run_Update();
-    YawAngleTracker_Run_Update();
+    RunnableGroup_1ms();
 }
 
 static void ProcessTasks_10ms(uint8_t offset)
 {
-    if (offset == 0u)
+    switch (offset)
     {
-        BatteryCharger_Run_Update();
+        case 0u:
+            RunnableGroup_10ms_offset0();
+            break;
+
+        case 1u:
+            RunnableGroup_10ms_offset1();
+            break;
+            
+        case 2u:
+            RunnableGroup_10ms_offset2();
+            break;
+            
+        case 3u:
+            RunnableGroup_10ms_offset3();
+            break;
+            
+        case 4u:
+            RunnableGroup_10ms_offset4();
+            break;
+            
+        case 5u:
+            RunnableGroup_10ms_offset5();
+            break;
+            
+        case 6u:
+            RunnableGroup_10ms_offset6();
+            break;
+            
+        case 7u:
+            RunnableGroup_10ms_offset7();
+            break;
+            
+        case 8u:
+            RunnableGroup_10ms_offset8();
+            break;
+            
+        case 9u:
+            RunnableGroup_10ms_offset9();
+            break;
     }
 }
 
@@ -214,38 +249,102 @@ static void ProcessTasks_20ms(uint8_t offset)
     switch (offset)
     {
         case 0u:
-            DriveTrain_Run_Update();
-            MotorPortHandler_Run_Update();
-
-            RingLedDisplay_Run_Update();
-            LEDController_Run_Update();
+            RunnableGroup_20ms_offset0();
             break;
 
         case 1u:
-            SensorPortHandler_Run_Update();
+            RunnableGroup_20ms_offset1();
             break;
             
         case 2u:
+            MotorPortHandler_Run_PortUpdate(2u);
+            MotorDerating_Run_OnUpdate(2u);
+            RunnableGroup_20ms_offset2();
+            break;
+            
         case 3u:
+            MotorPortHandler_Run_PortUpdate(3u);
+            MotorDerating_Run_OnUpdate(3u);
+            RunnableGroup_20ms_offset3();
+            break;
+            
         case 4u:
+            MotorPortHandler_Run_PortUpdate(4u);
+            MotorDerating_Run_OnUpdate(4u);
+            RunnableGroup_20ms_offset4();
+            break;
+            
         case 5u:
+            MotorPortHandler_Run_PortUpdate(5u);
+            MotorDerating_Run_OnUpdate(5u);
+            RunnableGroup_20ms_offset5();
+            break;
+            
         case 6u:
+            MotorPortHandler_Run_PortUpdate(6u);
+            MotorDerating_Run_OnUpdate(6u);
+            RunnableGroup_20ms_offset6();
+            break;
+            
         case 7u:
-            MotorPortHandler_Run_PortUpdate(offset - 2u);
-            MotorDerating_Run_OnUpdate(offset - 2u);
+            MotorPortHandler_Run_PortUpdate(7u);
+            MotorDerating_Run_OnUpdate(7u);
+            RunnableGroup_20ms_offset7();
             break;
             
         case 8u:
             MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
             MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
             MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
+            RunnableGroup_20ms_offset8();
             break;
             
-        case  9u:
+        case 9u:
+            SensorPortHandler_Run_PortUpdate(0u);
+            RunnableGroup_20ms_offset9();
+            break;
+
         case 10u:
+            SensorPortHandler_Run_PortUpdate(1u);
+            RunnableGroup_20ms_offset10();
+            break;
+
         case 11u:
+            SensorPortHandler_Run_PortUpdate(2u);
+            RunnableGroup_20ms_offset11();
+            break;
+
         case 12u:
-            SensorPortHandler_Run_PortUpdate(offset - 9u);
+            SensorPortHandler_Run_PortUpdate(3u);
+            RunnableGroup_20ms_offset12();
+            break;
+
+        case 13u:
+            RunnableGroup_20ms_offset13();
+            break;
+
+        case 14u:
+            RunnableGroup_20ms_offset14();
+            break;
+
+        case 15u:
+            RunnableGroup_20ms_offset15();
+            break;
+
+        case 16u:
+            RunnableGroup_20ms_offset16();
+            break;
+
+        case 17u:
+            RunnableGroup_20ms_offset17();
+            break;
+
+        case 18u:
+            RunnableGroup_20ms_offset18();
+            break;
+
+        case 19u:
+            RunnableGroup_20ms_offset19();
             break;
 
         default:
@@ -261,8 +360,7 @@ static void ProcessTasks_100ms(void)
     BatteryIndicator_Run_Update(&mainBatteryIndicator);
     BatteryIndicator_Run_Update(&motorBatteryIndicator);
 
-    BluetoothIndicator_Run_Update();
-    BrainStatusIndicator_Run_Update();
+    RunnableGroup_100ms();
 }
 
 void RRRC_ProcessLogic_Init(void)

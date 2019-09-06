@@ -9,5 +9,10 @@
         "rrrc/components/SensorPortHandler/SensorPortLibraries/HC_SR04/HC_SR04.c",
         "rrrc/components/SensorPortHandler/SensorPortLibraries/SensorPort_I2C.c"
     ],
-    "runnables": {}
+    "runnables": {
+        "Update": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

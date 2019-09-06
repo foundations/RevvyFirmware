@@ -8,6 +8,10 @@
         "OnInit": {
             "return_type": "void",
             "arguments": []
+        },
+        "OnUpdate": {
+            "return_type": "void",
+            "arguments": []
         }
     }
 }
