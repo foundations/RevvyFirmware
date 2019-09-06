@@ -2,7 +2,7 @@
  * ErrorStorage.h
  *
  * Created: 2019. 07. 18. 8:59:14
- *  Author: Dániel Buga
+ *  Author: DÃ¡niel Buga
  */ 
 
 
@@ -32,7 +32,7 @@ typedef struct __attribute__((packed)) {
     uint8_t data[54];
 } ErrorInfo_t;
 
-void ErrorStorage_Run_OnInit(BlockInfo_t* blocks, size_t num_blocks);
+void ErrorStorage_Run_OnInit(void);
 void ErrorStorage_Run_Store(ErrorInfo_t* data);
 void ErrorStorage_Run_Clear(void);
 

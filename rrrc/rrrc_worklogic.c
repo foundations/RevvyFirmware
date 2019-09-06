@@ -13,11 +13,6 @@
 #include <string.h>
 #include "utils/functions.h"
 
-static BlockInfo_t errorStorageBlocks[] = {
-    { .base_address = 0x3C000u },
-    { .base_address = 0x3E000u },
-};
-
 BatteryCalculator_Context_t mainBattery;
 BatteryCalculator_Context_t motorBattery;
 
@@ -274,7 +269,7 @@ void RRRC_ProcessLogic_Init(void)
 {
     system_init();
 
-    ErrorStorage_Run_OnInit(&errorStorageBlocks[0], ARRAY_SIZE(errorStorageBlocks));
+    ErrorStorage_Run_OnInit();
 
     {
         const uint32_t compatible_hw[] = { COMPATIBLE_HW_VERSIONS };

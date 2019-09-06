@@ -20,6 +20,11 @@
 #define DATA_OBJECT_SIZE    (64u)
 #define OBJECTS_PER_BLOCK   ((BLOCK_SIZE - HEADER_OBJECT_SIZE) / DATA_OBJECT_SIZE)
 
+static BlockInfo_t errorStorageBlocks[] = {
+    { .base_address = 0x3C000u },
+    { .base_address = 0x3E000u },
+};
+
 typedef struct {
     uint8_t layout_version;
 } FlashHeader_t;
@@ -47,8 +52,6 @@ _Static_assert(sizeof(FlashData_t) == DATA_OBJECT_SIZE, "Incorrect flash data ob
 _Static_assert(sizeof(ErrorInfo_t) <= DATA_OBJECT_SIZE - 1, "Incorrect error object size");
 
 static struct flash_descriptor FLASH_0;
-static BlockInfo_t* esBlocks;
-static size_t esBlockCount;
 static uint32_t esActiveBlock;
 static bool esInitialized = false;
 
@@ -152,9 +155,9 @@ static void _store_object(BlockInfo_t* block, const void* data, size_t size)
 static void _update_number_of_stored_errors(void)
 {
     uint32_t errors = 0u;
-    for (size_t i = 0u; i < esBlockCount; i++)
+    for (size_t i = 0u; i < ARRAY_SIZE(errorStorageBlocks); i++)
     {
-        errors += esBlocks[i].allocated - esBlocks[i].deleted;
+        errors += errorStorageBlocks[i].allocated - errorStorageBlocks[i].deleted;
     }
     ErrorStorage_Write_NumberOfStoredErrors(errors);
 }
@@ -168,30 +171,30 @@ static void _erase_block(BlockInfo_t* block)
 
 static void _cleanup_invalid_and_full_blocks(void)
 {
-    for (size_t i = 0u; i < esBlockCount; i++)
+    for (size_t i = 0u; i < ARRAY_SIZE(errorStorageBlocks); i++)
     {
-        esBlocks[i].allocated = 0u;
-        esBlocks[i].deleted = 0u;
-        const FlashHeader_t* header = _block_header(&esBlocks[i]);
+        errorStorageBlocks[i].allocated = 0u;
+        errorStorageBlocks[i].deleted = 0u;
+        const FlashHeader_t* header = _block_header(&errorStorageBlocks[i]);
         
         if (header->layout_version != 0xFFu)
         {
             /* if a block is not empty and has an invalid layout version, it shall be erased */
             if (!_block_header_valid(header))
             {
-                _erase_block(&esBlocks[i]);
+                _erase_block(&errorStorageBlocks[i]);
             }
             else
             {
                 /* walk through objects in valid used blocks */
                 for (size_t j = 0u; j < OBJECTS_PER_BLOCK; j++)
                 {
-                    FlashData_t obj = _read_data_obj(&esBlocks[i], j);
+                    FlashData_t obj = _read_data_obj(&errorStorageBlocks[i], j);
                     
                     /* track available (actually, allocated) space in each block */
                     if (obj.status.allocated == 0u)
                     {
-                        esBlocks[i].allocated++;
+                        errorStorageBlocks[i].allocated++;
                     
                         /* if object has dirty bit set, but valid bit is not set, mark as deleted */
                         if (obj.status.valid == 1u)
@@ -207,16 +210,16 @@ static void _cleanup_invalid_and_full_blocks(void)
                         if (obj.status.allocated == 1u)
                         {
                             /* this is an invalid block */
-                            esBlocks[i].allocated++;
+                            errorStorageBlocks[i].allocated++;
                         }
-                        esBlocks[i].deleted++;
+                        errorStorageBlocks[i].deleted++;
                     }
                 }
 
                 /* if all objects in the old block are marked as deleted, the block shall be erased */
-                if (esBlocks[i].deleted == OBJECTS_PER_BLOCK)
+                if (errorStorageBlocks[i].deleted == OBJECTS_PER_BLOCK)
                 {
-                    _erase_block(&esBlocks[i]);
+                    _erase_block(&errorStorageBlocks[i]);
                 }
             }
         }
@@ -226,28 +229,25 @@ static void _cleanup_invalid_and_full_blocks(void)
 static void _select_active_block(void)
 {
     /* pick the block that has the most data but is not full - this will pick the currently used block or the first free one */
-    uint32_t max_allocated = esBlocks[0].allocated;
+    uint32_t max_allocated = errorStorageBlocks[0].allocated;
 
-    for (size_t i = 1u; i < esBlockCount; i++)
+    for (size_t i = 1u; i < ARRAY_SIZE(errorStorageBlocks); i++)
     {
-        if (esBlocks[i].allocated > max_allocated)
+        if (errorStorageBlocks[i].allocated > max_allocated)
         {
-            if (esBlocks[i].allocated != OBJECTS_PER_BLOCK)
+            if (errorStorageBlocks[i].allocated != OBJECTS_PER_BLOCK)
             {
                 esActiveBlock = i;
-                max_allocated = esBlocks[i].allocated;
+                max_allocated = errorStorageBlocks[i].allocated;
             }
         }
     }
 }
 
-void ErrorStorage_Run_OnInit(BlockInfo_t* blocks, size_t num_blocks)
+void ErrorStorage_Run_OnInit(void)
 {
     hri_mclk_set_AHBMASK_NVMCTRL_bit(MCLK);
     flash_init(&FLASH_0, NVMCTRL);
-
-    esBlocks = blocks;
-    esBlockCount = num_blocks;
 
     _cleanup_invalid_and_full_blocks();
     _select_active_block();
@@ -261,11 +261,11 @@ void ErrorStorage_Run_Clear(void)
     if (esInitialized)
     {
         /* delete every allocated object */
-        for (size_t i = 0u; i < esBlockCount; i++)
+        for (size_t i = 0u; i < ARRAY_SIZE(errorStorageBlocks); i++)
         {
-            for (uint32_t j = 0u; j < esBlocks[i].allocated; j++)
+            for (uint32_t j = 0u; j < errorStorageBlocks[i].allocated; j++)
             {
-                _delete_object(&esBlocks[i], j);
+                _delete_object(&errorStorageBlocks[i], j);
             }
         }
         _update_number_of_stored_errors();
@@ -277,7 +277,7 @@ void ErrorStorage_Run_Store(ErrorInfo_t* data)
     if (esInitialized)
     {
         __disable_irq();
-        if (esBlocks[esActiveBlock].allocated == OBJECTS_PER_BLOCK)
+        if (errorStorageBlocks[esActiveBlock].allocated == OBJECTS_PER_BLOCK)
         {
             _cleanup_invalid_and_full_blocks();
             _select_active_block();
@@ -286,7 +286,7 @@ void ErrorStorage_Run_Store(ErrorInfo_t* data)
         data->hardware_version = FLASH_HEADER->hw_version;
         data->firmware_version = FW_VERSION_NUMBER;
 
-        _store_object(&esBlocks[esActiveBlock], data, sizeof(ErrorInfo_t));
+        _store_object(&errorStorageBlocks[esActiveBlock], data, sizeof(ErrorInfo_t));
         _update_number_of_stored_errors();
         __enable_irq();
     }
@@ -299,9 +299,9 @@ bool ErrorStorage_Run_Read(uint32_t index, ErrorInfo_t* pDst)
     if (esInitialized)
     {
         uint32_t distance = index;
-        for (size_t i = 0u; i < esBlockCount; i++)
+        for (size_t i = 0u; i < ARRAY_SIZE(errorStorageBlocks); i++)
         {
-            uint32_t errors_in_block = esBlocks[i].allocated - esBlocks[i].deleted;
+            uint32_t errors_in_block = errorStorageBlocks[i].allocated - errorStorageBlocks[i].deleted;
             if (errors_in_block <= distance)
             {
                 distance -= errors_in_block;
@@ -311,7 +311,7 @@ bool ErrorStorage_Run_Read(uint32_t index, ErrorInfo_t* pDst)
             {
                 /* assume linear deletion */
                 found = true;
-                FlashData_t data = _read_data_obj(&esBlocks[i], esBlocks[i].deleted + distance);
+                FlashData_t data = _read_data_obj(&errorStorageBlocks[i], errorStorageBlocks[i].deleted + distance);
 
                 if (data.status.valid == 0u && data.status.deleted == 1u)
                 {
