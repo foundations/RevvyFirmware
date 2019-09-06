@@ -3,6 +3,7 @@
         "driver_init.c",
         "main.c",
         "rrrc/controller/pid.c",
+        "rrrc/generated_runtime.c",
         "rrrc/rrrc_worklogic.c",
         "rrrc/runtime/comm_handlers.c",
         "rrrc/runtime/connections_error_storage.c",
@@ -98,7 +99,7 @@
         "BluetoothStatusObserver",
         "BrainStatusIndicator",
         "CommunicationObserver",
-        "Drivetrain",
+        "DriveTrain",
         "ErrorStorage",
         "ErrorStorageWrapper",
         "GyroscopeOffsetCompensator",
@@ -125,8 +126,66 @@
     "runtime": {
         "runnables": {
             "OnInit": [
-                { "component": "ErrorStorage", "runnable": "OnInit" },
-                { "component": "ADC", "runnable": "OnInit" }
+                {
+                    "component": "ErrorStorage",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "ADC",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "BatteryCharger",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "LEDController",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "BluetoothIndicator",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "BrainStatusIndicator",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "IMU",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "HighResolutionTimer",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "MasterStatusObserver",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "BluetoothStatusObserver",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "RingLedDisplay",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "CommunicationObserver",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "DriveTrain",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "GyroscopeOffsetCompensator",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "YawAngleTracker",
+                    "runnable": "OnInit"
+                }
             ]
         }
     }

@@ -1,7 +1,7 @@
 {
-    "component_name": "Drivetrain",
+    "component_name": "DriveTrain",
     "source_files": [
-        "rrrc/components/Drivetrain/Drivetrain.c"
+        "rrrc/components/DriveTrain/DriveTrain.c"
     ],
     "runnables": {
         "OnInit": {

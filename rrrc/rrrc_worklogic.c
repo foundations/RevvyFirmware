@@ -269,8 +269,6 @@ void RRRC_ProcessLogic_Init(void)
 {
     system_init();
 
-    ErrorStorage_Run_OnInit();
-
     {
         const uint32_t compatible_hw[] = { COMPATIBLE_HW_VERSIONS };
         const uint32_t hw = FLASH_HEADER->hw_version;
@@ -290,21 +288,12 @@ void RRRC_ProcessLogic_Init(void)
         }
     }
     
+    RunnableGroup_OnInit();
+
     for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
     {
         MotorThermalModel_Run_OnInit(&motorThermalModels[i]);
     }
-
-    ADC_Run_OnInit();
-    BatteryCharger_Run_OnInit();
-    LEDController_Run_OnInit();
-    BluetoothIndicator_Run_OnInit();
-    BrainStatusIndicator_Run_OnInit();
-    IMU_Run_OnInit();
-    HighResolutionTimer_Run_OnInit();
-    
-    MasterStatusObserver_Run_OnInit();
-    BluetoothStatusObserver_Run_OnInit();
 
     MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
 
@@ -329,11 +318,7 @@ void RRRC_ProcessLogic_Init(void)
     BatteryCalculator_Run_OnInit(&motorBattery);
     BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
 
-    RingLedDisplay_Run_OnInit();
     RingLedDisplay_Run_SelectScenario(RingLedScenario_ColorWheel);
-    CommunicationObserver_Run_OnInit();
-    
-    DriveTrain_Run_OnInit();
 
     MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
     SensorPortHandler_Run_OnInit(&sensorPorts[0], ARRAY_SIZE(sensorPorts));
@@ -342,11 +327,6 @@ void RRRC_ProcessLogic_Init(void)
     MotorDriver_8833_Run_OnInit(&motorDrivers[0]);
     MotorDriver_8833_Run_OnInit(&motorDrivers[1]);
     MotorDriver_8833_Run_OnInit(&motorDrivers[2]);
-
-    GyroscopeOffsetCompensator_Run_OnInit();
-    YawAngleTracker_Run_OnInit();
-
-    /* end of component initializers */
 }
 
 //*********************************************************************************************

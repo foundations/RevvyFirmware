@@ -960,10 +960,10 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\CommunicationObserver\CommunicationObserver.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\Drivetrain\Drivetrain.c">
+    <Compile Include="rrrc\components\DriveTrain\DriveTrain.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\Drivetrain\Drivetrain.h">
+    <Compile Include="rrrc\components\DriveTrain\DriveTrain.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\ErrorStorageWrapper\ErrorStorageWrapper.c">
@@ -1183,6 +1183,12 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\controller\pid.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\generated_runtime.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\generated_runtime.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\rrrc_hal.h">
@@ -1428,7 +1434,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\Dummy" />
     <Folder Include="rrrc\components\MotorPortHandler\MotorPortLibraries\DcMotor" />
     <Folder Include="rrrc\components\MemoryAllocator" />
-    <Folder Include="rrrc\components\Drivetrain" />
+    <Folder Include="rrrc\components\DriveTrain" />
     <Folder Include="rrrc\components\McuStatusCollector" />
     <Folder Include="rrrc\components\McuStatusCollectorWrapper" />
     <Folder Include="rrrc\components\ErrorStorage" />

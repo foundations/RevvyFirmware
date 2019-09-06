@@ -40,33 +40,10 @@ init_fn_call_pattern = "{}_Run_OnInit();"
 makefile_component_files_start_marker = '# Software Component Source Files\n'
 makefile_component_files_end_marker = '# End of Software Component Source Files\n'
 
-worklogic_file_path = 'rrrc/rrrc_worklogic.c'
-worklogic_header_path = 'rrrc/rrrc_worklogic.h'
-
 
 def to_underscore(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
-
-def add_include(component_name, file):
-    with open(file, "r") as worklogic:
-        c = worklogic.read()
-
-    def prepend_include(match):
-        return match.group(1) + include_pattern.format(component_name) + "\n" + match.group(0)
-
-    return re.sub('([ \\t]*)/\\* end of component includes \\*/', prepend_include, c)
-
-
-def add_initializer_call(component_name, file):
-    with open(file, "r") as worklogic:
-        c = worklogic.read()
-
-    def prepend_init_fn(match):
-        return match.group(1) + init_fn_call_pattern.format(component_name) + "\n" + match.group(0)
-
-    return re.sub('([ \\t]*)/\\* end of component initializers \\*/', prepend_init_fn, c)
 
 
 def read_cproject(path):
@@ -147,9 +124,6 @@ def create_component(component_name, dry_run=False, runnables=None):
 
     # noinspection PyBroadException
     try:
-        modified_files[worklogic_header_path] = add_include(component_name, worklogic_header_path)
-        modified_files[worklogic_file_path] = add_initializer_call(component_name, worklogic_file_path)
-
         # replace sources list with new one and set for file modification
         modified_files['project.json'] = json.dumps(config, indent=4)
 
