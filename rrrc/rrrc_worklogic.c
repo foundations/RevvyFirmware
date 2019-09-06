@@ -306,6 +306,7 @@ void RRRC_ProcessLogic_Init(void)
     BluetoothIndicator_Run_OnInit();
     BrainStatusIndicator_Run_OnInit();
     IMU_Run_OnInit();
+    HighResolutionTimer_Run_OnInit();
     
     MasterStatusObserver_Run_OnInit();
     BluetoothStatusObserver_Run_OnInit();
@@ -349,6 +350,8 @@ void RRRC_ProcessLogic_Init(void)
 
     GyroscopeOffsetCompensator_Run_OnInit();
     YawAngleTracker_Run_OnInit();
+
+    /* end of component initializers */
 }
 
 //*********************************************************************************************
@@ -373,7 +376,7 @@ void RRRC_ProcessLogic_xTask(void* user)
             cycleCounter++;
         }
 
-        vTaskDelayUntil(&xLastWakeTime, rtos_ms_to_ticks(1));
+        vTaskDelayUntil(&xLastWakeTime, 1u);
     }
 }
 

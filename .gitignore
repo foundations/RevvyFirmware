@@ -1,3 +1,5 @@
 Debug/*
 +.vs/*
 /.vs/*
+/.idea/
+Makefile

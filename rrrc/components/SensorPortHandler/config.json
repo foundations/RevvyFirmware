@@ -1,0 +1,12 @@
+{
+    "component_name": "SensorPortHandler",
+    "source_files": [
+        "rrrc/components/SensorPortHandler/SensorPortHandler.c",
+        "rrrc/components/SensorPortHandler/SensorPortHandlerInternal.c",
+        "rrrc/components/SensorPortHandler/SensorPortLibraries/BumperSwitch/BumperSwitch.c",
+        "rrrc/components/SensorPortHandler/SensorPortLibraries/DebugRTC/DebugRTC.c",
+        "rrrc/components/SensorPortHandler/SensorPortLibraries/Dummy/Dummy.c",
+        "rrrc/components/SensorPortHandler/SensorPortLibraries/HC_SR04/HC_SR04.c",
+        "rrrc/components/SensorPortHandler/SensorPortLibraries/SensorPort_I2C.c"
+    ]
+}

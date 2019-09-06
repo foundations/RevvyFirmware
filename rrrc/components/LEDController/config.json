@@ -1,0 +1,6 @@
+{
+    "component_name": "LEDController",
+    "source_files": [
+        "rrrc/components/LEDController/LEDController.c"
+    ]
+}

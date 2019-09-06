@@ -1,0 +1,6 @@
+{
+    "component_name": "MotorDriver_8833",
+    "source_files": [
+        "rrrc/components/MotorDriver_8833/MotorDriver_8833.c"
+    ]
+}

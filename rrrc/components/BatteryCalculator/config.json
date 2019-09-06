@@ -1,0 +1,6 @@
+{
+    "component_name": "BatteryCalculator",
+    "source_files": [
+        "rrrc/components/BatteryCalculator/BatteryCalculator.c"
+    ]
+}

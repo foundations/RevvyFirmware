@@ -4,20 +4,16 @@ sudo: required
 language: c
 before_install:
   - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996 -O atmel_toolchain.tar.gz
-  - wget http://packs.download.atmel.com/Atmel.SAMD51_DFP.1.1.96.atpack -O dfp.zip
-  - wget http://packs.download.atmel.com/ARM.CMSIS.5.0.1.atpack -O cmsis.zip
 install:
-  - mkdir Build/tmp
+  - pyenv local 3.7
+  - pip3 install --user -r tools/requirements.txt
   - tar -zxf atmel_toolchain.tar.gz
-  - unzip dfp.zip -d Build/tmp/dfp
-  - unzip cmsis.zip -d Build/tmp/cmsis
   - export PATH="$PATH:$TRAVIS_BUILD_DIR/arm-none-eabi/bin"
-before_script:
-  - cd Build
+  - python3 -m tools.generate_makefile
 script:
   - make all
 after_success:
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then ./commit_firmware.sh; fi
-  - if [ "$TRAVIS_BRANCH" = "maintenance-v1" ]; then ./commit_firmware.sh; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then ./tools/commit_firmware.sh; fi
+  - if [ "$TRAVIS_BRANCH" = "maintenance-v1" ]; then ./tools/commit_firmware.sh; fi
 notifications:
   slack: revolution-robotics:sXlaetqFuXuT3Vr4atwogEdK
