@@ -222,7 +222,8 @@
     <BuildTarget>all --jobs 16 --output-sync --ignore-errors --silent</BuildTarget>
     <CleanTarget>clean</CleanTarget>
     <ExternalMakeFilePath>C:\_RevolutionRobotics\Firmware\Makefile</ExternalMakeFilePath>
-    <PreBuildEvent>python -m tools.gen_version</PreBuildEvent>
+    <PreBuildEvent>python -m tools.generate_makefile
+python -m tools.gen_version</PreBuildEvent>
     <PostBuildEvent>python -m tools.prepare --build-dir=Release --out=output
 cp Release/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
   </PropertyGroup>
