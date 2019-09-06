@@ -2,5 +2,6 @@
     "component_name": "MotorThermalModel",
     "source_files": [
         "rrrc/components/MotorThermalModel/MotorThermalModel.c"
-    ]
+    ],
+    "runnables": {}
 }

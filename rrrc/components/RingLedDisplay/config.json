@@ -2,5 +2,11 @@
     "component_name": "RingLedDisplay",
     "source_files": [
         "rrrc/components/RingLedDisplay/RingLedDisplay.c"
-    ]
+    ],
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

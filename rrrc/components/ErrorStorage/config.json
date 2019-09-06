@@ -2,5 +2,11 @@
     "component_name": "ErrorStorage",
     "source_files": [
         "rrrc/components/ErrorStorage/ErrorStorage.c"
-    ]
+    ],
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

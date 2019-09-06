@@ -2,5 +2,11 @@
     "component_name": "Drivetrain",
     "source_files": [
         "rrrc/components/Drivetrain/Drivetrain.c"
-    ]
+    ],
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

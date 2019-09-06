@@ -2,5 +2,6 @@
     "component_name": "MemoryAllocator",
     "source_files": [
         "rrrc/components/MemoryAllocator/MemoryAllocator.c"
-    ]
+    ],
+    "runnables": {}
 }

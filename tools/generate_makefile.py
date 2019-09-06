@@ -109,7 +109,6 @@ def list_files_recursive(root):
 
 
 if __name__ == "__main__":
-    # inquire name of new component
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
     parser.add_argument('--update-components', help='Generate component config files', action='store_true')

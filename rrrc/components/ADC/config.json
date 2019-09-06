@@ -2,5 +2,11 @@
     "component_name": "ADC",
     "source_files": [
         "rrrc/components/ADC/adc.c"
-    ]
+    ],
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

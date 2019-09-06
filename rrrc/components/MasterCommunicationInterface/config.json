@@ -3,5 +3,6 @@
     "source_files": [
         "rrrc/components/MasterCommunicationInterface/i2cHal.c",
         "rrrc/components/MasterCommunicationInterface/MasterCommunicationInterface.c"
-    ]
+    ],
+    "runnables": {}
 }

@@ -2,5 +2,6 @@
     "component_name": "VersionProvider",
     "source_files": [
         "rrrc/components/VersionProvider/VersionProvider.c"
-    ]
+    ],
+    "runnables": {}
 }

@@ -2,5 +2,11 @@
     "component_name": "BatteryCharger",
     "source_files": [
         "rrrc/components/BatteryCharger/BatteryCharger.c"
-    ]
+    ],
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

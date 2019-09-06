@@ -2,5 +2,6 @@
     "component_name": "InternalTemperatureSensor",
     "source_files": [
         "rrrc/components/InternalTemperatureSensor/InternalTemperatureSensor.c"
-    ]
+    ],
+    "runnables": {}
 }

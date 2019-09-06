@@ -2,5 +2,11 @@
     "component_name": "MasterStatusObserver",
     "source_files": [
         "rrrc/components/MasterStatusObserver/MasterStatusObserver.c"
-    ]
+    ],
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }
