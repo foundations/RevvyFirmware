@@ -1,3 +1,4 @@
+import argparse
 import json
 import pystache
 
@@ -88,7 +89,13 @@ clean:
 """
 
 if __name__ == "__main__":
-    with open("project.json") as f:
+    # inquire name of new component
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', help='Name of project config json file', default="project.json")
+
+    args = parser.parse_args()
+
+    with open(args.config) as f:
         config = json.load(f)
 
     template_context = {
