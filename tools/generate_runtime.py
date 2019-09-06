@@ -3,6 +3,7 @@ Generate a c/h file pair that contains runnable calls and port connections based
 """
 import argparse
 import json
+import os
 import sys
 
 import pystache
@@ -18,8 +19,20 @@ if __name__ == "__main__":
     with open(args.config, "r") as f:
         config = json.load(f)
 
-    # validate runnables
+    # validate components
     valid = True
+    for component in config['components']:
+        if not os.path.isdir('rrrc/components/{}'.format(component)):
+            print('Component folder for {} does not exist'.format(component))
+            valid = False
+        else:
+            required_files = ['config.json', component + '.c', component + '.h']
+            for file in required_files:
+                if not os.path.isfile('rrrc/components/{}/{}'.format(component, file)):
+                    print('{} does not exist in component {}'.format(file, component))
+                    valid = False
+
+    # validate runnables
     for runnable_group in config['runtime']['runnables']:
         for runnable in config['runtime']['runnables'][runnable_group]:
             component_name = runnable['component']
