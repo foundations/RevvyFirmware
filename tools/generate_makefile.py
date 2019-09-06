@@ -25,6 +25,7 @@ COMPILE_FLAGS += \\
 -D__SAMD51P19A__ \\
 -DCOMPATIBLE_HW_VERSIONS=2 \\
 -ffunction-sections \\
+-fdata-sections \\
 -mlong-calls \\
 -Wall \\
 -Wextra \\
