@@ -92,16 +92,15 @@ def convert_functions(runnable_data):
             arguments[len(arguments) - 1]['last'] = True
 
         functions.append({
-            'name': 'Run_{}'.format(runnable),
+            'name':        'Run_{}'.format(runnable),
             'return_type': 'void',
-            'args': arguments
+            'args':        arguments
         })
 
     return functions
 
 
 def create_component(component_name, dry_run=False, runnables=None):
-
     with open('project.json', 'r') as project_config:
         config = json.load(project_config)
 
@@ -132,9 +131,9 @@ def create_component(component_name, dry_run=False, runnables=None):
 
     template_ctx = {
         'component_name': component_name,
-        'guard_def': 'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
-        'date': datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions': convert_functions(runnables)
+        'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
+        'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
+        'functions':      convert_functions(runnables)
     }
 
     # map of file path -> contents
@@ -243,7 +242,14 @@ def create_component(component_name, dry_run=False, runnables=None):
 def create_component_config(name, c_files):
     json_contents = {
         'component_name': name,
-        'source_files': c_files
+        'source_files':   c_files,
+        'runnables':      {
+            'OnInit': {
+                'type':        'initializer',
+                'return_type': 'void',
+                'arguments':   []
+            }
+        }
     }
     return json.dumps(json_contents, indent=4)
 

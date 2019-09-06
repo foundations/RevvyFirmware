@@ -129,14 +129,22 @@ if __name__ == "__main__":
             config['components'].append(component)
             component_config_path = 'rrrc/components/{}/config.json'.format(component)
 
-            if not os.path.isfile(component_config_path) or args.update_existing:
+            config_file_exists = os.path.isfile(component_config_path)
+            if not config_file_exists or args.update_existing:
                 print('Updating {}'.format(component))
                 sources = []
                 for file in list_files_recursive('rrrc/components/{}'.format(component)):
                     if fnmatch.fnmatch(file, "*.c"):
                         sources.append(file)
 
-                component_config = create_component_config(component, sources)
+                try:
+                    with open(component_config_path, "r") as f:
+                        old_config = json.load(f)
+                        old_config['source_files'] = sources
+                        component_config = json.dumps(old_config, indent=4)
+                except IOError:
+                    component_config = create_component_config(component, sources)
+
                 with open(component_config_path, "w+") as f:
                     f.write(component_config)
 
