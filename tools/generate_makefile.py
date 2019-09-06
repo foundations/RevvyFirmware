@@ -134,18 +134,20 @@ if __name__ == "__main__":
                 for file in list_files_recursive('rrrc/components/{}'.format(component)):
                     if fnmatch.fnmatch(file, "*.c"):
                         sources.append(file)
-                source_files += sources
+
                 component_config = create_component_config(component, sources)
                 with open(component_config_path, "w+") as f:
                     f.write(component_config)
-            else:
-                with open(component_config_path, "r") as f:
-                    component_config = json.load(f)
-
-                source_files += component_config['source_files']
 
         with open(args.config, "w") as f:
             json.dump(config, f, indent=4)
+
+    for component in config['components']:
+        component_config_path = 'rrrc/components/{}/config.json'.format(component)
+        with open(component_config_path, "r") as f:
+            component_config = json.load(f)
+
+        source_files += component_config['source_files']
 
     template_context = {
         'sources':  [{'source': src} for src in source_files],
