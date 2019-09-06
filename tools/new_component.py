@@ -245,7 +245,6 @@ def create_component_config(name, c_files):
         'source_files':   c_files,
         'runnables':      {
             'OnInit': {
-                'type':        'initializer',
                 'return_type': 'void',
                 'arguments':   []
             }
