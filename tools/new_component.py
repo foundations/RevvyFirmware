@@ -102,28 +102,19 @@ def convert_functions(runnable_data):
 
 def create_component(component_name, dry_run=False, runnables=None):
 
-    with open('Makefile', 'r') as makefile:
-        contents = makefile.readlines()
-
-        start = contents.index(makefile_component_files_start_marker)
-        end = contents.index(makefile_component_files_end_marker)
-
-        component_sources = {}
-
-        for mk_file in contents[start + 2:end]:
-            mk_match = re.match('rrrc/components/(?P<component>[^/]+?)/(?P<file>[^ \n]+)', mk_file)
-            try:
-                component_sources[mk_match.group('component')].append(mk_match.group('file'))
-            except KeyError:
-                component_sources[mk_match.group('component')] = [mk_match.group('file')]
+    with open('project.json', 'r') as project_config:
+        config = json.load(project_config)
 
     def component_file(file):
         return file_pattern.format(component_name, file)
 
     # stop if component exists
-    if component_name in component_sources:
+    if component_name in config['components']:
         print('Component already exists')
         sys.exit(1)
+
+    config['components'].append(component_name)
+    config['components'] = sorted(config['components'])
 
     # list of new folders' paths
     new_folders = []
@@ -160,22 +151,8 @@ def create_component(component_name, dry_run=False, runnables=None):
         modified_files[worklogic_header_path] = add_include(component_name, worklogic_header_path)
         modified_files[worklogic_file_path] = add_initializer_call(component_name, worklogic_file_path)
 
-        component_sources[component_name] = ["{}.c".format(component_name)]
-
-        contents_str = "".join(contents[0:start + 1]) + "".join(contents[end:])
-
-        # assemble new sources list
-        new_file_list_str = makefile_component_files_start_marker + "C_SRCS +="
-        for component in sorted(component_sources.keys()):
-            for component_file in component_sources[component]:
-                new_file_list_str += " \\\n" + file_pattern.format(component, component_file)
-
-        new_file_list_str += "\n" + makefile_component_files_end_marker
-
         # replace sources list with new one and set for file modification
-        modified_files['Makefile'] = contents_str.replace(
-            makefile_component_files_start_marker + makefile_component_files_end_marker,
-            new_file_list_str)
+        modified_files['project.json'] = json.dumps(config, indent=4)
 
         # update Atmel Studio project xml
         tree = read_cproject('rrrc_samd51.cproj')

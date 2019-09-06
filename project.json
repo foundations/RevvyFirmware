@@ -101,7 +101,6 @@
         "Drivetrain",
         "ErrorStorage",
         "ErrorStorageWrapper",
-        "FooComponent",
         "GyroscopeOffsetCompensator",
         "HighResolutionTimer",
         "IMU",

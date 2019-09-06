@@ -135,9 +135,9 @@ if __name__ == "__main__":
                     if fnmatch.fnmatch(file, "*.c"):
                         sources.append(file)
                 source_files += sources
-                config = create_component_config(component, sources)
+                component_config = create_component_config(component, sources)
                 with open(component_config_path, "w+") as f:
-                    f.write(config)
+                    f.write(component_config)
             else:
                 with open(component_config_path, "r") as f:
                     component_config = json.load(f)
