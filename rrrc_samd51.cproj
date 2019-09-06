@@ -906,10 +906,10 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\ADC\adc.c">
+    <Compile Include="rrrc\components\ADC\ADC.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\ADC\adc.h">
+    <Compile Include="rrrc\components\ADC\ADC.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\BatteryCalculator\BatteryCalculator.c">

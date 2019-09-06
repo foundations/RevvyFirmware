@@ -1,11 +1,11 @@
 /*
- * adc.c
+ * ADC.c
  *
  * Created: 01/05/2019 10:03:42
  *  Author: Dániel Buga
  */ 
 
-#include "adc.h"
+#include "ADC.h"
 
 // TODO
 #include "driver_init.h"

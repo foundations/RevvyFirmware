@@ -1,7 +1,7 @@
 {
     "component_name": "ADC",
     "source_files": [
-        "rrrc/components/ADC/adc.c"
+        "rrrc/components/ADC/ADC.c"
     ],
     "runnables": {
         "OnInit": {

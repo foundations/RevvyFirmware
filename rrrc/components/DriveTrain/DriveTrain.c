@@ -5,7 +5,7 @@
  *  Author: Dániel Buga
  */ 
 
-#include "Drivetrain.h"
+#include "DriveTrain.h"
 #include "utils.h"
 #include "utils/converter.h"
 #include "controller/pid.h"

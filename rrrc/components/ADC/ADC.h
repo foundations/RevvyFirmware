@@ -1,5 +1,5 @@
 /*
- * adc.h
+ * ADC.h
  *
  * Created: 01/05/2019 10:03:35
  *  Author: Dániel Buga
