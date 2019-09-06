@@ -1,4 +1,5 @@
 import argparse
+import json
 import re
 import sys
 import os
@@ -116,6 +117,9 @@ def create_component(component_name, dry_run=False, runnables=None):
             except KeyError:
                 component_sources[mk_match.group('component')] = [mk_match.group('file')]
 
+    def component_file(file):
+        return file_pattern.format(component_name, file)
+
     # stop if component exists
     if component_name in component_sources:
         print('Component already exists')
@@ -143,8 +147,8 @@ def create_component(component_name, dry_run=False, runnables=None):
     }
 
     # map of file path -> contents
-    h_file_path = file_pattern.format(component_name, component_name + '.h')
-    c_file_path = file_pattern.format(component_name, component_name + '.c')
+    h_file_path = component_file(component_name + '.h')
+    c_file_path = component_file(component_name + '.c')
 
     new_files = {
         h_file_path: pystache.render(header_template, template_ctx),
@@ -207,6 +211,9 @@ def create_component(component_name, dry_run=False, runnables=None):
             .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
 
         modified_files['rrrc_samd51.cproj'] = xml
+        new_files[component_file('config.json')] = create_component_config(component_name, [
+            component_name + '.c'
+        ])
 
         if not dry_run:
             for folder in new_folders:
@@ -254,6 +261,14 @@ def create_component(component_name, dry_run=False, runnables=None):
 
         for folder in new_folders:
             shutil.rmtree(folder)
+
+
+def create_component_config(name, c_files):
+    json_contents = {
+        'component_name': name,
+        'source_files': c_files
+    }
+    return json.dumps(json_contents, indent=4)
 
 
 if __name__ == "__main__":

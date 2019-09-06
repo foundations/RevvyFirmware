@@ -1,6 +1,12 @@
 import argparse
+import fnmatch
 import json
+import os
+from os import listdir
+
 import pystache
+
+from tools.new_component import create_component_config
 
 makefile_template = """# This Makefile was generated using "python -m tools.generate_makefile"
 C_SRCS += \\
@@ -88,18 +94,61 @@ clean:
 \t-rm -rf Release
 """
 
+
+def list_files_recursive(root):
+    files = []
+    for entry in listdir(root):
+        path = "{}/{}".format(root, entry)
+        if os.path.isdir(path):
+            files += list_files_recursive(path)
+        else:
+            files.append(path)
+
+    return files
+
+
 if __name__ == "__main__":
     # inquire name of new component
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
+    parser.add_argument('--update-components', help='Generate component config files', action='store_true')
+    parser.add_argument('--update-existing', help='Generate component config file even if it exists',
+                        action='store_true')
 
     args = parser.parse_args()
 
-    with open(args.config) as f:
+    with open(args.config, "r") as f:
         config = json.load(f)
 
+    source_files = list(config['sources'])
+
+    if args.update_components:
+        config['components'] = []
+        for component in listdir('rrrc/components'):
+            config['components'].append(component)
+            component_config_path = 'rrrc/components/{}/config.json'.format(component)
+
+            if not os.path.isfile(component_config_path) or args.update_existing:
+                print('Updating {}'.format(component))
+                sources = []
+                for file in list_files_recursive('rrrc/components/{}'.format(component)):
+                    if fnmatch.fnmatch(file, "*.c"):
+                        sources.append(file)
+                source_files += sources
+                config = create_component_config(component, sources)
+                with open(component_config_path, "w+") as f:
+                    f.write(config)
+            else:
+                with open(component_config_path, "r") as f:
+                    component_config = json.load(f)
+
+                source_files += component_config['source_files']
+
+        with open(args.config, "w") as f:
+            json.dump(config, f, indent=4)
+
     template_context = {
-        'sources':  [{'source': src} for src in config['sources']],
+        'sources':  [{'source': src} for src in source_files],
         'includes': [{'path': path} for path in config['includes']]
     }
 
