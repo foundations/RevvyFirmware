@@ -93,7 +93,7 @@ def convert_functions(runnable_data):
 
         functions.append({
             'name':        'Run_{}'.format(runnable),
-            'return_type': 'void',
+            'return_type': runnable_data[runnable]['return_type'],
             'args':        arguments
         })
 
