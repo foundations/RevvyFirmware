@@ -121,5 +121,13 @@
         "SensorPortHandler",
         "VersionProvider",
         "YawAngleTracker"
-    ]
+    ],
+    "runtime": {
+        "runnables": {
+            "OnInit": [
+                { "component": "ErrorStorage", "runnable": "OnInit" },
+                { "component": "ADC", "runnable": "OnInit" }
+            ]
+        }
+    }
 }
