@@ -5,10 +5,11 @@ language: c
 before_install:
   - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996 -O atmel_toolchain.tar.gz
 install:
-  - pip install --user -r tools/requirements.txt
+  - pyenv local 3.7
+  - pip3 install --user -r tools/requirements.txt
   - tar -zxf atmel_toolchain.tar.gz
   - export PATH="$PATH:$TRAVIS_BUILD_DIR/arm-none-eabi/bin"
-  - python -m tools.generate_makefile
+  - python3 -m tools.generate_makefile
 script:
   - make all
 after_success:
