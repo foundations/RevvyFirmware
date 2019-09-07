@@ -5,7 +5,7 @@ import sys
 import os
 import datetime
 import shutil
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 import pystache
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
@@ -54,9 +54,9 @@ def read_cproject(path):
                                 'xmlns="http://schemas.microsoft.com/developer/msbuild/2003" '
                                 'ToolsVersion="14.0">',
                                 '<Project DefaultTargets="Build" ToolsVersion="14.0">')
-    ET.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
+    ElementTree.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
 
-    return ET.fromstring(xml_in)
+    return ElementTree.fromstring(xml_in)
 
 
 def convert_functions(runnable_data):
@@ -81,8 +81,8 @@ def create_component(component_name, dry_run=False, runnables=None):
     with open('project.json', 'r') as project_config:
         config = json.load(project_config)
 
-    def component_file(file):
-        return file_pattern.format(component_name, file)
+    def component_file(filename):
+        return file_pattern.format(component_name, filename)
 
     # stop if component exists
     if component_name in config['components']:
@@ -136,19 +136,19 @@ def create_component(component_name, dry_run=False, runnables=None):
         compile_itemgroup = itemgroups[0]
 
         for file_name in new_files:
-            new_compile_item = ET.SubElement(compile_itemgroup, 'Compile')
+            new_compile_item = ElementTree.SubElement(compile_itemgroup, 'Compile')
             new_compile_item.attrib = {'Include': file_name.replace('/', '\\')}
-            ET.SubElement(new_compile_item, 'SubType').text = 'compile'
+            ElementTree.SubElement(new_compile_item, 'SubType').text = 'compile'
 
         # add new folder to folders itemgroup
         folders_itemgroup = itemgroups[1]
 
         for folder in new_folders:
-            new_folder = ET.SubElement(folders_itemgroup, 'Folder')
+            new_folder = ElementTree.SubElement(folders_itemgroup, 'Folder')
             new_folder.attrib = {'Include': folder.replace('/', '\\')}
 
         # generate xml string
-        xml = ET.tostring(tree, encoding='utf8')
+        xml = ElementTree.tostring(tree, encoding='utf8')
 
         # postprocess to better match atmel's
         xml = xml.decode('utf8') \
@@ -196,9 +196,9 @@ def create_component(component_name, dry_run=False, runnables=None):
                 print('C: {}'.format(file_name))
 
     except Exception:
-        def delete(file):
+        def delete(path):
             try:
-                os.remove(file)
+                os.remove(path)
             except FileNotFoundError:
                 pass
 

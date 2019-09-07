@@ -3,7 +3,6 @@ import os
 import shutil
 import json
 import argparse
-import re
 from hashlib import md5
 
 
