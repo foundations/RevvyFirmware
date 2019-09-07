@@ -77,6 +77,9 @@ if __name__ == "__main__":
                 if runnable_name not in component_config.get('runnables', {}):
                     print('Component {} does not have a runnable called {}'.format(component_name, runnable_name))
                     valid = False
+                elif component_config['runnables'][runnable_name]['arguments']:
+                    print('{}_Run_{} must not have arguments'.format(component_name, runnable_name))
+                    valid = False
 
     if not valid:
         sys.exit(1)
