@@ -1,12 +1,12 @@
 #include "ADC0.h"
 
 // TODO
-#include "driver_init.h"
+#include "atmel_start_pins.h"
+#include "utils.h"
+#include <hal_adc_async.h>
 #include <peripheral_clk_config.h>
-#include <hpl_adc_base.h>
 
 #include <stdbool.h>
-#include <string.h>
 
 #define ADC_MAX 4095
 static inline float adc_to_mv(float x)
@@ -14,17 +14,12 @@ static inline float adc_to_mv(float x)
     return ((3300.0f / ADC_MAX) * x);
 }
 
-typedef struct 
+static const adc_pos_input_t adc_channels[] = 
 {
-    const adc_pos_input_t input;
-} adc_channel_config_t;
-
-static adc_channel_config_t adc_channels[] = 
-{
-    { .input = S0_ADC_CH },
-    { .input = M1_ISEN_CH },
-    { .input = M3_ISEN_CH },
-    { .input = M4_ISEN_CH }
+    S0_ADC_CH,
+    M1_ISEN_CH,
+    M3_ISEN_CH,
+    M4_ISEN_CH
 };
 
 typedef struct 
@@ -58,7 +53,7 @@ static int32_t adc_convert_channel(uint32_t channel_idx)
         adc.conversionRunning = true;
         adc.currentChannel = channel_idx;
     
-        adc_async_set_inputs(&adc.hwDescriptor, adc_channels[channel_idx].input, ADC_CHN_INT_GND, 0);
+        adc_async_set_inputs(&adc.hwDescriptor, adc_channels[channel_idx], ADC_CHN_INT_GND, 0);
         adc_async_start_conversion(&adc.hwDescriptor);
     
         result = ERR_NONE;
@@ -73,11 +68,10 @@ static void conversion_complete(const struct adc_async_descriptor *const descr, 
     (void) channel;
 
     uint32_t channel_idx = adc.currentChannel;
-    uint32_t input = adc_channels[channel_idx].input;
 
     /* we can assume that adc_idx and channel_idx are valid */
-    ADC0_Write_ChannelData_Raw(input, adc_data);
-    ADC0_Write_ChannelVoltage(input, adc_to_mv(adc_data));
+    ADC0_Write_ChannelData_Raw(adc_channels[channel_idx], adc_data);
+    ADC0_Write_ChannelVoltage(adc_channels[channel_idx], adc_to_mv(adc_data));
 
     if (channel_idx < ARRAY_SIZE(adc_channels) - 1u)
     {
