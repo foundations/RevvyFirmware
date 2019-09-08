@@ -64,6 +64,7 @@ def parse_port(port):
 
     return port
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
