@@ -27,7 +27,9 @@ source_template = '''#include "{{ component_name }}.h"
 __attribute__((weak)){{/weak}}
 ''' + fn_header_template + '''
 {
-
+    {{#args}}
+    (void) {{name}};
+    {{/args}}
 }
 {{/functions}}
 '''
@@ -43,7 +45,7 @@ makefile_component_files_end_marker = '# End of Software Component Source Files\
 default_runnables = {
     'OnInit': {
         'return_type': 'void',
-        'arguments':   []
+        'arguments':   {}
     }
 }
 
@@ -66,11 +68,12 @@ def read_cproject(path):
     return ElementTree.fromstring(xml_in)
 
 
-def convert_functions(runnable_data):
+def convert_functions(runnable_data, port_data):
     functions = []
 
     for runnable in runnable_data:
-        arguments = runnable_data[runnable]['arguments']
+        runnable_arguments = runnable_data[runnable]['arguments']
+        arguments = [{'name': arg, 'type': runnable_arguments[arg]} for arg in runnable_arguments]
 
         if arguments:
             arguments[len(arguments) - 1]['last'] = True
