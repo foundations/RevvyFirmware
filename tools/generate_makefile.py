@@ -131,18 +131,19 @@ if __name__ == "__main__":
             config_file_exists = os.path.isfile(component_config_path)
             if not config_file_exists or args.update_existing:
                 print('Updating {}'.format(component))
-                sources = []
-                for file in list_files_recursive('rrrc/components/{}'.format(component)):
+                component_sources = []
+                component_dir = 'rrrc/components/{}'.format(component)
+                for file in list_files_recursive(component_dir):
                     if fnmatch.fnmatch(file, "*.c"):
-                        sources.append(file)
+                        component_sources.append(file[len(component_dir)+1:])
 
                 try:
                     with open(component_config_path, "r") as f:
                         old_config = json.load(f)
-                        old_config['source_files'] = sources
+                        old_config['source_files'] = component_sources
                         component_config = json.dumps(old_config, indent=4)
                 except IOError:
-                    component_config = create_component_config(component, sources)
+                    component_config = create_component_config(component, component_sources)
 
                 with open(component_config_path, "w+") as f:
                     f.write(component_config)
@@ -151,11 +152,12 @@ if __name__ == "__main__":
             json.dump(config, f, indent=4)
 
     for component in config['components']:
-        component_config_path = 'rrrc/components/{}/config.json'.format(component)
+        component_file = 'rrrc/components/{}/{{}}'.format(component)
+        component_config_path = component_file.format('config.json')
         with open(component_config_path, "r") as f:
             component_config = json.load(f)
 
-        source_files += component_config['source_files']
+        source_files += [component_file.format(source) for source in component_config['source_files']]
 
     template_context = {
         'sources':  [{'source': src} for src in source_files],

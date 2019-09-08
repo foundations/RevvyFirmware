@@ -1,7 +1,7 @@
 {
     "component_name": "MotorDerating",
     "source_files": [
-        "rrrc/components/MotorDerating/MotorDerating.c"
+        "MotorDerating.c"
     ],
     "runnables": {}
 }

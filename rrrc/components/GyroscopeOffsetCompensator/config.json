@@ -1,7 +1,7 @@
 {
     "component_name": "GyroscopeOffsetCompensator",
     "source_files": [
-        "rrrc/components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.c"
+        "GyroscopeOffsetCompensator.c"
     ],
     "runnables": {
         "OnInit": {

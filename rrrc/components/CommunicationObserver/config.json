@@ -1,7 +1,7 @@
 {
     "component_name": "CommunicationObserver",
     "source_files": [
-        "rrrc/components/CommunicationObserver/CommunicationObserver.c"
+        "CommunicationObserver.c"
     ],
     "runnables": {
         "OnInit": {

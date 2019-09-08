@@ -1,8 +1,8 @@
 {
     "component_name": "MasterCommunicationInterface",
     "source_files": [
-        "rrrc/components/MasterCommunicationInterface/i2cHal.c",
-        "rrrc/components/MasterCommunicationInterface/MasterCommunicationInterface.c"
+        "i2cHal.c",
+        "MasterCommunicationInterface.c"
     ],
     "runnables": {}
 }

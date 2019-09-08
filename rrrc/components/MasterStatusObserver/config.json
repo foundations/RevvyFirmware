@@ -1,7 +1,7 @@
 {
     "component_name": "MasterStatusObserver",
     "source_files": [
-        "rrrc/components/MasterStatusObserver/MasterStatusObserver.c"
+        "MasterStatusObserver.c"
     ],
     "runnables": {
         "OnInit": {

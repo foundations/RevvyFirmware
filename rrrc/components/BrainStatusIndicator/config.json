@@ -1,7 +1,7 @@
 {
     "component_name": "BrainStatusIndicator",
     "source_files": [
-        "rrrc/components/BrainStatusIndicator/BrainStatusIndicator.c"
+        "BrainStatusIndicator.c"
     ],
     "runnables": {
         "OnInit": {

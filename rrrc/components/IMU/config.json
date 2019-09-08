@@ -1,8 +1,8 @@
 {
     "component_name": "IMU",
     "source_files": [
-        "rrrc/components/IMU/IMU.c",
-        "rrrc/components/IMU/imu_ll.c"
+        "IMU.c",
+        "imu_ll.c"
     ],
     "runnables": {
         "OnInit": {

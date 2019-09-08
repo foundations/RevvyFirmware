@@ -1,10 +1,10 @@
 {
     "component_name": "MotorPortHandler",
     "source_files": [
-        "rrrc/components/MotorPortHandler/MotorPortHandler.c",
-        "rrrc/components/MotorPortHandler/MotorPortHandlerInternal.c",
-        "rrrc/components/MotorPortHandler/MotorPortLibraries/DcMotor/DcMotor.c",
-        "rrrc/components/MotorPortHandler/MotorPortLibraries/Dummy/Dummy.c"
+        "MotorPortHandler.c",
+        "MotorPortHandlerInternal.c",
+        "MotorPortLibraries/DcMotor/DcMotor.c",
+        "MotorPortLibraries/Dummy/Dummy.c"
     ],
     "runnables": {
         "Update": {

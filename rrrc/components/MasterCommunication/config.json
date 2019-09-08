@@ -1,8 +1,8 @@
 {
     "component_name": "MasterCommunication",
     "source_files": [
-        "rrrc/components/MasterCommunication/CommunicationManager.c",
-        "rrrc/components/MasterCommunication/MasterCommunication.c"
+        "CommunicationManager.c",
+        "MasterCommunication.c"
     ],
     "runnables": {}
 }

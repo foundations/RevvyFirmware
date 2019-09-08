@@ -1,7 +1,7 @@
 {
     "component_name": "BatteryIndicator",
     "source_files": [
-        "rrrc/components/BatteryIndicator/BatteryIndicator.c"
+        "BatteryIndicator.c"
     ],
     "runnables": {}
 }
