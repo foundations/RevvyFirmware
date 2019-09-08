@@ -9,6 +9,8 @@ from json import JSONDecodeError
 
 import pystache
 
+from tools.generator_common import type_default_values
+
 port_compatibility = {
     "WriteData": {
         "ReadValue": {"multiple_consumers": True}
@@ -16,7 +18,7 @@ port_compatibility = {
 }
 
 databuffer_templates = {
-    "WriteData": "static {{data_type}} {{component_name}}_{{port_name}}_databuffer = {{{ init_value }}};"
+    "WriteData": "static {{data_type}} {{component_name}}_{{port_name}}_databuffer{{ #init_value }} = {{{ . }}}{{ /init_value }};"
 }
 
 port_template_write_data = """void {{component_name}}_Write_{{port_name}}({{data_type}} value)
@@ -137,19 +139,19 @@ if __name__ == "__main__":
     for runnable_group in config['runtime']['runnables']:
         for runnable in config['runtime']['runnables'][runnable_group]:
             runnable = parse_runnable(runnable)
-            component_name = runnable['component']
-            if component_name not in config['components']:
-                print('Component {} does not exist'.format(component_name))
+            provider_component_name = runnable['component']
+            if provider_component_name not in config['components']:
+                print('Component {} does not exist'.format(provider_component_name))
                 valid = False
             else:
-                component_config_file = 'rrrc/components/{}/config.json'.format(component_name)
-                component_config = component_data[component_name]
+                component_config_file = 'rrrc/components/{}/config.json'.format(provider_component_name)
+                component_config = component_data[provider_component_name]
                 runnable_name = runnable['runnable']
                 if runnable_name not in component_config.get('runnables', {}):
-                    print('Component {} does not have a runnable called {}'.format(component_name, runnable_name))
+                    print('Component {} does not have a runnable called {}'.format(provider_component_name, runnable_name))
                     valid = False
                 elif component_config['runnables'][runnable_name]['arguments']:
-                    print('{}_Run_{} must not have arguments'.format(component_name, runnable_name))
+                    print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
                     valid = False
 
 
@@ -172,9 +174,6 @@ if __name__ == "__main__":
     def port_ref_valid(port):
         component_ports = component_data[port['component']].get('ports', [])
         return port['component'] in component_data and port['port'] in component_ports
-
-    data_buffers = []
-    port_functions = []
 
     # validate ports
     for port_connection in config['runtime'].get('port_connections', []):
@@ -202,45 +201,6 @@ if __name__ == "__main__":
                                                                               provider['component'], provider['port']))
                 port_valid = False
 
-        if port_valid:
-            component_name = provider['component']
-            port_name = provider['port']
-
-            port_data = component_data[component_name]['ports'][port_name]
-            data_type = port_data['data_type']
-
-            provider_port_type = port_data['port_type']
-            data_buffer_ctx = {
-                'data_type': data_type,
-                'component_name': component_name,
-                'port_name': port_name,
-                'init_value': 0
-            }
-            data_buffer = pystache.render(databuffer_templates[provider_port_type], data_buffer_ctx)
-            provider_port = pystache.render(port_templates[provider_port_type], data_buffer_ctx)
-
-            data_buffers.append(data_buffer)
-            port_functions.append(provider_port)
-
-            for consumer in port_connection['consumers']:
-                consumer = parse_port(consumer)
-
-                consumer_component_name = consumer['component']
-                consumer_port_name = consumer['port']
-
-                consumer_port_data = component_data[consumer_component_name]['ports'][consumer_port_name]
-                consumer_port_type = consumer_port_data['port_type']
-
-                consumer_ctx = {
-                    'data_type': data_type,
-                    'provider_port_name': port_name,
-                    'provider_component_name': component_name,
-                    'consumer_port_name': consumer_port_name,
-                    'consumer_component_name': consumer_component_name
-                }
-
-                consumer_port = pystache.render(port_templates[consumer_port_type], consumer_ctx)
-                port_functions.append(consumer_port)
         valid = valid and port_valid
 
     if not valid:
@@ -255,8 +215,8 @@ if __name__ == "__main__":
         'output_filename': args.output[args.output.rfind('/') + 1:],
         'includes':        ['components/{0}/{0}'.format(component) for component in config['components']],
         'runnable_groups': [],
-        'data_buffers':    data_buffers,
-        'port_functions':  port_functions
+        'data_buffers':    [],
+        'port_functions':  []
     }
 
     for runnable_group in config['runtime']['runnables']:
@@ -266,6 +226,48 @@ if __name__ == "__main__":
             group['runnables'].append(runnable)
 
         template_ctx['runnable_groups'].append(group)
+
+    for port_connection in config['runtime'].get('port_connections', []):
+        provider = parse_port(port_connection['provider'])
+
+        provider_component_name = provider['component']
+        provider_port_name = provider['port']
+
+        provider_port_data = component_data[provider_component_name]['ports'][provider_port_name]
+        data_type = provider_port_data['data_type']
+
+        provider_port_type = provider_port_data['port_type']
+        data_buffer_ctx = {
+            'data_type':      data_type,
+            'component_name': provider_component_name,
+            'port_name':      provider_port_name,
+            'init_value':     provider.get('init_value', type_default_values[data_type])
+        }
+        data_buffer = pystache.render(databuffer_templates[provider_port_type], data_buffer_ctx)
+        provider_port = pystache.render(port_templates[provider_port_type], data_buffer_ctx)
+
+        template_ctx['data_buffers'].append(data_buffer)
+        template_ctx['port_functions'].append(provider_port)
+
+        for consumer in port_connection['consumers']:
+            consumer = parse_port(consumer)
+
+            consumer_component_name = consumer['component']
+            consumer_port_name = consumer['port']
+
+            consumer_port_data = component_data[consumer_component_name]['ports'][consumer_port_name]
+            consumer_port_type = consumer_port_data['port_type']
+
+            consumer_ctx = {
+                'data_type':               data_type,
+                'provider_port_name':      provider_port_name,
+                'provider_component_name': provider_component_name,
+                'consumer_port_name':      consumer_port_name,
+                'consumer_component_name': consumer_component_name
+            }
+
+            consumer_port = pystache.render(port_templates[consumer_port_type], consumer_ctx)
+            template_ctx['port_functions'].append(consumer_port)
 
     with open(args.output + ".h", "w+") as header:
         header.write(pystache.render(header_template, template_ctx))
