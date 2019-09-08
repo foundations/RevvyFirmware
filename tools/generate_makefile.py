@@ -2,11 +2,13 @@ import argparse
 import fnmatch
 import json
 import os
+import shutil
+from json import JSONDecodeError
 from os import listdir
 
 import pystache
 
-from tools.new_component import create_component_config
+from tools.generate_component import create_component_config, default_runnables
 
 makefile_template = """# This Makefile was generated using "python -m tools.generate_makefile"
 C_SRCS += \\
@@ -138,12 +140,13 @@ if __name__ == "__main__":
                         component_sources.append(file[len(component_dir)+1:])
 
                 try:
+                    shutil.copy(component_config_path, component_config_path + ".bak")
                     with open(component_config_path, "r") as f:
                         old_config = json.load(f)
                         old_config['source_files'] = component_sources
                         component_config = json.dumps(old_config, indent=4)
-                except IOError:
-                    component_config = create_component_config(component, component_sources)
+                except (IOError, JSONDecodeError):
+                    component_config = create_component_config(component, component_sources, default_runnables)
 
                 with open(component_config_path, "w+") as f:
                     f.write(component_config)
