@@ -8,12 +8,27 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
+type_includes = {
+    'uint8_t':  '<stdint.h>',
+    'uint16_t': '<stdint.h>',
+    'uint32_t': '<stdint.h>',
+    'int8_t':   '<stdint.h>',
+    'int16_t':  '<stdint.h>',
+    'int32_t':  '<stdint.h>',
+    'float':    '<stdint.h>',
+    'bool':     '<stdbool.h>'
+}
+
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
 fn_header_template = '{{return_type}} {{ component_name }}_{{name}}(' + argument_list_template + ')'
 
 header_template = '''#ifndef {{ guard_def }}
 #define {{ guard_def }}
+
+{{#includes}}
+#include {{{.}}}
+{{/includes}}
 
 {{#functions}}
 ''' + fn_header_template + ''';
@@ -103,6 +118,26 @@ def convert_functions(runnable_data, port_data):
         })
 
     return functions
+
+
+def collect_includes(runnable_data, port_data):
+    includes = set()
+
+    for runnable in runnable_data:
+        runnable_arguments = runnable_data[runnable]['arguments']
+        for arg in runnable_arguments:
+            try:
+                includes.add(type_includes[runnable_arguments[arg]])
+            except KeyError:
+                pass
+
+    for port in port_data:
+        try:
+            includes.add(type_includes[port_data[port]['data_type']])
+        except KeyError:
+            pass
+
+    return list(includes)
 
 
 def create_component_config(name, sources, runnables):
@@ -204,6 +239,7 @@ if __name__ == "__main__":
 
     template_ctx = {
         'component_name': component_name,
+        'includes':       collect_includes(runnables, ports),
         'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
         'functions':      convert_functions(runnables, ports)
