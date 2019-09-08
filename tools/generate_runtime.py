@@ -126,7 +126,11 @@ if __name__ == "__main__":
     def are_ports_compatible(provider, consumer):
         provider_type = component_data[provider['component']][provider['port']]['port_type']
         consumer_type = component_data[consumer['component']][consumer['port']]['port_type']
-        return consumer_type in port_compatibility[provider_type]
+
+        provider_data_type = component_data[provider['component']][provider['port']]['data_type']
+        consumer_data_type = component_data[consumer['component']][consumer['port']]['data_type']
+
+        return consumer_type in port_compatibility[provider_type] and provider_data_type == consumer_data_type
 
 
     def port_ref_valid(port):
@@ -141,11 +145,7 @@ if __name__ == "__main__":
             print('Provider port invalid: {}/{}'.format(provider['component'], provider['port']))
             valid = False
 
-        try:
-            allow_multiple = provider['multiple_consumers']
-        except KeyError:
-            allow_multiple = False
-
+        allow_multiple = provider.get('multiple_consumers', False)
         if not allow_multiple:
             if len(port_connection['consumers']) > 1:
                 print('Port {}/{} requires at most one consumer'.format(provider['component'], provider['port']))
