@@ -46,10 +46,9 @@
  */
 #define DRIVER_VERSION 0x00000001u
 
-static void adc_async_channel_conversion_done(struct _adc_async_device *device, const uint8_t channel,
-                                              const uint16_t data);
-static void adc_async_window_threshold_reached(struct _adc_async_device *device, const uint8_t channel);
-static void adc_async_error_occured(struct _adc_async_device *device, const uint8_t channel);
+static void adc_async_conversion_done(struct _adc_async_device *device, const uint16_t data);
+static void adc_async_window_threshold_reached(struct _adc_async_device *device);
+static void adc_async_error_occured(struct _adc_async_device *device);
 
 /**
  * \brief Initialize ADC
@@ -66,9 +65,9 @@ int32_t adc_async_init(struct adc_async_descriptor *const descr, void *const hw)
 		return init_status;
 	}
 
-	device->adc_async_ch_cb.convert_done = adc_async_channel_conversion_done;
-	device->adc_async_cb.window_cb       = adc_async_window_threshold_reached;
-	device->adc_async_cb.error_cb        = adc_async_error_occured;
+	device->adc_async_cb.convert_done = &adc_async_conversion_done;
+	device->adc_async_cb.window_cb    = &adc_async_window_threshold_reached;
+	device->adc_async_cb.error_cb     = &adc_async_error_occured;
 
 	return ERR_NONE;
 }
@@ -87,10 +86,10 @@ int32_t adc_async_deinit(struct adc_async_descriptor *const descr)
 /**
  * \brief Enable ADC
  */
-int32_t adc_async_enable_channel(struct adc_async_descriptor *const descr, const uint8_t channel)
+int32_t adc_async_enable(struct adc_async_descriptor *const descr)
 {
 	ASSERT(descr);
-	_adc_async_enable_channel(&descr->device, channel);
+	_adc_async_enable(&descr->device);
 
 	return ERR_NONE;
 }
@@ -98,10 +97,10 @@ int32_t adc_async_enable_channel(struct adc_async_descriptor *const descr, const
 /**
  * \brief Disable ADC
  */
-int32_t adc_async_disable_channel(struct adc_async_descriptor *const descr, const uint8_t channel)
+int32_t adc_async_disable(struct adc_async_descriptor *const descr)
 {
 	ASSERT(descr);
-	_adc_async_disable_channel(&descr->device, channel);
+	_adc_async_disable(&descr->device);
 
 	return ERR_NONE;
 }
@@ -109,14 +108,13 @@ int32_t adc_async_disable_channel(struct adc_async_descriptor *const descr, cons
 /**
  * \brief Register ADC callback
  */
-int32_t adc_async_register_callback(struct adc_async_descriptor *const descr, const uint8_t channel,
-                                    const enum adc_async_callback_type type, adc_async_cb_t cb)
+int32_t adc_async_register_callback(struct adc_async_descriptor *const descr, const enum adc_async_callback_type type, adc_async_cb_t cb)
 {
 	ASSERT(descr);
 
 	switch (type) {
 	case ADC_ASYNC_CONVERT_CB:
-		descr->descr_ch.adc_async_ch_cb.convert_done = cb;
+		descr->adc_async_cb.convert_done = cb;
 		break;
 	case ADC_ASYNC_MONITOR_CB:
 		descr->adc_async_cb.monitor = cb;
@@ -127,7 +125,7 @@ int32_t adc_async_register_callback(struct adc_async_descriptor *const descr, co
 	default:
 		return ERR_INVALID_ARG;
 	}
-	_adc_async_set_irq_state(&descr->device, channel, (enum _adc_async_callback_type)type, cb != NULL);
+	_adc_async_set_irq_state(&descr->device, (enum _adc_async_callback_type)type, cb != NULL);
 
 	return ERR_NONE;
 }
@@ -173,10 +171,10 @@ int32_t adc_async_set_resolution(struct adc_async_descriptor *const descr, const
  * \brief Set ADC input source for a channel
  */
 int32_t adc_async_set_inputs(struct adc_async_descriptor *const descr, const adc_pos_input_t pos_input,
-                             const adc_neg_input_t neg_input, const uint8_t channel)
+                             const adc_neg_input_t neg_input)
 {
 	ASSERT(descr);
-	_adc_async_set_inputs(&descr->device, pos_input, neg_input, channel);
+	_adc_async_set_inputs(&descr->device, pos_input, neg_input);
 	return ERR_NONE;
 }
 
@@ -188,17 +186,6 @@ int32_t adc_async_set_thresholds(struct adc_async_descriptor *const descr, const
 {
 	ASSERT(descr);
 	_adc_async_set_thresholds(&descr->device, low_threshold, up_threshold);
-	return ERR_NONE;
-}
-
-/**
- * \brief Set ADC gain
- */
-int32_t adc_async_set_channel_gain(struct adc_async_descriptor *const descr, const uint8_t channel,
-                                   const adc_gain_t gain)
-{
-	ASSERT(descr);
-	_adc_async_set_channel_gain(&descr->device, channel, gain);
 	return ERR_NONE;
 }
 
@@ -215,11 +202,10 @@ int32_t adc_async_set_conversion_mode(struct adc_async_descriptor *const descr, 
 /**
  * \brief Set ADC differential mode
  */
-int32_t adc_async_set_channel_differential_mode(struct adc_async_descriptor *const descr, const uint8_t channel,
-                                                const enum adc_differential_mode mode)
+int32_t adc_async_set_differential_mode(struct adc_async_descriptor *const descr, const enum adc_differential_mode mode)
 {
 	ASSERT(descr);
-	_adc_async_set_channel_differential_mode(&descr->device, channel, mode);
+	_adc_async_set_differential_mode(&descr->device, mode);
 	return ERR_NONE;
 }
 
@@ -247,10 +233,10 @@ int32_t adc_async_get_threshold_state(const struct adc_async_descriptor *const d
 /**
  * \brief Check if conversion is complete
  */
-int32_t adc_async_is_channel_conversion_complete(const struct adc_async_descriptor *const descr, const uint8_t channel)
+int32_t adc_async_is_channel_conversion_complete(const struct adc_async_descriptor *const descr)
 {
 	ASSERT(descr);
-	return _adc_async_is_channel_conversion_done(&descr->device, channel);
+	return _adc_async_is_conversion_done(&descr->device);
 }
 
 /**
@@ -267,31 +253,30 @@ uint32_t adc_async_get_version(void)
  * \param[in] device The pointer to ADC device structure
  * \param[in] data Converted data
  */
-static void adc_async_channel_conversion_done(struct _adc_async_device *device, const uint8_t channel,
-                                              const uint16_t data)
+static void adc_async_conversion_done(struct _adc_async_device *device, const uint16_t data)
 {
-	struct adc_async_descriptor *const descr = CONTAINER_OF(device, struct adc_async_descriptor, device);
+    struct adc_async_descriptor *const descr = CONTAINER_OF(device, struct adc_async_descriptor, device);
     
-	if (descr->descr_ch.adc_async_ch_cb.convert_done) {
-		descr->descr_ch.adc_async_ch_cb.convert_done(descr, channel, data);
-	}
+    if (descr->adc_async_cb.convert_done) {
+        descr->adc_async_cb.convert_done(descr, data);
+    }
 }
 
-static void adc_async_window_threshold_reached(struct _adc_async_device *device, const uint8_t channel)
+static void adc_async_window_threshold_reached(struct _adc_async_device *device)
 {
 	struct adc_async_descriptor *const descr = CONTAINER_OF(device, struct adc_async_descriptor, device);
 
 	if (descr->adc_async_cb.monitor) {
-		descr->adc_async_cb.monitor(descr, channel, 0);
+		descr->adc_async_cb.monitor(descr, 0u);
 	}
 }
 
-static void adc_async_error_occured(struct _adc_async_device *device, const uint8_t channel)
+static void adc_async_error_occured(struct _adc_async_device *device)
 {
 	struct adc_async_descriptor *const descr = CONTAINER_OF(device, struct adc_async_descriptor, device);
 
 	if (descr->adc_async_cb.error) {
-		descr->adc_async_cb.error(descr, channel, 0);
+		descr->adc_async_cb.error(descr, 0u);
 	}
 }
 

@@ -57,7 +57,7 @@ static int32_t adc_convert_channel(uint32_t channel_idx)
         adc.conversionRunning = true;
         adc.currentChannel = channel_idx;
     
-        adc_async_set_inputs(&adc.hwDescriptor, adc_channels[channel_idx], ADC_CHN_INT_GND, 0);
+        adc_async_set_inputs(&adc.hwDescriptor, adc_channels[channel_idx], ADC_CHN_INT_GND);
         adc_async_start_conversion(&adc.hwDescriptor);
     
         result = ERR_NONE;
@@ -66,10 +66,9 @@ static int32_t adc_convert_channel(uint32_t channel_idx)
     return result;
 }
 
-static void conversion_complete(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data)
+static void conversion_complete(const struct adc_async_descriptor *const descr, uint16_t adc_data)
 {
     (void) descr;
-    (void) channel;
 
     uint32_t channel_idx = adc.currentChannel;
 
@@ -92,8 +91,8 @@ void ADC1_Run_OnInit(void)
     adc.conversionRunning = false;
 
     ADC_1_init();
-    adc_async_register_callback(&adc.hwDescriptor, 0, ADC_ASYNC_CONVERT_CB, &conversion_complete);
-    adc_async_enable_channel(&adc.hwDescriptor, 0);
+    adc_async_register_callback(&adc.hwDescriptor, ADC_ASYNC_CONVERT_CB, &conversion_complete);
+    adc_async_enable(&adc.hwDescriptor);
 }
 
 void ADC1_Run_Update(void)

@@ -106,17 +106,15 @@ void _adc_dma_deinit(struct _adc_dma_device *const device);
  * \brief Enable ADC peripheral
  *
  * \param[in] device   The pointer to ADC device instance
- * \param[in] channel  Channel number
  */
-void _adc_dma_enable_channel(struct _adc_dma_device *const device, const uint8_t channel);
+void _adc_dma_enable(struct _adc_dma_device *const device);
 
 /**
  * \brief Disable ADC peripheral
  *
  * \param[in] device   The pointer to ADC device instance
- * \param[in] channel  Channel number
  */
-void _adc_dma_disable_channel(struct _adc_dma_device *const device, const uint8_t channel);
+void _adc_dma_disable(struct _adc_dma_device *const device);
 
 /**
  * \brief Return address of ADC DMA source
@@ -176,10 +174,9 @@ void _adc_dma_set_resolution(struct _adc_dma_device *const device, const adc_res
  * \param[in] device    The pointer to ADC device instance
  * \param[in] pos_input A positive input source to set
  * \param[in] neg_input A negative input source to set
- * \param[in] channel   Channel number
  */
 void _adc_dma_set_inputs(struct _adc_dma_device *const device, const adc_pos_input_t pos_input,
-                         const adc_neg_input_t neg_input, const uint8_t channel);
+                         const adc_neg_input_t neg_input);
 
 /**
  * \brief Set conversion mode
@@ -193,20 +190,9 @@ void _adc_dma_set_conversion_mode(struct _adc_dma_device *const device, const en
  * \brief Set differential mode
  *
  * \param[in] device  The pointer to ADC device instance
- * \param[in] channel Channel number
  * \param[in] mode    A differential mode to set
  */
-void _adc_dma_set_channel_differential_mode(struct _adc_dma_device *const device, const uint8_t channel,
-                                            const enum adc_differential_mode mode);
-
-/**
- * \brief Set gain
- *
- * \param[in] device  The pointer to ADC device instance
- * \param[in] channel Channel number
- * \param[in] gain    A gain to set
- */
-void _adc_dma_set_channel_gain(struct _adc_dma_device *const device, const uint8_t channel, const adc_gain_t gain);
+void _adc_dma_set_differential_mode(struct _adc_dma_device *const device, const enum adc_differential_mode mode);
 
 /**
  * \brief Set window mode

@@ -145,8 +145,7 @@ static uint8_t _adc_get_regs(const uint32_t hw_addr)
  */
 static uint8_t _adc_get_irq_num(const struct _adc_async_device *const device)
 {
-
-	return ADC0_0_IRQn + (_adc_get_hardware_index(device->hw) << 1);
+    return ADC0_0_IRQn + (_adc_get_hardware_index(device->hw) << 1);
 }
 
 /**
@@ -154,12 +153,18 @@ static uint8_t _adc_get_irq_num(const struct _adc_async_device *const device)
  */
 static void _adc_init_irq_param(const void *const hw, struct _adc_async_device *dev)
 {
-	if (hw == ADC0) {
-		_adc0_dev = dev;
-	}
-	if (hw == ADC1) {
-		_adc1_dev = dev;
-	}
+    if (hw == ADC0)
+    {
+        _adc0_dev = dev;
+    }
+    else if (hw == ADC1)
+    {
+        _adc1_dev = dev;
+    }
+    else
+    {
+        ASSERT(0);
+    }
 }
 
 /**
@@ -285,60 +290,48 @@ void _adc_dma_deinit(struct _adc_dma_device *const device)
 /**
  * \brief Enable ADC
  */
-void _adc_sync_enable_channel(struct _adc_sync_device *const device, const uint8_t channel)
+void _adc_sync_enable(struct _adc_sync_device *const device)
 {
-	(void)channel;
-
 	hri_adc_set_CTRLA_ENABLE_bit(device->hw);
 }
 
 /**
  * \brief Enable ADC
  */
-void _adc_async_enable_channel(struct _adc_async_device *const device, const uint8_t channel)
+void _adc_async_enable(struct _adc_async_device *const device)
 {
-	(void)channel;
-
 	hri_adc_set_CTRLA_ENABLE_bit(device->hw);
 }
 
 /**
  * \brief Enable ADC
  */
-void _adc_dma_enable_channel(struct _adc_dma_device *const device, const uint8_t channel)
+void _adc_dma_enable(struct _adc_dma_device *const device)
 {
-	(void)channel;
-
 	hri_adc_set_CTRLA_ENABLE_bit(device->hw);
 }
 
 /**
  * \brief Disable ADC
  */
-void _adc_sync_disable_channel(struct _adc_sync_device *const device, const uint8_t channel)
+void _adc_sync_disable(struct _adc_sync_device *const device)
 {
-	(void)channel;
-
 	hri_adc_clear_CTRLA_ENABLE_bit(device->hw);
 }
 
 /**
  * \brief Disable ADC
  */
-void _adc_async_disable_channel(struct _adc_async_device *const device, const uint8_t channel)
+void _adc_async_disable(struct _adc_async_device *const device)
 {
-	(void)channel;
-
 	hri_adc_clear_CTRLA_ENABLE_bit(device->hw);
 }
 
 /**
  * \brief Disable ADC
  */
-void _adc_dma_disable_channel(struct _adc_dma_device *const device, const uint8_t channel)
+void _adc_dma_disable(struct _adc_dma_device *const device)
 {
-	(void)channel;
-
 	hri_adc_clear_CTRLA_ENABLE_bit(device->hw);
 }
 
@@ -377,20 +370,16 @@ uint8_t _adc_dma_get_data_size(const struct _adc_dma_device *const device)
 /**
  * \brief Check if conversion is done
  */
-bool _adc_sync_is_channel_conversion_done(const struct _adc_sync_device *const device, const uint8_t channel)
+bool _adc_sync_is_conversion_done(const struct _adc_sync_device *const device)
 {
-	(void)channel;
-
 	return hri_adc_get_interrupt_RESRDY_bit(device->hw);
 }
 
 /**
  * \brief Check if conversion is done
  */
-bool _adc_async_is_channel_conversion_done(const struct _adc_async_device *const device, const uint8_t channel)
+bool _adc_async_is_conversion_done(const struct _adc_async_device *const device)
 {
-	(void)channel;
-
 	return hri_adc_get_interrupt_RESRDY_bit(device->hw);
 }
 
@@ -434,20 +423,16 @@ void _adc_dma_convert(struct _adc_dma_device *const device)
 /**
  * \brief Retrieve the conversion result
  */
-uint16_t _adc_sync_read_channel_data(const struct _adc_sync_device *const device, const uint8_t channel)
+uint16_t _adc_sync_read_data(const struct _adc_sync_device *const device)
 {
-	(void)channel;
-
 	return hri_adc_read_RESULT_reg(device->hw);
 }
 
 /**
  * \brief Retrieve the conversion result
  */
-uint16_t _adc_async_read_channel_data(const struct _adc_async_device *const device, const uint8_t channel)
+uint16_t _adc_async_read_data(const struct _adc_async_device *const device)
 {
-	(void)channel;
-
 	return hri_adc_read_RESULT_reg(device->hw);
 }
 
@@ -503,10 +488,8 @@ void _adc_dma_set_resolution(struct _adc_dma_device *const device, const adc_res
  * \brief Set channels input sources
  */
 void _adc_sync_set_inputs(struct _adc_sync_device *const device, const adc_pos_input_t pos_input,
-                          const adc_neg_input_t neg_input, const uint8_t channel)
+                          const adc_neg_input_t neg_input)
 {
-	(void)channel;
-
 	hri_adc_write_INPUTCTRL_MUXPOS_bf(device->hw, pos_input);
 	hri_adc_write_INPUTCTRL_MUXNEG_bf(device->hw, neg_input);
 }
@@ -515,10 +498,8 @@ void _adc_sync_set_inputs(struct _adc_sync_device *const device, const adc_pos_i
  * \brief Set channels input sources
  */
 void _adc_async_set_inputs(struct _adc_async_device *const device, const adc_pos_input_t pos_input,
-                           const adc_neg_input_t neg_input, const uint8_t channel)
+                           const adc_neg_input_t neg_input)
 {
-	(void)channel;
-
 	hri_adc_write_INPUTCTRL_MUXPOS_bf(device->hw, pos_input);
 	hri_adc_write_INPUTCTRL_MUXNEG_bf(device->hw, neg_input);
 }
@@ -527,10 +508,8 @@ void _adc_async_set_inputs(struct _adc_async_device *const device, const adc_pos
  * \brief Set channels input source
  */
 void _adc_dma_set_inputs(struct _adc_dma_device *const device, const adc_pos_input_t pos_input,
-                         const adc_neg_input_t neg_input, const uint8_t channel)
+                         const adc_neg_input_t neg_input)
 {
-	(void)channel;
-
 	hri_adc_write_INPUTCTRL_MUXPOS_bf(device->hw, pos_input);
 	hri_adc_write_INPUTCTRL_MUXNEG_bf(device->hw, neg_input);
 }
@@ -563,30 +542,6 @@ void _adc_dma_set_thresholds(struct _adc_dma_device *const device, const adc_thr
 {
 	hri_adc_write_WINLT_reg(device->hw, low_threshold);
 	hri_adc_write_WINUT_reg(device->hw, up_threshold);
-}
-
-/**
- * \brief Set gain
- */
-void _adc_sync_set_channel_gain(struct _adc_sync_device *const device, const uint8_t channel, const adc_gain_t gain)
-{
-	(void)device, (void)channel, (void)gain;
-}
-
-/**
- * \brief Set gain
- */
-void _adc_async_set_channel_gain(struct _adc_async_device *const device, const uint8_t channel, const adc_gain_t gain)
-{
-	(void)device, (void)channel, (void)gain;
-}
-
-/**
- * \brief Set gain
- */
-void _adc_dma_set_channel_gain(struct _adc_dma_device *const device, const uint8_t channel, const adc_gain_t gain)
-{
-	(void)device, (void)channel, (void)gain;
 }
 
 /**
@@ -628,11 +583,8 @@ void _adc_dma_set_conversion_mode(struct _adc_dma_device *const device, const en
 /**
  * \brief Set differential mode
  */
-void _adc_sync_set_channel_differential_mode(struct _adc_sync_device *const device, const uint8_t channel,
-                                             const enum adc_differential_mode mode)
+void _adc_sync_set_differential_mode(struct _adc_sync_device *const device, const enum adc_differential_mode mode)
 {
-	(void)channel;
-
 	if (ADC_DIFFERENTIAL_MODE_DIFFERENTIAL == mode) {
 		hri_adc_set_INPUTCTRL_DIFFMODE_bit(device->hw);
 	} else {
@@ -643,11 +595,8 @@ void _adc_sync_set_channel_differential_mode(struct _adc_sync_device *const devi
 /**
  * \brief Set differential mode
  */
-void _adc_async_set_channel_differential_mode(struct _adc_async_device *const device, const uint8_t channel,
-                                              const enum adc_differential_mode mode)
+void _adc_async_set_differential_mode(struct _adc_async_device *const device, const enum adc_differential_mode mode)
 {
-	(void)channel;
-
 	if (ADC_DIFFERENTIAL_MODE_DIFFERENTIAL == mode) {
 		hri_adc_set_INPUTCTRL_DIFFMODE_bit(device->hw);
 	} else {
@@ -658,11 +607,8 @@ void _adc_async_set_channel_differential_mode(struct _adc_async_device *const de
 /**
  * \brief Set differential mode
  */
-void _adc_dma_set_channel_differential_mode(struct _adc_dma_device *const device, const uint8_t channel,
-                                            const enum adc_differential_mode mode)
+void _adc_dma_set_differential_mode(struct _adc_dma_device *const device, const enum adc_differential_mode mode)
 {
-	(void)channel;
-
 	if (ADC_DIFFERENTIAL_MODE_DIFFERENTIAL == mode) {
 		hri_adc_set_INPUTCTRL_DIFFMODE_bit(device->hw);
 	} else {
@@ -721,11 +667,8 @@ void _adc_dma_get_threshold_state(const struct _adc_dma_device *const device, ad
 /**
  * \brief Enable/disable ADC channel interrupt
  */
-void _adc_async_set_irq_state(struct _adc_async_device *const device, const uint8_t channel,
-                              const enum _adc_async_callback_type type, const bool state)
+void _adc_async_set_irq_state(struct _adc_async_device *const device, const enum _adc_async_callback_type type, const bool state)
 {
-	(void)channel;
-
 	void *const hw = device->hw;
 
 	if (ADC_ASYNC_DEVICE_MONITOR_CB == type) {
@@ -748,10 +691,10 @@ static void _adc_interrupt_handler0(struct _adc_async_device *device)
 	intflag &= hri_adc_read_INTEN_reg(hw);
 	if (intflag & ADC_INTFLAG_OVERRUN) {
 		hri_adc_clear_interrupt_OVERRUN_bit(hw);
-		device->adc_async_cb.error_cb(device, 0);
+		device->adc_async_cb.error_cb(device);
 	} else if (intflag & ADC_INTFLAG_WINMON) {
 		hri_adc_clear_interrupt_WINMON_bit(hw);
-		device->adc_async_cb.window_cb(device, 0);
+		device->adc_async_cb.window_cb(device);
 	}
 }
 
@@ -762,33 +705,29 @@ static void _adc_interrupt_handler0(struct _adc_async_device *device)
  */
 static void _adc_interrupt_handler1(struct _adc_async_device *device)
 {
-    device->adc_async_ch_cb.convert_done(device, 0, hri_adc_read_RESULT_reg(device->hw));
+    device->adc_async_cb.convert_done(device, hri_adc_read_RESULT_reg(device->hw));
 }
 
-/**
- * \brief DMAC interrupt handler
- */
 void ADC0_0_Handler(void)
 {
-	_adc_interrupt_handler0(_adc0_dev);
+    _adc_interrupt_handler0(_adc0_dev);
 }
-/**
- * \brief DMAC interrupt handler
- */
+
 void ADC0_1_Handler(void)
 {
-	_adc_interrupt_handler1(_adc0_dev);
+    _adc_interrupt_handler1(_adc0_dev);
 }
 
 void ADC1_0_Handler(void)
 {
-	_adc_interrupt_handler0(_adc1_dev);
+    _adc_interrupt_handler0(_adc1_dev);
 }
 
 void ADC1_1_Handler(void)
 {
-	_adc_interrupt_handler1(_adc1_dev);
+    _adc_interrupt_handler1(_adc1_dev);
 }
+
 /**
  * \brief Retrieve ADC sync helper functions
  */

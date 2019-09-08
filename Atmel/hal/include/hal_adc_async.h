@@ -56,7 +56,7 @@ struct adc_async_descriptor;
 /**
  * \brief ADC callback type
  */
-typedef void (*adc_async_cb_t)(const struct adc_async_descriptor *const descr, const uint8_t channel, uint16_t adc_data);
+typedef void (*adc_async_cb_t)(const struct adc_async_descriptor *const descr, uint16_t adc_data);
 
 /**
  * \brief ADC callback types
@@ -78,24 +78,8 @@ struct adc_async_callbacks {
 	adc_async_cb_t monitor;
 	/** Error callback  */
 	adc_async_cb_t error;
-};
-
-/**
- * \brief ADC channel callbacks
- */
-struct adc_async_ch_callbacks {
 	/** Convert done callback  */
 	adc_async_cb_t convert_done;
-};
-
-/**
- * \brief ADC channel buffer descriptor
- */
-struct adc_async_channel_descriptor {
-	/** ADC channel callbacks type */
-	struct adc_async_ch_callbacks adc_async_ch_cb;
-	/** Bytes in buffer  */
-	uint16_t bytes_in_buffer;
 };
 
 /**
@@ -106,8 +90,6 @@ struct adc_async_descriptor {
 	struct _adc_async_device device;
 	/** ADC callbacks type */
 	struct adc_async_callbacks adc_async_cb;
-	/** ADC channel descriptor */
-	struct adc_async_channel_descriptor descr_ch;
 };
 
 /**
@@ -119,11 +101,6 @@ struct adc_async_descriptor {
  *
  * \param[out] descr         An ADC descriptor to initialize
  * \param[in] hw             The pointer to hardware instance
- * \param[in] channel_map    The pointer to ADC channel mapping
- * \param[in] channel_max    ADC enabled maximum channel number
- * \param[in] channel_amount ADC enabled channel amount
- * \param[in] descr_ch       A buffer to keep all channel descriptor
- * \param[in] func           The pointer to as set of functions pointers
  *
  * \return Initialization status.
  * \retval -1 Passed parameters were invalid or an ADC is already initialized
@@ -145,36 +122,33 @@ int32_t adc_async_init(struct adc_async_descriptor *const descr, void *const hw)
 int32_t adc_async_deinit(struct adc_async_descriptor *const descr);
 
 /**
- * \brief Enable channel of ADC
+ * \brief Enable ADC
  *
  * Use this function to set the ADC peripheral to enabled state.
  *
  * \param[in] descr    Pointer to the ADC descriptor
- * \param[in] channel  Channel number
  *
  * \return Operation status.
  *
  */
-int32_t adc_async_enable_channel(struct adc_async_descriptor *const descr, const uint8_t channel);
+int32_t adc_async_enable(struct adc_async_descriptor *const descr);
 
 /**
- * \brief Disable channel of ADC
+ * \brief Disable ADC
  *
  * Use this function to set the ADC peripheral to disabled state.
  *
  * \param[in] descr   Pointer to the ADC descriptor
- * \param[in] channel  Channel number
  *
  * \return Operation status.
  *
  */
-int32_t adc_async_disable_channel(struct adc_async_descriptor *const descr, const uint8_t channel);
+int32_t adc_async_disable(struct adc_async_descriptor *const descr);
 
 /**
  * \brief Register ADC callback
  *
  * \param[in] io_descr  An adc descriptor
- * \param[in] channel   Channel number
  * \param[in] type      Callback type
  * \param[in] cb        A callback function, passing NULL de-registers callback
  *
@@ -182,8 +156,7 @@ int32_t adc_async_disable_channel(struct adc_async_descriptor *const descr, cons
  * \retval -1 Passed parameters were invalid or the ADC is not initialized
  * \retval 0 A callback is registered successfully
  */
-int32_t adc_async_register_callback(struct adc_async_descriptor *const descr, const uint8_t channel,
-                                    const enum adc_async_callback_type type, adc_async_cb_t cb);
+int32_t adc_async_register_callback(struct adc_async_descriptor *const descr, const enum adc_async_callback_type type, adc_async_cb_t cb);
 
 /**
  * \brief Start conversion
@@ -229,12 +202,11 @@ int32_t adc_async_set_resolution(struct adc_async_descriptor *const descr, const
  * \param[in] descr     The pointer to the ADC descriptor
  * \param[in] pos_input A positive input source to set
  * \param[in] neg_input A negative input source to set
- * \param[in] channel   Channel number
  *
  * \return Status of the ADC channels setting.
  */
 int32_t adc_async_set_inputs(struct adc_async_descriptor *const descr, const adc_pos_input_t pos_input,
-                             const adc_neg_input_t neg_input, const uint8_t channel);
+                             const adc_neg_input_t neg_input);
 
 /**
  * \brief Set ADC conversion mode
@@ -254,27 +226,12 @@ int32_t adc_async_set_conversion_mode(struct adc_async_descriptor *const descr, 
  * This function sets ADC differential mode.
  *
  * \param[in] descr   The pointer to the ADC descriptor
- * \param[in] channel Channel number
  * \param[in] mode    A differential mode to set
  *
  * \return Status of the ADC differential mode setting.
  */
-int32_t adc_async_set_channel_differential_mode(struct adc_async_descriptor *const descr, const uint8_t channel,
+int32_t adc_async_set_differential_mode(struct adc_async_descriptor *const descr,
                                                 const enum adc_differential_mode mode);
-
-/**
- * \brief Set ADC channel gain
- *
- * This function sets ADC channel gain.
- *
- * \param[in] descr   The pointer to the ADC descriptor
- * \param[in] channel Channel number
- * \param[in] gain    A gain to set
- *
- * \return Status of the ADC gain setting.
- */
-int32_t adc_async_set_channel_gain(struct adc_async_descriptor *const descr, const uint8_t channel,
-                                   const adc_gain_t gain);
 
 /**
  * \brief Set ADC window mode
@@ -321,13 +278,12 @@ int32_t adc_async_get_threshold_state(const struct adc_async_descriptor *const d
  * This function checks if the ADC has finished the conversion.
  *
  * \param[in] descr   The pointer to the ADC descriptor
- * \param[in] channel Channel number
  *
  * \return The status of the ADC conversion completion checking.
  * \retval 1 The conversion is complete
  * \retval 0 The conversion is not complete
  */
-int32_t adc_async_is_channel_conversion_complete(const struct adc_async_descriptor *const descr, const uint8_t channel);
+int32_t adc_async_is_conversion_complete(const struct adc_async_descriptor *const descr);
 
 /**
  * \brief Retrieve the current driver version

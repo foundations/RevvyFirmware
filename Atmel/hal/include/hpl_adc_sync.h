@@ -205,10 +205,9 @@ void _adc_sync_set_resolution(struct _adc_sync_device *const device, const adc_r
  * \param[in] device    The pointer to ADC device instance
  * \param[in] pos_input A positive input source to set
  * \param[in] neg_input A negative input source to set
- * \param[in] channel   Channel number
  */
 void _adc_sync_set_inputs(struct _adc_sync_device *const device, const adc_pos_input_t pos_input,
-                          const adc_neg_input_t neg_input, const uint8_t channel);
+                          const adc_neg_input_t neg_input);
 
 /**
  * \brief Set conversion mode
@@ -222,20 +221,9 @@ void _adc_sync_set_conversion_mode(struct _adc_sync_device *const device, const 
  * \brief Set differential mode
  *
  * \param[in] device  The pointer to ADC device instance
- * \param[in] channel Channel number
  * \param[in] mode    A differential mode to set
  */
-void _adc_sync_set_channel_differential_mode(struct _adc_sync_device *const device, const uint8_t channel,
-                                             const enum adc_differential_mode mode);
-
-/**
- * \brief Set gain
- *
- * \param[in] device   The pointer to ADC device instance
- * \param[in] channel  Channel number
- * \param[in] gain     A gain to set
- */
-void _adc_sync_set_channel_gain(struct _adc_sync_device *const device, const uint8_t channel, const adc_gain_t gain);
+void _adc_sync_set_differential_mode(struct _adc_sync_device *const device, const enum adc_differential_mode mode);
 
 /**
  * \brief Set window mode

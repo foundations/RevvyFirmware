@@ -66,25 +66,18 @@ enum _adc_async_callback_type { ADC_ASYNC_DEVICE_CONVERT_CB, ADC_ASYNC_DEVICE_MO
  * \brief ADC interrupt callbacks
  */
 struct _adc_async_callbacks {
-	void (*window_cb)(struct _adc_async_device *device, const uint8_t channel);
-	void (*error_cb)(struct _adc_async_device *device, const uint8_t channel);
-};
-
-/**
- * \brief ADC channel interrupt callbacks
- */
-struct _adc_async_ch_callbacks {
-	void (*convert_done)(struct _adc_async_device *device, const uint8_t channel, const uint16_t data);
+	void (*window_cb)(struct _adc_async_device *device);
+	void (*error_cb)(struct _adc_async_device *device);
+	void (*convert_done)(struct _adc_async_device *device, const uint16_t data);
 };
 
 /**
  * \brief ADC descriptor device structure
  */
 struct _adc_async_device {
-	struct _adc_async_callbacks    adc_async_cb;
-	struct _adc_async_ch_callbacks adc_async_ch_cb;
-	struct _irq_descriptor         irq;
-	void *                         hw;
+	struct _adc_async_callbacks adc_async_cb;
+	struct _irq_descriptor      irq;
+	void *                      hw;
 };
 
 /**
@@ -114,17 +107,15 @@ void _adc_async_deinit(struct _adc_async_device *const device);
  * \brief Enable ADC peripheral
  *
  * \param[in] device   The pointer to ADC device instance
- * \param[in] channel  Channel number
  */
-void _adc_async_enable_channel(struct _adc_async_device *const device, const uint8_t channel);
+void _adc_async_enable(struct _adc_async_device *const device);
 
 /**
  * \brief Disable ADC peripheral
  *
  * \param[in] device   The pointer to ADC device instance
- * \param[in] channel  Channel number
  */
-void _adc_async_disable_channel(struct _adc_async_device *const device, const uint8_t channel);
+void _adc_async_disable(struct _adc_async_device *const device);
 
 /**
  * \brief Retrieve ADC conversion data size
@@ -139,13 +130,12 @@ uint8_t _adc_async_get_data_size(const struct _adc_async_device *const device);
  * \brief Check if conversion is done
  *
  * \param[in] device  The pointer to ADC device instance
- * \param[in] channel Channel number
  *
  * \return The status of conversion
  * \retval true The conversion is done
  * \retval false The conversion is not done
  */
-bool _adc_async_is_channel_conversion_done(const struct _adc_async_device *const device, const uint8_t channel);
+bool _adc_async_is_conversion_done(const struct _adc_async_device *const device);
 
 /**
  * \brief Make conversion
@@ -159,11 +149,10 @@ void _adc_async_convert_stop(struct _adc_async_device *const device);
  * \brief Retrieve the conversion result
  *
  * \param[in] device  The pointer to ADC device instance
- * \param[in] channel Channel number
  *
  * The result value
  */
-uint16_t _adc_async_read_channel_data(const struct _adc_async_device *const device, const uint8_t channel);
+uint16_t _adc_async_read_data(const struct _adc_async_device *const device);
 
 /**
  * \brief Set reference source
@@ -187,10 +176,8 @@ void _adc_async_set_resolution(struct _adc_async_device *const device, const adc
  * \param[in] device    The pointer to ADC device instance
  * \param[in] pos_input A positive input source to set
  * \param[in] neg_input A negative input source to set
- * \param[in] channel   Channel number
  */
-void _adc_async_set_inputs(struct _adc_async_device *const device, const adc_pos_input_t pos_input,
-                           const adc_neg_input_t neg_input, const uint8_t channel);
+void _adc_async_set_inputs(struct _adc_async_device *const device, const adc_pos_input_t pos_input, const adc_neg_input_t neg_input);
 
 /**
  * \brief Set conversion mode
@@ -204,20 +191,9 @@ void _adc_async_set_conversion_mode(struct _adc_async_device *const device, cons
  * \brief Set differential mode
  *
  * \param[in] device  The pointer to ADC device instance
- * \param[in] channel Channel number
  * \param[in] mode    A differential mode to set
  */
-void _adc_async_set_channel_differential_mode(struct _adc_async_device *const device, const uint8_t channel,
-                                              const enum adc_differential_mode mode);
-
-/**
- * \brief Set gain
- *
- * \param[in] device   The pointer to ADC device instance
- * \param[in] channel  Channel number
- * \param[in] gain     A gain to set
- */
-void _adc_async_set_channel_gain(struct _adc_async_device *const device, const uint8_t channel, const adc_gain_t gain);
+void _adc_async_set_differential_mode(struct _adc_async_device *const device, const enum adc_differential_mode mode);
 
 /**
  * \brief Set window mode
@@ -249,12 +225,10 @@ void _adc_async_get_threshold_state(const struct _adc_async_device *const device
  * \brief Enable/disable ADC channel interrupt
  *
  * \param[in] device   The pointer to ADC device instance
- * \param[in] channel  Channel number
  * \param[in] type     The type of interrupt to disable/enable if applicable
  * \param[in] state    Enable or disable
  */
-void _adc_async_set_irq_state(struct _adc_async_device *const device, const uint8_t channel,
-                              const enum _adc_async_callback_type type, const bool state);
+void _adc_async_set_irq_state(struct _adc_async_device *const device, const enum _adc_async_callback_type type, const bool state);
 
 //@}
 
