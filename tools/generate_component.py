@@ -84,6 +84,24 @@ def convert_functions(runnable_data, port_data):
             'args':        arguments
         })
 
+    for port in port_data:
+        port_type = port_data[port]['port_type']
+        arguments = [{'name': 'value', 'type': port_data[port]['data_type']}]
+
+        if arguments:
+            arguments[len(arguments) - 1]['last'] = True
+
+        names = {
+            "WriteData": "Write_{}"
+        }
+
+        functions.append({
+            'name':        names[port_type].format(port),
+            'return_type': 'void',
+            'args':        arguments,
+            'weak':        True
+        })
+
     return functions
 
 
@@ -171,6 +189,7 @@ if __name__ == "__main__":
 
         # create component configuration json
         runnables = default_runnables
+        ports = {}
         new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)
 
         # replace sources list with new one and set for file modification
@@ -181,12 +200,13 @@ if __name__ == "__main__":
             component_config = json.load(component_config_file)
 
         runnables = component_config['runnables']
+        ports = component_config['ports']
 
     template_ctx = {
         'component_name': component_name,
         'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions':      convert_functions(runnables)
+        'functions':      convert_functions(runnables, ports)
     }
 
 
