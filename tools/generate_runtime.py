@@ -45,18 +45,32 @@ if __name__ == "__main__":
     with open(args.config, "r") as f:
         config = json.load(f)
 
+    component_data = {}
+
     # validate components
     valid = True
     for component in config['components']:
+        component_valid = True
         if not os.path.isdir('rrrc/components/{}'.format(component)):
             print('Component folder for {} does not exist'.format(component))
-            valid = False
+            component_valid = False
         else:
             required_files = ['config.json', component + '.c', component + '.h']
             for file in required_files:
                 if not os.path.isfile('rrrc/components/{}/{}'.format(component, file)):
                     print('{} does not exist in component {}'.format(file, component))
-                    valid = False
+                    component_valid = False
+
+        if component_valid:
+            component_config_file = 'rrrc/components/{}/config.json'.format(component)
+            with open(component_config_file, "r") as f:
+                try:
+                    component_data[component] = json.load(f)
+                except JSONDecodeError:
+                    print("Could not read config for {}".format(component))
+                    component_valid = False
+
+        valid = valid and component_valid
 
     # validate runnables
     for runnable_group in config['runtime']['runnables']:
@@ -67,12 +81,7 @@ if __name__ == "__main__":
                 valid = False
             else:
                 component_config_file = 'rrrc/components/{}/config.json'.format(component_name)
-                with open(component_config_file, "r") as f:
-                    try:
-                        component_config = json.load(f)
-                    except JSONDecodeError:
-                        print("Could not read config for {}".format(component_name))
-                        continue
+                component_config = component_data[component_name]
                 runnable_name = runnable['runnable']
                 if runnable_name not in component_config.get('runnables', {}):
                     print('Component {} does not have a runnable called {}'.format(component_name, runnable_name))
