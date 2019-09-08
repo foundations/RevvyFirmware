@@ -19,6 +19,17 @@ type_includes = {
     'bool':     '<stdbool.h>'
 }
 
+type_default_values = {
+    'uint8_t':  '0u',
+    'uint16_t': '0u',
+    'uint32_t': '0u',
+    'int8_t':   '0',
+    'int16_t':  '0',
+    'int32_t':  '0',
+    'float':    '0.0f',
+    'bool':     'false'
+}
+
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
 fn_header_template = '{{return_type}} {{ component_name }}_{{name}}(' + argument_list_template + ')'
@@ -45,6 +56,9 @@ __attribute__((weak)){{/weak}}
     {{#args}}
     (void) {{name}};
     {{/args}}
+    {{#return_value}}
+    return {{{.}}};
+    {{/return_value}}
 }
 {{/functions}}
 '''
@@ -101,21 +115,35 @@ def convert_functions(runnable_data, port_data):
 
     for port in port_data:
         port_type = port_data[port]['port_type']
-        arguments = [{'name': 'value', 'type': port_data[port]['data_type']}]
+        data_type = port_data[port]['data_type']
 
-        if arguments:
-            arguments[len(arguments) - 1]['last'] = True
-
-        names = {
-            "WriteData": "Write_{}"
+        port_data_templates = {
+            "WriteData": {
+                "name":         "Write_{}",
+                "return_type":  "void",
+                "return_value": "",
+                "arguments":    [{'name': 'value', 'type': data_type}]
+            },
+            "ReadValue": {
+                "name":         "Read_{}",
+                "return_type":  data_type,
+                "return_value": port_data[port].get('default_value', type_default_values[data_type]),
+                "arguments":    []
+            }
         }
 
-        functions.append({
-            'name':        names[port_type].format(port),
-            'return_type': 'void',
-            'args':        arguments,
-            'weak':        True
-        })
+        port_function_data = {
+            'name':         port_data_templates[port_type]['name'].format(port),
+            'return_type':  port_data_templates[port_type]['return_type'],
+            'return_value': port_data_templates[port_type]['return_value'],
+            'args':         port_data_templates[port_type]['arguments'],
+            'weak':         True
+        }
+
+        if port_data_templates[port_type]['arguments']:
+            port_function_data['args'][len(port_function_data['args']) - 1]['last'] = True
+
+        functions.append(port_function_data)
 
     return functions
 
