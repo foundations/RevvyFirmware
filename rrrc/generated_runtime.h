@@ -1,7 +1,8 @@
 #ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
-#include "components/ADC/ADC.h"
+#include "components/ADC0/ADC0.h"
+#include "components/ADC1/ADC1.h"
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryCharger/BatteryCharger.h"
 #include "components/BatteryIndicator/BatteryIndicator.h"

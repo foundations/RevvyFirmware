@@ -1,0 +1,16 @@
+{
+    "component_name": "ADC0",
+    "source_files": [
+        "ADC0.c"
+    ],
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        },
+        "Update": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
+}

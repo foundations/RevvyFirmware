@@ -90,7 +90,8 @@
         "third_party/FreeRTOSV10.0.0/Source/portable/GCC/ARM_CM4F"
     ],
     "components": [
-        "ADC",
+        "ADC0",
+        "ADC1",
         "BatteryCalculator",
         "BatteryCharger",
         "BatteryIndicator",
@@ -131,7 +132,11 @@
                     "runnable": "OnInit"
                 },
                 {
-                    "component": "ADC",
+                    "component": "ADC0",
+                    "runnable": "OnInit"
+                },
+                {
+                    "component": "ADC1",
                     "runnable": "OnInit"
                 },
                 {
@@ -189,7 +194,11 @@
             ],
             "1ms": [
                 {
-                    "component": "ADC",
+                    "component": "ADC0",
+                    "runnable": "Update"
+                },
+                {
+                    "component": "ADC1",
                     "runnable": "Update"
                 },
                 {

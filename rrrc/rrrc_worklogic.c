@@ -459,57 +459,55 @@ static float motorPreviousCurrents[ARRAY_SIZE(motorPorts)];
 static float motorTemperatures[ARRAY_SIZE(motorPorts)];
 static uint16_t motorRawCurrents[ARRAY_SIZE(motorPorts)];
 
-void ADC_Write_ChannelData_Raw(uint32_t adc_idx, uint32_t channel_idx, uint16_t adc_data)
+void ADC0_Write_ChannelData_Raw(uint32_t channel_idx, uint16_t adc_data)
 {
-    if (adc_idx == 0u)
+    switch (channel_idx)
     {
-        switch (channel_idx)
-        {
-            case M1_ISEN_CH:
-                motorRawCurrents[4] = adc_data;
-                break;
+        case M1_ISEN_CH:
+            motorRawCurrents[4] = adc_data;
+            break;
 
-            case M3_ISEN_CH:
-                motorRawCurrents[2] = adc_data;
-                break;
+        case M3_ISEN_CH:
+            motorRawCurrents[2] = adc_data;
+            break;
 
-            case M4_ISEN_CH:
-                motorRawCurrents[1] = adc_data;
-                break;
+        case M4_ISEN_CH:
+            motorRawCurrents[1] = adc_data;
+            break;
 
-            case S0_ADC_CH:
-                sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
-                break;
-        }
+        case S0_ADC_CH:
+            sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
+            break;
     }
-    else
+}
+
+void ADC1_Write_ChannelData_Raw(uint32_t channel_idx, uint16_t adc_data)
+{
+    switch (channel_idx)
     {
-        switch (channel_idx)
-        {
-            case S1_ADC_CH:
-                sensorAdcValues[2] = adc_data >> 4; /* 12 -> 8 bit */
-                break;
+        case S1_ADC_CH:
+            sensorAdcValues[2] = adc_data >> 4; /* 12 -> 8 bit */
+            break;
 
-            case S2_ADC_CH:
-                sensorAdcValues[1] = adc_data >> 4; /* 12 -> 8 bit */
-                break;
+        case S2_ADC_CH:
+            sensorAdcValues[1] = adc_data >> 4; /* 12 -> 8 bit */
+            break;
 
-            case S3_ADC_CH:
-                sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
-                break;
+        case S3_ADC_CH:
+            sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
+            break;
 
-            case M0_ISEN_CH:
-                motorRawCurrents[3] = adc_data;
-                break;
+        case M0_ISEN_CH:
+            motorRawCurrents[3] = adc_data;
+            break;
 
-            case M2_ISEN_CH:
-                motorRawCurrents[5] = adc_data;
-                break;
+        case M2_ISEN_CH:
+            motorRawCurrents[5] = adc_data;
+            break;
 
-            case M5_ISEN_CH:
-                motorRawCurrents[0] = adc_data;
-                break;
-        }
+        case M5_ISEN_CH:
+            motorRawCurrents[0] = adc_data;
+            break;
     }
 }
 
@@ -519,49 +517,47 @@ static inline void _update_current(uint8_t idx, float voltage)
     motorCurrents[idx] = map_constrained(voltage, 0, 200, 0, 1.66667f) * 0.05f + motorPreviousCurrents[idx] * 0.95f;
 }
 
-void ADC_Write_ChannelVoltage(uint32_t adc_idx, uint32_t channel_idx, float voltage)
+void ADC0_Write_ChannelVoltage(uint32_t channel_idx, float voltage)
 {
-    if (adc_idx == 0u)
+    switch (channel_idx)
     {
-        switch (channel_idx)
-        {
-            case M1_ISEN_CH:
-                _update_current(4, voltage);
-                break;
+        case M1_ISEN_CH:
+            _update_current(4, voltage);
+            break;
 
-            case M3_ISEN_CH:
-                _update_current(2, voltage);
-                break;
+        case M3_ISEN_CH:
+            _update_current(2, voltage);
+            break;
 
-            case M4_ISEN_CH:
-                _update_current(1, voltage);
-                break;
-        }
+        case M4_ISEN_CH:
+            _update_current(1, voltage);
+            break;
     }
-    else
+}
+
+void ADC1_Write_ChannelVoltage(uint32_t channel_idx, float voltage)
+{
+    switch (channel_idx)
     {
-        switch (channel_idx)
-        {
-            case ADC_CH_MOT_VOLTAGE:
-                motorBatteryVoltage = (uint32_t) lroundf(voltage * (130.0f / 30.0f));
-                break;
+        case ADC_CH_MOT_VOLTAGE:
+            motorBatteryVoltage = (uint32_t) lroundf(voltage * (130.0f / 30.0f));
+            break;
 
-            case ADC_CH_BAT_VOLTAGE:
-                mainBatteryVoltage = (uint32_t) lroundf(voltage * (340.0f / 240.0f));
-                break;
+        case ADC_CH_BAT_VOLTAGE:
+            mainBatteryVoltage = (uint32_t) lroundf(voltage * (340.0f / 240.0f));
+            break;
 
-            case M0_ISEN_CH:
-                _update_current(3, voltage);
-                break;
+        case M0_ISEN_CH:
+            _update_current(3, voltage);
+            break;
 
-            case M2_ISEN_CH:
-                _update_current(5, voltage);
-                break;
+        case M2_ISEN_CH:
+            _update_current(5, voltage);
+            break;
 
-            case M5_ISEN_CH:
-                _update_current(0, voltage);
-                break;
-        }
+        case M5_ISEN_CH:
+            _update_current(0, voltage);
+            break;
     }
 }
 

@@ -3,7 +3,8 @@
 void RunnableGroup_OnInit(void)
 {
     ErrorStorage_Run_OnInit();
-    ADC_Run_OnInit();
+    ADC0_Run_OnInit();
+    ADC1_Run_OnInit();
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
     BluetoothIndicator_Run_OnInit();
@@ -21,7 +22,8 @@ void RunnableGroup_OnInit(void)
 
 void RunnableGroup_1ms(void)
 {
-    ADC_Run_Update();
+    ADC0_Run_Update();
+    ADC1_Run_Update();
     IMU_Run_OnUpdate();
     GyroscopeOffsetCompensator_Run_Update();
     YawAngleTracker_Run_Update();
