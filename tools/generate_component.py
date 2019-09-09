@@ -98,29 +98,43 @@ def convert_functions(runnable_data, port_data):
         data_type = port_data[port]['data_type']
 
         port_data_templates = {
-            "WriteData": {
-                "name":         "Write_{}",
-                "return_type":  "void",
-                "return_value": "",
-                "arguments":    [{'name': 'value', 'type': data_type}]
-            },
-            "ReadValue": {
-                "name":         "Read_{}",
-                "return_type":  data_type,
-                "return_value": port_data[port].get('default_value', type_default_values[data_type]),
-                "arguments":    []
-            }
+            "WriteData":
+                lambda: {
+                    "name":         "Write_{}",
+                    "return_type":  "void",
+                    "return_value": "",
+                    "arguments":    [{'name': 'value', 'type': data_type}],
+                    "weak":         True
+                },
+            "ReadValue":
+                lambda: {
+                    "name":         "Read_{}",
+                    "return_type":  data_type,
+                    "return_value": port_data[port].get('default_value', type_default_values[data_type]),
+                    "arguments":    [],
+                    "weak":         True
+                },
+            "ProvideConstantByValue":
+                lambda: {
+                    "name":         "Constant_{}",
+                    "return_type":  data_type,
+                    "return_value": port_data[port]['value'],
+                    "arguments":    [],
+                    "weak":         False
+                }
         }
+
+        data = port_data_templates[port_type]()
 
         port_function_data = {
-            'name':         port_data_templates[port_type]['name'].format(port),
-            'return_type':  port_data_templates[port_type]['return_type'],
-            'return_value': port_data_templates[port_type]['return_value'],
-            'args':         port_data_templates[port_type]['arguments'],
-            'weak':         True
+            'name':         data['name'].format(port),
+            'return_type':  data['return_type'],
+            'return_value': data['return_value'],
+            'args':         data['arguments'],
+            'weak':         data['weak']
         }
 
-        if port_data_templates[port_type]['arguments']:
+        if port_function_data['args']:
             port_function_data['args'][len(port_function_data['args']) - 1]['last'] = True
 
         functions.append(port_function_data)

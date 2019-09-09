@@ -285,6 +285,14 @@
                     "runnable": "Update"
                 }
             ]
-        }
+        },
+        "port_connections": [
+            {
+                "provider": "IMU/SampleTime",
+                "consumers": [
+                    "YawAngleTracker/SampleTime"
+                ]
+            }
+        ]
     }
 }

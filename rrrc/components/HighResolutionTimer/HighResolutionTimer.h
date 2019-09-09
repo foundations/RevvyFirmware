@@ -12,7 +12,6 @@
 
 void HighResolutionTimer_Run_OnInit(void);
 uint16_t HighResolutionTimer_Run_GetTickCount(void);
-
-void HighResolutionTimer_Write_Resolution(uint16_t ticks_per_ms);
+uint16_t HighResolutionTimer_Constant_TicksInMs(void);
 
 #endif /* COMPONENT_HIGH_RESOLUTION_TIMER_H_ */

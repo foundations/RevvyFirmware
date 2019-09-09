@@ -163,3 +163,8 @@ void RunnableGroup_100ms(void)
     BrainStatusIndicator_Run_Update();
 }
 
+float YawAngleTracker_Read_SampleTime(void)
+{
+    return IMU_Constant_SampleTime();
+}
+

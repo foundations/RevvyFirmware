@@ -8,5 +8,12 @@
             "return_type": "void",
             "arguments": []
         }
+    },
+    "ports": {
+        "TicksInMs": {
+            "port_type": "ProvideConstantByValue",
+            "data_type": "uint16_t",
+            "value": "24u"
+        }
     }
 }

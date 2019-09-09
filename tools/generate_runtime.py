@@ -12,7 +12,10 @@ import pystache
 from tools.generator_common import type_default_values
 
 port_compatibility = {
-    "WriteData": {
+    "WriteData":              {
+        "ReadValue": {"multiple_consumers": True}
+    },
+    "ProvideConstantByValue": {
         "ReadValue": {"multiple_consumers": True}
     }
 }
@@ -33,9 +36,21 @@ port_template_read_value = """{{data_type}} {{consumer_component_name}}_Read_{{c
 }
 """
 
-port_templates = {
-    "WriteData": port_template_write_data,
-    "ReadValue": port_template_read_value
+port_template_read_constant = """{{data_type}} {{consumer_component_name}}_Read_{{consumer_port_name}}(void)
+{
+    return {{provider_component_name}}_Constant_{{provider_port_name}}();
+}
+"""
+
+provider_port_templates = {
+    "WriteData": port_template_write_data
+}
+
+consumer_port_templates = {
+    "ReadValue": {
+        "WriteData": port_template_read_value,
+        "ProvideConstantByValue": port_template_read_constant
+    }
 }
 
 header_template = """#ifndef GENERATED_RUNTIME_H_
@@ -79,7 +94,7 @@ def parse_runnable(runnable):
         parts = runnable.split('/')
         runnable = {
             'component': parts[0],
-            'runnable': parts[1]
+            'runnable':  parts[1]
         }
 
     return runnable
@@ -91,7 +106,7 @@ def parse_port(port):
         parts = port.split('/')
         port = {
             'component': parts[0],
-            'port': parts[1]
+            'port':      parts[1]
         }
 
     return port
@@ -148,7 +163,8 @@ if __name__ == "__main__":
                 component_config = component_data[provider_component_name]
                 runnable_name = runnable['runnable']
                 if runnable_name not in component_config.get('runnables', {}):
-                    print('Component {} does not have a runnable called {}'.format(provider_component_name, runnable_name))
+                    print('Component {} does not have a runnable called {}'.format(provider_component_name,
+                                                                                   runnable_name))
                     valid = False
                 elif component_config['runnables'][runnable_name]['arguments']:
                     print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
@@ -174,6 +190,7 @@ if __name__ == "__main__":
     def port_ref_valid(port):
         component_ports = component_data[port['component']].get('ports', [])
         return port['component'] in component_data and port['port'] in component_ports
+
 
     # validate ports
     for port_connection in config['runtime'].get('port_connections', []):
@@ -243,11 +260,18 @@ if __name__ == "__main__":
             'port_name':      provider_port_name,
             'init_value':     provider.get('init_value', type_default_values[data_type])
         }
-        data_buffer = pystache.render(databuffer_templates[provider_port_type], data_buffer_ctx)
-        provider_port = pystache.render(port_templates[provider_port_type], data_buffer_ctx)
 
-        template_ctx['data_buffers'].append(data_buffer)
-        template_ctx['port_functions'].append(provider_port)
+        try:
+            data_buffer = pystache.render(databuffer_templates[provider_port_type], data_buffer_ctx)
+            template_ctx['data_buffers'].append(data_buffer)
+        except KeyError:
+            pass
+
+        try:
+            provider_port = pystache.render(provider_port_templates[provider_port_type], data_buffer_ctx)
+            template_ctx['port_functions'].append(provider_port)
+        except KeyError:
+            pass
 
         for consumer in port_connection['consumers']:
             consumer = parse_port(consumer)
@@ -266,7 +290,8 @@ if __name__ == "__main__":
                 'consumer_component_name': consumer_component_name
             }
 
-            consumer_port = pystache.render(port_templates[consumer_port_type], consumer_ctx)
+            consumer_port = pystache.render(consumer_port_templates[consumer_port_type][provider_port_type],
+                                            consumer_ctx)
             template_ctx['port_functions'].append(consumer_port)
 
     with open(args.output + ".h", "w+") as header:

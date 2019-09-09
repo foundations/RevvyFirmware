@@ -7,13 +7,6 @@
  
 #include "../rrrc_worklogic.h"
 
-static uint16_t hr_resolution = 0u;
-
-void HighResolutionTimer_Write_Resolution(uint16_t ticks_per_ms)
-{
-    hr_resolution = ticks_per_ms;
-}
-
 uint16_t SensorPort_Read_CurrentTicks(void)
 {
     return HighResolutionTimer_Run_GetTickCount();
@@ -21,5 +14,5 @@ uint16_t SensorPort_Read_CurrentTicks(void)
 
 float SensorPort_Call_GetMsFromTicks(uint16_t ticks)
 {
-    return ticks / hr_resolution;
+    return (float) ticks / HighResolutionTimer_Constant_TicksInMs();
 }

@@ -13,5 +13,12 @@
             "return_type": "void",
             "arguments": []
         }
+    },
+    "ports": {
+        "SampleTime": {
+            "port_type": "ProvideConstantByValue",
+            "data_type": "float",
+            "value": "1.0f / 416.0f"
+        }
     }
 }

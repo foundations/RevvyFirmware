@@ -69,11 +69,6 @@ bool YawAngleTracker_Read_AngularSpeedZ(float* angularSpeed)
     return false;
 }
 
-float YawAngleTracker_Read_SampleTime(void)
-{
-    return 1.0f / 416;
-}
-
 void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle)
 {
     current_yaw_angle = angle;

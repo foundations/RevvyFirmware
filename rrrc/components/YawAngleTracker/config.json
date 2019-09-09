@@ -12,5 +12,11 @@
             "return_type": "void",
             "arguments": []
         }
+    },
+    "ports": {
+        "SampleTime": {
+            "port_type": "ReadValue",
+            "data_type": "float"
+        }
     }
 }

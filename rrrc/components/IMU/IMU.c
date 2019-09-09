@@ -148,3 +148,8 @@ void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
     (void) sample;
     /* nothing to do here */
 }
+
+float IMU_Constant_SampleTime(void)
+{
+    return 1.0f / 416.0f;
+}

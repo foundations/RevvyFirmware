@@ -38,5 +38,6 @@ void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample);
 void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample);
 
 void IMU_Call_LogError(void);
+float IMU_Constant_SampleTime(void);
 
 #endif /* COMPONENT_IMU_H_ */

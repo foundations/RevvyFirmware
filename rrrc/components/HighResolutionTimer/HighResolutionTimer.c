@@ -19,8 +19,6 @@ void HighResolutionTimer_Run_OnInit(void)
 
     _tc_timer_init(&tc6_device, TC6);
     _tc_timer_start(&tc6_device);
-
-    HighResolutionTimer_Write_Resolution(24u);
 }
 
 uint16_t HighResolutionTimer_Run_GetTickCount(void)
@@ -31,8 +29,7 @@ uint16_t HighResolutionTimer_Run_GetTickCount(void)
     return hri_tccount16_get_COUNT_COUNT_bf(TC6, 0xFFFFu);
 }
 
-__attribute__((weak))
-void HighResolutionTimer_Write_Resolution(uint16_t ticks_per_ms)
+uint16_t HighResolutionTimer_Constant_TicksInMs(void)
 {
-    (void) ticks_per_ms;
+    return 24u;
 }
