@@ -8,8 +8,8 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import type_includes, type_default_values, component_file_pattern, component_folder_pattern, \
-    process_runnable, process_port, process_ports, process_runnables
+from tools.generator_common import type_includes, type_default_values, component_file_pattern, \
+    component_folder_pattern, process_runnables, load_component_config
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -259,14 +259,12 @@ if __name__ == "__main__":
         modified_files['rrrc_samd51.cproj'] = add_component_to_cproject('rrrc_samd51.cproj', new_files, new_folders)
     else:
         try:
-            with open(config_json_path, 'r') as component_config_file:
-                component_config = json.load(component_config_file)
+            component_config = load_component_config(config_json_path)
+            runnables = component_config['runnables']
+            ports = component_config['ports']
         except FileNotFoundError:
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
-
-        runnables = process_runnables(component_config['runnables'])
-        ports = process_ports(component_config['ports'])
 
     template_ctx = {
         'component_name': component_name,

@@ -1,3 +1,5 @@
+import json
+
 type_includes = {
     'uint8_t':  '<stdint.h>',
     'uint16_t': '<stdint.h>',
@@ -56,3 +58,11 @@ def process_runnables(runnable_config):
 
 def process_ports(port_config):
     return {port: process_port(port_config[port]) for port in port_config}
+
+
+def load_component_config(path):
+    with open(path, 'r') as component_config_file:
+        component_config = json.load(component_config_file)
+        component_config['runnables'] = process_runnables(component_config.get('runnables', {}))
+        component_config['ports'] = process_ports(component_config.get('ports', {}))
+    return component_config
