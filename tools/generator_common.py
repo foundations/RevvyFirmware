@@ -127,4 +127,5 @@ def load_project_config(project_config_file):
 
         project_config['runtime']['runnables'] = processed_runnables
         project_config['runtime']['port_connections'] = processed_port_connections
+
     return project_config
