@@ -22,7 +22,7 @@ static TaskHandle_t communicationTaskHandle;
 static uint8_t rxBuffer[255 + 6];
 
 static i2c_hal_descriptor I2C_4;
-static const MasterCommunicationInterface_Config_t* config;
+static MasterCommunicationInterface_Config_t config;
 
 //*********************************************************************************************
 static int32_t I2C_4_init(i2c_hal_descriptor* descriptor)
@@ -41,15 +41,13 @@ static int32_t I2C_4_init(i2c_hal_descriptor* descriptor)
 
 static void CommunicationTask(void* user_data)
 {
-    config = (const MasterCommunicationInterface_Config_t*) user_data;
-
-    (void) I2C_4_init(&I2C_4);
+    (void) user_data;
     
     i2c_hal_receive(&I2C_4, &rxBuffer[0], sizeof(rxBuffer));
     for(;;)
     {
         uint32_t bytesReceived;
-        BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, config->rxTimeout);
+        BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, config.rxTimeout);
 
         if (!notified)
         {
@@ -63,7 +61,7 @@ static void CommunicationTask(void* user_data)
             }
             else
             {
-                MasterCommunicationInterface_Run_SetResponse(config->longRxErrorResponseBuffer, config->longRxErrorResponseLength);
+                MasterCommunicationInterface_Run_SetResponse(config.longRxErrorResponseBuffer, config.longRxErrorResponseLength);
             }
         }
     }
@@ -72,7 +70,7 @@ static void CommunicationTask(void* user_data)
 void i2c_hal_rx_started(i2c_hal_descriptor* descr)
 {
     /* setup a default response in case processing is slow */
-    i2c_hal_set_tx_buffer(descr, config->defaultResponseBuffer, config->defaultResponseLength);
+    i2c_hal_set_tx_buffer(descr, config.defaultResponseBuffer, config.defaultResponseLength);
 }
 
 void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_t bufferSize, size_t bytesReceived)
@@ -88,10 +86,22 @@ void i2c_hal_rx_complete(i2c_hal_descriptor* descr, const uint8_t* buffer, size_
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void MasterCommunicationInterface_Run_OnInit(MasterCommunicationInterface_Config_t* config)
+void MasterCommunicationInterface_Run_OnInit(void)
 {
-    BaseType_t success = xTaskCreate(&CommunicationTask, "RPiComm", 1024u, config, taskPriority_Communication, &communicationTaskHandle);
+    MasterCommunicationInterface_Read_Configuration(&config);
+    
+    int32_t result = I2C_4_init(&I2C_4);
+    ASSERT(result == ERR_NONE);
+
+    BaseType_t success = xTaskCreate(&CommunicationTask, "RPiComm", 1024u, NULL, taskPriority_Communication, &communicationTaskHandle);
     ASSERT(success == pdPASS);
+}
+
+__attribute__((weak))
+void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst)
+{
+    (void) dst;
+    ASSERT(false);
 }
 
 __attribute__((weak))

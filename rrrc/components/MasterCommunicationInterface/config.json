@@ -4,5 +4,10 @@
         "i2cHal.c",
         "MasterCommunicationInterface.c"
     ],
-    "runnables": {}
+    "runnables": {
+        "OnInit": {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

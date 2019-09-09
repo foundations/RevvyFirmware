@@ -190,6 +190,10 @@
                 {
                     "component": "YawAngleTracker",
                     "runnable": "OnInit"
+                },
+                {
+                    "component": "MasterCommunicationInterface",
+                    "runnable": "OnInit"
                 }
             ],
             "1ms": [

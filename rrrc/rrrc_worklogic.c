@@ -166,11 +166,6 @@ static SensorPort_t sensorPorts[] =
 
 static BluetoothStatus_t isBleConnected;
 
-static MasterCommunicationInterface_Config_t communicationConfig = 
-{
-    .rxTimeout = 100u, /* ms */
-};
-
 #define MAX_MOTOR_STATUS_SIZE 10
 #define MAX_SENSOR_STATUS_SIZE 4
 
@@ -385,7 +380,8 @@ void RRRC_ProcessLogic_Init(void)
             RestartManager_Run_RebootToBootloader();
         }
     }
-    
+
+    MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
     RunnableGroup_OnInit();
 
     for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
@@ -393,13 +389,6 @@ void RRRC_ProcessLogic_Init(void)
         MotorThermalModel_Run_OnInit(&motorThermalModels[i]);
     }
 
-    MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
-
-    MasterCommunication_Run_GetDefaultResponse(&communicationConfig.defaultResponseBuffer, &communicationConfig.defaultResponseLength);
-    MasterCommunication_Run_GetLongRxErrorResponse(&communicationConfig.longRxErrorResponseBuffer, &communicationConfig.longRxErrorResponseLength);
-
-    MasterCommunicationInterface_Run_OnInit(&communicationConfig);
-    
     /* 1 cell LiPoly */
     mainBattery.detectionVoltage = 2000.0f;
     mainBattery.minVoltage = 3400.0f;
@@ -1145,4 +1134,12 @@ void UpdateMcuStatus_YawAngle(int32_t angle, int32_t relativeAngle)
     memcpy(&buffer[4], &relativeAngle, sizeof(int32_t));
     
     status_changed[STATUS_SLOT_YAW] = !compare_and_copy(yaw_status, (const uint8_t*) buffer, sizeof(buffer));
+}
+
+void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst)
+{
+    dst->rxTimeout = 100u;
+    
+    MasterCommunication_Run_GetDefaultResponse(&dst->defaultResponseBuffer, &dst->defaultResponseLength);
+    MasterCommunication_Run_GetLongRxErrorResponse(&dst->longRxErrorResponseBuffer, &dst->longRxErrorResponseLength);
 }

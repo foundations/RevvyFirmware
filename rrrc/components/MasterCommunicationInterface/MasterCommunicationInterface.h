@@ -21,8 +21,10 @@ typedef struct
     uint32_t rxTimeout;
 } MasterCommunicationInterface_Config_t;
 
-void MasterCommunicationInterface_Run_OnInit(MasterCommunicationInterface_Config_t* config);
+void MasterCommunicationInterface_Run_OnInit(void);
 void MasterCommunicationInterface_Run_SetResponse(const uint8_t* buffer, size_t bufferSize);
+
+void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst);
 
 void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize);
 void MasterCommunicationInterface_Call_RxTimeout(void);

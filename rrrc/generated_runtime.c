@@ -1,5 +1,6 @@
 #include "generated_runtime.h"
 
+
 void RunnableGroup_OnInit(void)
 {
     ErrorStorage_Run_OnInit();
@@ -18,6 +19,7 @@ void RunnableGroup_OnInit(void)
     DriveTrain_Run_OnInit();
     GyroscopeOffsetCompensator_Run_OnInit();
     YawAngleTracker_Run_OnInit();
+    MasterCommunicationInterface_Run_OnInit();
 }
 
 void RunnableGroup_1ms(void)
@@ -160,3 +162,4 @@ void RunnableGroup_100ms(void)
     BluetoothIndicator_Run_Update();
     BrainStatusIndicator_Run_Update();
 }
+
