@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 import pystache
 
 from tools.generator_common import type_includes, type_default_values, component_file_pattern, \
-    component_folder_pattern, process_runnables, load_component_config, load_project_config
+    component_folder_pattern, process_runnables, load_component_config, load_project_config, compact_project_config
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -254,7 +254,7 @@ if __name__ == "__main__":
         new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)
 
         # replace sources list with new one and set for file modification
-        modified_files['project.json'] = json.dumps(config, indent=4)  # TODO compact project config
+        modified_files['project.json'] = json.dumps(compact_project_config(config), indent=4)
         modified_files['rrrc_samd51.cproj'] = add_component_to_cproject('rrrc_samd51.cproj', new_files, new_folders)
     else:
         try:

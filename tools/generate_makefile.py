@@ -9,6 +9,7 @@ from os import listdir
 import pystache
 
 from tools.generate_component import create_component_config, default_runnables
+from tools.generator_common import compact_project_config, load_project_config
 
 makefile_template = """# This Makefile was generated using "python -m tools.generate_makefile"
 C_SRCS += \\
@@ -119,8 +120,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open(args.config, "r") as f:
-        config = json.load(f)
+    config = load_project_config(args.config)
 
     source_files = list(config['sources'])
 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
                     f.write(component_config)
 
         with open(args.config, "w") as f:
-            json.dump(config, f, indent=4)
+            json.dump(compact_project_config(config), f, indent=4)
 
     for component in config['components']:
         component_file = 'rrrc/components/{}/{{}}'.format(component)

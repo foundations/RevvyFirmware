@@ -126,115 +126,64 @@
         "YawAngleTracker"
     ],
     "types": {
-        "uint8_t": {"defined_in": "<stdint.h>"},
-        "uint16_t": {"defined_in": "<stdint.h>"},
-        "uint32_t": {"defined_in": "<stdint.h>"},
-        "int8_t": {"defined_in": "<stdint.h>"},
-        "int16_t": {"defined_in": "<stdint.h>"},
-        "int32_t": {"defined_in": "<stdint.h>"},
-        "size_t": {"defined_in": "<stdio.h>"},
-        "bool": {"defined_in": "<stdbool.h>"},
-        "float": {"defined_in": "<float.h>"}
+        "uint8_t": {
+            "defined_in": "<stdint.h>"
+        },
+        "uint16_t": {
+            "defined_in": "<stdint.h>"
+        },
+        "uint32_t": {
+            "defined_in": "<stdint.h>"
+        },
+        "int8_t": {
+            "defined_in": "<stdint.h>"
+        },
+        "int16_t": {
+            "defined_in": "<stdint.h>"
+        },
+        "int32_t": {
+            "defined_in": "<stdint.h>"
+        },
+        "size_t": {
+            "defined_in": "<stdio.h>"
+        },
+        "bool": {
+            "defined_in": "<stdbool.h>"
+        },
+        "float": {
+            "defined_in": "<float.h>"
+        }
     },
     "runtime": {
         "runnables": {
             "OnInit": [
-                {
-                    "component": "ErrorStorage",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "ADC0",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "ADC1",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "BatteryCharger",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "LEDController",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "BluetoothIndicator",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "BrainStatusIndicator",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "IMU",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "HighResolutionTimer",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "MasterStatusObserver",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "BluetoothStatusObserver",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "RingLedDisplay",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "CommunicationObserver",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "DriveTrain",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "GyroscopeOffsetCompensator",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "YawAngleTracker",
-                    "runnable": "OnInit"
-                },
-                {
-                    "component": "MasterCommunicationInterface",
-                    "runnable": "OnInit"
-                }
+                "ErrorStorage/OnInit",
+                "ADC0/OnInit",
+                "ADC1/OnInit",
+                "BatteryCharger/OnInit",
+                "LEDController/OnInit",
+                "BluetoothIndicator/OnInit",
+                "BrainStatusIndicator/OnInit",
+                "IMU/OnInit",
+                "HighResolutionTimer/OnInit",
+                "MasterStatusObserver/OnInit",
+                "BluetoothStatusObserver/OnInit",
+                "RingLedDisplay/OnInit",
+                "CommunicationObserver/OnInit",
+                "DriveTrain/OnInit",
+                "GyroscopeOffsetCompensator/OnInit",
+                "YawAngleTracker/OnInit",
+                "MasterCommunicationInterface/OnInit"
             ],
             "1ms": [
-                {
-                    "component": "ADC0",
-                    "runnable": "Update"
-                },
-                {
-                    "component": "ADC1",
-                    "runnable": "Update"
-                },
-                {
-                    "component": "IMU",
-                    "runnable": "OnUpdate"
-                },
-                {
-                    "component": "GyroscopeOffsetCompensator",
-                    "runnable": "Update"
-                },
-                {
-                    "component": "YawAngleTracker",
-                    "runnable": "Update"
-                }
+                "ADC0/Update",
+                "ADC1/Update",
+                "IMU/OnUpdate",
+                "GyroscopeOffsetCompensator/Update",
+                "YawAngleTracker/Update"
             ],
             "10ms_offset0": [
-                {
-                    "component": "BatteryCharger",
-                    "runnable": "Update"
-                }
+                "BatteryCharger/Update"
             ],
             "10ms_offset1": [],
             "10ms_offset2": [],
@@ -246,28 +195,13 @@
             "10ms_offset8": [],
             "10ms_offset9": [],
             "20ms_offset0": [
-                {
-                    "component": "DriveTrain",
-                    "runnable": "Update"
-                },
-                {
-                    "component": "MotorPortHandler",
-                    "runnable": "Update"
-                },
-                {
-                    "component": "RingLedDisplay",
-                    "runnable": "Update"
-                },
-                {
-                    "component": "LEDController",
-                    "runnable": "Update"
-                }
+                "DriveTrain/Update",
+                "MotorPortHandler/Update",
+                "RingLedDisplay/Update",
+                "LEDController/Update"
             ],
             "20ms_offset1": [
-                {
-                    "component": "SensorPortHandler",
-                    "runnable": "Update"
-                }
+                "SensorPortHandler/Update"
             ],
             "20ms_offset2": [],
             "20ms_offset3": [],

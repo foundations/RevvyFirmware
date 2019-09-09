@@ -2,7 +2,6 @@
 Generate a c/h file pair that contains runnable calls and port connections based on project.json
 """
 import argparse
-import json
 import os
 import sys
 from json import JSONDecodeError
@@ -10,7 +9,7 @@ from json import JSONDecodeError
 import pystache
 
 from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern, \
-    process_runnable, process_port, process_runnables, process_ports, load_component_config, load_project_config
+    load_component_config, load_project_config
 
 port_compatibility = {
     "WriteData":              {

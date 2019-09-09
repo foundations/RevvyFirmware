@@ -101,6 +101,7 @@ def parse_port(port):
 
 
 def load_project_config(project_config_file):
+    """Load configuration file and expand shorthand forms for the later stages"""
     with open(project_config_file, "r") as f:
         project_config = json.load(f)
 
@@ -132,3 +133,54 @@ def load_project_config(project_config_file):
         project_config['runtime']['port_connections'] = processed_port_connections
 
     return project_config
+
+
+def compact_project_config(config):
+    """Simplify parts that don't need to remain in their expanded forms"""
+    compacted = {
+        'sources':    config['sources'],
+        'includes':   config['includes'],
+        'components': config['components'],
+        'types':      config['types'],
+        'runtime':    {
+            'runnables':        {},
+            'port_connections': []
+        }
+    }
+
+    def compact_port_ref(port):
+        if type(port) is str:
+            return port
+        else:
+            return "{}/{}".format(port['component'], port['port'])
+
+    def compact_runnable_ref(runnable):
+        if type(runnable) is str:
+            return runnable
+        else:
+            return "{}/{}".format(runnable['component'], runnable['runnable'])
+
+    for group in config['runtime']['runnables']:
+        compacted['runtime']['runnables'][group] = []
+
+        for runnable in config['runtime']['runnables'][group]:
+            compacted_runnable = compact_runnable_ref(runnable)
+            compacted['runtime']['runnables'][group].append(compacted_runnable)
+
+    for port_connection in config['runtime']['port_connections']:
+        compacted_port_connection = {
+            'provider': compact_port_ref(port_connection['provider'])
+        }
+
+        consumers = []
+        for consumer in port_connection['consumers']:
+            consumers.append(compact_port_ref(consumer))
+
+        if len(consumers) == 1:
+            compacted_port_connection['consumer'] = consumers[0]
+        else:
+            compacted_port_connection['consumers'] = consumers
+
+        compacted['runtime']['port_connections'].append(compacted_port_connection)
+
+    return compacted
