@@ -119,6 +119,8 @@ def load_project_config(project_config_file):
                     consumers = [port_connection['consumer']]
                 except KeyError:
                     consumers = []
+            else:
+                consumers = port_connection['consumers']
 
             processed_port_connections.append({
                 'provider':  provider,
