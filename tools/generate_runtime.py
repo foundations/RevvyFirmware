@@ -9,7 +9,7 @@ from json import JSONDecodeError
 
 import pystache
 
-from tools.generator_common import type_default_values
+from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern
 
 port_compatibility = {
     "WriteData":              {
@@ -157,18 +157,18 @@ if __name__ == "__main__":
     valid = True
     for component in project_config['components']:
         component_valid = True
-        if not os.path.isdir('rrrc/components/{}'.format(component)):
+        if not os.path.isdir(component_folder_pattern.format(component)):
             print('Component folder for {} does not exist'.format(component))
             component_valid = False
         else:
             required_files = ['config.json', component + '.c', component + '.h']
             for file in required_files:
-                if not os.path.isfile('rrrc/components/{}/{}'.format(component, file)):
+                if not os.path.isfile(component_file_pattern.format(component, file)):
                     print('{} does not exist in component {}'.format(file, component))
                     component_valid = False
 
         if component_valid:
-            component_config_file = 'rrrc/components/{}/config.json'.format(component)
+            component_config_file = component_file_pattern.format(component, 'config.json')
             with open(component_config_file, "r") as f:
                 try:
                     component_data[component] = json.load(f)
@@ -187,7 +187,7 @@ if __name__ == "__main__":
                 print('Component {} does not exist'.format(provider_component_name))
                 valid = False
             else:
-                component_config_file = 'rrrc/components/{}/config.json'.format(provider_component_name)
+                component_config_file = component_file_pattern.format(provider_component_name, 'config.json')
                 component_config = component_data[provider_component_name]
                 runnable_name = runnable['runnable']
                 if runnable_name not in component_config.get('runnables', {}):

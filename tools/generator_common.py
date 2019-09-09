@@ -22,3 +22,6 @@ type_default_values = {
     'void':     None,
     'void*':    'NULL'
 }
+
+component_folder_pattern = 'rrrc/components/{}'
+component_file_pattern = 'rrrc/components/{}/{}'

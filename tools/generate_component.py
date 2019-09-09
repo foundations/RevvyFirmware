@@ -8,7 +8,7 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import type_includes, type_default_values
+from tools.generator_common import type_includes, type_default_values, component_file_pattern, component_folder_pattern
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -43,8 +43,6 @@ __attribute__((weak)){{/weak}}
 {{/functions}}
 '''
 
-dir_pattern = 'rrrc/components/{}'
-file_pattern = 'rrrc/components/{}/{}'
 include_pattern = '#include "components/{0}/{0}.h"'
 init_fn_call_pattern = "{}_Run_OnInit();"
 
@@ -230,7 +228,7 @@ if __name__ == "__main__":
 
 
     def component_file(filename):
-        return file_pattern.format(component_name, filename)
+        return component_file_pattern.format(component_name, filename)
 
 
     with open('project.json', 'r') as project_config:
@@ -251,7 +249,7 @@ if __name__ == "__main__":
         config['components'] = sorted(config['components'])
 
         # Create component skeleton
-        component_dir = dir_pattern.format(component_name)
+        component_dir = component_folder_pattern.format(component_name)
         new_folders.append(component_dir)
 
         # create component configuration json
