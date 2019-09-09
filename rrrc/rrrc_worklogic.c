@@ -706,12 +706,6 @@ void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t
     MasterCommunicationInterface_Run_SetResponse(responseBuffer, responseSize);
 }
 
-void CommunicationObserver_Call_ErrorLimitReached(void)
-{
-    /* don't try to be clever */
-    RestartManager_Run_Reset();
-}
-
 void BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_t status)
 {
     isBleConnected = status;

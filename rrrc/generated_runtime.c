@@ -168,3 +168,8 @@ float YawAngleTracker_Read_SampleTime(void)
     return IMU_Constant_SampleTime();
 }
 
+void CommunicationObserver_Call_ErrorLimitReached(void)
+{
+    RestartManager_Run_Reset();
+}
+

@@ -17,6 +17,9 @@ port_compatibility = {
     },
     "ProvideConstantByValue": {
         "ReadValue": {"multiple_consumers": True}
+    },
+    "Event":                  {
+        "Runnable": {"multiple_consumers": True}
     }
 }
 
@@ -42,13 +45,30 @@ port_template_read_constant = """{{data_type}} {{consumer_component_name}}_Read_
 }
 """
 
+port_template_event = """void {{component_name}}_Call_{{port_name}}(void)
+{
+    {{ #runnables }}
+    {{{ . }}}
+    {{ /runnables }}
+}
+"""
+
+runnable_connection_templates = {
+    "Event": port_template_event
+}
+
+runnable_call_templates = {
+    "Runnable": "{{consumer_component_name}}_Run_{{consumer_port_name}}();"
+}
+
 provider_port_templates = {
-    "WriteData": port_template_write_data
+    "WriteData": port_template_write_data,
+    "ProvideConstantByValue": None
 }
 
 consumer_port_templates = {
     "ReadValue": {
-        "WriteData": port_template_read_value,
+        "WriteData":              port_template_read_value,
         "ProvideConstantByValue": port_template_read_constant
     }
 }
@@ -188,12 +208,41 @@ if __name__ == "__main__":
             return False
 
 
+    def are_runnables_compatible(provider, consumer):
+        try:
+            provider_port_data = component_data[provider['component']]['ports'][provider['port']]
+            consumer_port_data = component_data[consumer['component']]['runnables'][consumer['port']]
+
+            provider_type = provider_port_data['port_type']
+            consumer_type = 'Runnable'
+
+            provider_args = provider_port_data['arguments']
+            consumer_args = consumer_port_data['arguments']
+
+            return consumer_type in port_compatibility[provider_type] and provider_args == consumer_args
+        except KeyError:
+            return False
+
+
     def port_ref_valid(port):
         component_ports = component_data[port['component']].get('ports', [])
         return port['component'] in component_data and port['port'] in component_ports
 
 
+    def runnable_ref_valid(port):
+        component_runnables = component_data[port['component']].get('runnables', [])
+        return port['component'] in component_data and port['port'] in component_runnables
+
+
+    def port_type(port):
+        component_ports = component_data[port['component']]['ports']
+        return component_ports[port['port']]['port_type']
+
+
     # validate ports
+    port_connections = []
+    runnable_connections = []
+
     for port_connection in runtime_config.get('port_connections', []):
         port_valid = True
         provider = parse_port(port_connection['provider'])
@@ -207,17 +256,41 @@ if __name__ == "__main__":
                 print('Port {}/{} requires at most one consumer'.format(provider['component'], provider['port']))
                 port_valid = False
 
-        for consumer in port_connection['consumers']:
-            consumer = parse_port(consumer)
-            if not port_ref_valid(consumer):
-                print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
-                                                                consumer['component'], consumer['port']))
-                port_valid = False
+        provider_port_type = port_type(provider)
+        if provider_port_type in provider_port_templates:
+            for consumer in port_connection['consumers']:
+                consumer = parse_port(consumer)
+                if not port_ref_valid(consumer):
+                    print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
+                                                                    consumer['component'], consumer['port']))
+                    port_valid = False
 
-            if not are_ports_compatible(provider, consumer):
-                print('Consumer port {}/{} is incompatible with {}/{}'.format(consumer['component'], consumer['port'],
-                                                                              provider['component'], provider['port']))
-                port_valid = False
+                if not are_ports_compatible(provider, consumer):
+                    print(
+                        'Consumer port {}/{} is incompatible with {}/{}'.format(consumer['component'], consumer['port'],
+                                                                                provider['component'],
+                                                                                provider['port']))
+                    port_valid = False
+
+            if port_valid:
+                port_connections.append(port_connection)
+
+        elif provider_port_type in runnable_connection_templates:
+            for consumer in port_connection['consumers']:
+                consumer = parse_port(consumer)
+                if not runnable_ref_valid(consumer):
+                    print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
+                                                                    consumer['component'], consumer['port']))
+                    port_valid = False
+
+                if not are_runnables_compatible(provider, consumer):
+                    print('Consumer runnable {}/{} is incompatible with {}/{}'.format(
+                        consumer['component'], consumer['port'],
+                        provider['component'], provider['port']))
+                    port_valid = False
+
+            if port_valid:
+                runnable_connections.append(port_connection)
 
         valid = valid and port_valid
 
@@ -245,7 +318,7 @@ if __name__ == "__main__":
 
         template_ctx['runnable_groups'].append(group)
 
-    for port_connection in runtime_config.get('port_connections', []):
+    for port_connection in port_connections:
         provider = parse_port(port_connection['provider'])
 
         provider_component_name = provider['component']
@@ -269,8 +342,10 @@ if __name__ == "__main__":
             pass
 
         try:
-            provider_port = pystache.render(provider_port_templates[provider_port_type], data_buffer_ctx)
-            template_ctx['port_functions'].append(provider_port)
+            template = provider_port_templates[provider_port_type]
+            if template is not None:
+                provider_port = pystache.render(template, data_buffer_ctx)
+                template_ctx['port_functions'].append(provider_port)
         except KeyError:
             pass
 
@@ -294,6 +369,34 @@ if __name__ == "__main__":
             consumer_port = pystache.render(consumer_port_templates[consumer_port_type][provider_port_type],
                                             consumer_ctx)
             template_ctx['port_functions'].append(consumer_port)
+
+    for runnable_connection in runnable_connections:
+        provider = parse_port(runnable_connection['provider'])
+
+        call_impls = []
+
+        for consumer in runnable_connection['consumers']:
+            consumer = parse_port(consumer)
+
+            consumer_component_name = consumer['component']
+            consumer_port_name = consumer['port']
+            consumer_port_type = 'Runnable'
+
+            consumer_ctx = {
+                'consumer_port_name':      consumer_port_name,
+                'consumer_component_name': consumer_component_name
+            }
+
+            consumer_port = pystache.render(runnable_call_templates[consumer_port_type], consumer_ctx)
+            call_impls.append(consumer_port)
+
+        ctx = {
+            'component_name': provider['component'],
+            'port_name':      provider['port'],
+            'runnables':      call_impls
+        }
+
+        template_ctx['port_functions'].append(pystache.render(runnable_connection_templates[port_type(provider)], ctx))
 
     with open(args.output + ".h", "w+") as header:
         header.write(pystache.render(header_template, template_ctx))
