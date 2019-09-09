@@ -95,7 +95,6 @@ def convert_functions(runnable_data, port_data):
 
     for port in port_data:
         port_type = port_data[port]['port_type']
-        data_type = port_data[port]['data_type']
 
         port_data_templates = {
             "WriteData":
@@ -103,24 +102,32 @@ def convert_functions(runnable_data, port_data):
                     "name":         "Write_{}",
                     "return_type":  "void",
                     "return_value": "",
-                    "arguments":    [{'name': 'value', 'type': data_type}],
+                    "arguments":    [{'name': 'value', 'type': port_data[port]['data_type']}],
                     "weak":         True
                 },
             "ReadValue":
                 lambda: {
                     "name":         "Read_{}",
-                    "return_type":  data_type,
-                    "return_value": port_data[port].get('default_value', type_default_values[data_type]),
+                    "return_type":  port_data[port]['data_type'],
+                    "return_value": port_data[port].get('default_value', type_default_values[port_data[port]['data_type']]),
                     "arguments":    [],
                     "weak":         True
                 },
             "ProvideConstantByValue":
                 lambda: {
                     "name":         "Constant_{}",
-                    "return_type":  data_type,
+                    "return_type":  port_data[port]['data_type'],
                     "return_value": port_data[port]['value'],
                     "arguments":    [],
                     "weak":         False
+                },
+            "Event":
+                lambda: {
+                    "name":         "Call_{}",
+                    "return_type":  "void",
+                    "return_value": "",
+                    "arguments":    [],
+                    "weak":         True
                 }
         }
 

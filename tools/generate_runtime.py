@@ -121,13 +121,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     with open(args.config, "r") as f:
-        config = json.load(f)
+        project_config = json.load(f)
 
+    runtime_config = project_config['runtime']
     component_data = {}
 
     # validate components
     valid = True
-    for component in config['components']:
+    for component in project_config['components']:
         component_valid = True
         if not os.path.isdir('rrrc/components/{}'.format(component)):
             print('Component folder for {} does not exist'.format(component))
@@ -151,11 +152,11 @@ if __name__ == "__main__":
         valid = valid and component_valid
 
     # validate runnables
-    for runnable_group in config['runtime']['runnables']:
-        for runnable in config['runtime']['runnables'][runnable_group]:
+    for runnable_group in runtime_config['runnables']:
+        for runnable in runtime_config['runnables'][runnable_group]:
             runnable = parse_runnable(runnable)
             provider_component_name = runnable['component']
-            if provider_component_name not in config['components']:
+            if provider_component_name not in project_config['components']:
                 print('Component {} does not exist'.format(provider_component_name))
                 valid = False
             else:
@@ -193,7 +194,7 @@ if __name__ == "__main__":
 
 
     # validate ports
-    for port_connection in config['runtime'].get('port_connections', []):
+    for port_connection in runtime_config.get('port_connections', []):
         port_valid = True
         provider = parse_port(port_connection['provider'])
         if not port_ref_valid(provider):
@@ -230,21 +231,21 @@ if __name__ == "__main__":
 
     template_ctx = {
         'output_filename': args.output[args.output.rfind('/') + 1:],
-        'includes':        ['components/{0}/{0}'.format(component) for component in config['components']],
+        'includes':        ['components/{0}/{0}'.format(component) for component in project_config['components']],
         'runnable_groups': [],
         'data_buffers':    [],
         'port_functions':  []
     }
 
-    for runnable_group in config['runtime']['runnables']:
+    for runnable_group in runtime_config['runnables']:
         group = {'group_name': runnable_group, 'runnables': []}
 
-        for runnable in config['runtime']['runnables'][runnable_group]:
+        for runnable in runtime_config['runnables'][runnable_group]:
             group['runnables'].append(runnable)
 
         template_ctx['runnable_groups'].append(group)
 
-    for port_connection in config['runtime'].get('port_connections', []):
+    for port_connection in runtime_config.get('port_connections', []):
         provider = parse_port(port_connection['provider'])
 
         provider_component_name = provider['component']

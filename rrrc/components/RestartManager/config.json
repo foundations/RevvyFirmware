@@ -3,5 +3,14 @@
     "source_files": [
         "RestartManager.c"
     ],
-    "runnables": {}
+    "runnables": {
+        "Reset":  {
+            "return_type": "void",
+            "arguments": []
+        },
+        "RebootToBootloader":  {
+            "return_type": "void",
+            "arguments": []
+        }
+    }
 }

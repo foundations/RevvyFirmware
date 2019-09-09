@@ -293,6 +293,12 @@
                 "consumers": [
                     "YawAngleTracker/SampleTime"
                 ]
+            },
+            {
+                "provider": "CommunicationObserver/ErrorLimitReached",
+                "consumers": [
+                    "RestartManager/Reset"
+                ]
             }
         ]
     }

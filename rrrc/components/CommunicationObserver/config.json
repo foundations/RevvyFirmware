@@ -7,6 +7,24 @@
         "OnInit": {
             "return_type": "void",
             "arguments": []
+        },
+        "OnMessageMissed": {
+            "return_type": "void",
+            "arguments": []
+        },
+        "OnMessageReceived": {
+            "return_type": "void",
+            "arguments": []
+        },
+        "Enable": {
+            "return_type": "void",
+            "arguments": []
+        }
+    },
+    "ports": {
+        "ErrorLimitReached": {
+            "port_type": "Event",
+            "arguments": []
         }
     }
 }
