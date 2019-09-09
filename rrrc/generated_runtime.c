@@ -198,3 +198,8 @@ void MasterCommunicationInterface_Call_RxTimeout(void)
     CommunicationObserver_Run_OnMessageMissed();
 }
 
+uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
+{
+    return HighResolutionTimer_Run_GetTickCount();
+}
+

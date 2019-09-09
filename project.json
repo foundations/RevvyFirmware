@@ -329,6 +329,12 @@
                 "consumers": [
                     "CommunicationObserver/OnMessageMissed"
                 ]
+            },
+            {
+                "provider": "SensorPortHandler/ReadCurrentTicks",
+                "consumers": [
+                    "HighResolutionTimer/GetTickCount"
+                ]
             }
         ]
     }

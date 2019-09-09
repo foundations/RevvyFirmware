@@ -4,9 +4,9 @@
         "HighResolutionTimer.c"
     ],
     "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": []
+        "OnInit": {},
+        "GetTickCount": {
+            "return_type": "uint16_t"
         }
     },
     "ports": {

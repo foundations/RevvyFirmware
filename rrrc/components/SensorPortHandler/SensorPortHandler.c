@@ -337,7 +337,7 @@ void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSi
 }
 
 __attribute__((weak))
-uint16_t SensorPort_Read_CurrentTicks(void)
+uint16_t SensorPort_Call_ReadCurrentTicks(void)
 {
     return 0u;
 }

@@ -29,6 +29,10 @@
             "arguments": {
                 "ptr": "void**"
             }
+        },
+        "ReadCurrentTicks": {
+            "port_type": "ServerCall",
+            "return_type": "uint16_t"
         }
     }
 }

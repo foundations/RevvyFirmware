@@ -50,7 +50,7 @@ void SensorPortHandler_Run_Update(void);
 void SensorPortHandler_Run_PortUpdate(uint8_t port_idx);
 uint8_t SensorPortHandler_Read_AdcData(uint8_t port_idx);
 void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize);
-uint16_t SensorPort_Read_CurrentTicks(void);
+uint16_t SensorPort_Call_ReadCurrentTicks(void);
 
 float SensorPort_Call_GetMsFromTicks(uint16_t ticks);
 void* SensorPortHandler_Call_Allocate(size_t size);
