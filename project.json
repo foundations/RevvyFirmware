@@ -299,6 +299,30 @@
                 "consumers": [
                     "RestartManager/Reset"
                 ]
+            },
+            {
+                "provider": "SensorPortHandler/Allocate",
+                "consumers": [
+                    "MemoryAllocator/Allocate"
+                ]
+            },
+            {
+                "provider": "SensorPortHandler/Free",
+                "consumers": [
+                    "MemoryAllocator/Free"
+                ]
+            },
+            {
+                "provider": "MotorPortHandler/Allocate",
+                "consumers": [
+                    "MemoryAllocator/Allocate"
+                ]
+            },
+            {
+                "provider": "MotorPortHandler/Free",
+                "consumers": [
+                    "MemoryAllocator/Free"
+                ]
             }
         ]
     }

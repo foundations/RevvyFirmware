@@ -749,26 +749,6 @@ uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
     return motorBatteryDetected ? motorBatteryPercentage : 0u;
 }
 
-void* SensorPortHandler_Call_Allocate(size_t size)
-{
-    return MemoryAllocator_Run_Allocate(size);
-}
-
-void SensorPortHandler_Call_Free(void** ptr)
-{
-    MemoryAllocator_Run_Free(ptr);
-}
-
-void* MotorPortHandler_Call_Allocate(size_t size)
-{
-    return MemoryAllocator_Run_Allocate(size);
-}
-
-void MotorPortHandler_Call_Free(void** ptr)
-{
-    MemoryAllocator_Run_Free(ptr);
-}
-
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
 static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
 static int8_t deratedDriveValues[ARRAY_SIZE(motorPorts)] = {0};

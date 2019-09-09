@@ -11,5 +11,21 @@
             "return_type": "void",
             "arguments": []
         }
+    },
+    "ports": {
+        "Allocate": {
+            "port_type": "ServerCall",
+            "return_type": "void*",
+            "arguments": {
+                "size": "size_t"
+            }
+        },
+        "Free": {
+            "port_type": "ServerCall",
+            "return_type": "void",
+            "arguments": {
+                "ptr": "void**"
+            }
+        }
     }
 }

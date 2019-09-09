@@ -20,6 +20,9 @@ port_compatibility = {
     },
     "Event":                  {
         "Runnable": {"multiple_consumers": True}
+    },
+    "ServerCall":             {
+        "Runnable": {"multiple_consumers": False}
     }
 }
 
@@ -53,16 +56,28 @@ port_template_event = """void {{component_name}}_Call_{{port_name}}(void)
 }
 """
 
+arg_list_template = "{{ #{0} }}{{ type }} {{name}}{{^last}}, {{/last}}{{ /{0} }}{{ ^{0} }}void{{ /{0} }}".replace('{{', '{{{{').replace('}}', '}}}}')
+call_arg_list_template = "{{ #{0} }}{{name}}{{^last}}, {{/last}}{{ /{0} }}".replace('{{', '{{{{').replace('}}', '}}}}')
+
+port_template_server_call = """{{ return_type }} {{component_name}}_Call_{{port_name}}(""" + arg_list_template.format('arguments') + """)
+{
+    {{ #runnables }}
+    {{ ^void }}return {{ /void }}{{{ . }}}
+    {{ /runnables }}
+}
+"""
+
 runnable_connection_templates = {
-    "Event": port_template_event
+    "Event": port_template_event,
+    "ServerCall": port_template_server_call
 }
 
 runnable_call_templates = {
-    "Runnable": "{{consumer_component_name}}_Run_{{consumer_port_name}}();"
+    "Runnable": "{{consumer_component_name}}_Run_{{consumer_port_name}}(" + call_arg_list_template.format('arguments') + ");"
 }
 
 provider_port_templates = {
-    "WriteData": port_template_write_data,
+    "WriteData":              port_template_write_data,
     "ProvideConstantByValue": None
 }
 
@@ -291,6 +306,9 @@ if __name__ == "__main__":
 
             if port_valid:
                 runnable_connections.append(port_connection)
+        else:
+            print('Unknown provider port type: {}'.format(provider_port_type))
+            port_valid = False
 
         valid = valid and port_valid
 
@@ -375,6 +393,14 @@ if __name__ == "__main__":
 
         call_impls = []
 
+        provider_port_data = component_data[provider['component']]['ports'][provider['port']]
+        if 'return_type' not in provider_port_data:
+            provider_port_data['return_type'] = 'void'
+
+        arg_map = [{'name': arg, 'type': provider_port_data['arguments'][arg]} for arg in provider_port_data['arguments']]
+        if arg_map:
+            arg_map[len(arg_map) - 1]['last'] = True
+
         for consumer in runnable_connection['consumers']:
             consumer = parse_port(consumer)
 
@@ -384,7 +410,8 @@ if __name__ == "__main__":
 
             consumer_ctx = {
                 'consumer_port_name':      consumer_port_name,
-                'consumer_component_name': consumer_component_name
+                'consumer_component_name': consumer_component_name,
+                'arguments':               arg_map
             }
 
             consumer_port = pystache.render(runnable_call_templates[consumer_port_type], consumer_ctx)
@@ -393,7 +420,10 @@ if __name__ == "__main__":
         ctx = {
             'component_name': provider['component'],
             'port_name':      provider['port'],
-            'runnables':      call_impls
+            'runnables':      call_impls,
+            'arguments':      arg_map,
+            'return_type':    provider_port_data['return_type'],
+            'void':           provider_port_data['return_type'] == 'void'
         }
 
         template_ctx['port_functions'].append(pystache.render(runnable_connection_templates[port_type(provider)], ctx))

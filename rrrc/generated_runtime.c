@@ -173,3 +173,23 @@ void CommunicationObserver_Call_ErrorLimitReached(void)
     RestartManager_Run_Reset();
 }
 
+void* SensorPortHandler_Call_Allocate(size_t size)
+{
+    return MemoryAllocator_Run_Allocate(size);
+}
+
+void SensorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
+}
+
+void* MotorPortHandler_Call_Allocate(size_t size)
+{
+    return MemoryAllocator_Run_Allocate(size);
+}
+
+void MotorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
+}
+
