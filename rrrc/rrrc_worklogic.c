@@ -878,42 +878,27 @@ void MotorPortHandler_Write_MotorDriveValue(uint8_t motor_idx, int8_t value)
     driveValues[motor_idx] = value;
 }
 
-int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel)
+int8_t MotorDriver_8833_Read_DriveRequest_ChannelA(MotorDriver_8833_t* driver)
 {
     switch (driver->idx)
     {
-        case 0u:
-            if (channel == MotorDriver_8833_Channel_A)
-            {
-                return deratedDriveValues[4];
-            }
-            else
-            {
-                return deratedDriveValues[5];
-            }
-            break;
+        case 0u: return deratedDriveValues[4];
+        case 1u: return deratedDriveValues[3];
+        case 2u: return deratedDriveValues[2];
 
-        case 1u:
-            if (channel == MotorDriver_8833_Channel_A)
-            {
-                return deratedDriveValues[3];
-            }
-            else
-            {
-                return deratedDriveValues[0];
-            }
-            break;
+        default:
+            ASSERT(0);
+            return 0;
+    }
+}
 
-        case 2u:
-            if (channel == MotorDriver_8833_Channel_A)
-            {
-                return deratedDriveValues[2];
-            }
-            else
-            {
-                return deratedDriveValues[1];
-            }
-            break;
+int8_t MotorDriver_8833_Read_DriveRequest_ChannelB(MotorDriver_8833_t* driver)
+{
+    switch (driver->idx)
+    {
+        case 0u: return deratedDriveValues[5];
+        case 1u: return deratedDriveValues[0];
+        case 2u: return deratedDriveValues[1];
 
         default:
             ASSERT(0);

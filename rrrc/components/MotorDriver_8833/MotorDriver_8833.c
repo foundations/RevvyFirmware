@@ -164,8 +164,8 @@ void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver)
     }
     else
     {
-        int8_t speed_a = MotorDriver_8833_Read_DriveRequest(driver, MotorDriver_8833_Channel_A);
-        int8_t speed_b = MotorDriver_8833_Read_DriveRequest(driver, MotorDriver_8833_Channel_B);
+        int8_t speed_a = MotorDriver_8833_Read_DriveRequest_ChannelA(driver);
+        int8_t speed_b = MotorDriver_8833_Read_DriveRequest_ChannelB(driver);
     
         gpio_set_pin_level(driver->n_sleep, !(speed_a == 0 && speed_b == 0));
 
@@ -186,10 +186,17 @@ void MotorDriver_8833_Call_OnFault(MotorDriver_8833_t* driver)
 }
 
 __attribute__((weak))
-int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel)
+int8_t MotorDriver_8833_Read_DriveRequest_ChannelA(MotorDriver_8833_t* driver)
 {
     (void) driver;
-    (void) channel;
+
+    return 0;
+}
+
+__attribute__((weak))
+int8_t MotorDriver_8833_Read_DriveRequest_ChannelB(MotorDriver_8833_t* driver)
+{
+    (void) driver;
 
     return 0;
 }

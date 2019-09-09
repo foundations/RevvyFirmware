@@ -52,6 +52,7 @@ void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver);
 void MotorDriver_8833_Call_OnFault(MotorDriver_8833_t* driver);
 void MotorDriver_8833_Run_FaultCleared(MotorDriver_8833_t* driver);
 
-int8_t MotorDriver_8833_Read_DriveRequest(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel);
+int8_t MotorDriver_8833_Read_DriveRequest_ChannelA(MotorDriver_8833_t* driver);
+int8_t MotorDriver_8833_Read_DriveRequest_ChannelB(MotorDriver_8833_t* driver);
 
 #endif /* COMPONENT_MOTOR_DRIVER_8833_H_ */
