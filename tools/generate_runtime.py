@@ -211,7 +211,8 @@ if __name__ == "__main__":
             consumer_data_type = consumer_port_data['data_type']
 
             return consumer_type in port_compatibility[provider_type] and provider_data_type == consumer_data_type
-        except KeyError:
+        except KeyError as e:
+            print(e)
             return False
 
 
@@ -223,11 +224,24 @@ if __name__ == "__main__":
             provider_type = provider_port_data['port_type']
             consumer_type = 'Runnable'
 
+            # check if port types are compatible
+            if consumer_type not in port_compatibility[provider_type]:
+                return False
+
             provider_args = provider_port_data['arguments']
             consumer_args = consumer_port_data['arguments']
 
-            return consumer_type in port_compatibility[provider_type] and provider_args == consumer_args
-        except KeyError:
+            # accept cases when more arguments are provided than used
+            for arg in consumer_args:
+                if arg not in provider_args:
+                    return False
+
+                if provider_args[arg] != consumer_args[arg]:
+                    return False
+
+            return True
+        except KeyError as e:
+            print(e)
             return False
 
 
