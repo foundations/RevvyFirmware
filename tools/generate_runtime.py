@@ -48,14 +48,6 @@ port_template_read_constant = """{{data_type}} {{consumer_component_name}}_Read_
 }
 """
 
-port_template_event = """void {{component_name}}_Call_{{port_name}}(void)
-{
-    {{ #runnables }}
-    {{{ . }}}
-    {{ /runnables }}
-}
-"""
-
 arg_list_template = "{{ #{0} }}{{ type }} {{name}}{{^last}}, {{/last}}{{ /{0} }}{{ ^{0} }}void{{ /{0} }}".replace('{{', '{{{{').replace('}}', '}}}}')
 call_arg_list_template = "{{ #{0} }}{{name}}{{^last}}, {{/last}}{{ /{0} }}".replace('{{', '{{{{').replace('}}', '}}}}')
 
@@ -68,7 +60,7 @@ port_template_server_call = """{{ return_type }} {{component_name}}_Call_{{port_
 """
 
 runnable_connection_templates = {
-    "Event": port_template_event,
+    "Event": port_template_server_call,
     "ServerCall": port_template_server_call
 }
 
