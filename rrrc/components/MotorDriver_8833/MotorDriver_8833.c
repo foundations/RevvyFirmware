@@ -55,14 +55,8 @@ void MotorDriver_8833_Run_OnGlobalInit(void)
     timers[5] = TC5;
 }
 
-static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Channel_t channel, int8_t speed)
-{    
-    uint32_t ch0;
-    uint32_t ch1;
-    
-    uint8_t timer0;
-    uint8_t timer1;
-
+static void drv8833_set_speed_a(MotorDriver_8833_t* driver, int8_t speed)
+{
     bool reverse = speed < 0;
     speed = reverse ? -speed : speed;
     if (speed > MOTOR_SPEED_RESOLUTION)
@@ -82,31 +76,37 @@ static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Chann
         pwm_1 = speed;
     }
 
-    if (channel == MotorDriver_8833_Channel_A)
-    {
-        ch0 = driver->pwm_a1_ch;
-        ch1 = driver->pwm_a2_ch;
-        
-        timer0 = driver->pwm_a1_timer;
-        timer1 = driver->pwm_a2_timer;
+    driver->speed_a = speed;
 
-        driver->speed_a = speed;
+    hri_tccount8_write_CC_reg(timers[driver->pwm_a1_timer], driver->pwm_a1_ch, pwm_0);
+    hri_tccount8_write_CC_reg(timers[driver->pwm_a2_timer], driver->pwm_a2_ch, pwm_1);
+}
+
+static void drv8833_set_speed_b(MotorDriver_8833_t* driver, int8_t speed)
+{
+    bool reverse = speed < 0;
+    speed = reverse ? -speed : speed;
+    if (speed > MOTOR_SPEED_RESOLUTION)
+    {
+        speed = MOTOR_SPEED_RESOLUTION;
+    }
+    
+    uint8_t pwm_0 = 0u;
+    uint8_t pwm_1 = 0u;
+
+    if (reverse)
+    {
+        pwm_0 = speed;
     }
     else
     {
-        ch0 = driver->pwm_b1_ch;
-        ch1 = driver->pwm_b2_ch;
-        
-        timer0 = driver->pwm_b1_timer;
-        timer1 = driver->pwm_b2_timer;
-        
-        driver->speed_b = speed;
+        pwm_1 = speed;
     }
-    
-    hri_tccount8_write_CC_reg(timers[timer0], ch0, pwm_0);
-    hri_tc_wait_for_sync(timers[timer0], TCC_SYNCBUSY_CC(1 << ch0));
-    hri_tccount8_write_CC_reg(timers[timer1], ch1, pwm_1);
-    hri_tc_wait_for_sync(timers[timer1], TCC_SYNCBUSY_CC(1 << ch1));
+
+    driver->speed_b = speed;
+
+    hri_tccount8_write_CC_reg(timers[driver->pwm_b1_timer], driver->pwm_b1_ch, pwm_0);
+    hri_tccount8_write_CC_reg(timers[driver->pwm_b2_timer], driver->pwm_b2_ch, pwm_1);
 }
 
 void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)
@@ -159,8 +159,8 @@ void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver)
     {
         gpio_set_pin_level(driver->n_sleep, false);
 
-        drv8833_set_speed(driver, MotorDriver_8833_Channel_A, 0);
-        drv8833_set_speed(driver, MotorDriver_8833_Channel_B, 0);
+        drv8833_set_speed_a(driver, 0);
+        drv8833_set_speed_b(driver, 0);
     }
     else
     {
@@ -169,8 +169,8 @@ void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver)
     
         gpio_set_pin_level(driver->n_sleep, !(speed_a == 0 && speed_b == 0));
 
-        drv8833_set_speed(driver, MotorDriver_8833_Channel_A, speed_a);
-        drv8833_set_speed(driver, MotorDriver_8833_Channel_B, speed_b);
+        drv8833_set_speed_a(driver, speed_a);
+        drv8833_set_speed_b(driver, speed_b);
     }
 }
 

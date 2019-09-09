@@ -12,11 +12,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef enum {
-    MotorDriver_8833_Channel_A,
-    MotorDriver_8833_Channel_B
-} MotorDriver_8833_Channel_t;
-
 typedef struct {
     uint8_t idx;
 
