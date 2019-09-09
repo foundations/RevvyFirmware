@@ -696,11 +696,6 @@ void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, 
     MasterCommunication_Run_HandleCommand(buffer, bufferSize);
 }
 
-void MasterCommunicationInterface_Call_RxTimeout(void)
-{
-    CommunicationObserver_Run_OnMessageMissed();
-}
-
 void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize)
 {
     MasterCommunicationInterface_Run_SetResponse(responseBuffer, responseSize);

@@ -49,10 +49,14 @@ port_template_read_constant = """{{data_type}} {{consumer_component_name}}_Read_
 }
 """
 
-arg_list_template = "{{ #{0} }}{{ type }} {{name}}{{^last}}, {{/last}}{{ /{0} }}{{ ^{0} }}void{{ /{0} }}".replace('{{', '{{{{').replace('}}', '}}}}')
+arg_list_template = "{{ #{0} }}{{ type }} {{name}}{{^last}}, {{/last}}{{ /{0} }}{{ ^{0} }}void{{ /{0} }}"\
+    .replace('{{', '{{{{')\
+    .replace('}}', '}}}}')
+
 call_arg_list_template = "{{ #{0} }}{{name}}{{^last}}, {{/last}}{{ /{0} }}".replace('{{', '{{{{').replace('}}', '}}}}')
 
-port_template_server_call = """{{ return_type }} {{component_name}}_Call_{{port_name}}(""" + arg_list_template.format('arguments') + """)
+port_template_server_call = """{{ return_type }} {{component_name}}_Call_{{port_name}}(""" + arg_list_template.format(
+    'arguments') + """)
 {
     {{ #runnables }}
     {{ ^void }}return {{ /void }}{{{ . }}}
@@ -61,12 +65,13 @@ port_template_server_call = """{{ return_type }} {{component_name}}_Call_{{port_
 """
 
 runnable_connection_templates = {
-    "Event": port_template_server_call,
+    "Event":      port_template_server_call,
     "ServerCall": port_template_server_call
 }
 
 runnable_call_templates = {
-    "Runnable": "{{consumer_component_name}}_Run_{{consumer_port_name}}(" + call_arg_list_template.format('arguments') + ");"
+    "Runnable": "{{consumer_component_name}}_Run_{{consumer_port_name}}("
+                + call_arg_list_template.format('arguments') + ");"
 }
 
 provider_port_templates = {
@@ -290,10 +295,10 @@ if __name__ == "__main__":
                     port_valid = False
 
                 if not are_ports_compatible(provider, consumer):
-                    print(
-                        'Consumer port {}/{} is incompatible with {}/{}'.format(consumer['component'], consumer['port'],
-                                                                                provider['component'],
-                                                                                provider['port']))
+                    print('Consumer port {}/{} is incompatible with {}/{}'.format(
+                        consumer['component'], consumer['port'],
+                        provider['component'],
+                        provider['port']))
                     port_valid = False
 
             if port_valid:
@@ -406,7 +411,8 @@ if __name__ == "__main__":
         if 'return_type' not in provider_port_data:
             provider_port_data['return_type'] = 'void'
 
-        arg_map = [{'name': arg, 'type': provider_port_data['arguments'][arg]} for arg in provider_port_data['arguments']]
+        provider_arguments = provider_port_data['arguments']
+        arg_map = [{'name': arg, 'type': provider_arguments[arg]} for arg in provider_arguments]
         if arg_map:
             arg_map[len(arg_map) - 1]['last'] = True
 

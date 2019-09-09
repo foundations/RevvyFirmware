@@ -5,9 +5,11 @@
         "MasterCommunicationInterface.c"
     ],
     "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": []
+        "OnInit": {}
+    },
+    "ports": {
+        "RxTimeout": {
+            "port_type": "Event"
         }
     }
 }

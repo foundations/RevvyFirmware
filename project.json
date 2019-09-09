@@ -323,6 +323,12 @@
                 "consumers": [
                     "MemoryAllocator/Free"
                 ]
+            },
+            {
+                "provider": "MasterCommunicationInterface/RxTimeout",
+                "consumers": [
+                    "CommunicationObserver/OnMessageMissed"
+                ]
             }
         ]
     }

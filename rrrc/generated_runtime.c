@@ -193,3 +193,8 @@ void MotorPortHandler_Call_Free(void** ptr)
     MemoryAllocator_Run_Free(ptr);
 }
 
+void MasterCommunicationInterface_Call_RxTimeout(void)
+{
+    CommunicationObserver_Run_OnMessageMissed();
+}
+
