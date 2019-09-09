@@ -405,9 +405,6 @@ if __name__ == "__main__":
         call_impls = []
 
         provider_port_data = component_data[provider['component']]['ports'][provider['port']]
-        if 'return_type' not in provider_port_data:
-            provider_port_data['return_type'] = 'void'
-
         provider_arguments = provider_port_data['arguments']
         arg_map = [{'name': arg, 'type': provider_arguments[arg]} for arg in provider_arguments]
         if arg_map:
