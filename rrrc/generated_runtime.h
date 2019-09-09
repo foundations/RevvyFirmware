@@ -29,6 +29,7 @@
 #include "components/MotorDriver_8833/MotorDriver_8833.h"
 #include "components/MotorPortHandler/MotorPortHandler.h"
 #include "components/MotorThermalModel/MotorThermalModel.h"
+#include "components/ProjectConfiguration/ProjectConfiguration.h"
 #include "components/RestartManager/RestartManager.h"
 #include "components/RingLedDisplay/RingLedDisplay.h"
 #include "components/SensorPortHandler/SensorPortHandler.h"

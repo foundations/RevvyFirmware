@@ -118,6 +118,7 @@
         "MotorDriver_8833",
         "MotorPortHandler",
         "MotorThermalModel",
+        "ProjectConfiguration",
         "RestartManager",
         "RingLedDisplay",
         "SensorPortHandler",

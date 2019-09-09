@@ -1,0 +1,8 @@
+{
+    "component_name": "ProjectConfiguration",
+    "source_files": [
+        "ProjectConfiguration.c"
+    ],
+    "runnables": {},
+    "ports": {}
+}

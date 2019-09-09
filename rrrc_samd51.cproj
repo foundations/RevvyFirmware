@@ -1389,6 +1389,9 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\ADC1\ADC1.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\ProjectConfiguration\config.json">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
@@ -1479,6 +1482,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="third_party\CMSIS" />
     <Folder Include="rrrc\components\ADC0" />
     <Folder Include="rrrc\components\ADC1" />
+    <Folder Include="rrrc\components\ProjectConfiguration" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">

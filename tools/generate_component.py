@@ -253,8 +253,12 @@ if __name__ == "__main__":
         modified_files['project.json'] = json.dumps(config, indent=4)
         modified_files['rrrc_samd51.cproj'] = add_component_to_cproject('rrrc_samd51.cproj', new_files, new_folders)
     else:
-        with open(config_json_path, 'r') as component_config_file:
-            component_config = json.load(component_config_file)
+        try:
+            with open(config_json_path, 'r') as component_config_file:
+                component_config = json.load(component_config_file)
+        except FileNotFoundError:
+            print("Component {} does not exists. Did you mean to --create?".format(component_name))
+            sys.exit(2)
 
         runnables = component_config['runnables']
         ports = component_config['ports']
