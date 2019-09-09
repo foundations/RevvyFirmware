@@ -72,8 +72,8 @@ def load_component_config(path):
         component_config = json.load(component_config_file)
         component_config['runnables'] = process_runnables(component_config.get('runnables', {}))
         component_config['ports'] = process_ports(component_config.get('ports', {}))
+        component_config['types'] = component_config.get('types', {})
     return component_config
-
 
 
 def parse_runnable(runnable):
@@ -125,6 +125,7 @@ def load_project_config(project_config_file):
                 'consumers': [parse_port(consumer) for consumer in consumers]
             })
 
+        project_config['types'] = project_config.get('types', {})
         project_config['runtime']['runnables'] = processed_runnables
         project_config['runtime']['port_connections'] = processed_port_connections
 

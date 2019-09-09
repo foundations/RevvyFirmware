@@ -125,6 +125,17 @@
         "VersionProvider",
         "YawAngleTracker"
     ],
+    "types": {
+        "uint8_t": {"defined_in": "<stdint.h>"},
+        "uint16_t": {"defined_in": "<stdint.h>"},
+        "uint32_t": {"defined_in": "<stdint.h>"},
+        "int8_t": {"defined_in": "<stdint.h>"},
+        "int16_t": {"defined_in": "<stdint.h>"},
+        "int32_t": {"defined_in": "<stdint.h>"},
+        "size_t": {"defined_in": "<stdio.h>"},
+        "bool": {"defined_in": "<stdbool.h>"},
+        "float": {"defined_in": "<float.h>"}
+    },
     "runtime": {
         "runnables": {
             "OnInit": [
