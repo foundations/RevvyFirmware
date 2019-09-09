@@ -8,7 +8,8 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import type_includes, type_default_values, component_file_pattern, component_folder_pattern
+from tools.generator_common import type_includes, type_default_values, component_file_pattern, component_folder_pattern, \
+    process_runnable, process_port, process_ports, process_runnables
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -50,10 +51,7 @@ makefile_component_files_start_marker = '# Software Component Source Files\n'
 makefile_component_files_end_marker = '# End of Software Component Source Files\n'
 
 default_runnables = {
-    'OnInit': {
-        'return_type': 'void',
-        'arguments':   {}
-    }
+    'OnInit': {}
 }
 
 
@@ -174,7 +172,7 @@ def create_component_config(name, sources, runnables):
     json_contents = {
         'component_name': name,
         'source_files':   sources,
-        'runnables':      runnables
+        'runnables':      process_runnables(runnables)
     }
     return json.dumps(json_contents, indent=4)
 
@@ -253,7 +251,7 @@ if __name__ == "__main__":
         new_folders.append(component_dir)
 
         # create component configuration json
-        runnables = default_runnables
+        runnables = process_runnables(default_runnables)
         ports = {}
         new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)
 
@@ -268,8 +266,8 @@ if __name__ == "__main__":
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
 
-        runnables = component_config['runnables']
-        ports = component_config['ports']
+        runnables = process_runnables(component_config['runnables'])
+        ports = process_ports(component_config['ports'])
 
     template_ctx = {
         'component_name': component_name,

@@ -9,7 +9,8 @@ from json import JSONDecodeError
 
 import pystache
 
-from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern
+from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern, \
+    process_runnable, process_port, process_runnables, process_ports
 
 port_compatibility = {
     "WriteData":              {
@@ -172,6 +173,8 @@ if __name__ == "__main__":
             with open(component_config_file, "r") as f:
                 try:
                     component_data[component] = json.load(f)
+                    component_data[component]['runnables'] = process_runnables(component_data[component]['runnables'])
+                    component_data[component]['ports'] = process_ports(component_data[component].get('ports', {}))
                 except JSONDecodeError:
                     print("Could not read config for {}".format(component))
                     component_valid = False

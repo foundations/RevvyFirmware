@@ -23,8 +23,7 @@
     },
     "ports": {
         "ErrorLimitReached": {
-            "port_type": "Event",
-            "arguments": []
+            "port_type": "Event"
         }
     }
 }

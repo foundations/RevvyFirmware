@@ -25,3 +25,28 @@ type_default_values = {
 
 component_folder_pattern = 'rrrc/components/{}'
 component_file_pattern = 'rrrc/components/{}/{}'
+
+
+def process_runnable(runnable):
+    return {
+        'arguments':   runnable.get('arguments', {}),
+        'return_type': runnable.get('return_type', 'void')
+    }
+
+
+def process_port(port):
+    if port['port_type'] == 'Event':
+        return {
+            'port_type': port['port_type'],
+            'arguments': port.get('arguments', {})
+        }
+    else:
+        return port
+
+
+def process_runnables(runnable_config):
+    return {runnable: process_runnable(runnable_config[runnable]) for runnable in runnable_config}
+
+
+def process_ports(port_config):
+    return {port: process_port(port_config[port]) for port in port_config}
