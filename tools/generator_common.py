@@ -40,6 +40,12 @@ def process_port(port):
             'port_type': port['port_type'],
             'arguments': port.get('arguments', {})
         }
+    elif port['port_type'] == 'ReadValue':
+        return {
+            'port_type': port['port_type'],
+            'data_type': port['data_type'],
+            'default_value': port.get('default_value', type_default_values[port['data_type']])
+        }
     else:
         return port
 

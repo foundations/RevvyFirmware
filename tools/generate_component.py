@@ -107,8 +107,7 @@ def convert_functions(runnable_data, port_data):
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  port_data[port]['data_type'],
-                    "return_value": port_data[port].get('default_value',
-                                                        type_default_values[port_data[port]['data_type']]),
+                    "return_value": port_data[port]['default_value'],
                     "arguments":    [],
                     "weak":         True
                 },
