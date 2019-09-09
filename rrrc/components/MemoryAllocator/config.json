@@ -3,5 +3,19 @@
     "source_files": [
         "MemoryAllocator.c"
     ],
-    "runnables": {}
+    "runnables": {
+        "Allocate": {
+            "return_type": "void*",
+            "arguments": {
+                "size": "size_t"
+            }
+        },
+        "Free": {
+            "return_type": "void",
+            "arguments": {
+                "ptr": "void**"
+            }
+        }
+    },
+    "ports": {}
 }

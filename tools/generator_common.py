@@ -1,5 +1,3 @@
-
-
 type_includes = {
     'uint8_t':  '<stdint.h>',
     'uint16_t': '<stdint.h>',
@@ -8,6 +6,7 @@ type_includes = {
     'int16_t':  '<stdint.h>',
     'int32_t':  '<stdint.h>',
     'float':    '<stdint.h>',
+    'size_t':   '<stdio.h>',
     'bool':     '<stdbool.h>'
 }
 
@@ -19,5 +18,7 @@ type_default_values = {
     'int16_t':  '0',
     'int32_t':  '0',
     'float':    '0.0f',
-    'bool':     'false'
+    'bool':     'false',
+    'void':     None,
+    'void*':    'NULL'
 }

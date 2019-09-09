@@ -87,10 +87,12 @@ def convert_functions(runnable_data, port_data):
         if arguments:
             arguments[len(arguments) - 1]['last'] = True
 
+        return_type = runnable_data[runnable]['return_type']
         functions.append({
-            'name':        'Run_{}'.format(runnable),
-            'return_type': runnable_data[runnable]['return_type'],
-            'args':        arguments
+            'name':         'Run_{}'.format(runnable),
+            'return_type':  return_type,
+            'return_value': runnable_data[runnable].get('return_value', type_default_values[return_type]),
+            'args':         arguments
         })
 
     for port in port_data:
@@ -109,7 +111,8 @@ def convert_functions(runnable_data, port_data):
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  port_data[port]['data_type'],
-                    "return_value": port_data[port].get('default_value', type_default_values[port_data[port]['data_type']]),
+                    "return_value": port_data[port].get('default_value',
+                                                        type_default_values[port_data[port]['data_type']]),
                     "arguments":    [],
                     "weak":         True
                 },
