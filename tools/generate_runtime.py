@@ -10,7 +10,7 @@ from json import JSONDecodeError
 import pystache
 
 from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern, \
-    process_runnable, process_port, process_runnables, process_ports, load_component_config
+    process_runnable, process_port, process_runnables, process_ports, load_component_config, load_project_config
 
 port_compatibility = {
     "WriteData":              {
@@ -49,8 +49,8 @@ port_template_read_constant = """{{data_type}} {{consumer_component_name}}_Read_
 }
 """
 
-arg_list_template = "{{ #{0} }}{{ type }} {{name}}{{^last}}, {{/last}}{{ /{0} }}{{ ^{0} }}void{{ /{0} }}"\
-    .replace('{{', '{{{{')\
+arg_list_template = "{{ #{0} }}{{ type }} {{name}}{{^last}}, {{/last}}{{ /{0} }}{{ ^{0} }}void{{ /{0} }}" \
+    .replace('{{', '{{{{') \
     .replace('}}', '}}}}')
 
 call_arg_list_template = "{{ #{0} }}{{name}}{{^last}}, {{/last}}{{ /{0} }}".replace('{{', '{{{{').replace('}}', '}}}}')
@@ -121,30 +121,6 @@ void RunnableGroup_{{ group_name }}(void)
 """
 
 
-def parse_runnable(runnable):
-    """Parse shorthand form of runnable reference into a dictionary"""
-    if type(runnable) is str:
-        parts = runnable.split('/')
-        runnable = {
-            'component': parts[0],
-            'runnable':  parts[1]
-        }
-
-    return runnable
-
-
-def parse_port(port):
-    """Parse shorthand form of port reference into a dictionary"""
-    if type(port) is str:
-        parts = port.split('/')
-        port = {
-            'component': parts[0],
-            'port':      parts[1]
-        }
-
-    return port
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
@@ -153,8 +129,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open(args.config, "r") as f:
-        project_config = json.load(f)
+    project_config = load_project_config(args.config)
 
     runtime_config = project_config['runtime']
     component_data = {}
@@ -186,7 +161,6 @@ if __name__ == "__main__":
     # validate runnables
     for runnable_group in runtime_config['runnables']:
         for runnable in runtime_config['runnables'][runnable_group]:
-            runnable = parse_runnable(runnable)
             provider_component_name = runnable['component']
             if provider_component_name not in project_config['components']:
                 print('Component {} does not exist'.format(provider_component_name))
@@ -269,9 +243,10 @@ if __name__ == "__main__":
     port_connections = []
     runnable_connections = []
 
-    for port_connection in runtime_config.get('port_connections', []):
+    for port_connection in runtime_config['port_connections']:
         port_valid = True
-        provider = parse_port(port_connection['provider'])
+        provider = port_connection['provider']
+
         if not port_ref_valid(provider):
             print('Provider port invalid: {}/{}'.format(provider['component'], provider['port']))
             port_valid = False
@@ -285,7 +260,6 @@ if __name__ == "__main__":
         provider_port_type = port_type(provider)
         if provider_port_type in provider_port_templates:
             for consumer in port_connection['consumers']:
-                consumer = parse_port(consumer)
                 if not port_ref_valid(consumer):
                     print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
                                                                     consumer['component'], consumer['port']))
@@ -303,7 +277,6 @@ if __name__ == "__main__":
 
         elif provider_port_type in runnable_connection_templates:
             for consumer in port_connection['consumers']:
-                consumer = parse_port(consumer)
                 if not runnable_ref_valid(consumer):
                     print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
                                                                     consumer['component'], consumer['port']))
@@ -348,7 +321,7 @@ if __name__ == "__main__":
         template_ctx['runnable_groups'].append(group)
 
     for port_connection in port_connections:
-        provider = parse_port(port_connection['provider'])
+        provider = port_connection['provider']
 
         provider_component_name = provider['component']
         provider_port_name = provider['port']
@@ -379,8 +352,6 @@ if __name__ == "__main__":
             pass
 
         for consumer in port_connection['consumers']:
-            consumer = parse_port(consumer)
-
             consumer_component_name = consumer['component']
             consumer_port_name = consumer['port']
 
@@ -400,7 +371,7 @@ if __name__ == "__main__":
             template_ctx['port_functions'].append(consumer_port)
 
     for runnable_connection in runnable_connections:
-        provider = parse_port(runnable_connection['provider'])
+        provider = runnable_connection['provider']
 
         call_impls = []
 
@@ -411,8 +382,6 @@ if __name__ == "__main__":
             arg_map[len(arg_map) - 1]['last'] = True
 
         for consumer in runnable_connection['consumers']:
-            consumer = parse_port(consumer)
-
             consumer_component_name = consumer['component']
             consumer_port_name = consumer['port']
             consumer_port_type = 'Runnable'

@@ -277,64 +277,42 @@
             "20ms_offset18": [],
             "20ms_offset19": [],
             "100ms": [
-                {
-                    "component": "BluetoothIndicator",
-                    "runnable": "Update"
-                },
-                {
-                    "component": "BrainStatusIndicator",
-                    "runnable": "Update"
-                }
+                "BluetoothIndicator/Update",
+                "BrainStatusIndicator/Update"
             ]
         },
         "port_connections": [
             {
                 "provider": "IMU/SampleTime",
-                "consumers": [
-                    "YawAngleTracker/SampleTime"
-                ]
+                "consumer": "YawAngleTracker/SampleTime"
             },
             {
                 "provider": "CommunicationObserver/ErrorLimitReached",
-                "consumers": [
-                    "RestartManager/Reset"
-                ]
+                "consumer": "RestartManager/Reset"
             },
             {
                 "provider": "SensorPortHandler/Allocate",
-                "consumers": [
-                    "MemoryAllocator/Allocate"
-                ]
+                "consumer": "MemoryAllocator/Allocate"
             },
             {
                 "provider": "SensorPortHandler/Free",
-                "consumers": [
-                    "MemoryAllocator/Free"
-                ]
+                "consumer": "MemoryAllocator/Free"
             },
             {
                 "provider": "MotorPortHandler/Allocate",
-                "consumers": [
-                    "MemoryAllocator/Allocate"
-                ]
+                "consumer": "MemoryAllocator/Allocate"
             },
             {
                 "provider": "MotorPortHandler/Free",
-                "consumers": [
-                    "MemoryAllocator/Free"
-                ]
+                "consumer": "MemoryAllocator/Free"
             },
             {
                 "provider": "MasterCommunicationInterface/RxTimeout",
-                "consumers": [
-                    "CommunicationObserver/OnMessageMissed"
-                ]
+                "consumer": "CommunicationObserver/OnMessageMissed"
             },
             {
                 "provider": "SensorPortHandler/ReadCurrentTicks",
-                "consumers": [
-                    "HighResolutionTimer/GetTickCount"
-                ]
+                "consumer": "HighResolutionTimer/GetTickCount"
             }
         ]
     }
