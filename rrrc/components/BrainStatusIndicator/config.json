@@ -3,6 +3,17 @@
     "source_files": [
         "BrainStatusIndicator.c"
     ],
+    "types": {
+        "SystemState_t": {
+            "type": "enum",
+            "values": [
+                "SystemState_Startup",
+                "SystemState_Operational",
+                "SystemState_Error"
+            ],
+            "default_value": "SystemState_Operational"
+        }
+    },
     "runnables": {
         "OnInit": {
             "return_type": "void",
@@ -11,6 +22,18 @@
         "Update": {
             "return_type": "void",
             "arguments": []
+        }
+    },
+    "ports": {
+        "SystemState": {
+            "data_type": "SystemState_t",
+            "port_type": "ReadValue",
+            "unconnected_value": "SystemState_Operational"
+        },
+        "BluetoothControllerPresent": {
+            "data_type": "bool",
+            "port_type": "ReadValue",
+            "unconnected_value": "false"
         }
     }
 }

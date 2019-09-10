@@ -1,19 +1,6 @@
 import json
 import re
 
-type_default_values = {
-    'uint8_t':  '0u',
-    'uint16_t': '0u',
-    'uint32_t': '0u',
-    'int8_t':   '0',
-    'int16_t':  '0',
-    'int32_t':  '0',
-    'float':    '0.0f',
-    'bool':     'false',
-    'void':     None,
-    'void*':    'NULL'
-}
-
 component_folder_pattern = 'rrrc/components/{}'
 component_file_pattern = 'rrrc/components/{}/{}'
 
@@ -42,10 +29,31 @@ def process_port(port):
         return {
             'port_type':     port['port_type'],
             'data_type':     port['data_type'],
-            'default_value': port.get('default_value', type_default_values[port['data_type']])
+            'default_value': port.get('default_value', None)
         }
     else:
         return port
+
+
+def process_type_def(type_def):
+    processed_type_def = {}
+
+    if 'defined_in' in type_def:
+        processed_type_def['type'] = 'external_type_def'
+        processed_type_def['defined_in'] = type_def['defined_in']
+        processed_type_def['default_value'] = type_def['default_value']
+    elif 'aliases' in type_def:
+        processed_type_def['type'] = 'type_alias'
+        processed_type_def['aliases'] = type_def['aliases']
+    else:
+        processed_type_def['type'] = type_def['type']
+        if type_def['type'] == 'enum':
+            processed_type_def['values'] = type_def['values']
+            processed_type_def['default_value'] = type_def['default_value']
+        else:
+            raise Exception('Unsupported type {}'.format(type_def['type']))
+
+    return processed_type_def
 
 
 def process_runnables(runnable_config):
@@ -56,12 +64,16 @@ def process_ports(port_config):
     return {port: process_port(port_config[port]) for port in port_config}
 
 
+def process_type_defs(type_defs):
+    return {type_name: process_type_def(type_defs[type_name]) for type_name in type_defs}
+
+
 def load_component_config(path):
     with open(path, 'r') as component_config_file:
         component_config = json.load(component_config_file)
         component_config['runnables'] = process_runnables(component_config.get('runnables', {}))
         component_config['ports'] = process_ports(component_config.get('ports', {}))
-        component_config['types'] = component_config.get('types', {})
+        component_config['types'] = process_type_defs(component_config.get('types', {}))
     return component_config
 
 
@@ -123,7 +135,7 @@ def load_project_config(project_config_file):
                 'consumers': [parse_port(consumer) for consumer in consumers]
             })
 
-        project_config['types'] = project_config.get('types', {})
+        project_config['types'] = process_type_defs(project_config.get('types', {}))
         project_config['runtime']['runnables'] = processed_runnables
         project_config['runtime']['port_connections'] = processed_port_connections
 
@@ -201,14 +213,19 @@ def resolve_type(type_name, type_data, resolved_types, past=None):
     elif type_name in past:
         raise Exception('Circular type definition for {}'.format(type_name))
 
-    if 'aliases' in type_data[type_name]:
-        past.append(type_name)
-        resolved = resolve_type(type_data[type_name]['aliases'], type_data, resolved_types, past)
+    if type_data[type_name]['type'] in ['type_alias', 'enum']:
+
+        if type_data[type_name]['type'] == 'type_alias':
+            past.append(type_name)
+            resolved = resolve_type(type_data[type_name]['aliases'], type_data, resolved_types, past)
+        else:
+            resolved = type_name
 
         resolved_types[type_name] = resolved
 
         return resolved
-    elif 'defined_in' in type_data[type_name]:
+
+    if type_data[type_name]['type'] == 'external_type_def':
         resolved_types[type_name] = type_name
         return type_name
 
@@ -218,13 +235,17 @@ def add_data_type(type_name, info, type_data, resolved_types):
         # type already exists, check if they are the same
         resolved_known = resolve_type(type_name, type_data, resolved_types)
 
-        if 'aliases' in info:
+        if info['type'] == 'type_alias':
             resolved_new = resolve_type(info['aliases'], type_data, resolved_types)
             if resolved_known != resolved_new:
                 raise Exception('Type {} is already defined'.format(type_name))
-        elif 'defined_in' in info:
+
+        elif info['type'] == 'external_type_def':
             if info['defined_in'] != type_data[resolved_known]['defined_in']:
                 raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
+
+        elif info['type'] == 'enum':
+            pass
         else:
             raise Exception('Invalid type definition {}'.format(type_name))
 
@@ -236,15 +257,30 @@ def collect_type_aliases(types, type_data, resolved_types):
     aliases = []
     for type_name in types:
         resolved_type = resolve_type(type_name, type_data, resolved_types)
-        if resolved_type != type_name:
+        type_type = type_data[type_name]['type']
+
+        if type_type == 'type_alias':
             aliases.append({
-                'type':    type_name,
-                'aliased': resolved_type
+                'type':      type_type,
+                'type_name': type_name,
+                'aliased':   resolved_type
             })
-        else:
+
+        elif type_type == 'external_type_def':
             aliases.append({
-                'type':       type_name,
+                'type':       type_type,
+                'type_name':  type_name,
                 'defined_in': type_data[resolved_type]['defined_in']
+            })
+
+        elif type_type == 'enum':
+            enum_values = [{'value': value} for value in type_data[resolved_type]['values']]
+            enum_values[len(enum_values) - 1]['last'] = True
+            aliases.append({
+                'type':      type_type,
+                'is_enum':   True,
+                'type_name': type_name,
+                'values':    enum_values
             })
 
     return aliases

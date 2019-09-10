@@ -8,8 +8,8 @@ from json import JSONDecodeError
 
 import pystache
 
-from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern, \
-    load_component_config, load_project_config, add_data_type, to_underscore, collect_type_aliases
+from tools.generator_common import component_folder_pattern, component_file_pattern, \
+    load_component_config, load_project_config, add_data_type, to_underscore, collect_type_aliases, resolve_type
 
 port_compatibility = {
     "WriteData":              {
@@ -93,6 +93,17 @@ consumer_port_templates = {
     }
 }
 
+typedef_template = """{{ #aliased }}
+typedef {{ aliased }} {{ type_name }};
+{{ /aliased }}
+{{ #is_enum }}
+typedef enum {
+    {{ #values }}
+    {{ value }}{{ ^last }},{{ /last }}
+    {{ /values }}
+} {{ type_name }};
+{{ /is_enum }}"""
+
 header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
@@ -103,9 +114,7 @@ header_template = """#ifndef GENERATED_RUNTIME_H_
 {{ /types }}
 
 {{ #types }}
-{{ #aliased }}
-typedef {{ aliased }} {{ type }};
-{{ /aliased }}
+""" + typedef_template + """
 {{ /types }}
 
 {{ #components }}
@@ -304,6 +313,18 @@ if __name__ == "__main__":
     port_connections = []
     runnable_connections = []
 
+    data_buffers = {}
+    # data buffer name:
+    # - single provider -> derive
+    # - multiple different provider ports -> pattern + index (combined_data_buffer_5)
+    # port types must match exactly [restriction may be lifted later]
+    # write types:
+    # write to data buffer (WriteData)
+    # write to data buffer index (WriteData)
+    # indexed write to data buffer index, direct mapping (WriteIndexedData)
+    # indexed write to data buffer index, direct mapping with offset (WriteIndexedData)
+    # indexed write to data buffer index, indirect mapping (WriteIndexedData)
+
     for port_connection in project_config['runtime']['port_connections']:
         port_valid = True
         providers = port_connection['providers']
@@ -416,13 +437,14 @@ if __name__ == "__main__":
 
         provider_port_data = component_data[provider_component_name]['ports'][provider_port_name]
         data_type = provider_port_data['data_type']
+        resolved_data_type = resolve_type(data_type, type_data, resolved_types)
 
         provider_port_type = provider_port_data['port_type']
         data_buffer_ctx = {
             'data_type':      data_type,
             'component_name': provider_component_name,
             'port_name':      provider_port_name,
-            'init_value':     provider.get('init_value', type_default_values[data_type])
+            'init_value':     provider.get('init_value', type_data[resolved_data_type]['default_value'])
         }
 
         try:

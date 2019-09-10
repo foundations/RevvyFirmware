@@ -12,6 +12,11 @@
 #include <float.h>
 
 typedef float Voltage_t;
+typedef enum {
+    SystemState_Startup,
+    SystemState_Operational,
+    SystemState_Error
+} SystemState_t;
 
 #define COMPONENT_TYPES_ADC0_H_
 #define COMPONENT_TYPES_ADC1_H_

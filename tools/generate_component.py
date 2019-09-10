@@ -7,13 +7,24 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import type_default_values, component_file_pattern, \
+from tools.generator_common import component_file_pattern, \
     component_folder_pattern, process_runnables, load_component_config, load_project_config, compact_project_config, \
     add_data_type, resolve_type, to_underscore, collect_type_aliases
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
 fn_header_template = '{{return_type}} {{ component_name }}_{{name}}(' + argument_list_template + ')'
+
+typedef_template = """{{ #aliased }}
+typedef {{ aliased }} {{ type_name }};
+{{ /aliased }}
+{{ #is_enum }}
+typedef enum {
+    {{ #values }}
+    {{ value }}{{ ^last }},{{ /last }}
+    {{ /values }}
+} {{ type_name }};
+{{ /is_enum }}"""
 
 header_template = '''#ifndef {{ guard_def }}
 #define {{ guard_def }}
@@ -26,7 +37,7 @@ header_template = '''#ifndef {{ guard_def }}
 {{ /type_includes }}
 
 {{ #types }}
-typedef {{ aliased }} {{ type }};
+''' + typedef_template + '''
 {{ /types }}
 
 #endif /* {{ type_guard_def }} */
@@ -77,8 +88,15 @@ def read_cproject(path):
     return ElementTree.fromstring(xml_in)
 
 
-def convert_functions(runnable_data, port_data):
+def convert_functions(runnable_data, port_data, type_data, resolved_types):
     functions = []
+
+    def default_value(type_name, given_value):
+        if given_value is None:
+            resolved = resolve_type(type_name, type_data, resolved_types)
+            return type_data[resolved]['default_value']
+
+        return given_value
 
     for runnable in runnable_data:
         runnable_arguments = runnable_data[runnable]['arguments']
@@ -122,7 +140,7 @@ def convert_functions(runnable_data, port_data):
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  port_data[port]['data_type'],
-                    "return_value": port_data[port]['default_value'],
+                    "return_value": default_value(port_data[port]['data_type'], port_data[port]['default_value']),
                     "arguments":    [],
                     "weak":         True
                 },
@@ -176,7 +194,9 @@ def collect_includes(runnable_data, port_data, component_types, type_data, resol
     def add_type(type_name):
         sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
         resolved_type = resolve_type(sanitized_name, type_data, resolved_types)
-        includes.add(type_data[resolved_type]['defined_in'])
+
+        if type_data[resolved_type]['type'] == 'external_type_def':
+            includes.add(type_data[resolved_type]['defined_in'])
 
     for runnable in runnable_data:
         runnable_arguments = runnable_data[runnable]['arguments']
@@ -307,7 +327,7 @@ if __name__ == "__main__":
         'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
         'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions':      convert_functions(runnables, ports),
+        'functions':      convert_functions(runnables, ports, type_data, resolved_types),
         'types':          collect_type_aliases(component_types, type_data, resolved_types)
     }
 

@@ -127,31 +127,40 @@
     ],
     "types": {
         "uint8_t": {
-            "defined_in": "<stdint.h>"
+            "defined_in": "<stdint.h>",
+            "default_value": "0u"
         },
         "uint16_t": {
-            "defined_in": "<stdint.h>"
+            "defined_in": "<stdint.h>",
+            "default_value": "0u"
         },
         "uint32_t": {
-            "defined_in": "<stdint.h>"
+            "defined_in": "<stdint.h>",
+            "default_value": "0u"
         },
         "int8_t": {
-            "defined_in": "<stdint.h>"
+            "defined_in": "<stdint.h>",
+            "default_value": "0"
         },
         "int16_t": {
-            "defined_in": "<stdint.h>"
+            "defined_in": "<stdint.h>",
+            "default_value": "0"
         },
         "int32_t": {
-            "defined_in": "<stdint.h>"
+            "defined_in": "<stdint.h>",
+            "default_value": "0"
         },
         "size_t": {
-            "defined_in": "<stdio.h>"
+            "defined_in": "<stdio.h>",
+            "default_value": "0u"
         },
         "bool": {
-            "defined_in": "<stdbool.h>"
+            "defined_in": "<stdbool.h>",
+            "default_value": "false"
         },
         "float": {
-            "defined_in": "<float.h>"
+            "defined_in": "<float.h>",
+            "default_value": "0.0f"
         }
     },
     "runtime": {
