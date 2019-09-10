@@ -632,13 +632,19 @@ uint8_t BatteryIndicator_Read_Percentage(BatteryIndicator_Context_t* context)
     return 0u;
 }
 
+static ChargerState_t charger_state = ChargerState_NotPluggedIn;
+
+void BatteryCharger_Write_ChargerState(ChargerState_t value)
+{
+    charger_state = value;
+}
+
 BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context)
 {
     if (context == &mainBatteryIndicator)
     {
         if (mainBatteryDetected)
         {
-            ChargerState_t charger_state = BatteryCharger_Run_GetChargerState();
             switch (charger_state)
             {
                 case ChargerState_Charging: return BatteryStatus_Charging;
@@ -718,7 +724,7 @@ bool BluetoothIndicator_Read_IsActive(void)
 
 BatteryStatusProvider_ChargerStatus_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
 {
-    switch (BatteryCharger_Run_GetChargerState())
+    switch (charger_state)
     {
         case ChargerState_NotPluggedIn:
             return BatteryStatusProvider_ChargerStatus_NotConnected;

@@ -1,12 +1,18 @@
 #ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
-#include <float.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <float.h>
 
 typedef float Voltage_t;
+typedef enum {
+    ChargerState_NotPluggedIn,
+    ChargerState_Charging,
+    ChargerState_Charged,
+    ChargerState_Fault
+} ChargerState_t;
 typedef enum {
     SystemState_Startup,
     SystemState_Operational,

@@ -1,10 +1,3 @@
-/*
- * BatteryCharger.c
- *
- * Created: 01/05/2019 08:49:16
- *  Author: Dániel Buga
- */ 
-
 #include "BatteryCharger.h"
 
 #include "rrrc_hal.h"
@@ -15,7 +8,6 @@
 #define MAX_ERROR_COUNT (220u)
 #define ERROR_THRESHOLD (100u)
 
-static ChargerState_t chargerState;
 static ChargerState_t previousChargerState;
 static uint8_t errorScore;
 
@@ -52,17 +44,11 @@ void BatteryCharger_Run_OnInit( void )
     gpio_set_pin_function(CHARGER_STAT, GPIO_PIN_FUNCTION_OFF);
 
     errorScore = 0u;
-    
-    chargerState = get_charger_state();
+
     previousChargerState = get_charger_state();
 }
 
-ChargerState_t BatteryCharger_Run_GetChargerState( void )
-{
-    return chargerState;
-}
-
-void BatteryCharger_Run_Update( void )
+void BatteryCharger_Run_Update(void)
 {
     ChargerState_t state = get_charger_state();
 
@@ -81,10 +67,17 @@ void BatteryCharger_Run_Update( void )
 
     if (errorScore > ERROR_THRESHOLD)
     {
-        chargerState = ChargerState_Fault;
+        BatteryCharger_Write_ChargerState(ChargerState_Fault);
     }
     else
     {
-        chargerState = state;
+        BatteryCharger_Write_ChargerState(state);
     }
 }
+
+__attribute__((weak))
+void BatteryCharger_Write_ChargerState(ChargerState_t value)
+{
+    (void) value;
+}
+
