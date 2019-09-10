@@ -1,5 +1,6 @@
 #include "generated_runtime.h"
 
+static ChargerState_t BatteryCharger_ChargerState_databuffer = ChargerState_NotPluggedIn;
 
 void RunnableGroup_OnInit(void)
 {
@@ -166,6 +167,16 @@ void RunnableGroup_100ms(void)
 float YawAngleTracker_Read_SampleTime(void)
 {
     return IMU_Constant_SampleTime();
+}
+
+void BatteryCharger_Write_ChargerState(ChargerState_t value)
+{
+    BatteryCharger_ChargerState_databuffer = value;
+}
+
+ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
+{
+    return BatteryCharger_ChargerState_databuffer;
 }
 
 void CommunicationObserver_Call_ErrorLimitReached(void)
