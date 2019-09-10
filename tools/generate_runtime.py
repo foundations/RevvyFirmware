@@ -143,6 +143,64 @@ void RunnableGroup_{{ group_name }}(void)
 {{/port_functions}}
 """
 
+
+def validate_runnables(project_config, component_data):
+    """Check runnables in the runtime configuration.
+
+    Validate runnables against their definitions in their respective component configurations"""
+
+    runnables_valid = True
+    runtime_config = project_config['runtime']
+    for runnable_group in runtime_config['runnables']:
+        for runnable in runtime_config['runnables'][runnable_group]:
+            provider_component_name = runnable['component']
+            if provider_component_name not in project_config['components']:
+                print('Component {} does not exist'.format(provider_component_name))
+                runnables_valid = False
+            else:
+                component_config = component_data[provider_component_name]
+                runnable_name = runnable['runnable']
+                if runnable_name not in component_config.get('runnables', {}):
+                    print('Component {} does not have a runnable called {}'.format(provider_component_name,
+                                                                                   runnable_name))
+                    runnables_valid = False
+                elif component_config['runnables'][runnable_name]['arguments']:
+                    print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
+                    runnables_valid = False
+    return runnables_valid
+
+
+def load_components(components):
+    return {component: load_component(component) for component in components}
+
+
+def load_component(component):
+    if not os.path.isdir(component_folder_pattern.format(component)):
+        raise Exception('Component folder for {} does not exist'.format(component))
+
+    required_files = ['config.json', component + '.c', component + '.h']
+    for file in required_files:
+        if not os.path.isfile(component_file_pattern.format(component, file)):
+            raise Exception('{} does not exist in component {}'.format(file, component))
+
+    component_config_file = component_file_pattern.format(component, 'config.json')
+    try:
+        return load_component_config(component_config_file)
+    except JSONDecodeError:
+        raise Exception("Could not read config for {}".format(component))
+
+
+def load_types(project_config, component_data, type_data, resolved_types):
+    # load types defined in project config
+    for type_name in project_config['types']:
+        add_data_type(type_name, project_config['types'][type_name], type_data, resolved_types)
+
+    # load types defined in component config
+    for component in component_data:
+        for data_type in component_data[component]['types']:
+            add_data_type(data_type, component_data[component]['types'][data_type], type_data, resolved_types)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
@@ -153,61 +211,22 @@ if __name__ == "__main__":
 
     project_config = load_project_config(args.config)
 
-    runtime_config = project_config['runtime']
-    component_data = {}
+    # load components
+    try:
+        component_data = load_components(project_config['components'])
+        valid = True
+    except Exception:
+        print('Failed to load component data')
+        component_data = {}
+        valid = False
+
+    # validate runnables
+    valid = valid and validate_runnables(project_config, component_data)
+
     type_data = {}
     resolved_types = {}
 
-    valid = True
-
-    for type_name in project_config['types']:
-        add_data_type(type_name, project_config['types'][type_name], type_data, resolved_types)
-
-    # load components
-    for component in project_config['components']:
-        component_valid = True
-        if not os.path.isdir(component_folder_pattern.format(component)):
-            print('Component folder for {} does not exist'.format(component))
-            component_valid = False
-        else:
-            required_files = ['config.json', component + '.c', component + '.h']
-            for file in required_files:
-                if not os.path.isfile(component_file_pattern.format(component, file)):
-                    print('{} does not exist in component {}'.format(file, component))
-                    component_valid = False
-
-        if component_valid:
-            component_config_file = component_file_pattern.format(component, 'config.json')
-            try:
-                component_data[component] = load_component_config(component_config_file)
-
-                for data_type in component_data[component]['types']:
-                    add_data_type(data_type, component_data[component]['types'][data_type], type_data, resolved_types)
-
-            except JSONDecodeError:
-                print("Could not read config for {}".format(component))
-                component_valid = False
-
-        valid = valid and component_valid
-
-    # validate runnables
-    for runnable_group in runtime_config['runnables']:
-        for runnable in runtime_config['runnables'][runnable_group]:
-            provider_component_name = runnable['component']
-            if provider_component_name not in project_config['components']:
-                print('Component {} does not exist'.format(provider_component_name))
-                valid = False
-            else:
-                component_config_file = component_file_pattern.format(provider_component_name, 'config.json')
-                component_config = component_data[provider_component_name]
-                runnable_name = runnable['runnable']
-                if runnable_name not in component_config.get('runnables', {}):
-                    print('Component {} does not have a runnable called {}'.format(provider_component_name,
-                                                                                   runnable_name))
-                    valid = False
-                elif component_config['runnables'][runnable_name]['arguments']:
-                    print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
-                    valid = False
+    load_types(project_config, component_data, type_data, resolved_types)
 
 
     def are_ports_compatible(provider, consumer):
@@ -275,7 +294,7 @@ if __name__ == "__main__":
     port_connections = []
     runnable_connections = []
 
-    for port_connection in runtime_config['port_connections']:
+    for port_connection in project_config['runtime']['port_connections']:
         port_valid = True
         providers = port_connection['providers']
 
@@ -287,47 +306,74 @@ if __name__ == "__main__":
             if not port_ref_valid(provider):
                 print('Provider port invalid: {}/{}'.format(provider['component'], provider['port']))
                 port_valid = False
-                allow_multiple = provider.get('multiple_consumers', False)
-                if not allow_multiple:
-                    if len(port_connection['consumers']) > 1:
-                        print('Port {}/{} requires at most one consumer'.format(provider['component'], provider['port']))
-                        port_valid = False
-            else:  # port reference is valid
+
+            elif not provider.get('multiple_consumers', False):
+                # provider reference is valid, check consumer count - TODO change this when implementing indexed
+                if len(port_connection['consumers']) > 1:
+                    print('Port {}/{} requires at most one consumer'.format(provider['component'], provider['port']))
+                    port_valid = False
+
+            if port_valid:
+                # port reference is valid
+                # validate and separate runnable and data connections
+
+                def validate_port(provider, consumer):
+                    if not port_ref_valid(consumer):
+                        print('Consumer of {}/{} invalid: {}/{}'
+                              .format(provider['component'], provider['port'],
+                                      consumer['component'], consumer['port']))
+                        return False
+                    elif not are_ports_compatible(provider, consumer):
+                        print('Consumer port {}/{} is incompatible with {}/{}'
+                              .format(consumer['component'], consumer['port'],
+                                      provider['component'], provider['port']))
+                        return False
+                    else:
+                        return True
+
+
+                def validate_runnable(provider, consumer):
+                    if not runnable_ref_valid(consumer):
+                        print('Consumer of {}/{} invalid: {}/{}'
+                              .format(provider['component'], provider['port'],
+                                      consumer['component'], consumer['port']))
+                        return False
+                    elif not are_runnables_compatible(provider, consumer):
+                        print('Consumer runnable {}/{} is incompatible with {}/{}'
+                              .format(consumer['component'], consumer['port'],
+                                      provider['component'], provider['port']))
+                        return False
+                    else:
+                        return True
+
+
+                port_conncetion_types = {
+                    "WriteData":              'data',
+                    "WriteIndexedData":       'data',
+                    "ProvideConstantByValue": 'data',
+                    "Event":                  'runnable',
+                    "ServerCall":             'runnable'
+                }
+                validators = {
+                    "data":     validate_port,
+                    "runnable": validate_runnable,
+                }
+                collections = {
+                    "data":     port_connections,
+                    "runnable": runnable_connections,
+                }
+
                 provider_port_type = port_type(provider)
-                if provider_port_type in provider_port_templates:
-                    for consumer in port_connection['consumers']:
-                        if not port_ref_valid(consumer):
-                            print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
-                                                                            consumer['component'], consumer['port']))
-                            port_valid = False
+                try:
+                    connection_type = port_conncetion_types[provider_port_type]
 
-                        if not are_ports_compatible(provider, consumer):
-                            print('Consumer port {}/{} is incompatible with {}/{}'.format(
-                                consumer['component'], consumer['port'],
-                                provider['component'],
-                                provider['port']))
-                            port_valid = False
+                    for consumer in port_connection['consumers']:
+                        port_valid = port_valid and validators[connection_type](provider, consumer)
 
                     if port_valid:
-                        port_connections.append(port_connection)
-
-                elif provider_port_type in runnable_connection_templates:
-                    for consumer in port_connection['consumers']:
-                        if not runnable_ref_valid(consumer):
-                            print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
-                                                                            consumer['component'], consumer['port']))
-                            port_valid = False
-
-                        if not are_runnables_compatible(provider, consumer):
-                            print('Consumer runnable {}/{} is incompatible with {}/{}'.format(
-                                consumer['component'], consumer['port'],
-                                provider['component'], provider['port']))
-                            port_valid = False
-
-                    if port_valid:
-                        runnable_connections.append(port_connection)
-                else:
-                    print('Unknown provider port type: {}'.format(provider_port_type))
+                        collections[connection_type].append(port_connection)
+                except KeyError:
+                    print('Unknown/invalid provider port type: {}'.format(provider_port_type))
                     port_valid = False
 
         valid = valid and port_valid
@@ -342,21 +388,23 @@ if __name__ == "__main__":
     template_ctx = {
         'output_filename': args.output[args.output.rfind('/') + 1:],
         'includes':        ['components/{0}/{0}'.format(component) for component in project_config['components']],
-        'components':      [{'name': component, 'guard_def': to_underscore(component).upper()} for component in
-                            project_config['components']],
+        'components':      [{
+            'name':      component,
+            'guard_def': to_underscore(component).upper()
+        } for component in project_config['components']],
         'runnable_groups': [],
         'data_buffers':    [],
         'port_functions':  [],
         'types':           collect_type_aliases(type_data, type_data, resolved_types)
     }
 
-    for runnable_group in runtime_config['runnables']:
-        group = {'group_name': runnable_group, 'runnables': []}
-
-        for runnable in runtime_config['runnables'][runnable_group]:
-            group['runnables'].append(runnable)
-
-        template_ctx['runnable_groups'].append(group)
+    for runnable_group in project_config['runtime']['runnables']:
+        # FIXME type checker is stupid
+        # noinspection PyTypeChecker
+        template_ctx['runnable_groups'].append({
+            'group_name': runnable_group,
+            'runnables':  (project_config['runtime']['runnables'][runnable_group])
+        })
 
     for port_connection in port_connections:
         provider = port_connection['providers'][0]
