@@ -75,11 +75,11 @@ static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Chann
 
     if (reverse)
     {
-        pwm_0 = speed;
+        pwm_1 = speed;
     }
     else
     {
-        pwm_1 = speed;
+        pwm_0 = speed;
     }
 
     if (channel == MotorDriver_8833_Channel_A)
@@ -103,10 +103,9 @@ static void drv8833_set_speed(MotorDriver_8833_t* driver, MotorDriver_8833_Chann
         driver->speed_b = speed;
     }
     
-    hri_tccount8_write_CC_reg(timers[timer0], ch0, pwm_0);
-    hri_tc_wait_for_sync(timers[timer0], TCC_SYNCBUSY_CC(1 << ch0));
-    hri_tccount8_write_CC_reg(timers[timer1], ch1, pwm_1);
-    hri_tc_wait_for_sync(timers[timer1], TCC_SYNCBUSY_CC(1 << ch1));
+    /* subtraction is because we want to drive motors using slow decay */
+    hri_tccount8_write_CC_reg(timers[timer0], ch0, MOTOR_SPEED_RESOLUTION - pwm_0);
+    hri_tccount8_write_CC_reg(timers[timer1], ch1, MOTOR_SPEED_RESOLUTION - pwm_1);
 }
 
 void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)
