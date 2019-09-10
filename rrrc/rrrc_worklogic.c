@@ -448,7 +448,7 @@ static float motorPreviousCurrents[ARRAY_SIZE(motorPorts)];
 static float motorTemperatures[ARRAY_SIZE(motorPorts)];
 static uint16_t motorRawCurrents[ARRAY_SIZE(motorPorts)];
 
-void ADC0_Write_ChannelData_Raw(uint32_t channel_idx, uint16_t adc_data)
+void ADC0_Write_RawChannelData(uint32_t channel_idx, uint16_t adc_data)
 {
     switch (channel_idx)
     {
@@ -470,7 +470,7 @@ void ADC0_Write_ChannelData_Raw(uint32_t channel_idx, uint16_t adc_data)
     }
 }
 
-void ADC1_Write_ChannelData_Raw(uint32_t channel_idx, uint16_t adc_data)
+void ADC1_Write_RawChannelData(uint32_t channel_idx, uint16_t adc_data)
 {
     switch (channel_idx)
     {

@@ -73,7 +73,7 @@ static void conversion_complete(const struct adc_async_descriptor *const descr, 
     uint32_t channel_idx = adc.currentChannel;
 
     /* we can assume that adc_idx and channel_idx are valid */
-    ADC1_Write_ChannelData_Raw(adc_channels[channel_idx], adc_data);
+    ADC1_Write_RawChannelData(adc_channels[channel_idx], adc_data);
     ADC1_Write_ChannelVoltage(adc_channels[channel_idx], adc_to_mv(adc_data));
 
     if (channel_idx < ARRAY_SIZE(adc_channels) - 1u)
@@ -105,15 +105,15 @@ void ADC1_Run_Update(void)
 }
 
 __attribute__((weak))
-void ADC1_Write_ChannelData_Raw(uint32_t channel_idx, uint16_t adc_data)
+void ADC1_Write_RawChannelData(uint32_t index, uint16_t value)
 {
-    (void) channel_idx;
-    (void) adc_data;
+    (void) index;
+    (void) value;
 }
 
 __attribute__((weak))
-void ADC1_Write_ChannelVoltage(uint32_t channel_idx, float voltage)
+void ADC1_Write_ChannelVoltage(uint32_t index, Voltage_t value)
 {
-    (void) channel_idx;
-    (void) voltage;
+    (void) index;
+    (void) value;
 }

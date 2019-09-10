@@ -3,6 +3,11 @@
     "source_files": [
         "ADC1.c"
     ],
+    "types": {
+        "Voltage_t": {
+            "aliases": "float"
+        }
+    },
     "runnables": {
         "OnInit": {
             "return_type": "void",
@@ -11,6 +16,18 @@
         "Update": {
             "return_type": "void",
             "arguments": []
+        }
+    },
+    "ports": {
+        "RawChannelData": {
+            "port_type": "WriteIndexedData",
+            "data_type": "uint16_t",
+            "count": 8
+        },
+        "ChannelVoltage": {
+            "port_type": "WriteIndexedData",
+            "data_type": "Voltage_t",
+            "count": 8
         }
     }
 }
