@@ -3,5 +3,31 @@
     "source_files": [
         "BatteryStatusProvider.c"
     ],
-    "runnables": {}
+    "types": {
+        "ChargerState_t": {
+            "type": "enum",
+            "values": [
+                "ChargerState_NotPluggedIn",
+                "ChargerState_Charging",
+                "ChargerState_Charged",
+                "ChargerState_Fault"
+            ],
+            "default_value": "ChargerState_NotPluggedIn"
+        }
+    },
+    "runnables": {},
+    "ports": {
+        "MainBatteryLevel": {
+            "data_type": "uint8_t",
+            "port_type": "ReadValue"
+        },
+        "MotorBatteryLevel": {
+            "data_type": "uint8_t",
+            "port_type": "ReadValue"
+        },
+        "IsMainBatteryCharging": {
+            "data_type": "ChargerState_t",
+            "port_type": "ReadValue"
+        }
+    }
 }

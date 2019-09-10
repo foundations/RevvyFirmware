@@ -1,9 +1,3 @@
-/*
- * BatteryStatusProvider.c
- *
- * Created: 09/05/2019 13:36:20
- *  Author: Dániel Buga
- */ 
 #include "BatteryStatusProvider.h"
 #include <utils_assert.h>
 
@@ -27,12 +21,6 @@ Comm_Status_t BatteryStatusProvider_Start(const uint8_t* commandPayload, uint8_t
 }
 
 __attribute__((weak))
-BatteryStatusProvider_ChargerStatus_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
-{
-    return BatteryStatusProvider_ChargerStatus_NotCharging;
-}
-
-__attribute__((weak))
 uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
 {
     return 0u;
@@ -42,4 +30,10 @@ __attribute__((weak))
 uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
 {
     return 0u;
+}
+
+__attribute__((weak))
+ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
+{
+    return ChargerState_NotPluggedIn;
 }

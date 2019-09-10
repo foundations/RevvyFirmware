@@ -722,22 +722,9 @@ bool BluetoothIndicator_Read_IsActive(void)
     return isBleConnected != BluetoothStatus_Inactive;
 }
 
-BatteryStatusProvider_ChargerStatus_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
+ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
 {
-    switch (charger_state)
-    {
-        case ChargerState_NotPluggedIn:
-            return BatteryStatusProvider_ChargerStatus_NotConnected;
-
-        case ChargerState_Charging:
-            return BatteryStatusProvider_ChargerStatus_Charging;
-
-        case ChargerState_Charged:
-            return BatteryStatusProvider_ChargerStatus_NotCharging;
-
-        default:
-            return BatteryStatusProvider_ChargerStatus_Error;
-    }
+    return charger_state;
 }
 
 uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
