@@ -1,16 +1,8 @@
-/*
- * BrainStatusIndicator.c
- *
- * Created: 03/05/2019 13:56:15
- *  Author: Dániel Buga
- */ 
 #include "BrainStatusIndicator.h"
 #include "rrrc_indication.h"
-#include <stdint.h>
 
 void BrainStatusIndicator_Run_OnInit(void)
 {
-
 }
 
 void BrainStatusIndicator_Run_Update(void)

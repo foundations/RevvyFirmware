@@ -109,7 +109,7 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
         functions.append({
             'name':         'Run_{}'.format(runnable),
             'return_type':  return_type,
-            'return_value': runnable_data[runnable].get('return_value', type_default_values[return_type]),
+            'return_value': default_value(return_type, runnable_data[runnable].get('return_value', None)),
             'args':         arguments
         })
 
