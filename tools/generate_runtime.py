@@ -201,6 +201,16 @@ def load_types(project_config, component_data, type_data, resolved_types):
             add_data_type(data_type, component_data[component]['types'][data_type], type_data, resolved_types)
 
 
+def create_runnable_groups(config):
+    runnable_groups = []
+    for runnable_group in config:
+        runnable_groups.append({
+            'group_name': runnable_group,
+            'runnables':  (config[runnable_group])
+        })
+    return runnable_groups
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
@@ -392,19 +402,11 @@ if __name__ == "__main__":
             'name':      component,
             'guard_def': to_underscore(component).upper()
         } for component in project_config['components']],
-        'runnable_groups': [],
         'data_buffers':    [],
         'port_functions':  [],
-        'types':           collect_type_aliases(type_data, type_data, resolved_types)
+        'types':           collect_type_aliases(type_data, type_data, resolved_types),
+        'runnable_groups': create_runnable_groups(project_config['runtime']['runnables'])
     }
-
-    for runnable_group in project_config['runtime']['runnables']:
-        # FIXME type checker is stupid
-        # noinspection PyTypeChecker
-        template_ctx['runnable_groups'].append({
-            'group_name': runnable_group,
-            'runnables':  (project_config['runtime']['runnables'][runnable_group])
-        })
 
     for port_connection in port_connections:
         provider = port_connection['providers'][0]
