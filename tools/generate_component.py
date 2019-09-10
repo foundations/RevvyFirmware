@@ -9,7 +9,8 @@ from xml.etree import ElementTree
 import pystache
 
 from tools.generator_common import type_includes, type_default_values, component_file_pattern, \
-    component_folder_pattern, process_runnables, load_component_config, load_project_config, compact_project_config
+    component_folder_pattern, process_runnables, load_component_config, load_project_config, compact_project_config, \
+    add_data_type, resolve_type
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -18,9 +19,18 @@ fn_header_template = '{{return_type}} {{ component_name }}_{{name}}(' + argument
 header_template = '''#ifndef {{ guard_def }}
 #define {{ guard_def }}
 
-{{#includes}}
+#ifndef {{ type_guard_def }}
+#define {{ type_guard_def }}
+
+{{ #type_includes }}
 #include {{{.}}}
-{{/includes}}
+{{ /type_includes }}
+
+{{ #types }}
+typedef {{ type }} {{ aliased }};
+{{ /types }}
+
+#endif /* {{ type_guard_def }} */
 
 {{#functions}}
 ''' + fn_header_template + ''';
@@ -147,22 +157,24 @@ def convert_functions(runnable_data, port_data):
     return functions
 
 
-def collect_includes(runnable_data, port_data):
+def collect_includes(runnable_data, port_data, component_types, type_data, resolved_types):
     includes = set()
+
+    def add_type(type_name):
+        sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
+        resolved_type = resolve_type(sanitized_name, type_data, resolved_types)
+        includes.add(type_data[resolved_type]['defined_in'])
 
     for runnable in runnable_data:
         runnable_arguments = runnable_data[runnable]['arguments']
         for arg in runnable_arguments:
-            try:
-                includes.add(type_includes[runnable_arguments[arg]])
-            except KeyError:
-                pass
+            add_type(runnable_arguments[arg])
 
     for port in port_data:
-        try:
-            includes.add(type_includes[port_data[port]['data_type']])
-        except KeyError:
-            pass
+        add_type(port_data[port]['data_type'])
+
+    for type_name in component_types:
+        add_type(type_name)
 
     return list(includes)
 
@@ -208,6 +220,15 @@ def add_component_to_cproject(cproject, new_files, new_folders):
         .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
 
 
+def convert_types(types, type_data, resolved_types):
+    return [
+        {
+            'type': type_name,
+            'aliased': resolve_type(type_name, type_data, resolved_types)
+        } for type_name in types
+    ]
+
+
 if __name__ == "__main__":
     # inquire name of new component
     parser = argparse.ArgumentParser()
@@ -228,21 +249,24 @@ if __name__ == "__main__":
         return component_file_pattern.format(component_name, filename)
 
 
-    config = load_project_config('project.json')
+    project_config = load_project_config('project.json')
 
     new_folders = []
     new_files = {}
     modified_files = {}
 
+    type_data = {}
+    resolved_types = {}
+
     config_json_path = component_file('config.json')
     if args.create:
         # stop if component exists
-        if component_name in config['components']:
+        if component_name in project_config['components']:
             print('Component already exists')
             sys.exit(1)
 
-        config['components'].append(component_name)
-        config['components'] = sorted(config['components'])
+        project_config['components'].append(component_name)
+        project_config['components'] = sorted(project_config['components'])
 
         # Create component skeleton
         component_dir = component_folder_pattern.format(component_name)
@@ -251,26 +275,36 @@ if __name__ == "__main__":
         # create component configuration json
         runnables = process_runnables(default_runnables)
         ports = {}
+        component_types = {}
         new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)
 
         # replace sources list with new one and set for file modification
-        modified_files['project.json'] = json.dumps(compact_project_config(config), indent=4)
+        modified_files['project.json'] = json.dumps(compact_project_config(project_config), indent=4)
         modified_files['rrrc_samd51.cproj'] = add_component_to_cproject('rrrc_samd51.cproj', new_files, new_folders)
     else:
         try:
             component_config = load_component_config(config_json_path)
             runnables = component_config['runnables']
             ports = component_config['ports']
+            component_types = component_config['types']
         except FileNotFoundError:
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
 
+    for builtin_type in project_config['types']:
+        add_data_type(builtin_type, project_config['types'][builtin_type], type_data, resolved_types)
+
+    for new_type in component_types:
+        add_data_type(new_type, component_types[new_type], type_data, resolved_types)
+
     template_ctx = {
         'component_name': component_name,
-        'includes':       collect_includes(runnables, ports),
+        'type_includes':  collect_includes(runnables, ports, component_types, type_data, resolved_types),
         'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
+        'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions':      convert_functions(runnables, ports)
+        'functions':      convert_functions(runnables, ports),
+        'types':          convert_types(component_types, type_data, resolved_types)
     }
 
 

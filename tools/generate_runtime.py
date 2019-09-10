@@ -9,7 +9,7 @@ from json import JSONDecodeError
 import pystache
 
 from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern, \
-    load_component_config, load_project_config
+    load_component_config, load_project_config, add_data_type
 
 port_compatibility = {
     "WriteData":              {
@@ -135,52 +135,10 @@ if __name__ == "__main__":
     type_data = {}
     resolved_types = {}
 
-    def resolve_type(type_name, past=None):
-        if type_name not in type_data:
-            raise Exception('Incomplete type: {}'.format(type_name))
-
-        if type_name in resolved_types:  # cache
-            return resolved_types[type_name]
-
-        # record visited types to detect circular definition
-        if past is None:
-            past = []
-        elif type_name in past:
-            raise Exception('Circular type definition for {}'.format(type_name))
-
-        if 'aliases' in type_data[type_name]:
-            past.append(type_name)
-            resolved = resolve_type(type_data[type_name]['aliases'], past)
-
-            resolved_types[type_name] = resolved
-
-            return resolved
-        elif 'defined_in' in type_data[type_name]:
-            resolved_types[type_name] = type_name
-            return type_name
-
-    def add_data_type(type_name, info):
-        if type_name in type_data:
-            # type already exists, check if they are the same
-            resolved_known = resolve_type(type_name)
-
-            if 'aliases' in info:
-                resolved_new = resolve_type(info['aliases'])
-                if resolved_known != resolved_new:
-                    raise Exception('Type {} is already defined'.format(type_name))
-            elif 'defined_in' in info:
-                if info['defined_in'] != type_data[resolved_known]['defined_in']:
-                    raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
-            else:
-                raise Exception('Invalid type definition {}'.format(type_name))
-
-        else:
-            type_data[type_name] = info
-
     valid = True
 
     for type_name in project_config['types']:
-        add_data_type(type_name, project_config['types'][type_name])
+        add_data_type(type_name, project_config['types'][type_name], type_data, resolved_types)
 
     # load components
     for component in project_config['components']:
@@ -201,7 +159,7 @@ if __name__ == "__main__":
                 component_data[component] = load_component_config(component_config_file)
 
                 for data_type in component_data[component]['types']:
-                    add_data_type(data_type, component_data[component]['types'][data_type])
+                    add_data_type(data_type, component_data[component]['types'][data_type], type_data, resolved_types)
 
             except JSONDecodeError:
                 print("Could not read config for {}".format(component))
