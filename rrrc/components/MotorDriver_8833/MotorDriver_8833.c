@@ -78,8 +78,9 @@ static void drv8833_set_speed_a(MotorDriver_8833_t* driver, int8_t speed)
 
     driver->speed_a = speed;
 
-    hri_tccount8_write_CC_reg(timers[driver->pwm_a1_timer], driver->pwm_a1_ch, pwm_0);
-    hri_tccount8_write_CC_reg(timers[driver->pwm_a2_timer], driver->pwm_a2_ch, pwm_1);
+    /* subtraction is because we want to drive motors using slow decay */
+    hri_tccount8_write_CC_reg(timers[driver->pwm_a1_timer], driver->pwm_a1_ch, MOTOR_SPEED_RESOLUTION - pwm_0);
+    hri_tccount8_write_CC_reg(timers[driver->pwm_a2_timer], driver->pwm_a2_ch, MOTOR_SPEED_RESOLUTION - pwm_1);
 }
 
 static void drv8833_set_speed_b(MotorDriver_8833_t* driver, int8_t speed)
@@ -96,17 +97,18 @@ static void drv8833_set_speed_b(MotorDriver_8833_t* driver, int8_t speed)
 
     if (reverse)
     {
-        pwm_0 = speed;
+        pwm_1 = speed;
     }
     else
     {
-        pwm_1 = speed;
+        pwm_0 = speed;
     }
 
     driver->speed_b = speed;
 
-    hri_tccount8_write_CC_reg(timers[driver->pwm_b1_timer], driver->pwm_b1_ch, pwm_0);
-    hri_tccount8_write_CC_reg(timers[driver->pwm_b2_timer], driver->pwm_b2_ch, pwm_1);
+    /* subtraction is because we want to drive motors using slow decay */
+    hri_tccount8_write_CC_reg(timers[driver->pwm_b1_timer], driver->pwm_b1_ch, MOTOR_SPEED_RESOLUTION - pwm_0);
+    hri_tccount8_write_CC_reg(timers[driver->pwm_b2_timer], driver->pwm_b2_ch, MOTOR_SPEED_RESOLUTION - pwm_1);
 }
 
 void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)

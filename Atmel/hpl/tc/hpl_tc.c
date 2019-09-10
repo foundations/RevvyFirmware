@@ -202,17 +202,6 @@ int32_t _tc_timer_init(struct _timer_device *const device, void *const hw)
 		hri_tccount8_write_PER_reg(hw, _tcs[i].per);
 	}
 
-	_tc_init_irq_param(hw, (void *)device);
-	NVIC_DisableIRQ(_tcs[i].irq);
-
-	hri_tc_set_INTEN_OVF_bit(hw);
-	hri_tc_set_INTEN_MC0_bit(hw);
-	hri_tc_set_INTEN_MC1_bit(hw);
-	hri_tc_set_INTEN_ERR_bit(hw);
-
-	NVIC_ClearPendingIRQ(_tcs[i].irq);
-	NVIC_EnableIRQ(_tcs[i].irq);
-
 	return ERR_NONE;
 }
 /**
