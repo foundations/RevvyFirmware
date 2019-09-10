@@ -1,14 +1,9 @@
 #ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
-#include <stdint.h>
-#include <stdint.h>
-#include <stdint.h>
-#include <stdint.h>
-#include <stdint.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <float.h>
 
 typedef float Voltage_t;

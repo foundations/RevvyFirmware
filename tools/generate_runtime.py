@@ -107,11 +107,9 @@ typedef enum {
 header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
-{{ #types }}
-{{ #defined_in }}
+{{ #type_includes }}
 #include {{{.}}}
-{{ /defined_in }}
-{{ /types }}
+{{ /type_includes }}
 
 {{ #types }}
 """ + typedef_template + """
@@ -416,6 +414,13 @@ if __name__ == "__main__":
         print("Runtime configuration is valid, exiting")
         sys.exit(0)
 
+    type_aliases = collect_type_aliases(type_data, type_data, resolved_types)
+
+    type_includes = set()
+    for type_alias in type_aliases:
+        if 'defined_in' in type_alias:
+            type_includes.add(type_alias['defined_in'])
+
     template_ctx = {
         'output_filename': args.output[args.output.rfind('/') + 1:],
         'includes':        ['components/{0}/{0}'.format(component) for component in project_config['components']],
@@ -425,7 +430,8 @@ if __name__ == "__main__":
         } for component in project_config['components']],
         'data_buffers':    [],
         'port_functions':  [],
-        'types':           collect_type_aliases(type_data, type_data, resolved_types),
+        'types':           type_aliases,
+        'type_includes':   type_includes,
         'runnable_groups': create_runnable_groups(project_config['runtime']['runnables'])
     }
 
