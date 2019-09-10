@@ -102,7 +102,13 @@ def load_project_config(project_config_file):
 
         processed_port_connections = []
         for port_connection in project_config['runtime'].get('port_connections', []):
-            provider = parse_port(port_connection['provider'])
+            if 'providers' not in port_connection:
+                try:
+                    providers = [port_connection['provider']]
+                except KeyError:
+                    providers = []
+            else:
+                providers = port_connection['providers']
 
             if 'consumers' not in port_connection:
                 try:
@@ -113,7 +119,7 @@ def load_project_config(project_config_file):
                 consumers = port_connection['consumers']
 
             processed_port_connections.append({
-                'provider':  provider,
+                'providers': [parse_port(provider) for provider in providers],
                 'consumers': [parse_port(consumer) for consumer in consumers]
             })
 
@@ -157,9 +163,16 @@ def compact_project_config(config):
             compacted['runtime']['runnables'][group].append(compacted_runnable)
 
     for port_connection in config['runtime']['port_connections']:
-        compacted_port_connection = {
-            'provider': compact_port_ref(port_connection['provider'])
-        }
+        compacted_port_connection = {}
+
+        providers = []
+        for provider in port_connection['providers']:
+            providers.append(compact_port_ref(provider))
+
+        if len(providers) == 1:
+            compacted_port_connection['provider'] = providers[0]
+        else:
+            compacted_port_connection['providers'] = providers
 
         consumers = []
         for consumer in port_connection['consumers']:

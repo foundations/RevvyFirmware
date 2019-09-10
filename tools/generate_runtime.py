@@ -277,63 +277,66 @@ if __name__ == "__main__":
 
     for port_connection in runtime_config['port_connections']:
         port_valid = True
-        provider = port_connection['provider']
+        providers = port_connection['providers']
 
-        if not port_ref_valid(provider):
-            print('Provider port invalid: {}/{}'.format(provider['component'], provider['port']))
+        if len(providers) > 1:
+            print('Multiple providers are not yet supported')
             port_valid = False
-
-        allow_multiple = provider.get('multiple_consumers', False)
-        if not allow_multiple:
-            if len(port_connection['consumers']) > 1:
-                print('Port {}/{} requires at most one consumer'.format(provider['component'], provider['port']))
-                port_valid = False
-
-        provider_port_type = port_type(provider)
-        if provider_port_type in provider_port_templates:
-            for consumer in port_connection['consumers']:
-                if not port_ref_valid(consumer):
-                    print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
-                                                                    consumer['component'], consumer['port']))
-                    port_valid = False
-
-                if not are_ports_compatible(provider, consumer):
-                    print('Consumer port {}/{} is incompatible with {}/{}'.format(
-                        consumer['component'], consumer['port'],
-                        provider['component'],
-                        provider['port']))
-                    port_valid = False
-
-            if port_valid:
-                port_connections.append(port_connection)
-
-        elif provider_port_type in runnable_connection_templates:
-            for consumer in port_connection['consumers']:
-                if not runnable_ref_valid(consumer):
-                    print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
-                                                                    consumer['component'], consumer['port']))
-                    port_valid = False
-
-                if not are_runnables_compatible(provider, consumer):
-                    print('Consumer runnable {}/{} is incompatible with {}/{}'.format(
-                        consumer['component'], consumer['port'],
-                        provider['component'], provider['port']))
-                    port_valid = False
-
-            if port_valid:
-                runnable_connections.append(port_connection)
         else:
-            print('Unknown provider port type: {}'.format(provider_port_type))
-            port_valid = False
+            provider = providers[0]
+            if not port_ref_valid(provider):
+                print('Provider port invalid: {}/{}'.format(provider['component'], provider['port']))
+                port_valid = False
+                allow_multiple = provider.get('multiple_consumers', False)
+                if not allow_multiple:
+                    if len(port_connection['consumers']) > 1:
+                        print('Port {}/{} requires at most one consumer'.format(provider['component'], provider['port']))
+                        port_valid = False
+            else:  # port reference is valid
+                provider_port_type = port_type(provider)
+                if provider_port_type in provider_port_templates:
+                    for consumer in port_connection['consumers']:
+                        if not port_ref_valid(consumer):
+                            print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
+                                                                            consumer['component'], consumer['port']))
+                            port_valid = False
+
+                        if not are_ports_compatible(provider, consumer):
+                            print('Consumer port {}/{} is incompatible with {}/{}'.format(
+                                consumer['component'], consumer['port'],
+                                provider['component'],
+                                provider['port']))
+                            port_valid = False
+
+                    if port_valid:
+                        port_connections.append(port_connection)
+
+                elif provider_port_type in runnable_connection_templates:
+                    for consumer in port_connection['consumers']:
+                        if not runnable_ref_valid(consumer):
+                            print('Consumer of {}/{} invalid: {}/{}'.format(provider['component'], provider['port'],
+                                                                            consumer['component'], consumer['port']))
+                            port_valid = False
+
+                        if not are_runnables_compatible(provider, consumer):
+                            print('Consumer runnable {}/{} is incompatible with {}/{}'.format(
+                                consumer['component'], consumer['port'],
+                                provider['component'], provider['port']))
+                            port_valid = False
+
+                    if port_valid:
+                        runnable_connections.append(port_connection)
+                else:
+                    print('Unknown provider port type: {}'.format(provider_port_type))
+                    port_valid = False
 
         valid = valid and port_valid
 
     if not valid:
+        print("Configuration invalid, exiting")
         sys.exit(1)
-
-    if args.validate_only:
-        if valid:
-            print("Runtime configuration is valid")
+    elif args.validate_only:
+        print("Runtime configuration is valid, exiting")
         sys.exit(0)
 
     template_ctx = {
@@ -356,7 +359,7 @@ if __name__ == "__main__":
         template_ctx['runnable_groups'].append(group)
 
     for port_connection in port_connections:
-        provider = port_connection['provider']
+        provider = port_connection['providers'][0]
 
         provider_component_name = provider['component']
         provider_port_name = provider['port']
@@ -406,7 +409,7 @@ if __name__ == "__main__":
             template_ctx['port_functions'].append(consumer_port)
 
     for runnable_connection in runnable_connections:
-        provider = runnable_connection['provider']
+        provider = runnable_connection['providers'][0]
 
         call_impls = []
 
