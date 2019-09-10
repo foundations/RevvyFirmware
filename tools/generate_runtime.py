@@ -9,7 +9,7 @@ from json import JSONDecodeError
 import pystache
 
 from tools.generator_common import type_default_values, component_folder_pattern, component_file_pattern, \
-    load_component_config, load_project_config, add_data_type
+    load_component_config, load_project_config, add_data_type, to_underscore, collect_type_aliases
 
 port_compatibility = {
     "WriteData":              {
@@ -88,9 +88,25 @@ consumer_port_templates = {
 header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
-{{#includes}}
-#include "{{.}}.h"
-{{/includes}}
+{{ #types }}
+{{ #defined_in }}
+#include {{{.}}}
+{{ /defined_in }}
+{{ /types }}
+
+{{ #types }}
+{{ #aliased }}
+typedef {{ aliased }} {{ type }};
+{{ /aliased }}
+{{ /types }}
+
+{{ #components }}
+#define COMPONENT_TYPES_{{ guard_def }}_H_
+{{ /components }}
+
+{{ #components }}
+#include "components/{{ name }}/{{ name }}.h"
+{{ /components }}
 
 {{#runnable_groups}}
 void RunnableGroup_{{ group_name }}(void);
@@ -118,7 +134,6 @@ void RunnableGroup_{{ group_name }}(void)
 {{{.}}}
 {{/port_functions}}
 """
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -316,9 +331,12 @@ if __name__ == "__main__":
     template_ctx = {
         'output_filename': args.output[args.output.rfind('/') + 1:],
         'includes':        ['components/{0}/{0}'.format(component) for component in project_config['components']],
+        'components':      [{'name': component, 'guard_def': to_underscore(component).upper()} for component in
+                            project_config['components']],
         'runnable_groups': [],
         'data_buffers':    [],
-        'port_functions':  []
+        'port_functions':  [],
+        'types':           collect_type_aliases(type_data, type_data, resolved_types)
     }
 
     for runnable_group in runtime_config['runnables']:

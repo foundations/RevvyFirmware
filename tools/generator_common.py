@@ -1,16 +1,5 @@
 import json
-
-type_includes = {
-    'uint8_t':  '<stdint.h>',
-    'uint16_t': '<stdint.h>',
-    'uint32_t': '<stdint.h>',
-    'int8_t':   '<stdint.h>',
-    'int16_t':  '<stdint.h>',
-    'int32_t':  '<stdint.h>',
-    'float':    '<stdint.h>',
-    'size_t':   '<stdio.h>',
-    'bool':     '<stdbool.h>'
-}
+import re
 
 type_default_values = {
     'uint8_t':  '0u',
@@ -228,3 +217,32 @@ def add_data_type(type_name, info, type_data, resolved_types):
 
     else:
         type_data[type_name] = info
+
+
+def collect_type_aliases(types, type_data, resolved_types):
+    aliases = []
+    for type_name in types:
+        resolved_type = resolve_type(type_name, type_data, resolved_types)
+        if resolved_type != type_name:
+            aliases.append({
+                'type':    type_name,
+                'aliased': resolved_type
+            })
+        else:
+            aliases.append({
+                'type':       type_name,
+                'defined_in': type_data[resolved_type]['defined_in']
+            })
+
+    return aliases
+
+
+def to_underscore(name):
+    """
+    >>> to_underscore('ADC')
+    'adc'
+    >>> to_underscore('FizzBuzz')
+    'fizz_buzz'
+    """
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()

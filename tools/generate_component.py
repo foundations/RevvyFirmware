@@ -1,6 +1,5 @@
 import argparse
 import json
-import re
 import sys
 import os
 import datetime
@@ -8,9 +7,9 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import type_includes, type_default_values, component_file_pattern, \
+from tools.generator_common import type_default_values, component_file_pattern, \
     component_folder_pattern, process_runnables, load_component_config, load_project_config, compact_project_config, \
-    add_data_type, resolve_type
+    add_data_type, resolve_type, to_underscore, collect_type_aliases
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -27,7 +26,7 @@ header_template = '''#ifndef {{ guard_def }}
 {{ /type_includes }}
 
 {{ #types }}
-typedef {{ type }} {{ aliased }};
+typedef {{ aliased }} {{ type }};
 {{ /types }}
 
 #endif /* {{ type_guard_def }} */
@@ -63,11 +62,6 @@ makefile_component_files_end_marker = '# End of Software Component Source Files\
 default_runnables = {
     'OnInit': {}
 }
-
-
-def to_underscore(name):
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
 def read_cproject(path):
@@ -220,15 +214,6 @@ def add_component_to_cproject(cproject, new_files, new_folders):
         .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
 
 
-def convert_types(types, type_data, resolved_types):
-    return [
-        {
-            'type': type_name,
-            'aliased': resolve_type(type_name, type_data, resolved_types)
-        } for type_name in types
-    ]
-
-
 if __name__ == "__main__":
     # inquire name of new component
     parser = argparse.ArgumentParser()
@@ -304,7 +289,7 @@ if __name__ == "__main__":
         'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
         'functions':      convert_functions(runnables, ports),
-        'types':          convert_types(component_types, type_data, resolved_types)
+        'types':          collect_type_aliases(component_types, type_data, resolved_types)
     }
 
 
