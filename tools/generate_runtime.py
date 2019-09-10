@@ -15,6 +15,10 @@ port_compatibility = {
     "WriteData":              {
         "ReadValue": {"multiple_consumers": True}
     },
+    "WriteIndexedData":       {
+        "ReadValue":        {"multiple_consumers": True},
+        "ReadIndexedValue": {"multiple_consumers": True}
+    },
     "ProvideConstantByValue": {
         "ReadValue": {"multiple_consumers": True}
     },
@@ -75,13 +79,17 @@ runnable_call_templates = {
 
 provider_port_templates = {
     "WriteData":              port_template_write_data,
+    "WriteIndexedData":       port_template_write_data,
     "ProvideConstantByValue": None
 }
 
 consumer_port_templates = {
-    "ReadValue": {
+    "ReadValue":        {
         "WriteData":              port_template_read_value,
         "ProvideConstantByValue": port_template_read_constant
+    },
+    "ReadIndexedValue": {
+        "WriteIndexedData": port_template_read_value
     }
 }
 

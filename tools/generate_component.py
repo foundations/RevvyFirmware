@@ -107,12 +107,31 @@ def convert_functions(runnable_data, port_data):
                     "arguments":    [{'name': 'value', 'type': port_data[port]['data_type']}],
                     "weak":         True
                 },
+            "WriteIndexedData":
+                lambda: {
+                    "name":         "Write_{}",
+                    "return_type":  "void",
+                    "return_value": "",
+                    "arguments":    [
+                        {'name': 'index', 'type': 'uint32_t'},
+                        {'name': 'value', 'type': port_data[port]['data_type']}
+                    ],
+                    "weak":         True
+                },
             "ReadValue":
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  port_data[port]['data_type'],
                     "return_value": port_data[port]['default_value'],
                     "arguments":    [],
+                    "weak":         True
+                },
+            "ReadIndexedValue":
+                lambda: {
+                    "name":         "Read_{}",
+                    "return_type":  port_data[port]['data_type'],
+                    "return_value": port_data[port]['default_value'],
+                    "arguments":    [{'name': 'index', 'type': 'uint32_t'}],
                     "weak":         True
                 },
             "ProvideConstantByValue":
