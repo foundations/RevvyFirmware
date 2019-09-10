@@ -203,10 +203,10 @@ def resolve_type(type_name, type_data, resolved_types, past=None):
 def add_data_type(type_name, info, type_data, resolved_types):
     if type_name in type_data:
         # type already exists, check if they are the same
-        resolved_known = resolve_type(type_name, resolved_types)
+        resolved_known = resolve_type(type_name, type_data, resolved_types)
 
         if 'aliases' in info:
-            resolved_new = resolve_type(info['aliases'])
+            resolved_new = resolve_type(info['aliases'], type_data, resolved_types)
             if resolved_known != resolved_new:
                 raise Exception('Type {} is already defined'.format(type_name))
         elif 'defined_in' in info:
