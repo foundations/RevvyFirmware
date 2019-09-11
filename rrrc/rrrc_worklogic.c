@@ -252,38 +252,38 @@ static void ProcessTasks_20ms(uint8_t offset)
             break;
             
         case 2u:
-            MotorPortHandler_Run_PortUpdate(2u);
-            MotorDerating_Run_OnUpdate(2u);
+            MotorPortHandler_Run_PortUpdate(0u);
+            MotorDerating_Run_OnUpdate(0u);
             RunnableGroup_20ms_offset2();
             break;
             
         case 3u:
-            MotorPortHandler_Run_PortUpdate(3u);
-            MotorDerating_Run_OnUpdate(3u);
+            MotorPortHandler_Run_PortUpdate(1u);
+            MotorDerating_Run_OnUpdate(1u);
             RunnableGroup_20ms_offset3();
             break;
             
         case 4u:
-            MotorPortHandler_Run_PortUpdate(4u);
-            MotorDerating_Run_OnUpdate(4u);
+            MotorPortHandler_Run_PortUpdate(2u);
+            MotorDerating_Run_OnUpdate(2u);
             RunnableGroup_20ms_offset4();
             break;
             
         case 5u:
-            MotorPortHandler_Run_PortUpdate(5u);
-            MotorDerating_Run_OnUpdate(5u);
+            MotorPortHandler_Run_PortUpdate(3u);
+            MotorDerating_Run_OnUpdate(3u);
             RunnableGroup_20ms_offset5();
             break;
             
         case 6u:
-            MotorPortHandler_Run_PortUpdate(6u);
-            MotorDerating_Run_OnUpdate(6u);
+            MotorPortHandler_Run_PortUpdate(4u);
+            MotorDerating_Run_OnUpdate(4u);
             RunnableGroup_20ms_offset6();
             break;
             
         case 7u:
-            MotorPortHandler_Run_PortUpdate(7u);
-            MotorDerating_Run_OnUpdate(7u);
+            MotorPortHandler_Run_PortUpdate(5u);
+            MotorDerating_Run_OnUpdate(5u);
             RunnableGroup_20ms_offset7();
             break;
             
