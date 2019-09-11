@@ -5,33 +5,42 @@ component_folder_pattern = 'rrrc/components/{}'
 component_file_pattern = 'rrrc/components/{}/{}'
 
 
-def process_runnable(runnable):
+def process_runnable_def(component, runnable_name, runnable):
     return {
+        'short_name': '{}/{}'.format(component, runnable_name),
         'arguments':   runnable.get('arguments', {}),
         'return_type': runnable.get('return_type', 'void')
     }
 
 
-def process_port(port):
+def process_port_def(component, port_name, port):
+    short_name = '{}/{}'.format(component, port_name)
     if port['port_type'] == 'Event':
         return {
+            'short_name':  short_name,
             'port_type':   port['port_type'],
             'return_type': 'void',
             'arguments':   port.get('arguments', {})
         }
+
     if port['port_type'] == 'ServerCall':
         return {
+            'short_name':  short_name,
             'port_type':   port['port_type'],
             'return_type': port.get('return_type', 'void'),
             'arguments':   port.get('arguments', {})
         }
+
     elif port['port_type'] == 'ReadValue':
         return {
+            'short_name':    short_name,
             'port_type':     port['port_type'],
             'data_type':     port['data_type'],
             'default_value': port.get('default_value', None)
         }
+
     else:
+        port['short_name'] = short_name
         return port
 
 
@@ -42,9 +51,11 @@ def process_type_def(type_def):
         processed_type_def['type'] = 'external_type_def'
         processed_type_def['defined_in'] = type_def['defined_in']
         processed_type_def['default_value'] = type_def['default_value']
+
     elif 'aliases' in type_def:
         processed_type_def['type'] = 'type_alias'
         processed_type_def['aliases'] = type_def['aliases']
+
     else:
         processed_type_def['type'] = type_def['type']
         if type_def['type'] == 'enum':
@@ -56,12 +67,12 @@ def process_type_def(type_def):
     return processed_type_def
 
 
-def process_runnables(runnable_config):
-    return {runnable: process_runnable(runnable_config[runnable]) for runnable in runnable_config}
+def process_runnable_defs(component, runnable_config):
+    return {runnable: process_runnable_def(component, runnable, runnable_config[runnable]) for runnable in runnable_config}
 
 
-def process_ports(port_config):
-    return {port: process_port(port_config[port]) for port in port_config}
+def process_port_defs(component, port_config):
+    return {port: process_port_def(component, port, port_config[port]) for port in port_config}
 
 
 def process_type_defs(type_defs):
@@ -71,32 +82,40 @@ def process_type_defs(type_defs):
 def load_component_config(path):
     with open(path, 'r') as component_config_file:
         component_config = json.load(component_config_file)
-        component_config['runnables'] = process_runnables(component_config.get('runnables', {}))
-        component_config['ports'] = process_ports(component_config.get('ports', {}))
+        component = component_config['component_name']
+
+        component_config['runnables'] = process_runnable_defs(component, component_config.get('runnables', {}))
+        component_config['ports'] = process_port_defs(component, component_config.get('ports', {}))
         component_config['types'] = process_type_defs(component_config.get('types', {}))
     return component_config
 
 
-def parse_runnable(runnable):
+def parse_runnable_reference(runnable):
     """Parse shorthand form of runnable reference into a dictionary"""
     if type(runnable) is str:
         parts = runnable.split('/')
         runnable = {
-            'component': parts[0],
-            'runnable':  parts[1]
+            'short_name': runnable,
+            'component':  parts[0],
+            'runnable':   parts[1]
         }
+    else:
+        runnable['short_name'] = "{}/{}".format(runnable['component'], runnable['port'])
 
     return runnable
 
 
-def parse_port(port):
+def parse_port_reference(port):
     """Parse shorthand form of port reference into a dictionary"""
     if type(port) is str:
         parts = port.split('/')
         port = {
-            'component': parts[0],
-            'port':      parts[1]
+            'short_name': port,
+            'component':  parts[0],
+            'port':       parts[1]
         }
+    else:
+        port['short_name'] = "{}/{}".format(port['component'], port['port'])
 
     return port
 
@@ -110,7 +129,7 @@ def load_project_config(project_config_file):
         for runnable_group in project_config['runtime'].get('runnables', {}):
             processed_runnables[runnable_group] = []
             for runnable in project_config['runtime']['runnables'][runnable_group]:
-                processed_runnables[runnable_group].append(parse_runnable(runnable))
+                processed_runnables[runnable_group].append(parse_runnable_reference(runnable))
 
         processed_port_connections = []
         for port_connection in project_config['runtime'].get('port_connections', []):
@@ -131,8 +150,8 @@ def load_project_config(project_config_file):
                 consumers = port_connection['consumers']
 
             processed_port_connections.append({
-                'providers': [parse_port(provider) for provider in providers],
-                'consumers': [parse_port(consumer) for consumer in consumers]
+                'providers': [parse_port_reference(provider) for provider in providers],
+                'consumers': [parse_port_reference(consumer) for consumer in consumers]
             })
 
         project_config['types'] = process_type_defs(project_config.get('types', {}))

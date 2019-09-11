@@ -8,7 +8,7 @@ from xml.etree import ElementTree
 import pystache
 
 from tools.generator_common import component_file_pattern, \
-    component_folder_pattern, process_runnables, load_component_config, load_project_config, compact_project_config, \
+    component_folder_pattern, process_runnable_defs, load_component_config, load_project_config, compact_project_config, \
     add_data_type, resolve_type, to_underscore, collect_type_aliases
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
@@ -219,7 +219,7 @@ def create_component_config(name, sources, runnables):
     json_contents = {
         'component_name': name,
         'source_files':   sources,
-        'runnables':      process_runnables(runnables)
+        'runnables':      process_runnable_defs(runnables)
     }
     return json.dumps(json_contents, indent=4)
 
@@ -300,7 +300,7 @@ if __name__ == "__main__":
         new_folders.append(component_dir)
 
         # create component configuration json
-        runnables = process_runnables(default_runnables)
+        runnables = process_runnable_defs(default_runnables)
         ports = {}
         component_types = {}
         new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)

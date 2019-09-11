@@ -177,10 +177,6 @@ def validate_runnables(project_config, component_data):
     return runnables_valid
 
 
-def load_components(components):
-    return {component: load_component(component) for component in components}
-
-
 def load_component(component):
     if not os.path.isdir(component_folder_pattern.format(component)):
         raise Exception('Component folder for {} does not exist'.format(component))
@@ -221,28 +217,45 @@ def create_runnable_groups(config):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
+    parser.add_argument('--verbose', help='Print additional information', action="store_true")
     parser.add_argument('--validate-only', help='Skip generating code, only check the config json', action="store_true")
     parser.add_argument('--output', help='File name of generated files', default="rrrc/generated_runtime")
 
     args = parser.parse_args()
 
+    if args.verbose:
+        def log(x):
+            print(x)
+    else:
+        def log(x):
+            pass
+
+    log('Loading project configuration from {}'.format(args.config))
     project_config = load_project_config(args.config)
 
-    # load components
+    log('')
+    log('Load components')
     try:
-        component_data = load_components(project_config['components'])
+        component_data = {}
+        for component in project_config['components']:
+            log('Loading configuration for {}'.format(component))
+            component_data[component] = load_component(component)
         valid = True
-    except Exception:
+    except Exception as e:
         print('Failed to load component data')
+        log('{}: {}'.format(type(e).__name__, e))
         component_data = {}
         valid = False
 
-    # validate runnables
+    log('')
+    log('Validate runnables')
     valid = valid and validate_runnables(project_config, component_data)
 
     type_data = {}
     resolved_types = {}
 
+    log('')
+    log('Load types')
     load_types(project_config, component_data, type_data, resolved_types)
 
 
@@ -259,7 +272,7 @@ if __name__ == "__main__":
 
             return consumer_type in port_compatibility[provider_type] and provider_data_type == consumer_data_type
         except KeyError as e:
-            print(e)
+            log('{}: {}'.format(type(e).__name__, e))
             return False
 
 
@@ -288,7 +301,7 @@ if __name__ == "__main__":
 
             return True
         except KeyError as e:
-            print(e)
+            log('{}: {}'.format(type(e).__name__, e))
             return False
 
 
@@ -323,7 +336,31 @@ if __name__ == "__main__":
     # indexed write to data buffer index, direct mapping with offset (WriteIndexedData)
     # indexed write to data buffer index, indirect mapping (WriteIndexedData)
 
+    port_types = {
+        "WriteData":              'provider',
+        "WriteIndexedData":       'provider',
+        "ProvideConstantByValue": 'provider',
+        "Event":                  'provider',
+        "ServerCall":             'provider',
+        "Runnable":               'consumer',
+        "ReadValue":              'consumer',
+        "ReadIndexedValue":       'consumer',
+    }
+
+    log('')
+    log('Collect provider ports')
+    unconnected_provider_ports = []
+    for component in component_data:
+        component_ports = component_data[component]['ports']
+        for port in component_ports:
+            port_data = component_ports[port]
+            if port_types[port_data['port_type']] == 'provider':
+                unconnected_provider_ports.append(port_data['short_name'])
+
+    log('')
+    log('Check port connections')
     for port_connection in project_config['runtime']['port_connections']:
+
         port_valid = True
         providers = port_connection['providers']
 
@@ -332,80 +369,90 @@ if __name__ == "__main__":
             port_valid = False
         else:
             provider = providers[0]
-            if not port_ref_valid(provider):
-                print('Provider port invalid: {}/{}'.format(provider['component'], provider['port']))
+            try:
+                unconnected_provider_ports.remove(provider['short_name'])
+            except ValueError:
+                log('Provider port {} is referenced multiple times'.format(provider['short_name']))
                 port_valid = False
 
-            elif not provider.get('multiple_consumers', False):
-                # provider reference is valid, check consumer count - TODO change this when implementing indexed
-                if len(port_connection['consumers']) > 1:
-                    print('Port {}/{} requires at most one consumer'.format(provider['component'], provider['port']))
-                    port_valid = False
-
             if port_valid:
-                # port reference is valid
-                # validate and separate runnable and data connections
-
-                def validate_port(provider, consumer):
-                    if not port_ref_valid(consumer):
-                        print('Consumer of {}/{} invalid: {}/{}'
-                              .format(provider['component'], provider['port'],
-                                      consumer['component'], consumer['port']))
-                        return False
-                    elif not are_ports_compatible(provider, consumer):
-                        print('Consumer port {}/{} is incompatible with {}/{}'
-                              .format(consumer['component'], consumer['port'],
-                                      provider['component'], provider['port']))
-                        return False
-                    else:
-                        return True
-
-
-                def validate_runnable(provider, consumer):
-                    if not runnable_ref_valid(consumer):
-                        print('Consumer of {}/{} invalid: {}/{}'
-                              .format(provider['component'], provider['port'],
-                                      consumer['component'], consumer['port']))
-                        return False
-                    elif not are_runnables_compatible(provider, consumer):
-                        print('Consumer runnable {}/{} is incompatible with {}/{}'
-                              .format(consumer['component'], consumer['port'],
-                                      provider['component'], provider['port']))
-                        return False
-                    else:
-                        return True
-
-
-                port_conncetion_types = {
-                    "WriteData":              'data',
-                    "WriteIndexedData":       'data',
-                    "ProvideConstantByValue": 'data',
-                    "Event":                  'runnable',
-                    "ServerCall":             'runnable'
-                }
-                validators = {
-                    "data":     validate_port,
-                    "runnable": validate_runnable,
-                }
-                collections = {
-                    "data":     port_connections,
-                    "runnable": runnable_connections,
-                }
-
-                provider_port_type = port_type(provider)
-                try:
-                    connection_type = port_conncetion_types[provider_port_type]
-
-                    for consumer in port_connection['consumers']:
-                        port_valid = port_valid and validators[connection_type](provider, consumer)
-
-                    if port_valid:
-                        collections[connection_type].append(port_connection)
-                except KeyError:
-                    print('Unknown/invalid provider port type: {}'.format(provider_port_type))
+                if not port_ref_valid(provider):
+                    print('Provider port invalid: {}'.format(provider['short_name']))
                     port_valid = False
+
+                elif not provider.get('multiple_consumers', False):
+                    # provider reference is valid, check consumer count - TODO change this when implementing indexed
+                    if len(port_connection['consumers']) > 1:
+                        print('Port {} requires at most one consumer'.format(provider['short_name']))
+                        port_valid = False
+
+                if port_valid:
+                    # port reference is valid
+                    # validate and separate runnable and data connections
+
+                    def validate_port(provider, consumer):
+                        if not port_ref_valid(consumer):
+                            print('Consumer of {} invalid: {}'
+                                  .format(provider['short_name'], consumer['short_name']))
+                            return False
+                        elif not are_ports_compatible(provider, consumer):
+                            print('Consumer port {} is incompatible with {}'
+                                  .format(consumer['short_name'], provider['short_name']))
+                            return False
+                        else:
+                            return True
+
+
+                    def validate_runnable(provider, consumer):
+                        if not runnable_ref_valid(consumer):
+                            print('Consumer of {} invalid: {}'
+                                  .format(provider['short_name'], consumer['short_name']))
+                            return False
+                        elif not are_runnables_compatible(provider, consumer):
+                            print('Consumer runnable {} is incompatible with {}'
+                                  .format(consumer['short_name'], provider['short_name']))
+                            return False
+                        else:
+                            return True
+
+
+                    port_conncetion_types = {
+                        "WriteData":              'data',
+                        "WriteIndexedData":       'data',
+                        "ProvideConstantByValue": 'data',
+                        "Event":                  'runnable',
+                        "ServerCall":             'runnable'
+                    }
+                    validators = {
+                        "data":     validate_port,
+                        "runnable": validate_runnable,
+                    }
+                    collections = {
+                        "data":     port_connections,
+                        "runnable": runnable_connections,
+                    }
+
+                    provider_port_type = port_type(provider)
+                    try:
+                        connection_type = port_conncetion_types[provider_port_type]
+
+                        for consumer in port_connection['consumers']:
+                            port_valid = port_valid and validators[connection_type](provider, consumer)
+
+                        if port_valid:
+                            collections[connection_type].append(port_connection)
+                    except KeyError as e:
+                        print('Unknown/invalid provider port type: {}'.format(provider_port_type))
+                        log('{}: {}'.format(type(e).__name__, e))
+                        port_valid = False
 
         valid = valid and port_valid
+
+    log('')
+    log('Validation summary')
+    log('=================')
+    if unconnected_provider_ports:
+        log('Unconnected provider ports:\n * {}'.format("\n * ".join(unconnected_provider_ports)))
 
     if not valid:
         print("Configuration invalid, exiting")
