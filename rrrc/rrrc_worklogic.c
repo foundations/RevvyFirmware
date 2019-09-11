@@ -375,7 +375,8 @@ void RRRC_ProcessLogic_xTask(void* user)
         {
             cycleCounter++;
         }
-
+        
+        hri_wdt_write_CLEAR_reg(WDT, WDT_CLEAR_CLEAR_KEY);
         vTaskDelayUntil(&xLastWakeTime, 1u);
     }
 }
