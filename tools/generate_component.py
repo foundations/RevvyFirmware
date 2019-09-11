@@ -24,7 +24,14 @@ typedef enum {
     {{ value }}{{ ^last }},{{ /last }}
     {{ /values }}
 } {{ type_name }};
-{{ /is_enum }}"""
+{{ /is_enum }}
+{{ #is_struct }}
+typedef struct {
+    {{ #fields }}
+    {{ type }} {{ name }};
+    {{ /fields }}
+} {{ type_name }};
+{{ /is_struct }}"""
 
 header_template = '''#ifndef {{ guard_def }}
 #define {{ guard_def }}
@@ -234,6 +241,9 @@ def collect_includes(runnable_data, port_data, component_types, type_data, resol
 
         if type_data[resolved_type]['type'] == 'external_type_def':
             includes.add(type_data[resolved_type]['defined_in'])
+        elif type_data[resolved_type]['type'] == 'struct':
+            for field in type_data[resolved_type]['fields']:
+                add_type(type_data[resolved_type]['fields'][field])
 
     for runnable in runnable_data:
         runnable_arguments = runnable_data[runnable]['arguments']
@@ -249,7 +259,7 @@ def collect_includes(runnable_data, port_data, component_types, type_data, resol
     for type_name in component_types:
         add_type(type_name)
 
-    return list(includes)
+    return sorted(includes)
 
 
 def create_component_config(name, sources, runnables):

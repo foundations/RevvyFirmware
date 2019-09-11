@@ -7,7 +7,7 @@ component_file_pattern = 'rrrc/components/{}/{}'
 
 def process_runnable_def(component, runnable_name, runnable):
     return {
-        'short_name': '{}/{}'.format(component, runnable_name),
+        'short_name':  '{}/{}'.format(component, runnable_name),
         'arguments':   runnable.get('arguments', {}),
         'return_type': runnable.get('return_type', 'void')
     }
@@ -63,6 +63,12 @@ def process_type_def(type_def):
             processed_type_def['values'] = type_def['values']
             processed_type_def['default_value'] = type_def['default_value']
             processed_type_def['pass_semantic'] = type_def.get('pass_semantic', 'value')
+
+        elif type_def['type'] == 'struct':
+            processed_type_def['fields'] = type_def['fields']
+            processed_type_def['default_values'] = type_def.get('default_values', {})
+            processed_type_def['pass_semantic'] = type_def.get('pass_semantic', 'pointer')
+
         else:
             raise Exception('Unsupported type {}'.format(type_def['type']))
 
@@ -70,7 +76,8 @@ def process_type_def(type_def):
 
 
 def process_runnable_defs(component, runnable_config):
-    return {runnable: process_runnable_def(component, runnable, runnable_config[runnable]) for runnable in runnable_config}
+    return {runnable: process_runnable_def(component, runnable, runnable_config[runnable]) for runnable in
+            runnable_config}
 
 
 def process_port_defs(component, port_config):
@@ -234,7 +241,7 @@ def resolve_type(type_name, type_data, resolved_types, past=None):
     elif type_name in past:
         raise Exception('Circular type definition for {}'.format(type_name))
 
-    if type_data[type_name]['type'] in ['type_alias', 'enum']:
+    if type_data[type_name]['type'] in ['type_alias', 'enum', 'struct']:
 
         if type_data[type_name]['type'] == 'type_alias':
             past.append(type_name)
@@ -266,7 +273,13 @@ def add_data_type(type_name, info, type_data, resolved_types):
                 raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
 
         elif info['type'] == 'enum':
-            pass
+            if info['values'] != type_data[resolved_known]['values']:
+                raise Exception('Enum {} is incompatible with previous definition'.format(type_name))
+
+        elif info['type'] == 'struct':
+            if info['fields'] != type_data[resolved_known]['fields']:
+                raise Exception('Structure {} is incompatible with previous definition'.format(type_name))
+
         else:
             raise Exception('Invalid type definition {}'.format(type_name))
 
@@ -303,6 +316,18 @@ def collect_type_aliases(types, type_data, resolved_types):
                 'type_name': type_name,
                 'values':    enum_values
             })
+
+        elif type_type == 'struct':
+            struct_fields = [{'name': name, 'type': type_data[resolved_type]['fields'][name]} for name in
+                             type_data[resolved_type]['fields']]
+            aliases.append({
+                'type':      type_type,
+                'is_struct': True,
+                'type_name': type_name,
+                'fields':    struct_fields
+            })
+        else:
+            raise Exception('Can not generate code for type {}'.format(type_type))
 
     return aliases
 

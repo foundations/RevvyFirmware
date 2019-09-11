@@ -4,6 +4,24 @@
         "IMU.c",
         "imu_ll.c"
     ],
+    "types": {
+        "IMU_RawSample_t": {
+            "type": "struct",
+            "fields": {
+                "x": "int16_t",
+                "y": "int16_t",
+                "z": "int16_t"
+            }
+        },
+        "Vector3D_t": {
+            "type": "struct",
+            "fields": {
+                "x": "float",
+                "y": "float",
+                "z": "float"
+            }
+        }
+    },
     "runnables": {
         "OnInit": {
             "return_type": "void",

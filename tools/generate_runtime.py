@@ -12,20 +12,20 @@ from tools.generator_common import component_folder_pattern, component_file_patt
     load_component_config, load_project_config, add_data_type, to_underscore, collect_type_aliases, resolve_type
 
 port_compatibility = {
-    "WriteData":              {
+    "WriteData":        {
         "ReadValue": {"multiple_consumers": True}
     },
-    "WriteIndexedData":       {
+    "WriteIndexedData": {
         "ReadValue":        {"multiple_consumers": True},
         "ReadIndexedValue": {"multiple_consumers": True}
     },
-    "ProvideConstantByValue": {
+    "Constant":         {
         "ReadValue": {"multiple_consumers": True}
     },
-    "Event":                  {
+    "Event":            {
         "Runnable": {"multiple_consumers": True}
     },
-    "ServerCall":             {
+    "ServerCall":       {
         "Runnable": {"multiple_consumers": False}
     }
 }
@@ -80,15 +80,15 @@ runnable_call_templates = {
 }
 
 provider_port_templates = {
-    "WriteData":              port_template_write_data,
-    "WriteIndexedData":       port_template_write_data,
-    "ProvideConstantByValue": None
+    "WriteData":        port_template_write_data,
+    "WriteIndexedData": port_template_write_data,
+    "Constant":         None
 }
 
 consumer_port_templates = {
     "ReadValue":        {
-        "WriteData":              port_template_read_value,
-        "ProvideConstantByValue": port_template_read_constant
+        "WriteData": port_template_read_value,
+        "Constant":  port_template_read_constant
     },
     "ReadIndexedValue": {
         "WriteIndexedData": port_template_read_value
@@ -104,7 +104,14 @@ typedef enum {
     {{ value }}{{ ^last }},{{ /last }}
     {{ /values }}
 } {{ type_name }};
-{{ /is_enum }}"""
+{{ /is_enum }}
+{{ #is_struct }}
+typedef struct {
+    {{ #fields }}
+    {{ type }} {{ name }};
+    {{ /fields }}
+} {{ type_name }};
+{{ /is_struct }}"""
 
 header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
@@ -419,11 +426,11 @@ if __name__ == "__main__":
 
 
                     port_conncetion_types = {
-                        "WriteData":              'data',
-                        "WriteIndexedData":       'data',
-                        "ProvideConstantByValue": 'data',
-                        "Event":                  'runnable',
-                        "ServerCall":             'runnable'
+                        "WriteData":        'data',
+                        "WriteIndexedData": 'data',
+                        "Constant":         'data',
+                        "Event":            'runnable',
+                        "ServerCall":       'runnable'
                     }
                     validators = {
                         "data":     validate_port,
