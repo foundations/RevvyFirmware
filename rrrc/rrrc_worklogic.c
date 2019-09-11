@@ -235,7 +235,6 @@ static void ProcessTasks_10ms(uint8_t offset)
             
         case 9u:
             RunnableGroup_10ms_offset9();
-            hri_wdt_write_CLEAR_reg(WDT, WDT_CLEAR_CLEAR_KEY);
             break;
     }
 }

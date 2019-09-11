@@ -39,6 +39,7 @@ void RunnableGroup_10ms_offset0(void)
 
 void RunnableGroup_10ms_offset1(void)
 {
+    WatchdogFeeder_Run_Feed();
 }
 
 void RunnableGroup_10ms_offset2(void)

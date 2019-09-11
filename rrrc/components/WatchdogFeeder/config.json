@@ -1,0 +1,12 @@
+{
+    "component_name": "WatchdogFeeder",
+    "source_files": [
+        "WatchdogFeeder.c"
+    ],
+    "runnables": {
+        "Feed": {
+            "arguments": {},
+            "return_type": "void"
+        }
+    }
+}

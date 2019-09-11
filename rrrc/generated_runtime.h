@@ -52,6 +52,7 @@ typedef enum {
 #define COMPONENT_TYPES_RING_LED_DISPLAY_H_
 #define COMPONENT_TYPES_SENSOR_PORT_HANDLER_H_
 #define COMPONENT_TYPES_VERSION_PROVIDER_H_
+#define COMPONENT_TYPES_WATCHDOG_FEEDER_H_
 #define COMPONENT_TYPES_YAW_ANGLE_TRACKER_H_
 
 #include "components/ADC0/ADC0.h"
@@ -87,6 +88,7 @@ typedef enum {
 #include "components/RingLedDisplay/RingLedDisplay.h"
 #include "components/SensorPortHandler/SensorPortHandler.h"
 #include "components/VersionProvider/VersionProvider.h"
+#include "components/WatchdogFeeder/WatchdogFeeder.h"
 #include "components/YawAngleTracker/YawAngleTracker.h"
 
 void RunnableGroup_OnInit(void);
