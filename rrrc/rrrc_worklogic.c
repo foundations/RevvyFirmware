@@ -211,6 +211,7 @@ static void ProcessTasks_10ms(uint8_t offset)
     if (offset == 0u)
     {
         BatteryCharger_Run_Update();
+        hri_wdt_write_CLEAR_reg(WDT, WDT_CLEAR_CLEAR_KEY);
     }
 }
 
@@ -376,7 +377,6 @@ void RRRC_ProcessLogic_xTask(void* user)
             cycleCounter++;
         }
         
-        hri_wdt_write_CLEAR_reg(WDT, WDT_CLEAR_CLEAR_KEY);
         vTaskDelayUntil(&xLastWakeTime, 1u);
     }
 }
