@@ -2,9 +2,9 @@
 #define GENERATED_RUNTIME_H_
 
 #include <float.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef float Voltage_t;
 typedef enum {

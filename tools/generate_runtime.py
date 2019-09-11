@@ -30,8 +30,10 @@ port_compatibility = {
     }
 }
 
+databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
+
 databuffer_templates = {
-    "WriteData": "static {{data_type}} {{component_name}}_{{port_name}}_databuffer{{ #init_value }} = {{{ . }}}{{ /init_value }};"
+    "WriteData": "static {{data_type}} " + databuffer_name_template + " = {{{ init_value }}};"
 }
 
 port_template_write_data = """void {{component_name}}_Write_{{port_name}}({{data_type}} value)
@@ -478,7 +480,7 @@ if __name__ == "__main__":
         'data_buffers':    [],
         'port_functions':  [],
         'types':           type_aliases,
-        'type_includes':   type_includes,
+        'type_includes':   sorted(type_includes),
         'runnable_groups': create_runnable_groups(project_config['runtime']['runnables'])
     }
 
