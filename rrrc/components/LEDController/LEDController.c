@@ -20,7 +20,7 @@
 
 #define LED_BYTE_SIZE   8                   /* one LED control bit is coded as 8 MCU bits, so 1 byte -> 8 bytes */
 #define LED_COLOR_SIZE  3 * LED_BYTE_SIZE   /* 24 LED bits in total */
-#define LED_FRAME_SIZE  (LED_RESET_SIZE + (LED_COLOR_SIZE * (STATUS_LEDS_AMOUNT + RING_LEDS_AMOUNT)))
+#define LED_FRAME_SIZE  (LED_RESET_SIZE + (LED_COLOR_SIZE * (STATUS_LEDS_AMOUNT + RING_LEDS_AMOUNT + 1)))
 
 static bool ledsUpdating;
 
@@ -84,6 +84,9 @@ static void update_frame(void)
     {
         write_led_color(STATUS_LEDS_AMOUNT + i, LEDController_Read_RingLED((i + 3) % 12));
     }
+
+    /* dummy data to prevent last LED not receive its color properly */
+    write_led_color(STATUS_LEDS_AMOUNT + RING_LEDS_AMOUNT, (rgb_t) LED_OFF);
 }
 
 static void send_frame(void)
