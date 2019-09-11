@@ -339,14 +339,14 @@ if __name__ == "__main__":
     # indexed write to data buffer index, indirect mapping (WriteIndexedData)
 
     port_types = {
-        "WriteData":              'provider',
-        "WriteIndexedData":       'provider',
-        "ProvideConstantByValue": 'provider',
-        "Event":                  'provider',
-        "ServerCall":             'provider',
-        "Runnable":               'consumer',
-        "ReadValue":              'consumer',
-        "ReadIndexedValue":       'consumer',
+        "WriteData":        'provider',
+        "WriteIndexedData": 'provider',
+        "Constant":         'provider',
+        "Event":            'provider',
+        "ServerCall":       'provider',
+        "Runnable":         'consumer',
+        "ReadValue":        'consumer',
+        "ReadIndexedValue": 'consumer',
     }
 
     log('')

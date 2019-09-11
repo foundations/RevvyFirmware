@@ -16,7 +16,7 @@
     },
     "ports": {
         "SampleTime": {
-            "port_type": "ProvideConstantByValue",
+            "port_type": "Constant",
             "data_type": "float",
             "value": "1.0f / 416.0f"
         }

@@ -51,6 +51,7 @@ def process_type_def(type_def):
         processed_type_def['type'] = 'external_type_def'
         processed_type_def['defined_in'] = type_def['defined_in']
         processed_type_def['default_value'] = type_def['default_value']
+        processed_type_def['pass_semantic'] = type_def.get('pass_semantic', 'value')
 
     elif 'aliases' in type_def:
         processed_type_def['type'] = 'type_alias'
@@ -61,6 +62,7 @@ def process_type_def(type_def):
         if type_def['type'] == 'enum':
             processed_type_def['values'] = type_def['values']
             processed_type_def['default_value'] = type_def['default_value']
+            processed_type_def['pass_semantic'] = type_def.get('pass_semantic', 'value')
         else:
             raise Exception('Unsupported type {}'.format(type_def['type']))
 

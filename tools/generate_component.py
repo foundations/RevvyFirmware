@@ -54,9 +54,12 @@ source_template = '''#include "{{ component_name }}.h"
 __attribute__((weak)){{/weak}}
 ''' + fn_header_template + '''
 {
-    {{#args}}
+    {{#unused_args}}
     (void) {{name}};
-    {{/args}}
+    {{/unused_args}}
+    {{#arg_values}}
+    *{{name}} = {{{value}}};
+    {{/arg_values}}
     {{#return_value}}
     return {{{.}}};
     {{/return_value}}
@@ -116,13 +119,20 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
     for port in port_data:
         port_type = port_data[port]['port_type']
 
+        data_type = port_data[port].get('data_type', 'void')
         port_data_templates = {
             "WriteData":
                 lambda: {
                     "name":         "Write_{}",
                     "return_type":  "void",
                     "return_value": "",
-                    "arguments":    [{'name': 'value', 'type': port_data[port]['data_type']}],
+                    "arguments":    [{'name': 'value', 'type': data_type}],
+                    "weak":         True
+                } if type_data[resolve_type(data_type, type_data, resolved_types)]['pass_semantic'] == 'value' else {
+                    "name":         "Write_{}",
+                    "return_type":  'void',
+                    "return_value": "",
+                    "arguments":    [{'name': 'value', 'type': "const {}*".format(data_type)}],
                     "weak":         True
                 },
             "WriteIndexedData":
@@ -132,33 +142,48 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
                     "return_value": "",
                     "arguments":    [
                         {'name': 'index', 'type': 'uint32_t'},
-                        {'name': 'value', 'type': port_data[port]['data_type']}
+                        {'name': 'value', 'type': data_type}
                     ],
                     "weak":         True
                 },
             "ReadValue":
                 lambda: {
                     "name":         "Read_{}",
-                    "return_type":  port_data[port]['data_type'],
-                    "return_value": default_value(port_data[port]['data_type'], port_data[port]['default_value']),
+                    "return_type":  data_type,
+                    "return_value": default_value(data_type, port_data[port]['default_value']),
                     "arguments":    [],
                     "weak":         True
+                } if type_data[resolve_type(data_type, type_data, resolved_types)]['pass_semantic'] == 'value' else {
+                    "name":                "Constant_{}",
+                    "return_type":         'void',
+                    "return_value":        "",
+                    "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
+                    "out_argument_values": [
+                        {'name': 'value', 'value': default_value(data_type, port_data[port]['default_value'])}],
+                    "weak":                True
                 },
             "ReadIndexedValue":
                 lambda: {
                     "name":         "Read_{}",
-                    "return_type":  port_data[port]['data_type'],
+                    "return_type":  data_type,
                     "return_value": port_data[port]['default_value'],
                     "arguments":    [{'name': 'index', 'type': 'uint32_t'}],
                     "weak":         True
                 },
-            "ProvideConstantByValue":
+            "Constant":
                 lambda: {
                     "name":         "Constant_{}",
-                    "return_type":  port_data[port]['data_type'],
+                    "return_type":  data_type,
                     "return_value": port_data[port]['value'],
                     "arguments":    [],
                     "weak":         False
+                } if type_data[resolve_type(data_type, type_data, resolved_types)]['pass_semantic'] == 'value' else {
+                    "name":                "Constant_{}",
+                    "return_type":         'void',
+                    "return_value":        "",
+                    "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
+                    "out_argument_values": [{'name': 'value', 'value': port_data[port]['value']}],
+                    "weak":                False
                 },
             "Event":
                 lambda: {
@@ -172,11 +197,23 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
 
         data = port_data_templates[port_type]()
 
+        unused_arguments = []
+        out_arg_values = data.get('out_argument_values', [])
+        for arg in data['arguments']:
+            found = False
+            for out in out_arg_values:
+                if arg['name'] == out['name']:
+                    found = True
+            if not found:
+                unused_arguments.append(arg)
+
         port_function_data = {
             'name':         data['name'].format(port),
             'return_type':  data['return_type'],
             'return_value': data['return_value'],
             'args':         data['arguments'],
+            'unused_args':  unused_arguments,
+            'arg_values':   out_arg_values,
             'weak':         data['weak']
         }
 
@@ -219,7 +256,7 @@ def create_component_config(name, sources, runnables):
     json_contents = {
         'component_name': name,
         'source_files':   sources,
-        'runnables':      process_runnable_defs(runnables)
+        'runnables':      process_runnable_defs(name, runnables)
     }
     return json.dumps(json_contents, indent=4)
 
@@ -300,7 +337,7 @@ if __name__ == "__main__":
         new_folders.append(component_dir)
 
         # create component configuration json
-        runnables = process_runnable_defs(default_runnables)
+        runnables = process_runnable_defs(component_name, default_runnables)
         ports = {}
         component_types = {}
         new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)

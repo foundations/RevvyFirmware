@@ -11,7 +11,7 @@
     },
     "ports": {
         "TicksInMs": {
-            "port_type": "ProvideConstantByValue",
+            "port_type": "Constant",
             "data_type": "uint16_t",
             "value": "24u"
         }
