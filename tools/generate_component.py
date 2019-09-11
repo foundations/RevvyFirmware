@@ -104,7 +104,13 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
     def default_value(type_name, given_value):
         if given_value is None:
             resolved = resolve_type(type_name, type_data, resolved_types)
-            return type_data[resolved]['default_value']
+            if type_data[resolved]['type'] == 'struct':
+                field_defaults = {field: default_value(type_data[resolved]['fields'][field], None) for field in type_data[resolved]['fields']}
+                field_default_strs = ['.{} = {}'.format(field, field_defaults[field]) for field in field_defaults]
+                return '({}) {{ {} }}'.format(type_name, ", ".join(field_default_strs))
+
+            else:
+                return type_data[resolved]['default_value']
 
         return given_value
 
@@ -161,7 +167,7 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
                     "arguments":    [],
                     "weak":         True
                 } if type_data[resolve_type(data_type, type_data, resolved_types)]['pass_semantic'] == 'value' else {
-                    "name":                "Constant_{}",
+                    "name":                "Read_{}",
                     "return_type":         'void',
                     "return_value":        "",
                     "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],

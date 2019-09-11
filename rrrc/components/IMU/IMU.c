@@ -1,10 +1,3 @@
-/*
- * IMU.c
- *
- * Created: 2019. 07. 25. 16:31:24
- *  Author: Dániel Buga
- */ 
-
 #include "IMU.h"
 #include "imu_ll.h"
 
@@ -89,7 +82,7 @@ void IMU_Run_OnUpdate(void)
             IMU_RawSample_t data;
             _read_data(LSM6DS3_ACCEL_REGISTERS, &data);
 
-            IMU_AxlSample_t converted = {
+            Vector3D_t converted = {
                 .x = data.x * IMU_AXL_LSB,
                 .y = data.y * IMU_AXL_LSB,
                 .z = data.z * IMU_AXL_LSB
@@ -103,7 +96,7 @@ void IMU_Run_OnUpdate(void)
             IMU_RawSample_t data;
             _read_data(LSM6DS3_GYRO_REGISTERS, &data);
 
-            IMU_GyroSample_t converted = {
+            Vector3D_t converted = {
                 .x = data.x * IMU_GYRO_LSB,
                 .y = data.y * IMU_GYRO_LSB,
                 .z = data.z * IMU_GYRO_LSB
@@ -114,42 +107,36 @@ void IMU_Run_OnUpdate(void)
     }
 }
 
-/* TODO add possibility to store data here */
 __attribute__((weak))
 void IMU_Call_LogError(void)
 {
-
-}
-
-__attribute__((weak))
-void IMU_Write_AccelerometerSample(const IMU_AxlSample_t* sample)
-{
-    (void) sample;
-    /* nothing to do here */
-}
-
-__attribute__((weak))
-void IMU_Write_GyroscopeSample(const IMU_GyroSample_t* sample)
-{
-    (void) sample;
-    /* nothing to do here */
-}
-
-__attribute__((weak))
-void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample)
-{
-    (void) sample;
-    /* nothing to do here */
-}
-
-__attribute__((weak))
-void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
-{
-    (void) sample;
-    /* nothing to do here */
 }
 
 float IMU_Constant_SampleTime(void)
 {
     return 1.0f / 416.0f;
+}
+
+__attribute__((weak))
+void IMU_Write_AccelerometerSample(const Vector3D_t* value)
+{
+    (void) value;
+}
+
+__attribute__((weak))
+void IMU_Write_GyroscopeSample(const Vector3D_t* value)
+{
+    (void) value;
+}
+
+__attribute__((weak))
+void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* value)
+{
+    (void) value;
+}
+
+__attribute__((weak))
+void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* value)
+{
+    (void) value;
 }

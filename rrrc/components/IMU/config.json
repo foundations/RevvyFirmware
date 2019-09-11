@@ -33,10 +33,29 @@
         }
     },
     "ports": {
+        "LogError": {
+            "port_type": "Event"
+        },
         "SampleTime": {
             "port_type": "Constant",
             "data_type": "float",
             "value": "1.0f / 416.0f"
+        },
+        "AccelerometerSample": {
+            "port_type": "WriteData",
+            "data_type": "Vector3D_t"
+        },
+        "GyroscopeSample": {
+            "port_type": "WriteData",
+            "data_type": "Vector3D_t"
+        },
+        "RawAccelerometerSample": {
+            "port_type": "WriteData",
+            "data_type": "IMU_RawSample_t"
+        },
+        "RawGyroscopeSample": {
+            "port_type": "WriteData",
+            "data_type": "IMU_RawSample_t"
         }
     }
 }

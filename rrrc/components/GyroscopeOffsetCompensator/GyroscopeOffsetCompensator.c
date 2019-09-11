@@ -1,18 +1,13 @@
-/*
- * GyroscopeOffsetCompensator.c
- *
- * Created: 2019. 08. 15. 14:40:49
- *  Author: Dániel Buga
- */ 
-
 #include "GyroscopeOffsetCompensator.h"
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <math.h>
 
 static bool offset_calibrated;
-static AngularSpeedVector_t averageAngularSpeed;
-static AngularSpeedVector_t sumAngularSpeed;
-static AngularSpeedVector_t currentMidValue;
+static Vector3D_t averageAngularSpeed;
+static Vector3D_t sumAngularSpeed;
+static Vector3D_t currentMidValue;
 static uint32_t averageAngularSpeedSamples;
 static uint32_t samplesInCurrentBand;
 
@@ -44,17 +39,18 @@ void GyroscopeOffsetCompensator_Run_OnInit(void)
 
 void GyroscopeOffsetCompensator_Run_Update(void)
 {
-    AngularSpeedVector_t angularSpeed;
-    if (GyroscopeOffsetCompensator_Read_AngularSpeeds(&angularSpeed))
+    Vector3D_t angularSpeed;
+    GyroscopeOffsetCompensator_Read_AngularSpeeds(&angularSpeed);
+    // if () TODO make this queued
     {
         if (offset_calibrated)
         {
-            AngularSpeedVector_t output;
+            Vector3D_t output;
             output.x = angularSpeed.x - averageAngularSpeed.x;
             output.y = angularSpeed.y - averageAngularSpeed.y;
             output.z = angularSpeed.z - averageAngularSpeed.z;
 
-            GyroscopeOffsetCompensator_Write_AngularSpeeds(&output);
+            GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(&output);
         }
 
         if (fabsf(currentMidValue.x - angularSpeed.x) > IDLE_SENSITIVITY
@@ -104,17 +100,14 @@ void GyroscopeOffsetCompensator_Run_Update(void)
     }
 }
 
-/* ports */
 __attribute__((weak))
-bool GyroscopeOffsetCompensator_Read_AngularSpeeds(AngularSpeedVector_t* angularSpeed)
+void GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
 {
-    (void) angularSpeed;
-    
-    return false;
+    *value = (Vector3D_t) { .x = 0.0f, .y = 0.0f, .z = 0.0f };
 }
 
 __attribute__((weak))
-void GyroscopeOffsetCompensator_Write_AngularSpeeds(const AngularSpeedVector_t* angularSpeed)
+void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* value)
 {
-    (void) angularSpeed;
+    (void) value;
 }

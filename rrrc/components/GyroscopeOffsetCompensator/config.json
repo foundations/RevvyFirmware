@@ -3,6 +3,16 @@
     "source_files": [
         "GyroscopeOffsetCompensator.c"
     ],
+    "types": {
+        "Vector3D_t": {
+            "type": "struct",
+            "fields": {
+                "x": "float",
+                "y": "float",
+                "z": "float"
+            }
+        }
+    },
     "runnables": {
         "OnInit": {
             "return_type": "void",
@@ -11,6 +21,16 @@
         "Update": {
             "return_type": "void",
             "arguments": []
+        }
+    },
+    "ports": {
+        "AngularSpeeds": {
+            "port_type": "ReadValue",
+            "data_type": "Vector3D_t"
+        },
+        "CompensatedAngularSpeeds": {
+            "port_type": "WriteData",
+            "data_type": "Vector3D_t"
         }
     }
 }
