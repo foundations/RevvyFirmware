@@ -33,7 +33,7 @@ port_compatibility = {
 databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
 
 databuffer_templates = {
-    "WriteData": "static {{data_type}} " + databuffer_name_template + " = {{{ init_value }}};"
+    "variable": "static {{data_type}} " + databuffer_name_template + " = {{{ init_value }}};"
 }
 
 port_template_write_data = """void {{component_name}}_Write_{{port_name}}({{data_type}} value)
@@ -503,10 +503,13 @@ if __name__ == "__main__":
         }
 
         try:
-            data_buffer = pystache.render(databuffer_templates[provider_port_type], data_buffer_ctx)
+            databuffer_types = {
+                "WriteData": "variable"
+            }
+            data_buffer = pystache.render(databuffer_templates[databuffer_types[provider_port_type]], data_buffer_ctx)
             template_ctx['data_buffers'].append(data_buffer)
         except KeyError:
-            pass
+            log('No databuffer is generated for {} ({})'.format(provider['short_name'], provider_port_type))
 
         try:
             template = provider_port_templates[provider_port_type]
