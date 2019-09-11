@@ -603,10 +603,7 @@ static inline hri_wdt_ewctrl_reg_t hri_wdt_read_EWCTRL_reg(const void *const hw)
 
 static inline void hri_wdt_write_CLEAR_reg(const void *const hw, hri_wdt_clear_reg_t data)
 {
-	WDT_CRITICAL_SECTION_ENTER();
 	((Wdt *)hw)->CLEAR.reg = data;
-	hri_wdt_wait_for_sync(hw, WDT_SYNCBUSY_CLEAR);
-	WDT_CRITICAL_SECTION_LEAVE();
 }
 
 #ifdef __cplusplus
