@@ -89,6 +89,11 @@ void IMU_Run_OnUpdate(void)
             };
             IMU_Write_RawAccelerometerSample(&data);
             IMU_Write_AccelerometerSample(&converted);
+            IMU_Write_AccelerometerDataReady(true);
+        }
+        else
+        {
+            IMU_Write_AccelerometerDataReady(false);
         }
 
         if (imu_gyro_data_ready())
@@ -103,6 +108,11 @@ void IMU_Run_OnUpdate(void)
             };
             IMU_Write_RawGyroscopeSample(&data);
             IMU_Write_GyroscopeSample(&converted);
+            IMU_Write_GyroscopeDataReady(true);
+        }
+        else
+        {
+            IMU_Write_GyroscopeDataReady(false);
         }
     }
 }
@@ -137,6 +147,18 @@ void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* value)
 
 __attribute__((weak))
 void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* value)
+{
+    (void) value;
+}
+
+__attribute__((weak))
+void IMU_Write_AccelerometerDataReady(bool value)
+{
+    (void) value;
+}
+
+__attribute__((weak))
+void IMU_Write_GyroscopeDataReady(bool value)
 {
     (void) value;
 }

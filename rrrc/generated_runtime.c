@@ -3,6 +3,8 @@
 static ChargerState_t BatteryCharger_ChargerState_databuffer = ChargerState_NotPluggedIn;
 static bool CommunicationObserver_Enabled_databuffer = false;
 static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_databuffer = BluetoothStatus_Inactive;
+static Vector3D_t IMU_GyroscopeSample_databuffer = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
+static bool IMU_GyroscopeDataReady_databuffer = false;
 
 void RunnableGroup_OnInit(void)
 {
@@ -200,6 +202,26 @@ void BluetoothStatusObserver_Write_ConnectionStatus(BluetoothStatus_t value)
 BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
 {
     return BluetoothStatusObserver_ConnectionStatus_databuffer;
+}
+
+void IMU_Write_GyroscopeSample(const Vector3D_t* value)
+{
+    IMU_GyroscopeSample_databuffer = *value;
+}
+
+void GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
+{
+    *value = IMU_GyroscopeSample_databuffer;
+}
+
+void IMU_Write_GyroscopeDataReady(bool value)
+{
+    IMU_GyroscopeDataReady_databuffer = value;
+}
+
+bool GyroscopeOffsetCompensator_Read_DataReady(void)
+{
+    return IMU_GyroscopeDataReady_databuffer;
 }
 
 void CommunicationObserver_Call_ErrorLimitReached(void)

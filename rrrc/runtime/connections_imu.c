@@ -11,8 +11,6 @@
 
 static Vector3D_t raw_acceleration;
 static bool has_new_acceleration;
-static Vector3D_t raw_rotation;
-static bool has_new_rotation;
 static Vector3D_t calibrated_rotation;
 static bool has_new_calibrated_rotation;
 
@@ -30,29 +28,7 @@ void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
     UpdateMcuStatus_Gyroscope(sample);
 }
 
-void IMU_Write_GyroscopeSample(const Vector3D_t* sample)
-{
-    raw_rotation = *sample;
-    has_new_rotation = true;
-}
-
-void GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* angularSpeed)
-{
-    if (has_new_rotation)
-    {
-        *angularSpeed = raw_rotation;
-        has_new_rotation = false;
-    }
-    else
-    {
-        /* TODO this should be queued or return a bool as before */
-        angularSpeed->x = NAN;
-        angularSpeed->y = NAN;
-        angularSpeed->z = NAN;
-    }
-}
-
-void GyroscopeOffsetCompensator_Write_AngularSpeeds(const Vector3D_t* angularSpeed)
+void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* angularSpeed)
 {
     calibrated_rotation = *angularSpeed;
     has_new_calibrated_rotation = true;

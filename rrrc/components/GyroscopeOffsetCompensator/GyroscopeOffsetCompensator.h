@@ -5,6 +5,7 @@
 #define COMPONENT_TYPES_GYROSCOPE_OFFSET_COMPENSATOR_H_
 
 #include <float.h>
+#include <stdbool.h>
 
 typedef struct {
     float x;
@@ -18,5 +19,6 @@ void GyroscopeOffsetCompensator_Run_OnInit(void);
 void GyroscopeOffsetCompensator_Run_Update(void);
 void GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value);
 void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* value);
+bool GyroscopeOffsetCompensator_Read_DataReady(void);
 
 #endif /* COMPONENT_GYROSCOPE_OFFSET_COMPENSATOR_H_ */

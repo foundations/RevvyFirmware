@@ -5,6 +5,7 @@
 #define COMPONENT_TYPES_IMU_H_
 
 #include <float.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct {
@@ -28,5 +29,7 @@ void IMU_Write_AccelerometerSample(const Vector3D_t* value);
 void IMU_Write_GyroscopeSample(const Vector3D_t* value);
 void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* value);
 void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* value);
+void IMU_Write_AccelerometerDataReady(bool value);
+void IMU_Write_GyroscopeDataReady(bool value);
 
 #endif /* COMPONENT_IMU_H_ */

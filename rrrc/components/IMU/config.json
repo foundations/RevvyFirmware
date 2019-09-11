@@ -56,6 +56,14 @@
         "RawGyroscopeSample": {
             "port_type": "WriteData",
             "data_type": "IMU_RawSample_t"
+        },
+        "AccelerometerDataReady": {
+            "port_type": "WriteData",
+            "data_type": "bool"
+        },
+        "GyroscopeDataReady": {
+            "port_type": "WriteData",
+            "data_type": "bool"
         }
     }
 }

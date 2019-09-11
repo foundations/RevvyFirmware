@@ -41,7 +41,7 @@ void GyroscopeOffsetCompensator_Run_Update(void)
 {
     Vector3D_t angularSpeed;
     GyroscopeOffsetCompensator_Read_AngularSpeeds(&angularSpeed);
-    // if () TODO make this queued
+    if (GyroscopeOffsetCompensator_Read_DataReady())
     {
         if (offset_calibrated)
         {
@@ -110,4 +110,10 @@ __attribute__((weak))
 void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* value)
 {
     (void) value;
+}
+
+__attribute__((weak))
+bool GyroscopeOffsetCompensator_Read_DataReady(void)
+{
+    return false;
 }
