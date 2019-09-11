@@ -226,11 +226,11 @@ SensorLibraryStatus_t HC_SR04_InterruptCallback(SensorPort_t* sensorPort, bool s
     {
         if (status)
         {
-            libdata->start_time = SensorPort_Call_ReadCurrentTicks();
+            libdata->start_time = SensorPortHandler_Call_ReadCurrentTicks();
         }
         else
         {
-            uint16_t finish_time = SensorPort_Call_ReadCurrentTicks();
+            uint16_t finish_time = SensorPortHandler_Call_ReadCurrentTicks();
             uint16_t dist = finish_time - libdata->start_time;
 
             if (SensorPort_Call_GetMsFromTicks(dist) < 40.0f) /**< arbitrary limit that is shorter than sensor timeout */
