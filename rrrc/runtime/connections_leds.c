@@ -14,9 +14,9 @@ extern BatteryIndicator_Context_t mainBatteryIndicator;
 extern BatteryIndicator_Context_t motorBatteryIndicator;
 
 static bool statusLedsChanged;
-static bool ringLedsChanged;
+static bool ringLedsChanged = true;
 static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
-static rgb_t ringLeds[RING_LEDS_AMOUNT] = { 0 };
+static rgb_t ringLeds[RING_LEDS_AMOUNT] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF };
 
 static MasterStatus_t masterStatus;
 static bool battery_low = true;
