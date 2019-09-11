@@ -1,28 +1,24 @@
-/*
- * RingLedDisplay.h
- *
- * Created: 03/05/2019 15:30:46
- *  Author: Dániel Buga
- */
-
 #ifndef COMPONENT_RING_LED_DISPLAY_H_
 #define COMPONENT_RING_LED_DISPLAY_H_
 
-#include <stdio.h>
+#ifndef COMPONENT_TYPES_RING_LED_DISPLAY_H_
+#define COMPONENT_TYPES_RING_LED_DISPLAY_H_
+
 #include <stdbool.h>
 #include "utils/color.h"
 #include "rrrc_indication.h"
 #include "../MasterCommunication/CommunicationManager.h"
 
-typedef enum 
-{
-    RingLedScenario_Off = 0,
-    RingLedScenario_UserFrame = 1,
-    RingLedScenario_ColorWheel = 2,
-    RingLedScenario_RainbowFade = 3,
-    RingLedScenario_BusyIndicator = 4,
-    RingLedScenario_BreathingGreen = 5,
+typedef enum {
+    RingLedScenario_Off,
+    RingLedScenario_UserFrame,
+    RingLedScenario_ColorWheel,
+    RingLedScenario_RainbowFade,
+    RingLedScenario_BusyIndicator,
+    RingLedScenario_BreathingGreen
 } RingLedScenario_t;
+
+#endif /* COMPONENT_TYPES_RING_LED_DISPLAY_H_ */
 
 void RingLedDisplay_Run_OnInit(void);
 void RingLedDisplay_Run_Update(void);
@@ -38,4 +34,4 @@ Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload
 Comm_Status_t RingLedDisplay_GetRingLedAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t RingLedDisplay_SetUserFrame_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 
-#endif /* RINGLEDDISPLAY_H_ */
+#endif /* COMPONENT_RING_LED_DISPLAY_H_ */

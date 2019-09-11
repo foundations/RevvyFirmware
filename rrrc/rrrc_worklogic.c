@@ -26,8 +26,6 @@ static float motorBatteryVoltage;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
-static bool masterBooted = false;
-
 static MotorThermalModel_t motorThermalModels[6] = {
     { .idx = 0u },
     { .idx = 1u },
@@ -163,8 +161,6 @@ static SensorPort_t sensorPorts[] =
         .i2c_hw = I2C0_SERCOM
     }
 };
-
-static BluetoothStatus_t isBleConnected;
 
 #define MAX_MOTOR_STATUS_SIZE 10
 #define MAX_SENSOR_STATUS_SIZE 4
@@ -683,7 +679,6 @@ void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, 
             case 0x3Au:
             case 0x3Bu:
                 /* only enable for write commands */
-                masterBooted = true;
                 CommunicationObserver_Run_Enable();
                 
             default:
@@ -698,21 +693,6 @@ void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, 
 void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize)
 {
     MasterCommunicationInterface_Run_SetResponse(responseBuffer, responseSize);
-}
-
-void BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_t status)
-{
-    isBleConnected = status;
-}
-
-bool BluetoothIndicator_Read_IsConnected(void)
-{
-    return isBleConnected == BluetoothStatus_Connected;
-}
-
-bool BluetoothIndicator_Read_IsActive(void)
-{
-    return isBleConnected != BluetoothStatus_Inactive;
 }
 
 uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
@@ -869,11 +849,6 @@ void MotorThermalModel_Write_Temperature(MotorThermalModel_t* model, float temp)
 float MotorDerating_Read_MotorTemperature(uint8_t motor_idx)
 {
     return motorTemperatures[motor_idx];
-}
-
-bool RingLedDisplay_Read_MasterReady(void)
-{
-    return masterBooted;
 }
 
 static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)

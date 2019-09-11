@@ -3,10 +3,27 @@
     "source_files": [
         "MasterStatusObserver.c"
     ],
+    "types": {
+        "MasterStatus_t": {
+            "type": "enum",
+            "values": [
+                "MasterStatus_Unknown",
+                "MasterStatus_Operational",
+                "MasterStatus_Controlled"
+            ],
+            "default_value": "MasterStatus_Unknown"
+        }
+    },
     "runnables": {
         "OnInit": {
             "return_type": "void",
             "arguments": []
+        }
+    },
+    "ports": {
+        "MasterStatus": {
+            "data_type": "MasterStatus_t",
+            "port_type": "WriteData"
         }
     }
 }

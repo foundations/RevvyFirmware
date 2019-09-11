@@ -1,14 +1,8 @@
-/*
- * BluetoothStatusObserver.c
- *
- * Created: 09/05/2019 11:54:17
- *  Author: Dániel Buga
- */ 
 #include "BluetoothStatusObserver.h"
 
 void BluetoothStatusObserver_Run_OnInit(void)
 {
-    BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_Inactive);
+    BluetoothStatusObserver_Write_ConnectionStatus(BluetoothStatus_Inactive);
 }
 
 Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
@@ -27,11 +21,11 @@ Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* co
         switch (commandPayload[0])
         {
             case 0u:
-                BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_NotConnected);
+                BluetoothStatusObserver_Write_ConnectionStatus(BluetoothStatus_NotConnected);
                 break;
 
             case 1u:
-                BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_Connected);
+                BluetoothStatusObserver_Write_ConnectionStatus(BluetoothStatus_Connected);
                 break;
 
             default:
@@ -44,8 +38,7 @@ Comm_Status_t BluetoothStatusObserver_SetBluetoothStatus_Start(const uint8_t* co
 }
 
 __attribute__((weak))
-void BluetoothStatusObserver_Write_IsConnected(BluetoothStatus_t status)
+void BluetoothStatusObserver_Write_ConnectionStatus(BluetoothStatus_t value)
 {
-    (void) status;
-    /* nothing to do */
+    (void) value;
 }

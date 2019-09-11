@@ -3,6 +3,17 @@
     "source_files": [
         "BluetoothIndicator.c"
     ],
+    "types": {
+        "BluetoothStatus_t": {
+            "type": "enum",
+            "values": [
+                "BluetoothStatus_Inactive",
+                "BluetoothStatus_NotConnected",
+                "BluetoothStatus_Connected"
+            ],
+            "default_value": "BluetoothStatus_Inactive"
+        }
+    },
     "runnables": {
         "OnInit": {
             "return_type": "void",
@@ -11,6 +22,12 @@
         "Update": {
             "return_type": "void",
             "arguments": []
+        }
+    },
+    "ports": {
+        "ConnectionStatus": {
+            "port_type": "ReadValue",
+            "data_type": "BluetoothStatus_t"
         }
     }
 }

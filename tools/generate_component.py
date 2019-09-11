@@ -204,7 +204,10 @@ def collect_includes(runnable_data, port_data, component_types, type_data, resol
             add_type(runnable_arguments[arg])
 
     for port in port_data:
-        add_type(port_data[port]['data_type'])
+        try:
+            add_type(port_data[port]['data_type'])
+        except KeyError:
+            pass
 
     for type_name in component_types:
         add_type(type_name)

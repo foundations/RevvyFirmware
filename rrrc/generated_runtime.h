@@ -1,10 +1,10 @@
 #ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
+#include <float.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <float.h>
 
 typedef float Voltage_t;
 typedef enum {
@@ -14,10 +14,28 @@ typedef enum {
     ChargerState_Fault
 } ChargerState_t;
 typedef enum {
+    BluetoothStatus_Inactive,
+    BluetoothStatus_NotConnected,
+    BluetoothStatus_Connected
+} BluetoothStatus_t;
+typedef enum {
     SystemState_Startup,
     SystemState_Operational,
     SystemState_Error
 } SystemState_t;
+typedef enum {
+    MasterStatus_Unknown,
+    MasterStatus_Operational,
+    MasterStatus_Controlled
+} MasterStatus_t;
+typedef enum {
+    RingLedScenario_Off,
+    RingLedScenario_UserFrame,
+    RingLedScenario_ColorWheel,
+    RingLedScenario_RainbowFade,
+    RingLedScenario_BusyIndicator,
+    RingLedScenario_BreathingGreen
+} RingLedScenario_t;
 
 #define COMPONENT_TYPES_ADC0_H_
 #define COMPONENT_TYPES_ADC1_H_

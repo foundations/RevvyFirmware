@@ -3,6 +3,20 @@
     "source_files": [
         "RingLedDisplay.c"
     ],
+    "types": {
+        "RingLedScenario_t": {
+            "type": "enum",
+            "values": [
+                "RingLedScenario_Off",
+                "RingLedScenario_UserFrame",
+                "RingLedScenario_ColorWheel",
+                "RingLedScenario_RainbowFade",
+                "RingLedScenario_BusyIndicator",
+                "RingLedScenario_BreathingGreen"
+            ],
+            "default_value": "RingLedScenario_Off"
+        }
+    },
     "runnables": {
         "OnInit": {
             "return_type": "void",
@@ -11,6 +25,12 @@
         "Update": {
             "return_type": "void",
             "arguments": []
+        }
+    },
+    "ports": {
+        "MasterReady": {
+            "port_type": "ReadValue",
+            "data_type": "bool"
         }
     }
 }

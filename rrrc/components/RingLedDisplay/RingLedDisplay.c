@@ -1,9 +1,3 @@
-/*
- * RingLedDisplay.c
- *
- * Created: 03/05/2019 15:31:44
- *  Author: Dániel Buga
- */ 
 #include "RingLedDisplay.h"
 #include "rrrc_indication.h"
 #include "utils.h"
@@ -340,5 +334,5 @@ void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 __attribute__((weak))
 bool RingLedDisplay_Read_MasterReady(void)
 {
-    return true;
+    return false;
 }

@@ -1,10 +1,3 @@
-/*
- * MasterStatusObserver.c
- *
- * Created: 2019. 05. 07. 21:57:32
- *  Author: Dániel Buga
- */ 
-
 #include "MasterStatusObserver.h"
 
 void MasterStatusObserver_Run_OnInit(void)
@@ -49,8 +42,7 @@ Comm_Status_t MasterStatusObserver_SetMasterStatus_Start(const uint8_t* commandP
 }
 
 __attribute__((weak))
-void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
+void MasterStatusObserver_Write_MasterStatus(MasterStatus_t value)
 {
-    (void) status;
-    /* nothing to do */
+    (void) value;
 }

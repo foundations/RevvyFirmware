@@ -288,6 +288,14 @@
             {
                 "provider": "BatteryCharger/ChargerState",
                 "consumer": "BatteryStatusProvider/IsMainBatteryCharging"
+            },
+            {
+                "provider": "CommunicationObserver/Enabled",
+                "consumer": "RingLedDisplay/MasterReady"
+            },
+            {
+                "provider": "BluetoothStatusObserver/ConnectionStatus",
+                "consumer": "BluetoothIndicator/ConnectionStatus"
             }
         ]
     }

@@ -1,6 +1,8 @@
 #include "generated_runtime.h"
 
 static ChargerState_t BatteryCharger_ChargerState_databuffer = ChargerState_NotPluggedIn;
+static bool CommunicationObserver_Enabled_databuffer = false;
+static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_databuffer = BluetoothStatus_Inactive;
 
 void RunnableGroup_OnInit(void)
 {
@@ -178,6 +180,26 @@ void BatteryCharger_Write_ChargerState(ChargerState_t value)
 ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
 {
     return BatteryCharger_ChargerState_databuffer;
+}
+
+void CommunicationObserver_Write_Enabled(bool value)
+{
+    CommunicationObserver_Enabled_databuffer = value;
+}
+
+bool RingLedDisplay_Read_MasterReady(void)
+{
+    return CommunicationObserver_Enabled_databuffer;
+}
+
+void BluetoothStatusObserver_Write_ConnectionStatus(BluetoothStatus_t value)
+{
+    BluetoothStatusObserver_ConnectionStatus_databuffer = value;
+}
+
+BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
+{
+    return BluetoothStatusObserver_ConnectionStatus_databuffer;
 }
 
 void CommunicationObserver_Call_ErrorLimitReached(void)

@@ -12,6 +12,7 @@ void CommunicationObserver_Run_OnInit(void)
 {
     errorCounter = ERROR_COUNTER_MAX;
     enabled = false;
+    CommunicationObserver_Write_Enabled(false);
 }
 
 void CommunicationObserver_Run_OnMessageMissed(void)
@@ -47,6 +48,7 @@ void CommunicationObserver_Run_Enable(void)
     if (!enabled)
     {
         enabled = true;
+        CommunicationObserver_Write_Enabled(true);
         errorCounter = ERROR_COUNTER_MAX;
     }
 }
@@ -54,4 +56,10 @@ void CommunicationObserver_Run_Enable(void)
 __attribute__((weak))
 void CommunicationObserver_Call_ErrorLimitReached(void)
 {
+}
+
+__attribute__((weak))
+void CommunicationObserver_Write_Enabled(bool value)
+{
+    (void) value;
 }

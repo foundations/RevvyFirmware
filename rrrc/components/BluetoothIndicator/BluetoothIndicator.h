@@ -1,22 +1,22 @@
-/*
- * BluetoothIndicator.h
- *
- * Created: 03/05/2019 13:35:46
- *  Author: Dániel Buga
- */ 
-
-
 #ifndef COMPONENT_BLUETOOTH_INDICATOR_H_
 #define COMPONENT_BLUETOOTH_INDICATOR_H_
 
 #include "utils/color.h"
-#include <stdbool.h>
+
+#ifndef COMPONENT_TYPES_BLUETOOTH_INDICATOR_H_
+#define COMPONENT_TYPES_BLUETOOTH_INDICATOR_H_
+
+typedef enum {
+    BluetoothStatus_Inactive,
+    BluetoothStatus_NotConnected,
+    BluetoothStatus_Connected
+} BluetoothStatus_t;
+
+#endif /* COMPONENT_TYPES_BLUETOOTH_INDICATOR_H_ */
 
 void BluetoothIndicator_Run_OnInit(void);
 void BluetoothIndicator_Run_Update(void);
-
-bool BluetoothIndicator_Read_IsConnected(void);
-bool BluetoothIndicator_Read_IsActive(void);
+BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void);
 void BluetoothIndicator_Write_LedColor(rgb_t color);
 
-#endif /* BLUETOOTHINDICATOR_H_ */
+#endif /* COMPONENT_BLUETOOTH_INDICATOR_H_ */
