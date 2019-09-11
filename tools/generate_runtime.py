@@ -42,15 +42,33 @@ port_template_write_data = """void {{component_name}}_Write_{{port_name}}({{data
 }
 """
 
+port_template_write_data_pointer = """void {{component_name}}_Write_{{port_name}}(const {{data_type}}* value)
+{
+    {{component_name}}_{{port_name}}_databuffer = *value;
+}
+"""
+
 port_template_read_value = """{{data_type}} {{consumer_component_name}}_Read_{{consumer_port_name}}(void)
 {
     return {{provider_component_name}}_{{provider_port_name}}_databuffer;
 }
 """
 
+port_template_read_value_pointer = """void {{consumer_component_name}}_Read_{{consumer_port_name}}({{data_type}}* value)
+{
+    *value = {{provider_component_name}}_{{provider_port_name}}_databuffer;
+}
+"""
+
 port_template_read_constant = """{{data_type}} {{consumer_component_name}}_Read_{{consumer_port_name}}(void)
 {
     return {{provider_component_name}}_Constant_{{provider_port_name}}();
+}
+"""
+
+port_template_read_constant_pointer = """void {{consumer_component_name}}_Read_{{consumer_port_name}}({{data_type}}* value)
+{
+    {{provider_component_name}}_Constant_{{provider_port_name}}(value);
 }
 """
 
@@ -80,15 +98,20 @@ runnable_call_templates = {
 }
 
 provider_port_templates = {
-    "WriteData":        port_template_write_data,
-    "WriteIndexedData": port_template_write_data,
-    "Constant":         None
+    "WriteData":            port_template_write_data,
+    "WriteIndexedData":     port_template_write_data,
+    "Constant":             None,
+    "WriteData_ptr":        port_template_write_data_pointer,
+    "WriteIndexedData_ptr": port_template_write_data_pointer,
+    "Constant_ptr":         None
 }
 
 consumer_port_templates = {
     "ReadValue":        {
-        "WriteData": port_template_read_value,
-        "Constant":  port_template_read_constant
+        "WriteData":     port_template_read_value,
+        "WriteData_ptr": port_template_read_value_pointer,
+        "Constant":      port_template_read_constant,
+        "Constant_ptr":  port_template_read_constant_pointer,
     },
     "ReadIndexedValue": {
         "WriteIndexedData": port_template_read_value
@@ -491,6 +514,22 @@ if __name__ == "__main__":
         'runnable_groups': create_runnable_groups(project_config['runtime']['runnables'])
     }
 
+
+    def default_value(type_name, given_value):
+        if given_value is None:
+            resolved = resolve_type(type_name, type_data, resolved_types)
+            if type_data[resolved]['type'] == 'struct':
+                field_defaults = {field: default_value(type_data[resolved]['fields'][field], None) for field in
+                                  type_data[resolved]['fields']}
+                field_default_strs = ['.{} = {}'.format(field, field_defaults[field]) for field in field_defaults]
+                return '{{ {} }}'.format(", ".join(field_default_strs))
+
+            else:
+                return type_data[resolved]['default_value']
+
+        return given_value
+
+
     for port_connection in port_connections:
         provider = port_connection['providers'][0]
 
@@ -506,7 +545,7 @@ if __name__ == "__main__":
             'data_type':      data_type,
             'component_name': provider_component_name,
             'port_name':      provider_port_name,
-            'init_value':     provider.get('init_value', type_data[resolved_data_type]['default_value'])
+            'init_value':     default_value(resolved_data_type, provider.get('init_value', None))
         }
 
         try:
@@ -519,7 +558,10 @@ if __name__ == "__main__":
             log('No databuffer is generated for {} ({})'.format(provider['short_name'], provider_port_type))
 
         try:
-            template = provider_port_templates[provider_port_type]
+            if type_data[resolved_data_type]['pass_semantic'] == 'pointer':
+                template = provider_port_templates[provider_port_type+"_ptr"]
+            else:
+                template = provider_port_templates[provider_port_type]
             if template is not None:
                 provider_port = pystache.render(template, data_buffer_ctx)
                 template_ctx['port_functions'].append(provider_port)
@@ -541,7 +583,11 @@ if __name__ == "__main__":
                 'consumer_component_name': consumer_component_name
             }
 
-            consumer_port = pystache.render(consumer_port_templates[consumer_port_type][provider_port_type],
+            if type_data[resolved_data_type]['pass_semantic'] == 'pointer':
+                template = consumer_port_templates[consumer_port_type][provider_port_type+"_ptr"]
+            else:
+                template = consumer_port_templates[consumer_port_type][provider_port_type]
+            consumer_port = pystache.render(template,
                                             consumer_ctx)
             template_ctx['port_functions'].append(consumer_port)
 
