@@ -189,11 +189,11 @@ def compact_project_config(config):
         else:
             return "{}/{}".format(port['component'], port['port'])
 
-    def compact_runnable_ref(runnable):
-        if type(runnable) is str:
-            return runnable
+    def compact_runnable_ref(runnable_ref):
+        if type(runnable_ref) is str:
+            return runnable_ref
         else:
-            return "{}/{}".format(runnable['component'], runnable['runnable'])
+            return "{}/{}".format(runnable_ref['component'], runnable_ref['runnable'])
 
     for group in config['runtime']['runnables']:
         compacted['runtime']['runnables'][group] = []

@@ -8,8 +8,8 @@ from json import JSONDecodeError
 
 import pystache
 
-from tools.generator_common import component_folder_pattern, component_file_pattern, \
-    load_component_config, load_project_config, to_underscore, collect_type_aliases, TypeCollection, change_file
+from tools.generator_common import component_folder_pattern, component_file_pattern, load_component_config, \
+    load_project_config, to_underscore, collect_type_aliases, TypeCollection, change_file
 
 port_compatibility = {
     "WriteData":        {
@@ -230,8 +230,8 @@ def validate_runnables(project_config, component_data):
                 component_config = component_data[provider_component_name]
                 runnable_name = runnable['runnable']
                 if runnable_name not in component_config.get('runnables', {}):
-                    print('Component {} does not have a runnable called {}'.format(provider_component_name,
-                                                                                   runnable_name))
+                    print('Component {} does not have a runnable called {}'
+                          .format(provider_component_name, runnable_name))
                     runnables_valid = False
                 elif component_config['runnables'][runnable_name]['arguments']:
                     print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
@@ -375,18 +375,27 @@ if __name__ == "__main__":
 
 
     def port_ref_valid(port):
-        component_ports = component_data[port['component']].get('ports', [])
-        return port['component'] in component_data and port['port'] in component_ports
+        try:
+            return port['port'] in component_data[port['component']]['ports']
+        except KeyError as e:
+            log('{}: {}'.format(type(e).__name__, e))
+            return False
 
 
     def runnable_ref_valid(port):
-        component_runnables = component_data[port['component']].get('runnables', [])
-        return port['component'] in component_data and port['port'] in component_runnables
+        try:
+            return port['port'] in component_data[port['component']]['runnables']
+        except KeyError as e:
+            log('{}: {}'.format(type(e).__name__, e))
+            return False
 
 
     def port_type(port):
-        component_ports = component_data[port['component']]['ports']
-        return component_ports[port['port']]['port_type']
+        try:
+            return component_data[port['component']]['ports'][port['port']]['port_type']
+        except KeyError as e:
+            log('{}: {}'.format(type(e).__name__, e))
+            return False
 
 
     # validate ports
@@ -576,6 +585,9 @@ if __name__ == "__main__":
         provider_port_data = component_data[provider_component_name]['ports'][provider_port_name]
         data_type = provider_port_data['data_type']
         resolved_data_type = type_data.resolve(data_type)
+
+        data_buffer_size = provider_port_data.get('count', 1)
+        log('{} buffer size: {}'.format(provider['short_name'], data_buffer_size))
 
         provider_port_type = provider_port_data['port_type']
         databuffer_types = {

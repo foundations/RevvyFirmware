@@ -7,9 +7,9 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import component_file_pattern, \
-    component_folder_pattern, process_runnable_defs, load_component_config, load_project_config, compact_project_config, \
-    to_underscore, collect_type_aliases, TypeCollection, change_file
+from tools.generator_common import component_file_pattern, component_folder_pattern, process_runnable_defs, \
+    load_component_config, load_project_config, compact_project_config, to_underscore, collect_type_aliases, \
+    TypeCollection, change_file
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -388,6 +388,7 @@ if __name__ == "__main__":
             new_files[file_path] = contents
         else:
             modified_files[file_path] = contents
+
 
     if args.update_header:
         update_file(component_file(component_name + '.h'), pystache.render(header_template, template_ctx))
