@@ -239,7 +239,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
     return functions
 
 
-def collect_includes(runnable_data, port_data, component_types, type_data: TypeCollection):
+def collect_includes(functions, component_types, type_data: TypeCollection):
     includes = set()
 
     def add_type(type_name):
@@ -252,16 +252,9 @@ def collect_includes(runnable_data, port_data, component_types, type_data: TypeC
             for field in resolved_type['fields']:
                 add_type(resolved_type['fields'][field])
 
-    for runnable in runnable_data:
-        runnable_arguments = runnable_data[runnable]['arguments']
-        for arg in runnable_arguments:
-            add_type(runnable_arguments[arg])
-
-    for port in port_data:
-        try:
-            add_type(port_data[port]['data_type'])
-        except KeyError:
-            pass
+    for fun in functions:
+        for arg in fun['args']:
+            add_type(arg['type'])
 
     for type_name in component_types:
         add_type(type_name)
@@ -378,13 +371,14 @@ if __name__ == "__main__":
     for new_type in component_types:
         type_data.add(new_type, component_types[new_type])
 
+    functions = convert_functions(runnables, ports, type_data)
     template_ctx = {
         'component_name': component_name,
-        'type_includes':  collect_includes(runnables, ports, component_types, type_data),
+        'type_includes':  collect_includes(functions, component_types, type_data),
         'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
         'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions':      convert_functions(runnables, ports, type_data),
+        'functions':      functions,
         'types':          collect_type_aliases(component_types, type_data)
     }
 
