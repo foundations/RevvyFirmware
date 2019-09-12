@@ -1,16 +1,22 @@
 #include "generated_runtime.h"
+#include "utils.h"
 
 static ChargerState_t BatteryCharger_ChargerState_databuffer = ChargerState_NotPluggedIn;
 static bool CommunicationObserver_Enabled_databuffer = false;
 static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_databuffer = BluetoothStatus_Inactive;
 static Vector3D_t IMU_GyroscopeSample_databuffer = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
 static bool IMU_GyroscopeDataReady_databuffer = false;
+static uint16_t ADC0_RawChannelData_databuffer[4] = { 0u, 0u, 0u, 0u };
+static uint16_t ADC1_RawChannelData_databuffer[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
+static Voltage_t ADC0_ChannelVoltage_databuffer[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+static Voltage_t ADC1_ChannelVoltage_databuffer[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 void RunnableGroup_OnInit(void)
 {
     ErrorStorage_Run_OnInit();
     ADC0_Run_OnInit();
     ADC1_Run_OnInit();
+    ADCDispatcher_Run_OnInit();
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
     BluetoothIndicator_Run_OnInit();
@@ -34,6 +40,7 @@ void RunnableGroup_1ms(void)
     IMU_Run_OnUpdate();
     GyroscopeOffsetCompensator_Run_Update();
     YawAngleTracker_Run_Update();
+    ADCDispatcher_Run_Update();
 }
 
 void RunnableGroup_10ms_offset0(void)
@@ -222,6 +229,54 @@ void IMU_Write_GyroscopeDataReady(bool value)
 bool GyroscopeOffsetCompensator_Read_DataReady(void)
 {
     return IMU_GyroscopeDataReady_databuffer;
+}
+
+void ADC0_Write_RawChannelData(uint32_t index, uint16_t value)
+{
+    ASSERT(index < ARRAY_SIZE(ADC0_RawChannelData_databuffer));
+    ADC0_RawChannelData_databuffer[index] = value;
+}
+
+uint16_t ADCDispatcher_Read_ADC0_RawChannelData(uint32_t index)
+{
+    ASSERT(index < ARRAY_SIZE(ADC0_RawChannelData_databuffer));
+    return ADC0_RawChannelData_databuffer[index];
+}
+
+void ADC1_Write_RawChannelData(uint32_t index, uint16_t value)
+{
+    ASSERT(index < ARRAY_SIZE(ADC1_RawChannelData_databuffer));
+    ADC1_RawChannelData_databuffer[index] = value;
+}
+
+uint16_t ADCDispatcher_Read_ADC1_RawChannelData(uint32_t index)
+{
+    ASSERT(index < ARRAY_SIZE(ADC1_RawChannelData_databuffer));
+    return ADC1_RawChannelData_databuffer[index];
+}
+
+void ADC0_Write_ChannelVoltage(uint32_t index, Voltage_t value)
+{
+    ASSERT(index < ARRAY_SIZE(ADC0_ChannelVoltage_databuffer));
+    ADC0_ChannelVoltage_databuffer[index] = value;
+}
+
+Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
+{
+    ASSERT(index < ARRAY_SIZE(ADC0_ChannelVoltage_databuffer));
+    return ADC0_ChannelVoltage_databuffer[index];
+}
+
+void ADC1_Write_ChannelVoltage(uint32_t index, Voltage_t value)
+{
+    ASSERT(index < ARRAY_SIZE(ADC1_ChannelVoltage_databuffer));
+    ADC1_ChannelVoltage_databuffer[index] = value;
+}
+
+Voltage_t ADCDispatcher_Read_ADC1_ChannelVoltage(uint32_t index)
+{
+    ASSERT(index < ARRAY_SIZE(ADC1_ChannelVoltage_databuffer));
+    return ADC1_ChannelVoltage_databuffer[index];
 }
 
 void CommunicationObserver_Call_ErrorLimitReached(void)

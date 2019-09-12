@@ -93,6 +93,7 @@
     "components": [
         "ADC0",
         "ADC1",
+        "ADCDispatcher",
         "BatteryCalculator",
         "BatteryCharger",
         "BatteryIndicator",
@@ -195,6 +196,7 @@
                 "ErrorStorage/OnInit",
                 "ADC0/OnInit",
                 "ADC1/OnInit",
+                "ADCDispatcher/OnInit",
                 "BatteryCharger/OnInit",
                 "LEDController/OnInit",
                 "BluetoothIndicator/OnInit",
@@ -215,7 +217,8 @@
                 "ADC1/Update",
                 "IMU/OnUpdate",
                 "GyroscopeOffsetCompensator/Update",
-                "YawAngleTracker/Update"
+                "YawAngleTracker/Update",
+                "ADCDispatcher/Update"
             ],
             "10ms_offset0": [
                 "BatteryCharger/Update"
@@ -315,6 +318,22 @@
             {
                 "provider": "IMU/GyroscopeDataReady",
                 "consumer": "GyroscopeOffsetCompensator/DataReady"
+            },
+            {
+                "provider": "ADC0/RawChannelData",
+                "consumer": "ADCDispatcher/ADC0_RawChannelData"
+            },
+            {
+                "provider": "ADC1/RawChannelData",
+                "consumer": "ADCDispatcher/ADC1_RawChannelData"
+            },
+            {
+                "provider": "ADC0/ChannelVoltage",
+                "consumer": "ADCDispatcher/ADC0_ChannelVoltage"
+            },
+            {
+                "provider": "ADC1/ChannelVoltage",
+                "consumer": "ADCDispatcher/ADC1_ChannelVoltage"
             }
         ]
     }

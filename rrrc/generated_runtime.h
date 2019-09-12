@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 typedef float Voltage_t;
+typedef float Current_t;
 typedef enum {
     ChargerState_NotPluggedIn,
     ChargerState_Charging,
@@ -49,6 +50,7 @@ typedef enum {
 
 #define COMPONENT_TYPES_ADC0_H_
 #define COMPONENT_TYPES_ADC1_H_
+#define COMPONENT_TYPES_ADC_DISPATCHER_H_
 #define COMPONENT_TYPES_BATTERY_CALCULATOR_H_
 #define COMPONENT_TYPES_BATTERY_CHARGER_H_
 #define COMPONENT_TYPES_BATTERY_INDICATOR_H_
@@ -85,6 +87,7 @@ typedef enum {
 
 #include "components/ADC0/ADC0.h"
 #include "components/ADC1/ADC1.h"
+#include "components/ADCDispatcher/ADCDispatcher.h"
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryCharger/BatteryCharger.h"
 #include "components/BatteryIndicator/BatteryIndicator.h"
