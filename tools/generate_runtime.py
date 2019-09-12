@@ -16,7 +16,6 @@ port_compatibility = {
         "ReadValue": {"multiple_consumers": True}
     },
     "WriteIndexedData": {
-        "ReadValue":        {"multiple_consumers": True},
         "ReadIndexedValue": {"multiple_consumers": True}
     },
     "Constant":         {
@@ -33,12 +32,20 @@ port_compatibility = {
 databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
 
 databuffer_templates = {
-    "variable": "static {{data_type}} " + databuffer_name_template + " = {{{ init_value }}};"
+    "variable": "static {{data_type}} " + databuffer_name_template + " = {{{ init_value }}};",
+    "array":    "static {{data_type}} " + databuffer_name_template + "[{{ size }}] = { {{ #init_values }}{{value}}{{^last}}, {{/last}}{{ /init_values }} };"
 }
 
 port_template_write_data = """void {{component_name}}_Write_{{port_name}}({{data_type}} value)
 {
     {{component_name}}_{{port_name}}_databuffer = value;
+}
+"""
+
+port_template_write_data_indexed = """void {{component_name}}_Write_{{port_name}}(uint32_t index, {{data_type}} value)
+{
+    ASSERT(index < ARRAY_SIZE({{component_name}}_{{port_name}}_databuffer));
+    {{component_name}}_{{port_name}}_databuffer[index] = value;
 }
 """
 
@@ -48,15 +55,36 @@ port_template_write_data_pointer = """void {{component_name}}_Write_{{port_name}
 }
 """
 
+port_template_write_data_indexed_pointer = """void {{component_name}}_Write_{{port_name}}(uint32_t index, const {{data_type}}* value)
+{
+    ASSERT(index < ARRAY_SIZE({{component_name}}_{{port_name}}_databuffer));
+    {{component_name}}_{{port_name}}_databuffer[index] = *value;
+}
+"""
+
 port_template_read_value = """{{data_type}} {{consumer_component_name}}_Read_{{consumer_port_name}}(void)
 {
     return {{provider_component_name}}_{{provider_port_name}}_databuffer;
 }
 """
 
+port_template_read_value_indexed = """{{data_type}} {{consumer_component_name}}_Read_{{consumer_port_name}}(uint32_t index)
+{
+    ASSERT(index < ARRAY_SIZE({{provider_component_name}}_{{provider_port_name}}_databuffer));
+    return {{provider_component_name}}_{{provider_port_name}}_databuffer[index];
+}
+"""
+
 port_template_read_value_pointer = """void {{consumer_component_name}}_Read_{{consumer_port_name}}({{data_type}}* value)
 {
     *value = {{provider_component_name}}_{{provider_port_name}}_databuffer;
+}
+"""
+
+port_template_read_value_indexed_pointer = """void {{consumer_component_name}}_Read_{{consumer_port_name}}(uint32_t index, {{data_type}}* value)
+{
+    ASSERT(index < ARRAY_SIZE({{provider_component_name}}_{{provider_port_name}}_databuffer));
+    *value = {{provider_component_name}}_{{provider_port_name}}_databuffer[index];
 }
 """
 
@@ -99,10 +127,10 @@ runnable_call_templates = {
 
 provider_port_templates = {
     "WriteData":            port_template_write_data,
-    "WriteIndexedData":     port_template_write_data,
+    "WriteIndexedData":     port_template_write_data_indexed,
     "Constant":             None,
     "WriteData_ptr":        port_template_write_data_pointer,
-    "WriteIndexedData_ptr": port_template_write_data_pointer,
+    "WriteIndexedData_ptr": port_template_write_data_indexed_pointer,
     "Constant_ptr":         None
 }
 
@@ -114,7 +142,8 @@ consumer_port_templates = {
         "Constant_ptr":  port_template_read_constant_pointer,
     },
     "ReadIndexedValue": {
-        "WriteIndexedData": port_template_read_value
+        "WriteIndexedData":     port_template_read_value_indexed,
+        "WriteIndexedData_ptr": port_template_read_value_indexed_pointer
     }
 }
 
@@ -163,6 +192,7 @@ void RunnableGroup_{{ group_name }}(void);
 """
 
 source_template = """#include "{{ output_filename }}.h"
+#include "utils.h"
 
 {{#data_buffers}}
 {{{.}}}
@@ -300,6 +330,14 @@ if __name__ == "__main__":
 
             provider_data_type = provider_port_data['data_type']
             consumer_data_type = consumer_port_data['data_type']
+
+            if 'count' in provider_port_data or 'count' in consumer_port_data:
+                try:
+                    if provider_port_data['count'] != consumer_port_data['count']:
+                        return False
+                except KeyError as e:
+                    log('{}: {}'.format(type(e).__name__, e))
+                    return False
 
             return consumer_type in port_compatibility[provider_type] and provider_data_type == consumer_data_type
         except KeyError as e:
@@ -540,17 +578,39 @@ if __name__ == "__main__":
         resolved_data_type = type_data.resolve(data_type)
 
         provider_port_type = provider_port_data['port_type']
-        data_buffer_ctx = {
-            'data_type':      data_type,
-            'component_name': provider_component_name,
-            'port_name':      provider_port_name,
-            'init_value':     default_value(resolved_data_type, provider.get('init_value', None))
+        databuffer_types = {
+            "Constant":         "constant",
+            "WriteData":        "variable",
+            "WriteIndexedData": "array"
+        }
+        data_buffer_contexts = {
+            'variable': lambda: {
+                'data_type':      data_type,
+                'component_name': provider_component_name,
+                'port_name':      provider_port_name,
+                'init_value':     default_value(resolved_data_type, provider.get('init_value', None))
+            },
+            'constant': lambda: {
+                'data_type':      data_type,
+                'component_name': provider_component_name,
+                'port_name':      provider_port_name,
+                'init_value':     default_value(resolved_data_type, provider.get('init_value', None))
+            },
+            'array':    lambda: {
+                'data_type':      data_type,
+                'component_name': provider_component_name,
+                'port_name':      provider_port_name,
+                'size':           provider_port_data['count'],
+                'init_values':    [{'value': value} for value in provider.get('init_value',
+                                               [default_value(resolved_data_type, None)] * provider_port_data['count'])]
+            }
         }
 
+        data_buffer_ctx = data_buffer_contexts[databuffer_types[provider_port_type]]()
+        if databuffer_types[provider_port_type] == 'array':
+            data_buffer_ctx['init_values'][len(data_buffer_ctx['init_values'])-1]['last'] = True
+
         try:
-            databuffer_types = {
-                "WriteData": "variable"
-            }
             data_buffer = pystache.render(databuffer_templates[databuffer_types[provider_port_type]], data_buffer_ctx)
             template_ctx['data_buffers'].append(data_buffer)
         except KeyError:
@@ -558,7 +618,7 @@ if __name__ == "__main__":
 
         try:
             if type_data[resolved_data_type]['pass_semantic'] == 'pointer':
-                template = provider_port_templates[provider_port_type+"_ptr"]
+                template = provider_port_templates[provider_port_type + "_ptr"]
             else:
                 template = provider_port_templates[provider_port_type]
             if template is not None:
@@ -583,7 +643,7 @@ if __name__ == "__main__":
             }
 
             if type_data[resolved_data_type]['pass_semantic'] == 'pointer':
-                template = consumer_port_templates[consumer_port_type][provider_port_type+"_ptr"]
+                template = consumer_port_templates[consumer_port_type][provider_port_type + "_ptr"]
             else:
                 template = consumer_port_templates[consumer_port_type][provider_port_type]
             consumer_port = pystache.render(template,

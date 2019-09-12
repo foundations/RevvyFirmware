@@ -131,52 +131,62 @@
         "void": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": ""
+            "default_value": "",
+            "pass_semantic": "value"
         },
         "uint8_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "uint16_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "uint32_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "int8_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0"
+            "default_value": "0",
+            "pass_semantic": "value"
         },
         "int16_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0"
+            "default_value": "0",
+            "pass_semantic": "value"
         },
         "int32_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0"
+            "default_value": "0",
+            "pass_semantic": "value"
         },
         "size_t": {
             "type": "external_type_def",
             "defined_in": "<stdio.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "bool": {
             "type": "external_type_def",
             "defined_in": "<stdbool.h>",
-            "default_value": "false"
+            "default_value": "false",
+            "pass_semantic": "value"
         },
         "float": {
             "type": "external_type_def",
             "defined_in": "<float.h>",
-            "default_value": "0.0f"
+            "default_value": "0.0f",
+            "pass_semantic": "value"
         }
     },
     "runtime": {

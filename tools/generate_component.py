@@ -179,7 +179,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  data_type,
-                    "return_value": port_data[port]['default_value'],
+                    "return_value": default_value(data_type, port_data[port].get('default_value')),
                     "arguments":    [{'name': 'index', 'type': 'uint32_t'}],
                     "weak":         True
                 },
