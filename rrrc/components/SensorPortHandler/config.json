@@ -33,6 +33,11 @@
         "ReadCurrentTicks": {
             "port_type": "ServerCall",
             "return_type": "uint16_t"
+        },
+        "AdcData": {
+            "port_type": "ReadIndexedValue",
+            "data_type": "uint8_t",
+            "count": 4
         }
     }
 }

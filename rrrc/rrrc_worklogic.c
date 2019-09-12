@@ -14,8 +14,6 @@ BatteryIndicator_Context_t motorBatteryIndicator;
 
 static bool mainBatteryDetected;
 static bool motorBatteryDetected;
-static float mainBatteryVoltage;
-static float motorBatteryVoltage;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
@@ -431,129 +429,18 @@ void RRRC_ProcessLogic_xTask(void* user)
     }
 }
 
-static uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
-static float motorCurrents[ARRAY_SIZE(motorPorts)];
-static float motorPreviousCurrents[ARRAY_SIZE(motorPorts)];
-static uint16_t motorRawCurrents[ARRAY_SIZE(motorPorts)];
-
-void ADC0_Write_RawChannelData(uint32_t channel_idx, uint16_t adc_data)
-{
-    switch (channel_idx)
-    {
-        case M1_ISEN_CH:
-            motorRawCurrents[4] = adc_data;
-            break;
-
-        case M3_ISEN_CH:
-            motorRawCurrents[2] = adc_data;
-            break;
-
-        case M4_ISEN_CH:
-            motorRawCurrents[1] = adc_data;
-            break;
-
-        case S0_ADC_CH:
-            sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-    }
-}
-
-void ADC1_Write_RawChannelData(uint32_t channel_idx, uint16_t adc_data)
-{
-    switch (channel_idx)
-    {
-        case S1_ADC_CH:
-            sensorAdcValues[2] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-
-        case S2_ADC_CH:
-            sensorAdcValues[1] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-
-        case S3_ADC_CH:
-            sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-
-        case M0_ISEN_CH:
-            motorRawCurrents[3] = adc_data;
-            break;
-
-        case M2_ISEN_CH:
-            motorRawCurrents[5] = adc_data;
-            break;
-
-        case M5_ISEN_CH:
-            motorRawCurrents[0] = adc_data;
-            break;
-    }
-}
-
-static inline void _update_current(uint8_t idx, float voltage)
-{
-    motorPreviousCurrents[idx] = motorCurrents[idx];
-    motorCurrents[idx] = map_constrained(voltage, 0, 200, 0, 1.66667f) * 0.05f + motorPreviousCurrents[idx] * 0.95f;
-}
-
-void ADC0_Write_ChannelVoltage(uint32_t channel_idx, float voltage)
-{
-    switch (channel_idx)
-    {
-        case M1_ISEN_CH:
-            _update_current(4, voltage);
-            break;
-
-        case M3_ISEN_CH:
-            _update_current(2, voltage);
-            break;
-
-        case M4_ISEN_CH:
-            _update_current(1, voltage);
-            break;
-    }
-}
-
-void ADC1_Write_ChannelVoltage(uint32_t channel_idx, float voltage)
-{
-    switch (channel_idx)
-    {
-        case ADC_CH_MOT_VOLTAGE:
-            motorBatteryVoltage = (uint32_t) lroundf(voltage * (130.0f / 30.0f));
-            break;
-
-        case ADC_CH_BAT_VOLTAGE:
-            mainBatteryVoltage = (uint32_t) lroundf(voltage * (340.0f / 240.0f));
-            break;
-
-        case M0_ISEN_CH:
-            _update_current(3, voltage);
-            break;
-
-        case M2_ISEN_CH:
-            _update_current(5, voltage);
-            break;
-
-        case M5_ISEN_CH:
-            _update_current(0, voltage);
-            break;
-    }
-}
-
-uint8_t SensorPortHandler_Read_AdcData(uint8_t port_idx)
-{
-    ASSERT(port_idx < ARRAY_SIZE(sensorPorts));
-
-    return sensorAdcValues[port_idx];
-}
+extern Voltage_t ADCDispatcher_MainBatteryVoltage_databuffer;
+extern Voltage_t ADCDispatcher_MotorBatteryVoltage_databuffer;
 
 float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
 {
     if (context == &mainBattery)
     {
-        return mainBatteryVoltage;
+        return ADCDispatcher_MainBatteryVoltage_databuffer;
     }
     else if (context == &motorBattery)
     {
-        return motorBatteryVoltage;
+        return ADCDispatcher_MotorBatteryVoltage_databuffer;
     }
     else
     {
@@ -699,7 +586,6 @@ uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
 static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
-static int8_t deratedDriveValues[ARRAY_SIZE(motorPorts)] = {0};
 static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
 
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)

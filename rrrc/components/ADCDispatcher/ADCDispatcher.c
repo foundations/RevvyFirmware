@@ -2,15 +2,15 @@
 #include <math.h>
 
 /* ADC0 */
-#define S0_ADC_CH  ((uint32_t) 0u)
+#define S3_ADC_CH  ((uint32_t) 0u)
 #define M1_ISEN_CH ((uint32_t) 1u)
 #define M3_ISEN_CH ((uint32_t) 2u)
 #define M4_ISEN_CH ((uint32_t) 3u)
 
 /* ADC1 */
-#define S1_ADC_CH          ((uint32_t) 0u)
-#define S2_ADC_CH          ((uint32_t) 1u)
-#define S3_ADC_CH          ((uint32_t) 2u)
+#define S2_ADC_CH          ((uint32_t) 0u)
+#define S1_ADC_CH          ((uint32_t) 1u)
+#define S0_ADC_CH          ((uint32_t) 2u)
 #define M0_ISEN_CH         ((uint32_t) 3u)
 #define M2_ISEN_CH         ((uint32_t) 4u)
 #define M5_ISEN_CH         ((uint32_t) 5u)
@@ -23,10 +23,10 @@ void ADCDispatcher_Run_OnInit(void)
 
 void ADCDispatcher_Run_Update(void)
 {
-    ADCDispatcher_Write_Sensor_ADC(0u, ADCDispatcher_Read_ADC0_RawChannelData(S0_ADC_CH) >> 4u);
+    ADCDispatcher_Write_Sensor_ADC(0u, ADCDispatcher_Read_ADC1_RawChannelData(S0_ADC_CH) >> 4u);
     ADCDispatcher_Write_Sensor_ADC(1u, ADCDispatcher_Read_ADC1_RawChannelData(S1_ADC_CH) >> 4u);
     ADCDispatcher_Write_Sensor_ADC(2u, ADCDispatcher_Read_ADC1_RawChannelData(S2_ADC_CH) >> 4u);
-    ADCDispatcher_Write_Sensor_ADC(3u, ADCDispatcher_Read_ADC1_RawChannelData(S3_ADC_CH) >> 4u);
+    ADCDispatcher_Write_Sensor_ADC(3u, ADCDispatcher_Read_ADC0_RawChannelData(S3_ADC_CH) >> 4u);
 
     ADCDispatcher_Write_MotorBatteryVoltage((uint32_t) lroundf(ADCDispatcher_Read_ADC1_ChannelVoltage(ADC_CH_MOT_VOLTAGE) * (130.0f / 30.0f)));
     ADCDispatcher_Write_MainBatteryVoltage((uint32_t) lroundf(ADCDispatcher_Read_ADC1_ChannelVoltage(ADC_CH_BAT_VOLTAGE) * (340.0f / 240.0f)));
@@ -69,7 +69,7 @@ Voltage_t ADCDispatcher_Read_ADC1_ChannelVoltage(uint32_t index)
 }
 
 __attribute__((weak))
-void ADCDispatcher_Write_Sensor_ADC(uint32_t index, uint16_t value)
+void ADCDispatcher_Write_Sensor_ADC(uint32_t index, uint8_t value)
 {
     (void) index;
     (void) value;

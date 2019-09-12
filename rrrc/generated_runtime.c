@@ -10,6 +10,11 @@ static uint16_t ADC0_RawChannelData_databuffer[4] = { 0u, 0u, 0u, 0u };
 static uint16_t ADC1_RawChannelData_databuffer[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
 static Voltage_t ADC0_ChannelVoltage_databuffer[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 static Voltage_t ADC1_ChannelVoltage_databuffer[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+static Current_t ADCDispatcher_MotorCurrent_databuffer[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+Voltage_t ADCDispatcher_MainBatteryVoltage_databuffer = 0.0f;
+Voltage_t ADCDispatcher_MotorBatteryVoltage_databuffer = 0.0f;
+static uint8_t ADCDispatcher_Sensor_ADC_databuffer[4] = { 0u, 0u, 0u, 0u };
+static Current_t MotorCurrentFilter_FilteredCurrent_databuffer[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 void RunnableGroup_OnInit(void)
 {
@@ -17,6 +22,7 @@ void RunnableGroup_OnInit(void)
     ADC0_Run_OnInit();
     ADC1_Run_OnInit();
     ADCDispatcher_Run_OnInit();
+    MotorCurrentFilter_Run_OnInit();
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
     BluetoothIndicator_Run_OnInit();
@@ -41,6 +47,7 @@ void RunnableGroup_1ms(void)
     GyroscopeOffsetCompensator_Run_Update();
     YawAngleTracker_Run_Update();
     ADCDispatcher_Run_Update();
+    MotorCurrentFilter_Run_Update();
 }
 
 void RunnableGroup_10ms_offset0(void)
@@ -277,6 +284,46 @@ Voltage_t ADCDispatcher_Read_ADC1_ChannelVoltage(uint32_t index)
 {
     ASSERT(index < ARRAY_SIZE(ADC1_ChannelVoltage_databuffer));
     return ADC1_ChannelVoltage_databuffer[index];
+}
+
+void ADCDispatcher_Write_MotorCurrent(uint32_t index, Current_t value)
+{
+    ASSERT(index < ARRAY_SIZE(ADCDispatcher_MotorCurrent_databuffer));
+    ADCDispatcher_MotorCurrent_databuffer[index] = value;
+}
+
+Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
+{
+    ASSERT(index < ARRAY_SIZE(ADCDispatcher_MotorCurrent_databuffer));
+    return ADCDispatcher_MotorCurrent_databuffer[index];
+}
+
+void ADCDispatcher_Write_MainBatteryVoltage(Voltage_t value)
+{
+    ADCDispatcher_MainBatteryVoltage_databuffer = value;
+}
+
+void ADCDispatcher_Write_MotorBatteryVoltage(Voltage_t value)
+{
+    ADCDispatcher_MotorBatteryVoltage_databuffer = value;
+}
+
+void ADCDispatcher_Write_Sensor_ADC(uint32_t index, uint8_t value)
+{
+    ASSERT(index < ARRAY_SIZE(ADCDispatcher_Sensor_ADC_databuffer));
+    ADCDispatcher_Sensor_ADC_databuffer[index] = value;
+}
+
+uint8_t SensorPortHandler_Read_AdcData(uint32_t index)
+{
+    ASSERT(index < ARRAY_SIZE(ADCDispatcher_Sensor_ADC_databuffer));
+    return ADCDispatcher_Sensor_ADC_databuffer[index];
+}
+
+void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, Current_t value)
+{
+    ASSERT(index < ARRAY_SIZE(MotorCurrentFilter_FilteredCurrent_databuffer));
+    MotorCurrentFilter_FilteredCurrent_databuffer[index] = value;
 }
 
 void CommunicationObserver_Call_ErrorLimitReached(void)

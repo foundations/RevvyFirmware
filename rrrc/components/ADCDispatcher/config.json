@@ -46,7 +46,7 @@
         },
         "Sensor_ADC": {
             "port_type": "WriteIndexedData",
-            "data_type": "uint16_t",
+            "data_type": "uint8_t",
             "count": 4
         },
         "MotorCurrent": {

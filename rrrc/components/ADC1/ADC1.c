@@ -73,8 +73,8 @@ static void conversion_complete(const struct adc_async_descriptor *const descr, 
     uint32_t channel_idx = adc.currentChannel;
 
     /* we can assume that adc_idx and channel_idx are valid */
-    ADC1_Write_RawChannelData(adc_channels[channel_idx], adc_data);
-    ADC1_Write_ChannelVoltage(adc_channels[channel_idx], adc_to_mv(adc_data));
+    ADC1_Write_RawChannelData(channel_idx, adc_data);
+    ADC1_Write_ChannelVoltage(channel_idx, adc_to_mv(adc_data));
 
     if (channel_idx < ARRAY_SIZE(adc_channels) - 1u)
     {

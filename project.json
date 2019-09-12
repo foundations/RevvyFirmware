@@ -116,6 +116,7 @@
         "McuStatusCollector",
         "McuStatusCollectorWrapper",
         "MemoryAllocator",
+        "MotorCurrentFilter",
         "MotorDerating",
         "MotorDriver_8833",
         "MotorPortHandler",
@@ -197,6 +198,7 @@
                 "ADC0/OnInit",
                 "ADC1/OnInit",
                 "ADCDispatcher/OnInit",
+                "MotorCurrentFilter/OnInit",
                 "BatteryCharger/OnInit",
                 "LEDController/OnInit",
                 "BluetoothIndicator/OnInit",
@@ -218,7 +220,8 @@
                 "IMU/OnUpdate",
                 "GyroscopeOffsetCompensator/Update",
                 "YawAngleTracker/Update",
-                "ADCDispatcher/Update"
+                "ADCDispatcher/Update",
+                "MotorCurrentFilter/Update"
             ],
             "10ms_offset0": [
                 "BatteryCharger/Update"
@@ -334,6 +337,26 @@
             {
                 "provider": "ADC1/ChannelVoltage",
                 "consumer": "ADCDispatcher/ADC1_ChannelVoltage"
+            },
+            {
+                "provider": "ADCDispatcher/MotorCurrent",
+                "consumer": "MotorCurrentFilter/RawCurrent"
+            },
+            {
+                "provider": "ADCDispatcher/MainBatteryVoltage",
+                "consumers": []
+            },
+            {
+                "provider": "ADCDispatcher/MotorBatteryVoltage",
+                "consumers": []
+            },
+            {
+                "provider": "ADCDispatcher/Sensor_ADC",
+                "consumer": "SensorPortHandler/AdcData"
+            },
+            {
+                "provider": "MotorCurrentFilter/FilteredCurrent",
+                "consumers": []
             }
         ]
     }

@@ -308,7 +308,7 @@ void SensorPortHandler_Run_PortUpdate(uint8_t port_idx)
 }
 
 __attribute__((weak))
-uint8_t SensorPortHandler_Read_AdcData(uint8_t channel_idx)
+uint8_t SensorPortHandler_Read_AdcData(uint32_t channel_idx)
 {
     (void) channel_idx;
     return 0u;
