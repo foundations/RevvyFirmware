@@ -8,6 +8,11 @@
 
 typedef float Voltage_t;
 typedef float Current_t;
+typedef struct {
+    Voltage_t detectionVoltage;
+    Voltage_t minVoltage;
+    Voltage_t maxVoltage;
+} BatteryConfiguration_t;
 typedef enum {
     ChargerState_NotPluggedIn,
     ChargerState_Charging,

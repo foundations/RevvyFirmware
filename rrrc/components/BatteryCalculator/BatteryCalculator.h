@@ -1,32 +1,33 @@
-/*
- * BatteryCalculator.h
- *
- * Created: 03/05/2019 14:03:36
- *  Author: Dániel Buga
- */ 
-
-
 #ifndef COMPONENT_BATTERY_CALCULATOR_H_
 #define COMPONENT_BATTERY_CALCULATOR_H_
 
-#include <stdint.h>
+#ifndef COMPONENT_TYPES_BATTERY_CALCULATOR_H_
+#define COMPONENT_TYPES_BATTERY_CALCULATOR_H_
+
+#include <float.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-typedef struct
-{
-    float detectionVoltage;
-    float minVoltage;
-    float maxVoltage;
-    float filterPreviousValue;
-    float biasCorrection;
-    bool batteryLow;
-} BatteryCalculator_Context_t;
+typedef float Voltage_t;
+typedef struct {
+    Voltage_t detectionVoltage;
+    Voltage_t minVoltage;
+    Voltage_t maxVoltage;
+} BatteryConfiguration_t;
 
-void BatteryCalculator_Run_OnInit(BatteryCalculator_Context_t* context);
-void BatteryCalculator_Run_Update(BatteryCalculator_Context_t* context);
-float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context);
-void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, uint8_t percent);
-void BatteryCalculator_Write_BatteryPresent(BatteryCalculator_Context_t* context, bool present);
-void BatteryCalculator_Write_LowBatteryCondition(BatteryCalculator_Context_t* context, bool low);
+#endif /* COMPONENT_TYPES_BATTERY_CALCULATOR_H_ */
+
+void BatteryCalculator_Run_OnInit(void);
+void BatteryCalculator_Run_Update(void);
+void BatteryCalculator_Read_MainBatteryParameters(BatteryConfiguration_t* value);
+void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value);
+bool BatteryCalculator_Read_MainBatteryParametersChanged(void);
+bool BatteryCalculator_Read_MotorBatteryParametersChanged(void);
+Voltage_t BatteryCalculator_Read_MainBatteryVoltage(void);
+Voltage_t BatteryCalculator_Read_MotorBatteryVoltage(void);
+void BatteryCalculator_Write_MainBatteryLevel(uint8_t value);
+void BatteryCalculator_Write_MotorBatteryLevel(uint8_t value);
+void BatteryCalculator_Write_MotorBatteryPresent(bool value);
+void BatteryCalculator_Write_MainBatteryLow(bool value);
 
 #endif /* COMPONENT_BATTERY_CALCULATOR_H_ */

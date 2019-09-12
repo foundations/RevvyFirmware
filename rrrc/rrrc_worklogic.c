@@ -6,13 +6,9 @@
 #include <string.h>
 #include "utils/functions.h"
 
-BatteryCalculator_Context_t mainBattery;
-BatteryCalculator_Context_t motorBattery;
-
 BatteryIndicator_Context_t mainBatteryIndicator;
 BatteryIndicator_Context_t motorBatteryIndicator;
 
-static bool mainBatteryDetected;
 static bool motorBatteryDetected;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
@@ -336,9 +332,6 @@ static void ProcessTasks_20ms(uint8_t offset)
 
 static void ProcessTasks_100ms(void)
 {
-    BatteryCalculator_Run_Update(&mainBattery);
-    BatteryCalculator_Run_Update(&motorBattery);
-
     BatteryIndicator_Run_Update(&mainBatteryIndicator);
     BatteryIndicator_Run_Update(&motorBatteryIndicator);
 
@@ -376,20 +369,7 @@ void RRRC_ProcessLogic_Init(void)
         MotorThermalModel_Run_OnInit(&motorThermalModels[i]);
     }
 
-    /* 1 cell LiPoly */
-    mainBattery.detectionVoltage = 2000.0f;
-    mainBattery.minVoltage = 3400.0f;
-    mainBattery.maxVoltage = 4100.0f;
-
-    BatteryCalculator_Run_OnInit(&mainBattery);
     BatteryIndicator_Run_OnInit(&mainBatteryIndicator);
-    
-    /* 6xAA rechargeable */
-    motorBattery.detectionVoltage = 4000.0f;
-    motorBattery.minVoltage = 5400.0f;
-    motorBattery.maxVoltage = 7000.0f;
-
-    BatteryCalculator_Run_OnInit(&motorBattery);
     BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
 
     RingLedDisplay_Run_SelectScenario(RingLedScenario_ColorWheel);
@@ -429,64 +409,21 @@ void RRRC_ProcessLogic_xTask(void* user)
     }
 }
 
-extern Voltage_t ADCDispatcher_MainBatteryVoltage_databuffer;
-extern Voltage_t ADCDispatcher_MotorBatteryVoltage_databuffer;
-
-float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
+void BatteryCalculator_Write_MainBatteryLevel(uint8_t value)
 {
-    if (context == &mainBattery)
-    {
-        return ADCDispatcher_MainBatteryVoltage_databuffer;
-    }
-    else if (context == &motorBattery)
-    {
-        return ADCDispatcher_MotorBatteryVoltage_databuffer;
-    }
-    else
-    {
-        ASSERT(0);
-    }
-
-    return 0.0f;
-}
-
-void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, uint8_t percent)
-{
-    if (context == &mainBattery)
-    {
-        if (mainBatteryPercentage != percent)
-        {
-            mainBatteryPercentage = percent;
-        }
-    }
-    else if (context == &motorBattery)
-    {
-        if (motorBatteryPercentage != percent)
-        {
-            motorBatteryPercentage = percent;
-        }
-    }
-    else
-    {
-        ASSERT(0);
-    }
+    mainBatteryPercentage = value;
     status_changed[10u] = true;
 }
 
-void BatteryCalculator_Write_BatteryPresent(BatteryCalculator_Context_t* context, bool present)
+void BatteryCalculator_Write_MotorBatteryLevel(uint8_t value)
 {
-    if (context == &mainBattery)
-    {
-        mainBatteryDetected = present;
-    }
-    else if (context == &motorBattery)
-    {
-        motorBatteryDetected = present;
-    }
-    else
-    {
-        ASSERT(0);
-    }
+    motorBatteryPercentage = value;
+    status_changed[10u] = true;
+}
+
+void BatteryCalculator_Write_MotorBatteryPresent(bool value)
+{
+    motorBatteryDetected = value;
 }
 
 uint8_t BatteryIndicator_Read_Percentage(BatteryIndicator_Context_t* context)
@@ -511,18 +448,11 @@ BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context
 {
     if (context == &mainBatteryIndicator)
     {
-        if (mainBatteryDetected)
+        switch (BatteryStatusProvider_Read_IsMainBatteryCharging())
         {
-            switch (BatteryStatusProvider_Read_IsMainBatteryCharging())
-            {
-                case ChargerState_Charging: return BatteryStatus_Charging;
-                case ChargerState_Fault:    return BatteryStatus_Charging_Fault;
-                default:                    return BatteryStatus_Present;
-            }
-        }
-        else
-        {
-            return BatteryStatus_NotPresent;
+            case ChargerState_Charging: return BatteryStatus_Charging;
+            case ChargerState_Fault:    return BatteryStatus_Charging_Fault;
+            default:                    return BatteryStatus_Present;
         }
     }
     else if (context == &motorBatteryIndicator)
@@ -581,7 +511,7 @@ uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
 
 uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
 {
-    return motorBatteryDetected ? motorBatteryPercentage : 0u;
+    return motorBatteryPercentage;
 }
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];

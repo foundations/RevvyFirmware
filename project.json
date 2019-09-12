@@ -201,6 +201,7 @@
                 "MotorCurrentFilter/OnInit",
                 "BatteryCharger/OnInit",
                 "LEDController/OnInit",
+                "BatteryCalculator/OnInit",
                 "BluetoothIndicator/OnInit",
                 "BrainStatusIndicator/OnInit",
                 "IMU/OnInit",
@@ -265,6 +266,7 @@
             "20ms_offset18": [],
             "20ms_offset19": [],
             "100ms": [
+                "BatteryCalculator/Update",
                 "BluetoothIndicator/Update",
                 "BrainStatusIndicator/Update"
             ]
@@ -344,11 +346,11 @@
             },
             {
                 "provider": "ADCDispatcher/MainBatteryVoltage",
-                "consumers": []
+                "consumer": "BatteryCalculator/MainBatteryVoltage"
             },
             {
                 "provider": "ADCDispatcher/MotorBatteryVoltage",
-                "consumers": []
+                "consumer": "BatteryCalculator/MotorBatteryVoltage"
             },
             {
                 "provider": "ADCDispatcher/Sensor_ADC",
@@ -357,6 +359,14 @@
             {
                 "provider": "MotorCurrentFilter/FilteredCurrent",
                 "consumers": []
+            },
+            {
+                "provider": "ProjectConfiguration/MainBatteryParameters",
+                "consumer": "BatteryCalculator/MainBatteryParameters"
+            },
+            {
+                "provider": "ProjectConfiguration/MotorBatteryParameters",
+                "consumer": "BatteryCalculator/MotorBatteryParameters"
             }
         ]
     }
