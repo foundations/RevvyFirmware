@@ -315,7 +315,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('name', help='Component name')
     parser.add_argument('--create', help='Create component', action='store_true')
-    parser.add_argument('--dry-run', help='Don\'t execute changes', action='store_true')
+    parser.add_argument('--update-header', help='Generate header file', action='store_true')
+    parser.add_argument('--update-source', help='Generate source file', action='store_true')
     parser.add_argument('--cleanup', help='Remove backups', action='store_true')
 
     """Create generates json and empty c/h pair, adds include, adds to project json, cproject"""
@@ -394,44 +395,37 @@ if __name__ == "__main__":
         else:
             modified_files[file_path] = contents
 
+    if args.update_header:
+        update_file(component_file(component_name + '.h'), pystache.render(header_template, template_ctx))
 
-    update_file(component_file(component_name + '.h'), pystache.render(header_template, template_ctx))
-    update_file(component_file(component_name + '.c'), pystache.render(source_template, template_ctx))
+    if args.update_source:
+        update_file(component_file(component_name + '.c'), pystache.render(source_template, template_ctx))
 
     # noinspection PyBroadException
     try:
+        for folder in new_folders:
+            print('NF: {}'.format(folder))
+            os.makedirs(folder, exist_ok=True)
 
-        if not args.dry_run:
-            for folder in new_folders:
-                os.makedirs(folder, exist_ok=True)
-
-            for file_name in new_files:
-                with open(file_name, 'w+') as file:
-                    file.write(new_files[file_name])
-
-
-            def modify_file(fn, modified_contents):
-                shutil.copy(fn, fn + ".bak")
-
-                with open(fn, "w") as f:
-                    f.write(modified_contents)
-
-                if args.cleanup:
-                    os.remove(fn + ".bak")
+        for file_name in new_files:
+            print('N: {}'.format(file_name))
+            with open(file_name, 'w+') as file:
+                file.write(new_files[file_name])
 
 
-            for file_name in modified_files:
-                modify_file(file_name, modified_files[file_name])
-        else:
-            print('Dry run prevented the following changes:')
-            for folder in new_folders:
-                print('NF: {}'.format(folder))
+        def modify_file(fn, modified_contents):
+            shutil.copy(fn, fn + ".bak")
 
-            for file_name in new_files:
-                print('N: {}'.format(file_name))
+            with open(fn, "w") as f:
+                f.write(modified_contents)
 
-            for file_name in modified_files:
-                print('C: {}'.format(file_name))
+            if args.cleanup:
+                os.remove(fn + ".bak")
+
+
+        for file_name in modified_files:
+            print('C: {}'.format(file_name))
+            modify_file(file_name, modified_files[file_name])
 
     except Exception:
         def delete(path):
