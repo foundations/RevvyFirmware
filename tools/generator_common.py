@@ -228,70 +228,86 @@ def compact_project_config(config):
     return compacted
 
 
-def resolve_type(type_name, type_data, resolved_types, past=None):
-    if type_name not in type_data:
-        raise Exception('Incomplete type: {}'.format(type_name))
+class TypeCollection:
+    def __init__(self):
+        self._type_data = {}
+        self._resolved_names = {}
 
-    if type_name in resolved_types:  # cache
-        return resolved_types[type_name]
+    def add(self, type_name, info):
+        if type_name in self._type_data:
+            # type already exists, check if they are the same
+            resolved_known = self.resolve(type_name)
 
-    # record visited types to detect circular definition
-    if past is None:
-        past = []
-    elif type_name in past:
-        raise Exception('Circular type definition for {}'.format(type_name))
+            if info['type'] == 'type_alias':
+                resolved_new = self.resolve(info['aliases'])
+                if resolved_known != resolved_new:
+                    raise Exception('Type {} is already defined'.format(type_name))
 
-    if type_data[type_name]['type'] in ['type_alias', 'enum', 'struct']:
+            elif info['type'] == 'external_type_def':
+                if info['defined_in'] != self._type_data[resolved_known]['defined_in']:
+                    raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
 
-        if type_data[type_name]['type'] == 'type_alias':
-            past.append(type_name)
-            resolved = resolve_type(type_data[type_name]['aliases'], type_data, resolved_types, past)
-        else:
-            resolved = type_name
+            elif info['type'] == 'enum':
+                if info['values'] != self._type_data[resolved_known]['values']:
+                    raise Exception('Enum {} is incompatible with previous definition'.format(type_name))
 
-        resolved_types[type_name] = resolved
+            elif info['type'] == 'struct':
+                if info['fields'] != self._type_data[resolved_known]['fields']:
+                    raise Exception('Structure {} is incompatible with previous definition'.format(type_name))
 
-        return resolved
-
-    if type_data[type_name]['type'] == 'external_type_def':
-        resolved_types[type_name] = type_name
-        return type_name
-
-
-def add_data_type(type_name, info, type_data, resolved_types):
-    if type_name in type_data:
-        # type already exists, check if they are the same
-        resolved_known = resolve_type(type_name, type_data, resolved_types)
-
-        if info['type'] == 'type_alias':
-            resolved_new = resolve_type(info['aliases'], type_data, resolved_types)
-            if resolved_known != resolved_new:
-                raise Exception('Type {} is already defined'.format(type_name))
-
-        elif info['type'] == 'external_type_def':
-            if info['defined_in'] != type_data[resolved_known]['defined_in']:
-                raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
-
-        elif info['type'] == 'enum':
-            if info['values'] != type_data[resolved_known]['values']:
-                raise Exception('Enum {} is incompatible with previous definition'.format(type_name))
-
-        elif info['type'] == 'struct':
-            if info['fields'] != type_data[resolved_known]['fields']:
-                raise Exception('Structure {} is incompatible with previous definition'.format(type_name))
+            else:
+                raise Exception('Invalid type definition {}'.format(type_name))
 
         else:
-            raise Exception('Invalid type definition {}'.format(type_name))
+            self._type_data[type_name] = info
 
-    else:
-        type_data[type_name] = info
+    def _resolve(self, type_name, past):
+        if type_name not in self._type_data:
+            raise Exception('Incomplete type: {}'.format(type_name))
+
+        if type_name in self._resolved_names:  # cache
+            return self._resolved_names[type_name]
+
+        # record visited types to detect circular definition
+        if past is None:
+            past = []
+        elif type_name in past:
+            raise Exception('Circular type definition for {}'.format(type_name))
+
+        if self._type_data[type_name]['type'] in ['type_alias', 'enum', 'struct']:
+
+            if self._type_data[type_name]['type'] == 'type_alias':
+                past.append(type_name)
+                resolved = self._resolve(self._type_data[type_name]['aliases'], past)
+            else:
+                resolved = type_name
+
+            self._resolved_names[type_name] = resolved
+
+            return resolved
+
+        if self._type_data[type_name]['type'] == 'external_type_def':
+            self._resolved_names[type_name] = type_name
+            return type_name
+
+    def resolve(self, type_name):
+        return self._resolve(type_name, [])
+
+    def __getitem__(self, type_name):
+        return self.get(self.resolve(type_name))
+
+    def get(self, type_name):
+        return self._type_data[type_name]
+
+    def __iter__(self):
+        return iter(self._type_data.keys())
 
 
-def collect_type_aliases(types, type_data, resolved_types):
+def collect_type_aliases(types, type_data: TypeCollection):
     aliases = []
     for type_name in types:
-        resolved_type = resolve_type(type_name, type_data, resolved_types)
-        type_type = type_data[type_name]['type']
+        resolved_type = type_data.resolve(type_name)
+        type_type = type_data.get(type_name)['type']
 
         if type_type == 'type_alias':
             aliases.append({

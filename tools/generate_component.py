@@ -9,7 +9,7 @@ import pystache
 
 from tools.generator_common import component_file_pattern, \
     component_folder_pattern, process_runnable_defs, load_component_config, load_project_config, compact_project_config, \
-    add_data_type, resolve_type, to_underscore, collect_type_aliases
+    to_underscore, collect_type_aliases, TypeCollection
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -98,19 +98,19 @@ def read_cproject(path):
     return ElementTree.fromstring(xml_in)
 
 
-def convert_functions(runnable_data, port_data, type_data, resolved_types):
+def convert_functions(runnable_data, port_data, type_data: TypeCollection):
     functions = []
 
     def default_value(type_name, given_value):
         if given_value is None:
-            resolved = resolve_type(type_name, type_data, resolved_types)
-            if type_data[resolved]['type'] == 'struct':
-                field_defaults = {field: default_value(type_data[resolved]['fields'][field], None) for field in type_data[resolved]['fields']}
+            resolved = type_data[type_name]
+            if resolved['type'] == 'struct':
+                field_defaults = {field: default_value(resolved['fields'][field], None) for field in resolved['fields']}
                 field_default_strs = ['.{} = {}'.format(field, field_defaults[field]) for field in field_defaults]
                 return '({}) {{ {} }}'.format(type_name, ", ".join(field_default_strs))
 
             else:
-                return type_data[resolved]['default_value']
+                return resolved['default_value']
 
         return given_value
 
@@ -141,7 +141,7 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
                     "return_value": "",
                     "arguments":    [{'name': 'value', 'type': data_type}],
                     "weak":         True
-                } if type_data[resolve_type(data_type, type_data, resolved_types)]['pass_semantic'] == 'value' else {
+                } if type_data[data_type]['pass_semantic'] == 'value' else {
                     "name":         "Write_{}",
                     "return_type":  'void',
                     "return_value": "",
@@ -166,7 +166,7 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
                     "return_value": default_value(data_type, port_data[port]['default_value']),
                     "arguments":    [],
                     "weak":         True
-                } if type_data[resolve_type(data_type, type_data, resolved_types)]['pass_semantic'] == 'value' else {
+                } if type_data[data_type]['pass_semantic'] == 'value' else {
                     "name":                "Read_{}",
                     "return_type":         'void',
                     "return_value":        "",
@@ -190,7 +190,7 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
                     "return_value": port_data[port]['value'],
                     "arguments":    [],
                     "weak":         False
-                } if type_data[resolve_type(data_type, type_data, resolved_types)]['pass_semantic'] == 'value' else {
+                } if type_data[data_type]['pass_semantic'] == 'value' else {
                     "name":                "Constant_{}",
                     "return_type":         'void',
                     "return_value":        "",
@@ -215,6 +215,7 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
         for arg in data['arguments']:
             found = False
             for out in out_arg_values:
+                # noinspection PyTypeChecker
                 if arg['name'] == out['name']:
                     found = True
             if not found:
@@ -238,18 +239,18 @@ def convert_functions(runnable_data, port_data, type_data, resolved_types):
     return functions
 
 
-def collect_includes(runnable_data, port_data, component_types, type_data, resolved_types):
+def collect_includes(runnable_data, port_data, component_types, type_data: TypeCollection):
     includes = set()
 
     def add_type(type_name):
         sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
-        resolved_type = resolve_type(sanitized_name, type_data, resolved_types)
+        resolved_type = type_data[sanitized_name]
 
-        if type_data[resolved_type]['type'] == 'external_type_def':
-            includes.add(type_data[resolved_type]['defined_in'])
-        elif type_data[resolved_type]['type'] == 'struct':
-            for field in type_data[resolved_type]['fields']:
-                add_type(type_data[resolved_type]['fields'][field])
+        if resolved_type['type'] == 'external_type_def':
+            includes.add(resolved_type['defined_in'])
+        elif resolved_type['type'] == 'struct':
+            for field in resolved_type['fields']:
+                add_type(resolved_type['fields'][field])
 
     for runnable in runnable_data:
         runnable_arguments = runnable_data[runnable]['arguments']
@@ -335,8 +336,7 @@ if __name__ == "__main__":
     new_files = {}
     modified_files = {}
 
-    type_data = {}
-    resolved_types = {}
+    type_data = TypeCollection()
 
     config_json_path = component_file('config.json')
     if args.create:
@@ -372,19 +372,19 @@ if __name__ == "__main__":
             sys.exit(2)
 
     for builtin_type in project_config['types']:
-        add_data_type(builtin_type, project_config['types'][builtin_type], type_data, resolved_types)
+        type_data.add(builtin_type, project_config['types'][builtin_type])
 
     for new_type in component_types:
-        add_data_type(new_type, component_types[new_type], type_data, resolved_types)
+        type_data.add(new_type, component_types[new_type])
 
     template_ctx = {
         'component_name': component_name,
-        'type_includes':  collect_includes(runnables, ports, component_types, type_data, resolved_types),
+        'type_includes':  collect_includes(runnables, ports, component_types, type_data),
         'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
         'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions':      convert_functions(runnables, ports, type_data, resolved_types),
-        'types':          collect_type_aliases(component_types, type_data, resolved_types)
+        'functions':      convert_functions(runnables, ports, type_data),
+        'types':          collect_type_aliases(component_types, type_data)
     }
 
 

@@ -9,7 +9,7 @@ from json import JSONDecodeError
 import pystache
 
 from tools.generator_common import component_folder_pattern, component_file_pattern, \
-    load_component_config, load_project_config, add_data_type, to_underscore, collect_type_aliases, resolve_type
+    load_component_config, load_project_config, to_underscore, collect_type_aliases, TypeCollection
 
 port_compatibility = {
     "WriteData":        {
@@ -225,15 +225,15 @@ def load_component(component):
         raise Exception("Could not read config for {}".format(component))
 
 
-def load_types(project_config, component_data, type_data, resolved_types):
+def load_types(project_config, component_data, type_data: TypeCollection):
     # load types defined in project config
     for type_name in project_config['types']:
-        add_data_type(type_name, project_config['types'][type_name], type_data, resolved_types)
+        type_data.add(type_name, project_config['types'][type_name])
 
     # load types defined in component config
     for component in component_data:
         for data_type in component_data[component]['types']:
-            add_data_type(data_type, component_data[component]['types'][data_type], type_data, resolved_types)
+            type_data.add(data_type, component_data[component]['types'][data_type])
 
 
 def create_runnable_groups(config):
@@ -283,12 +283,11 @@ if __name__ == "__main__":
     log('Validate runnables')
     valid = valid and validate_runnables(project_config, component_data)
 
-    type_data = {}
-    resolved_types = {}
+    type_data = TypeCollection()
 
     log('')
     log('Load types')
-    load_types(project_config, component_data, type_data, resolved_types)
+    load_types(project_config, component_data, type_data)
 
 
     def are_ports_compatible(provider, consumer):
@@ -493,7 +492,7 @@ if __name__ == "__main__":
         print("Runtime configuration is valid, exiting")
         sys.exit(0)
 
-    type_aliases = collect_type_aliases(type_data, type_data, resolved_types)
+    type_aliases = collect_type_aliases(type_data, type_data)
 
     type_includes = set()
     for type_alias in type_aliases:
@@ -517,15 +516,15 @@ if __name__ == "__main__":
 
     def default_value(type_name, given_value):
         if given_value is None:
-            resolved = resolve_type(type_name, type_data, resolved_types)
-            if type_data[resolved]['type'] == 'struct':
-                field_defaults = {field: default_value(type_data[resolved]['fields'][field], None) for field in
-                                  type_data[resolved]['fields']}
+            resolved = type_data[type_name]
+            if resolved['type'] == 'struct':
+                field_defaults = {field: default_value(resolved['fields'][field], None) for field in
+                                  resolved['fields']}
                 field_default_strs = ['.{} = {}'.format(field, field_defaults[field]) for field in field_defaults]
                 return '{{ {} }}'.format(", ".join(field_default_strs))
 
             else:
-                return type_data[resolved]['default_value']
+                return resolved['default_value']
 
         return given_value
 
@@ -538,7 +537,7 @@ if __name__ == "__main__":
 
         provider_port_data = component_data[provider_component_name]['ports'][provider_port_name]
         data_type = provider_port_data['data_type']
-        resolved_data_type = resolve_type(data_type, type_data, resolved_types)
+        resolved_data_type = type_data.resolve(data_type)
 
         provider_port_type = provider_port_data['port_type']
         data_buffer_ctx = {
