@@ -69,7 +69,7 @@ void SensorPort_ConfigureGpio1_Interrupt(SensorPort_t* port)
     gpio_set_pin_direction(port->gpio1, GPIO_DIRECTION_IN);
     gpio_set_pin_function(port->gpio1, GPIO_PIN_FUNCTION_A);
 
-    int32_t res = ext_irq_enable(port->gpio1);
+    int32_t res = ext_irq_enable(port->gpio1, &SensorPort_ext1_callback, port);
     ASSERT(res == ERR_NONE);
 }
 

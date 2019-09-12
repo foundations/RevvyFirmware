@@ -21,4 +21,7 @@ void MotorPort_DisableExti1(struct _MotorPort_t* motorPort);
 void MotorPort_EnableExti0(struct _MotorPort_t* motorPort);
 void MotorPort_EnableExti1(struct _MotorPort_t* motorPort);
 
+void MotorPort_gpio0_ext_cb(void* port);
+void MotorPort_gpio1_ext_cb(void* port);
+
 #endif /* MOTOR_PORT_HANDLER_INTERNAL_H_ */

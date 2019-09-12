@@ -47,11 +47,6 @@ extern "C" {
  */
 
 /**
- * \brief External IRQ callback type
- */
-typedef void (*ext_irq_cb_t)(void* user_data);
-
-/**
  * \brief Initialize external IRQ component, if any
  *
  * \return Initialization status.
@@ -70,18 +65,6 @@ int32_t ext_irq_init(void);
 int32_t ext_irq_deinit(void);
 
 /**
- * \brief Register callback for the given external interrupt
- *
- * \param[in] pin Pin to enable external IRQ on
- * \param[in] cb Callback function
- *
- * \return Registration status.
- * \retval -1 Passed parameters were invalid
- * \retval 0 The callback registration is completed successfully
- */
-int32_t ext_irq_register(uint32_t pin, ext_irq_cb_t cb, void* user_data);
-
-/**
  * \brief Enable external IRQ
  *
  * \param[in] pin Pin to enable external IRQ on
@@ -90,7 +73,7 @@ int32_t ext_irq_register(uint32_t pin, ext_irq_cb_t cb, void* user_data);
  * \retval -1 Passed parameters were invalid
  * \retval 0 The enabling is completed successfully
  */
-int32_t ext_irq_enable(const uint32_t pin);
+int32_t ext_irq_enable(const uint32_t pin, ext_irq_cb_t cb, void* user_data);
 
 /**
  * \brief Disable external IRQ

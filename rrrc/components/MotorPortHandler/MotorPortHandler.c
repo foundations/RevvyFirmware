@@ -26,9 +26,6 @@ static size_t motorPortCount = 0u;
 static MotorPort_t* motorPorts = NULL;
 static MotorPort_t* configuredPort = NULL;
 
-static void MotorPort_gpio0_ext_cb(void* port);
-static void MotorPort_gpio1_ext_cb(void* port);
-
 static void _init_port(MotorPort_t* port)
 {
     /* init led pins */
@@ -50,27 +47,12 @@ static void _init_port(MotorPort_t* port)
 
     //_gpio_set_continuous_sampling(port->enc0);
     //_gpio_set_continuous_sampling(port->enc1);
-
-    ext_irq_register(port->enc0, &MotorPort_gpio0_ext_cb, port);
-    ext_irq_register(port->enc1, &MotorPort_gpio1_ext_cb, port);
     
     MotorPort_DisableExti0(port);
     MotorPort_DisableExti1(port);
     /* set dummy library */
     port->library = &motor_library_dummy;
     __enable_irq();
-}
-
-static void MotorPort_gpio0_ext_cb(void* port)
-{
-    MotorPort_t* motorPort = (MotorPort_t*) port;
-    motorPort->library->Gpio0Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
-}
-
-static void MotorPort_gpio1_ext_cb(void* port)
-{
-    MotorPort_t* motorPort = (MotorPort_t*) port;
-    motorPort->library->Gpio1Callback(port, gpio_get_pin_level(motorPort->enc0), gpio_get_pin_level(motorPort->enc1));
 }
 
 Comm_Status_t MotorPortHandler_GetPortAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)

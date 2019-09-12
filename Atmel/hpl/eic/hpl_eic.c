@@ -42,18 +42,7 @@
 #define ffs __builtin_ffs
 #endif
 #if defined(__CC_ARM) || defined(__ICCARM__)
-/* Find the first bit set */
-static int ffs(int v)
-{
-	int i, bit = 1;
-	for (i = 0; i < sizeof(int) * 8; i++) {
-		if (v & bit) {
-			return i + 1;
-		}
-		bit <<= 1;
-	}
-	return 0;
-}
+#define ffs(x) __CLZ(__RBIT(x))
 #endif
 
 /**
@@ -86,11 +75,10 @@ struct _eic_map {
 static const struct _eic_map _map[] = {CONFIG_EIC_EXTINT_MAP};
 
 /**
- * \brief The callback to upper layer's interrupt processing routine
+ * \brief Callbacks for the individual channels
  */
-static void (*callback)(const uint32_t pin);
-
-static void _ext_irq_handler(void);
+static ext_irq_cb_t callbacks[EXT_IRQ_AMOUNT];
+static void* callback_user_data[EXT_IRQ_AMOUNT];
 
 /**
  * \brief Initialize external interrupt module
@@ -106,8 +94,14 @@ static void NVIC_SetStateIRQ(IRQn_Type IRQnum, bool enable)
 	}
 }
 
-int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
+int32_t _ext_irq_init(void)
 {
+    for (uint32_t i = 0u; i < EXT_IRQ_AMOUNT; i++)
+    {
+        callbacks[i] = NULL;
+        callback_user_data[i] = NULL;
+    }
+
 	if (!hri_eic_is_syncing(EIC, EIC_SYNCBUSY_SWRST)) {
 		if (hri_eic_get_CTRLA_reg(EIC, EIC_CTRLA_ENABLE)) {
 			hri_eic_clear_CTRLA_ENABLE_bit(EIC);
@@ -196,13 +190,6 @@ int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
 	NVIC_SetStateIRQ(EIC_14_IRQn, true);
 	NVIC_SetStateIRQ(EIC_15_IRQn, true);
 
-// 	NVIC_DisableIRQ(EIC_0_IRQn);
-// 	NVIC_ClearPendingIRQ(EIC_0_IRQn);
-// 	NVIC_EnableIRQ(EIC_0_IRQn);
-
-
-	callback = cb;
-
 	return ERR_NONE;
 }
 
@@ -230,7 +217,11 @@ int32_t _ext_irq_deinit(void)
 	NVIC_SetStateIRQ(EIC_14_IRQn, false);
 	NVIC_SetStateIRQ(EIC_15_IRQn, false);
 
-	callback = NULL;
+    for (uint32_t i = 0u; i < EXT_IRQ_AMOUNT; i++)
+    {
+        callbacks[i] = NULL;
+        callback_user_data[i] = NULL;
+    }
 
 	hri_eic_clear_CTRLA_ENABLE_bit(EIC);
 	hri_eic_set_CTRLA_SWRST_bit(EIC);
@@ -241,7 +232,7 @@ int32_t _ext_irq_deinit(void)
 /**
  * \brief Enable / disable external irq
  */
-int32_t _ext_irq_enable(const uint32_t pin, const bool enable)
+int32_t _ext_irq_enable(const uint32_t pin, const bool enable, ext_irq_cb_t callback, void* user_data)
 {
 	uint8_t extint = INVALID_EXTINT_NUMBER;
 	uint8_t i      = 0;
@@ -257,8 +248,12 @@ int32_t _ext_irq_enable(const uint32_t pin, const bool enable)
 	}
 
 	if (enable) {
+        callbacks[extint] = callback;
+        callback_user_data[extint] = user_data;
 		hri_eic_set_INTEN_reg(EIC, 1ul << extint);
 	} else {
+        callbacks[extint] = NULL;
+        callback_user_data[extint] = NULL;
 		hri_eic_clear_INTEN_reg(EIC, 1ul << extint);
 		hri_eic_clear_INTFLAG_reg(EIC, 1ul << extint);
 	}
@@ -269,107 +264,76 @@ int32_t _ext_irq_enable(const uint32_t pin, const bool enable)
 /**
  * \brief Inter EIC interrupt handler
  */
-static void _ext_irq_handler(void)
+static void _ext_irq_handler(uint32_t pos)
 {
-	volatile uint32_t flags = hri_eic_read_INTFLAG_reg(EIC);
-	int8_t            pos;
-	uint32_t          pin = INVALID_PIN_NUMBER;
-
-	hri_eic_clear_INTFLAG_reg(EIC, flags);
-
-	ASSERT(callback);
-
-	while (flags) {
-		pos = ffs(flags) - 1;
-		while (-1 != pos) {
-			uint8_t lower = 0, middle, upper = EXT_IRQ_AMOUNT;
-
-			while (upper >= lower) {
-				middle = (upper + lower) >> 1;
-				if (_map[middle].extint == pos) {
-					pin = _map[middle].pin;
-					break;
-				}
-				if (_map[middle].extint < pos) {
-					lower = middle + 1;
-				} else {
-					upper = middle - 1;
-				}
-			}
-
-			if (INVALID_PIN_NUMBER != pin) {
-				callback(pin);
-			}
-			flags &= ~(1ul << pos);
-			pos = ffs(flags) - 1;
-		}
-		flags = hri_eic_read_INTFLAG_reg(EIC);
-		hri_eic_clear_INTFLAG_reg(EIC, flags);
+	hri_eic_clear_INTFLAG_reg(EIC, 1u << pos);
+	if (callbacks[pos] != NULL) {
+		callbacks[pos](callback_user_data[pos]);
 	}
 }
 
 void EIC_0_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(0u);
 }
 void EIC_1_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(1u);
 }
 void EIC_2_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(2u);
 }
 void EIC_3_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(3u);
 }
 void EIC_4_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(4u);
 }
 void EIC_5_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(5u);
 }
 void EIC_6_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(6u);
 }
 void EIC_7_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(7u);
 }
 void EIC_8_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(8u);
 }
 void EIC_9_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(9u);
 }
 void EIC_10_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(10u);
 }
 void EIC_11_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(11u);
 }
 void EIC_12_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(12u);
 }
 void EIC_13_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(13u);
 }
 void EIC_14_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(14u);
 }
 void EIC_15_Handler(void)
 {
-	_ext_irq_handler();
+	_ext_irq_handler(15u);
 }
 
