@@ -9,7 +9,7 @@ from json import JSONDecodeError
 import pystache
 
 from tools.generator_common import component_folder_pattern, component_file_pattern, \
-    load_component_config, load_project_config, to_underscore, collect_type_aliases, TypeCollection
+    load_component_config, load_project_config, to_underscore, collect_type_aliases, TypeCollection, change_file
 
 port_compatibility = {
     "WriteData":        {
@@ -686,8 +686,5 @@ if __name__ == "__main__":
 
         template_ctx['port_functions'].append(pystache.render(runnable_connection_templates[port_type(provider)], ctx))
 
-    with open(args.output + ".h", "w+") as header:
-        header.write(pystache.render(header_template, template_ctx))
-
-    with open(args.output + ".c", "w+") as source:
-        source.write(pystache.render(source_template, template_ctx))
+    change_file(args.output + '.h', pystache.render(header_template, template_ctx))
+    change_file(args.output + '.c', pystache.render(source_template, template_ctx))

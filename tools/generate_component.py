@@ -9,7 +9,7 @@ import pystache
 
 from tools.generator_common import component_file_pattern, \
     component_folder_pattern, process_runnable_defs, load_component_config, load_project_config, compact_project_config, \
-    to_underscore, collect_type_aliases, TypeCollection
+    to_underscore, collect_type_aliases, TypeCollection, change_file
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -409,9 +409,7 @@ if __name__ == "__main__":
 
         def modify_file(fn, modified_contents):
             shutil.copy(fn, fn + ".bak")
-
-            with open(fn, "w") as f:
-                f.write(modified_contents)
+            change_file(fn, modified_contents)
 
             if args.cleanup:
                 os.remove(fn + ".bak")

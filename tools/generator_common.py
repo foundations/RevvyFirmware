@@ -357,3 +357,17 @@ def to_underscore(name):
     """
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def change_file(filename, contents):
+    try:
+        with open(filename, "r") as f:
+            file_changed = contents != f.read()
+    except FileNotFoundError:
+        file_changed = True
+
+    if file_changed:
+        with open(filename, "w+") as f:
+            f.write(contents)
+
+    return file_changed

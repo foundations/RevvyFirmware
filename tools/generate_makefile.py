@@ -9,7 +9,7 @@ from os import listdir
 import pystache
 
 from tools.generate_component import create_component_config, default_runnables
-from tools.generator_common import compact_project_config, load_project_config
+from tools.generator_common import compact_project_config, load_project_config, change_file
 
 makefile_template = """# This Makefile was generated using "python -m tools.generate_makefile"
 C_SRCS += \\
@@ -171,5 +171,8 @@ if __name__ == "__main__":
     template_context['includes'][len(template_context['includes']) - 1]['last'] = True
 
     makefile_contents = pystache.render(makefile_template, template_context)
-    with open("Makefile", "w+") as f:
-        f.write(makefile_contents)
+
+    if change_file('Makefile', makefile_contents):
+        print('New makefile generated')
+    else:
+        print('Makefile up to date')
