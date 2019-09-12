@@ -69,11 +69,11 @@ static void drv8833_set_speed_a(MotorDriver_8833_t* driver, int8_t speed)
 
     if (reverse)
     {
-        pwm_0 = speed;
+        pwm_1 = speed;
     }
     else
     {
-        pwm_1 = speed;
+        pwm_0 = speed;
     }
 
     driver->speed_a = speed;
