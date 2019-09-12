@@ -1,10 +1,3 @@
-/*
- * rrrc_worklogic.c
- *
- * Created: 2/14/2019 11:38:22 AM
- *  Author: User
- */ 
- 
 #include "rrrc_hal.h"
 #include "rrrc_worklogic.h"
 #include "rrrc_indication.h"
@@ -441,7 +434,6 @@ void RRRC_ProcessLogic_xTask(void* user)
 static uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
 static float motorCurrents[ARRAY_SIZE(motorPorts)];
 static float motorPreviousCurrents[ARRAY_SIZE(motorPorts)];
-static float motorTemperatures[ARRAY_SIZE(motorPorts)];
 static uint16_t motorRawCurrents[ARRAY_SIZE(motorPorts)];
 
 void ADC0_Write_RawChannelData(uint32_t channel_idx, uint16_t adc_data)
@@ -793,16 +785,6 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
     }
 }
 
-int8_t MotorDerating_Read_ControlValue(uint8_t motor_idx)
-{
-    return driveValues[motor_idx];
-}
-
-void MotorDerating_Write_ControlValue(uint8_t motor_idx, int8_t control_value)
-{
-    deratedDriveValues[motor_idx] = control_value;
-}
-
 void MotorPortHandler_Write_MotorDriveValue(uint8_t motor_idx, int8_t value)
 {
     driveValues[motor_idx] = value;
@@ -812,9 +794,9 @@ int8_t MotorDriver_8833_Read_DriveRequest_ChannelA(MotorDriver_8833_t* driver)
 {
     switch (driver->idx)
     {
-        case 0u: return deratedDriveValues[4];
-        case 1u: return deratedDriveValues[3];
-        case 2u: return deratedDriveValues[2];
+        case 0u: return driveValues[4];
+        case 1u: return driveValues[3];
+        case 2u: return driveValues[2];
 
         default:
             ASSERT(0);
@@ -826,29 +808,14 @@ int8_t MotorDriver_8833_Read_DriveRequest_ChannelB(MotorDriver_8833_t* driver)
 {
     switch (driver->idx)
     {
-        case 0u: return deratedDriveValues[5];
-        case 1u: return deratedDriveValues[0];
-        case 2u: return deratedDriveValues[1];
+        case 0u: return driveValues[5];
+        case 1u: return driveValues[0];
+        case 2u: return driveValues[1];
 
         default:
             ASSERT(0);
             return 0;
     }
-}
-
-float MotorThermalModel_Read_MotorCurrent(MotorThermalModel_t* model)
-{
-    return motorCurrents[model->idx];
-}
-
-void MotorThermalModel_Write_Temperature(MotorThermalModel_t* model, float temp)
-{
-    motorTemperatures[model->idx] = temp;
-}
-
-float MotorDerating_Read_MotorTemperature(uint8_t motor_idx)
-{
-    return motorTemperatures[motor_idx];
 }
 
 static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)
