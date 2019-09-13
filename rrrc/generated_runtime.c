@@ -264,6 +264,38 @@ void Runtime_Call_10ms_offset1(void)
     WatchdogFeeder_Run_Feed();
 }
 
+void Runtime_Call_10ms_offset2(void)
+{
+}
+
+void Runtime_Call_10ms_offset3(void)
+{
+}
+
+void Runtime_Call_10ms_offset4(void)
+{
+}
+
+void Runtime_Call_10ms_offset5(void)
+{
+}
+
+void Runtime_Call_10ms_offset6(void)
+{
+}
+
+void Runtime_Call_10ms_offset7(void)
+{
+}
+
+void Runtime_Call_10ms_offset8(void)
+{
+}
+
+void Runtime_Call_10ms_offset9(void)
+{
+}
+
 void Runtime_Call_20ms_offset0(void)
 {
     DriveTrain_Run_Update();
@@ -275,6 +307,78 @@ void Runtime_Call_20ms_offset0(void)
 void Runtime_Call_20ms_offset1(void)
 {
     SensorPortHandler_Run_Update();
+}
+
+void Runtime_Call_20ms_offset2(void)
+{
+}
+
+void Runtime_Call_20ms_offset3(void)
+{
+}
+
+void Runtime_Call_20ms_offset4(void)
+{
+}
+
+void Runtime_Call_20ms_offset5(void)
+{
+}
+
+void Runtime_Call_20ms_offset6(void)
+{
+}
+
+void Runtime_Call_20ms_offset7(void)
+{
+}
+
+void Runtime_Call_20ms_offset8(void)
+{
+}
+
+void Runtime_Call_20ms_offset9(void)
+{
+}
+
+void Runtime_Call_20ms_offset10(void)
+{
+}
+
+void Runtime_Call_20ms_offset11(void)
+{
+}
+
+void Runtime_Call_20ms_offset12(void)
+{
+}
+
+void Runtime_Call_20ms_offset13(void)
+{
+}
+
+void Runtime_Call_20ms_offset14(void)
+{
+}
+
+void Runtime_Call_20ms_offset15(void)
+{
+}
+
+void Runtime_Call_20ms_offset16(void)
+{
+}
+
+void Runtime_Call_20ms_offset17(void)
+{
+}
+
+void Runtime_Call_20ms_offset18(void)
+{
+}
+
+void Runtime_Call_20ms_offset19(void)
+{
 }
 
 void Runtime_Call_100ms(void)

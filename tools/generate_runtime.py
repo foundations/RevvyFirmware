@@ -332,8 +332,14 @@ if __name__ == "__main__":
                 for connection_type in provider_port_types[port_type]:
                     possible_types[connection_type] = []
 
-                if not port_allows_multiple_consumers[port_type]:
-                    if len(raw_connection['consumers']) > 1:
+                if len(raw_connection['consumers']) == 0:
+                    if provider['component'] == 'Runtime':
+                        if port_type == 'Event':
+                            possible_types['event'] = [{**extras, 'consumers': []}]
+                        elif port_type == 'ServerCall':
+                            possible_types['call'] = [{**extras, 'consumers': []}]
+                if len(raw_connection['consumers']) > 1:
+                    if not port_allows_multiple_consumers[port_type]:
                         raise Exception(
                             'Provider port {} does not allow multiple consumers'.format(provider_port['short_name']))
             except KeyError as e:
