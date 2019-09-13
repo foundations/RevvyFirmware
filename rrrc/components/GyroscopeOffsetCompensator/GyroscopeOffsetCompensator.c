@@ -40,8 +40,7 @@ void GyroscopeOffsetCompensator_Run_OnInit(void)
 void GyroscopeOffsetCompensator_Run_Update(void)
 {
     Vector3D_t angularSpeed;
-    GyroscopeOffsetCompensator_Read_AngularSpeeds(&angularSpeed);
-    if (GyroscopeOffsetCompensator_Read_DataReady())
+    if (GyroscopeOffsetCompensator_Read_AngularSpeeds(&angularSpeed) != QueueStatus_Empty)
     {
         if (offset_calibrated)
         {
@@ -86,13 +85,13 @@ void GyroscopeOffsetCompensator_Run_Update(void)
             else
             {
                 samplesInCurrentBand++;
-                
+
                 if (samplesInCurrentBand == IDLE_NUM_SAMPLES)
                 {
                     sumAngularSpeed.x = 0.0f;
                     sumAngularSpeed.y = 0.0f;
                     sumAngularSpeed.z = 0.0f;
-                    
+
                     averageAngularSpeedSamples = 0u;
                 }
             }
@@ -101,19 +100,14 @@ void GyroscopeOffsetCompensator_Run_Update(void)
 }
 
 __attribute__((weak))
-void GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
+QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
 {
     *value = (Vector3D_t) { .x = 0.0f, .y = 0.0f, .z = 0.0f };
+    return QueueStatus_Empty;
 }
 
 __attribute__((weak))
 void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* value)
 {
     (void) value;
-}
-
-__attribute__((weak))
-bool GyroscopeOffsetCompensator_Read_DataReady(void)
-{
-    return false;
 }

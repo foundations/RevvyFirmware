@@ -132,7 +132,7 @@
     "types": {
         "void": {
             "type": "external_type_def",
-            "defined_in": "<stdint.h>",
+            "defined_in": null,
             "default_value": "",
             "pass_semantic": "value"
         },
@@ -189,6 +189,15 @@
             "defined_in": "<float.h>",
             "default_value": "0.0f",
             "pass_semantic": "value"
+        },
+        "QueueStatus_t": {
+            "type": "enum",
+            "values": [
+                "QueueStatus_Empty",
+                "QueueStatus_Ok",
+                "QueueStatus_Overflow"
+            ],
+            "default_value": "QueueStatus_Empty"
         }
     },
     "runtime": {
@@ -318,11 +327,8 @@
             },
             {
                 "provider": "IMU/GyroscopeSample",
-                "consumer": "GyroscopeOffsetCompensator/AngularSpeeds"
-            },
-            {
-                "provider": "IMU/GyroscopeDataReady",
-                "consumer": "GyroscopeOffsetCompensator/DataReady"
+                "consumer": "GyroscopeOffsetCompensator/AngularSpeeds",
+                "queue_length": 1
             },
             {
                 "provider": "ADC0/RawChannelData",

@@ -25,16 +25,12 @@
     },
     "ports": {
         "AngularSpeeds": {
-            "port_type": "ReadValue",
+            "port_type": "ReadQueuedValue",
             "data_type": "Vector3D_t"
         },
         "CompensatedAngularSpeeds": {
             "port_type": "WriteData",
             "data_type": "Vector3D_t"
-        },
-        "DataReady": {
-            "port_type": "ReadValue",
-            "data_type": "bool"
         }
     }
 }

@@ -129,6 +129,15 @@ def parse_port_reference(port):
     return port
 
 
+def empty_component(name):
+    return {
+        'component_name': name,
+        'runnables': {},
+        'ports': {},
+        'types': {}
+    }
+
+
 def load_project_config(project_config_file):
     """Load configuration file and expand shorthand forms for the later stages"""
     with open(project_config_file, "r") as f:
@@ -142,26 +151,25 @@ def load_project_config(project_config_file):
 
         processed_port_connections = []
         for port_connection in project_config['runtime'].get('port_connections', []):
+            connection = dict(port_connection)
             if 'providers' not in port_connection:
                 try:
-                    providers = [port_connection['provider']]
+                    connection['providers'] = [port_connection['provider']]
+                    del connection['provider']
                 except KeyError:
-                    providers = []
-            else:
-                providers = port_connection['providers']
+                    connection['providers'] = []
 
             if 'consumers' not in port_connection:
                 try:
-                    consumers = [port_connection['consumer']]
+                    connection['consumers'] = [port_connection['consumer']]
+                    del connection['consumer']
                 except KeyError:
-                    consumers = []
-            else:
-                consumers = port_connection['consumers']
+                    connection['consumers'] = []
 
-            processed_port_connections.append({
-                'providers': [parse_port_reference(provider) for provider in providers],
-                'consumers': [parse_port_reference(consumer) for consumer in consumers]
-            })
+            connection['providers'] = [parse_port_reference(provider) for provider in connection['providers']]
+            connection['consumers'] = [parse_port_reference(consumer) for consumer in connection['consumers']]
+
+            processed_port_connections.append(connection)
 
         project_config['types'] = process_type_defs(project_config.get('types', {}))
         project_config['runtime']['runnables'] = processed_runnables
@@ -289,6 +297,14 @@ class TypeCollection:
         if self._type_data[type_name]['type'] == 'external_type_def':
             self._resolved_names[type_name] = type_name
             return type_name
+
+    def default_value(self, type_name):
+        resolved = self[type_name]
+        if resolved['type'] == 'struct':
+            return {field: self.default_value(resolved['fields'][field]) for field in resolved['fields']}
+
+        else:
+            return resolved['default_value']
 
     def resolve(self, type_name):
         return self._resolve(type_name, [])

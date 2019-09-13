@@ -103,14 +103,13 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
 
     def default_value(type_name, given_value):
         if given_value is None:
-            resolved = type_data[type_name]
-            if resolved['type'] == 'struct':
-                field_defaults = {field: default_value(resolved['fields'][field], None) for field in resolved['fields']}
-                field_default_strs = ['.{} = {}'.format(field, field_defaults[field]) for field in field_defaults]
+            default = type_data.default_value(type_name)
+            if type_data[type_name]['type'] == 'struct':
+                field_default_strs = ['.{} = {}'.format(field, default[field]) for field in default]
                 return '({}) {{ {} }}'.format(type_name, ", ".join(field_default_strs))
 
             else:
-                return resolved['default_value']
+                return default
 
         return given_value
 
@@ -163,7 +162,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  data_type,
-                    "return_value": default_value(data_type, port_data[port]['default_value']),
+                    "return_value": default_value(data_type, port_data[port].get('default_value')),
                     "arguments":    [],
                     "weak":         True
                 } if type_data[data_type]['pass_semantic'] == 'value' else {
@@ -172,7 +171,17 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                     "return_value":        "",
                     "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
                     "out_argument_values": [
-                        {'name': 'value', 'value': default_value(data_type, port_data[port]['default_value'])}],
+                        {'name': 'value', 'value': default_value(data_type, port_data[port].get('default_value'))}],
+                    "weak":                True
+                },
+            "ReadQueuedValue":
+                lambda: {
+                    "name":                "Read_{}",
+                    "return_type":         'QueueStatus_t',
+                    "return_value":        "QueueStatus_Empty",
+                    "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
+                    "out_argument_values": [
+                        {'name': 'value', 'value': default_value(data_type, port_data[port].get('default_value'))}],
                     "weak":                True
                 },
             "ReadIndexedValue":
@@ -239,7 +248,31 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
     return functions
 
 
-def collect_includes(functions, component_types, type_data: TypeCollection):
+def collect_used_types(functions, component_types, type_data: TypeCollection):
+    types = set()
+
+    def add_type(type_name):
+        sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
+        resolved_name = type_data.resolve(sanitized_name)
+        resolved_type = type_data[sanitized_name]
+
+        types.add(resolved_name)
+        if resolved_type['type'] == 'struct':
+            for field in resolved_type['fields']:
+                add_type(resolved_type['fields'][field])
+
+    for fun in functions:
+        add_type(fun['return_type'])
+        for arg in fun['args']:
+            add_type(arg['type'])
+
+    for type_name in component_types:
+        add_type(type_name)
+
+    return sorted(types)
+
+
+def collect_includes(used_types, type_data: TypeCollection):
     includes = set()
 
     def add_type(type_name):
@@ -247,17 +280,14 @@ def collect_includes(functions, component_types, type_data: TypeCollection):
         resolved_type = type_data[sanitized_name]
 
         if resolved_type['type'] == 'external_type_def':
-            includes.add(resolved_type['defined_in'])
+            if resolved_type['defined_in'] is not None:
+                includes.add(resolved_type['defined_in'])
         elif resolved_type['type'] == 'struct':
             for field in resolved_type['fields']:
                 add_type(resolved_type['fields'][field])
 
-    for fun in functions:
-        for arg in fun['args']:
-            add_type(arg['type'])
-
-    for type_name in component_types:
-        add_type(type_name)
+    for used in used_types:
+        add_type(used)
 
     return sorted(includes)
 
@@ -372,14 +402,15 @@ if __name__ == "__main__":
         type_data.add(new_type, component_types[new_type])
 
     functions = convert_functions(runnables, ports, type_data)
+    used_types = collect_used_types(functions, component_types, type_data)
     template_ctx = {
         'component_name': component_name,
-        'type_includes':  collect_includes(functions, component_types, type_data),
+        'type_includes':  collect_includes(used_types, type_data),
         'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
         'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
         'functions':      functions,
-        'types':          collect_type_aliases(component_types, type_data)
+        'types':          collect_type_aliases(used_types, type_data)
     }
 
 
