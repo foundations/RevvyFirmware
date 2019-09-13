@@ -906,54 +906,26 @@
 
 // </h>
 
-/*#define CONFIG_EIC_EXTINT_MAP {10, PIN_PB10}, {11, PIN_PB11}, {12, PIN_PB12}, {13, PIN_PB13},*/
-
-#define CONFIG_EIC_EXTINT_MAP \
-{0,  PIN_PB16}, \
-{1,  PIN_PB17}, \
-{2,  PIN_PA02}, \
-{3,  PIN_PA03}, \
-{4,  PIN_PA20}, \
-{5,  PIN_PA21}, \
-{6,  PIN_PB06}, \
-{7,  PIN_PB07}, \
-{8,  PIN_PB24}, \
-{9,  PIN_PB25}, \
-{10, PIN_PC10}, \
-{11, PIN_PA27}, \
-{12, PIN_PB12}, \
-{13, PIN_PB27}, \
-{14, PIN_PB14}, \
-{15, PIN_PB15}, \
-
+#define CONFIG_EIC_EXTINT_MAP {\
+PIN_PB16, \
+PIN_PB17, \
+PIN_PA02, \
+PIN_PA03, \
+PIN_PA20, \
+PIN_PA21, \
+PIN_PB06, \
+PIN_PB07, \
+PIN_PB24, \
+PIN_PB25, \
+PIN_PC10, \
+PIN_PA27, \
+PIN_PB12, \
+PIN_PB27, \
+PIN_PB14, \
+PIN_PB15  \
+}
 
 // <<< end of configuration section >>>
 
 #endif // HPL_EIC_CONFIG_H
-
-
-// #define M1ENC0 PB30
-// {14, PIN_PB30}
-// #define M1ENC1 PB31 
-// {15, PIN_PB31}
-// #define M2ENC0 PB16
-// {00, PIN_PB16}
-// #define M2ENC1 PB03
-// {03, PIN_PB30}
-// #define M3ENC0 PA14
-// {14, PIN_PA14}
-// #define M3ENC1 PA15
-// {15, PIN_PA15}
-// #define M4ENC0 PB14
-// {14, PIN_PB14}
-// #define M4ENC1 PB15
-// {15, PIN_PB15}
-// #define M5ENC0 PA06
-// {06, PIN_PA06}
-// #define M5ENC1 PA07
-// {07, PIN_PA07}
-// #define M6ENC0 PB06
-// {06, PIN_PB06}
-// #define M6ENC1 PB09
-// {09, PIN_PB09}
 

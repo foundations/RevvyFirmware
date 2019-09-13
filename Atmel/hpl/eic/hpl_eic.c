@@ -45,34 +45,38 @@
 #define ffs(x) __CLZ(__RBIT(x))
 #endif
 
-/**
- * \brief Invalid external interrupt and pin numbers
- */
-#define INVALID_EXTINT_NUMBER 0xFF
-#define INVALID_PIN_NUMBER 0xFFFFFFFF
+#define INVALID_EXTINT_NUMBER   0xFFu
+#define INVALID_PIN_NUMBER      0xFFFFFFFFu
 
 #ifndef CONFIG_EIC_EXTINT_MAP
 /** Dummy mapping to pass compiling. */
-#define CONFIG_EIC_EXTINT_MAP                                                                                          \
-	{                                                                                                                  \
-		INVALID_EXTINT_NUMBER, INVALID_PIN_NUMBER                                                                      \
+#define CONFIG_EIC_EXTINT_MAP                                                                   \
+	{                                                                                           \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER,                                                                     \
+		INVALID_PIN_NUMBER                                                                      \
 	}
 #endif
 
 #define EXT_IRQ_AMOUNT 16
 
 /**
- * \brief EXTINTx and pin number map
- */
-struct _eic_map {
-	uint8_t  extint;
-	uint32_t pin;
-};
-
-/**
  * \brief PIN and EXTINT map for enabled external interrupts
  */
-static const struct _eic_map _map[] = {CONFIG_EIC_EXTINT_MAP};
+static const uint32_t _exti_ch_pins[EXT_IRQ_AMOUNT] = CONFIG_EIC_EXTINT_MAP;
 
 /**
  * \brief Callbacks for the individual channels
@@ -198,8 +202,6 @@ int32_t _ext_irq_init(void)
  */
 int32_t _ext_irq_deinit(void)
 {
-//	NVIC_DisableIRQ(EIC_10_IRQn);
-
 	NVIC_SetStateIRQ(EIC_0_IRQn, false);
 	NVIC_SetStateIRQ(EIC_1_IRQn, false);
 	NVIC_SetStateIRQ(EIC_2_IRQn, false);
@@ -235,11 +237,10 @@ int32_t _ext_irq_deinit(void)
 int32_t _ext_irq_enable(const uint32_t pin, const bool enable, ext_irq_cb_t callback, void* user_data)
 {
 	uint8_t extint = INVALID_EXTINT_NUMBER;
-	uint8_t i      = 0;
 
-	for (; i < ARRAY_SIZE(_map); i++) {
-		if (_map[i].pin == pin) {
-			extint = _map[i].extint;
+	for (uint8_t i = 0u; i < EXT_IRQ_AMOUNT; i++) {
+		if (_exti_ch_pins[i] == pin) {
+			extint = i;
 			break;
 		}
 	}
@@ -252,8 +253,6 @@ int32_t _ext_irq_enable(const uint32_t pin, const bool enable, ext_irq_cb_t call
         callback_user_data[extint] = user_data;
 		hri_eic_set_INTEN_reg(EIC, 1ul << extint);
 	} else {
-        callbacks[extint] = NULL;
-        callback_user_data[extint] = NULL;
 		hri_eic_clear_INTEN_reg(EIC, 1ul << extint);
 		hri_eic_clear_INTFLAG_reg(EIC, 1ul << extint);
 	}
