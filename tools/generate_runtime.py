@@ -61,10 +61,10 @@ databuffer_write_templates = {
 
 provider_port_types = {
     "Constant":         ['constant'],
-    "WriteData":        ["variable", "queue", "queue_1"],
-    "WriteIndexedData": ["array"],
-    "WriteDataToIndex": ["array"],  # virtual type to support complex connections
-    "ServerCall":       ["call"],
+    "WriteData":        ["variable", "queue", "queue_1", "event"],
+    "WriteIndexedData": ["array", "event"],
+    "WriteDataToIndex": ["array", "event"],  # virtual type to support complex connections
+    "ServerCall":       ["call", "event"],
     "Event":            ["event"],
 }
 
@@ -320,12 +320,17 @@ if __name__ == "__main__":
 
 
     def determine_connection_type(raw_connection, component_data):
-        possible_types = []
+        possible_types = {}
+        extras = dict(raw_connection)
+        del extras['consumers']
+
         for provider in raw_connection['providers']:
             try:
                 provider_port = get_port(provider, component_data)
                 port_type = provider_port['port_type']
-                possible_types.extend(provider_port_types[port_type])
+
+                for connection_type in provider_port_types[port_type]:
+                    possible_types[connection_type] = []
 
                 if not port_allows_multiple_consumers[port_type]:
                     if len(raw_connection['consumers']) > 1:
@@ -339,15 +344,27 @@ if __name__ == "__main__":
             consumer_component = component_data[consumer['component']]
 
             if consumer['port'] in consumer_component['ports']:
-                compatible_types = []
                 consumer_port = consumer_component['ports'][consumer['port']]
+                added = False
                 for consumer_type in consumer_port_types[consumer_port['port_type']]:
                     if consumer_type in possible_types:
-                        compatible_types.append(consumer_type)
-                possible_types = compatible_types
+                        if consumer_type == 'queue' and raw_connection['queue_length'] == 1:
+                            consumer_type = 'queue_1'
+                        possible_types[consumer_type].append({**extras, 'consumers': [consumer]})
+                        added = True
+                if not added:
+                    raise Exception('Port {} assigned to incompatible provider'.format(consumer['short_name']))
             elif consumer['port'] in consumer_component['runnables']:
-                if 'call' not in possible_types and 'event' not in possible_types:
-                    possible_types = []
+                runnable = get_runnable(consumer, component_data)
+                if runnable['return_type'] == 'void':
+                    consumer_type = 'event'
+                else:
+                    consumer_type = 'call'
+
+                if consumer_type in possible_types:
+                    possible_types[consumer_type].append({**extras, 'consumers': [consumer]})
+                else:
+                    raise Exception('Runnable {} assigned to incompatible provider port'.format(consumer['short_name']))
             else:
                 raise Exception('Unknown port or runnable: {}'.format(consumer['short_name']))
 
@@ -357,30 +374,20 @@ if __name__ == "__main__":
                 raise Exception('Connection with providers {} has no compatible type. Caused by consumer {}'
                                 .format(provider_name_list, consumer['short_name']))
 
-        if len(possible_types) > 1:
-            raise Exception('Multiple possible port connection types')
-
-        return possible_types[0]
+        return possible_types
 
 
     def classify_connections(project_config, component_data):
         connections = {}
 
         for connection in project_config['runtime']['port_connections']:
-            connection_type = determine_connection_type(connection, component_data)
-
-            try:
-                if connection_type == 'queue' and connection['queue_length'] == 1:
-                    connection_type = 'queue_1'
-            except KeyError as e:
-                print(connection)
-                print(e)
-                raise
-
-            try:
-                connections[connection_type].append(connection)
-            except KeyError:
-                connections[connection_type] = [connection]
+            filtered_connections = determine_connection_type(connection, component_data)
+            for connection_type in filtered_connections:
+                for filtered_connection in filtered_connections[connection_type]:
+                    try:
+                        connections[connection_type].append(filtered_connection)
+                    except KeyError:
+                        connections[connection_type] = [filtered_connection]
 
         return connections
 
@@ -421,7 +428,7 @@ if __name__ == "__main__":
             provider_port_data = get_port(provider, component_data)
             consumer_port_data = get_runnable(consumer, component_data)
 
-            provider_args = provider_port_data['arguments']
+            provider_args = provider_port_data.get('arguments', [])
             consumer_args = consumer_port_data['arguments']
 
             # accept cases when more arguments are provided than used
@@ -467,20 +474,24 @@ if __name__ == "__main__":
     def create_function(caller, port_functions, component_data):
         if caller['short_name'] not in port_functions:
             caller_port = get_port(caller, component_data)
+            if caller_port['port_type'] not in ['Event', 'ServerCall']:
+                return create_port_function(caller, port_functions, component_data)
+
             function_name = '{}_Call_{}'.format(caller['component'], caller['port'])
-            arguments = [{'name': arg, 'type': caller_port['arguments'][arg]} for arg in caller_port['arguments']]
+            return_type = caller_port.get('return_type', 'void')
+            arguments = [{'name': arg, 'type': caller_port['arguments'][arg]} for arg in caller_port.get('arguments', [])]
             if arguments:
                 arguments[len(arguments) - 1]['last'] = True
             port_functions[caller['short_name']] = {
                 'port':          caller,
                 'type':          'runnable_connection',
                 'function_name': function_name,
-                'return_type':   caller_port['return_type'],
+                'return_type':   return_type,
                 'arguments':     arguments,
                 'body':          []
             }
             log('Created function: {}'.format(function_name))
-            log('  Return type: {}'.format(caller_port['return_type']))
+            log('  Return type: {}'.format(return_type))
             log('  Arguments: {}'.format(", ".join(["{}: {}".format(arg['name'], arg['type']) for arg in arguments])))
         return port_functions[caller['short_name']]
 
@@ -562,19 +573,6 @@ if __name__ == "__main__":
             log('  Arguments: {}'.format(", ".join(["{}: {}".format(arg['name'], arg['type']) for arg in arguments])))
         return port_functions[port['short_name']]
 
-
-    for runnable_connections in classified_connections['event']:
-        for provider in runnable_connections['providers']:
-            function = create_function(provider, port_functions, component_data)
-
-            for handler in runnable_connections['consumers']:
-                if not are_runnables_compatible(provider, handler):
-                    valid = False
-                else:
-                    handler_runnable = get_runnable(handler, component_data)
-                    handler_args = handler_runnable['arguments']
-                    function['body'].append(
-                        "{}_Run_{}({});".format(handler['component'], handler['port'], ', '.join(handler_args)))
 
     for server_call in classified_connections['call']:
         for caller in server_call['providers']:
@@ -752,6 +750,19 @@ if __name__ == "__main__":
         except KeyError:
             print(constant_connection)
             raise
+
+    for runnable_connections in classified_connections['event']:
+        for provider in runnable_connections['providers']:
+            function = create_function(provider, port_functions, component_data)
+
+            for handler in runnable_connections['consumers']:
+                if not are_runnables_compatible(provider, handler):
+                    valid = False
+                else:
+                    handler_runnable = get_runnable(handler, component_data)
+                    handler_args = handler_runnable['arguments']
+                    function['body'].append(
+                        "{}_Run_{}({});".format(handler['component'], handler['port'], ', '.join(handler_args)))
 
     if not valid:
         print("Configuration invalid, exiting")

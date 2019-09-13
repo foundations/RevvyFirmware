@@ -12,208 +12,18 @@ static Voltage_t ADC0_ChannelVoltage_databuffer[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 static Voltage_t ADC1_ChannelVoltage_databuffer[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static Current_t ADCDispatcher_MotorCurrent_databuffer[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static uint8_t ADCDispatcher_Sensor_ADC_databuffer[4] = { 0u, 0u, 0u, 0u };
-static Current_t MotorCurrentFilter_FilteredCurrent_databuffer[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static Vector3D_t IMU_GyroscopeSample_databuffer;
 static bool IMU_GyroscopeSample_databuffer_overflow = false;
 static bool IMU_GyroscopeSample_databuffer_data_valid = false;
-
-void CommunicationObserver_Call_ErrorLimitReached(void)
-{
-    RestartManager_Run_Reset();
-}
-
-void MasterCommunicationInterface_Call_RxTimeout(void)
-{
-    CommunicationObserver_Run_OnMessageMissed();
-}
-
-void Runtime_Call_OnInit(void)
-{
-    ErrorStorage_Run_OnInit();
-    ADC0_Run_OnInit();
-    ADC1_Run_OnInit();
-    ADCDispatcher_Run_OnInit();
-    MotorCurrentFilter_Run_OnInit();
-    BatteryCharger_Run_OnInit();
-    LEDController_Run_OnInit();
-    BatteryCalculator_Run_OnInit();
-    BluetoothIndicator_Run_OnInit();
-    BrainStatusIndicator_Run_OnInit();
-    IMU_Run_OnInit();
-    HighResolutionTimer_Run_OnInit();
-    MasterStatusObserver_Run_OnInit();
-    BluetoothStatusObserver_Run_OnInit();
-    RingLedDisplay_Run_OnInit();
-    CommunicationObserver_Run_OnInit();
-    DriveTrain_Run_OnInit();
-    GyroscopeOffsetCompensator_Run_OnInit();
-    YawAngleTracker_Run_OnInit();
-    MasterCommunicationInterface_Run_OnInit();
-}
-
-void Runtime_Call_1ms(void)
-{
-    ADC0_Run_Update();
-    ADC1_Run_Update();
-    IMU_Run_OnUpdate();
-    GyroscopeOffsetCompensator_Run_Update();
-    YawAngleTracker_Run_Update();
-    ADCDispatcher_Run_Update();
-    MotorCurrentFilter_Run_Update();
-}
-
-void Runtime_Call_10ms_offset0(void)
-{
-    BatteryCharger_Run_Update();
-}
-
-void Runtime_Call_10ms_offset1(void)
-{
-    WatchdogFeeder_Run_Feed();
-}
-
-void Runtime_Call_10ms_offset2(void)
-{
-}
-
-void Runtime_Call_10ms_offset3(void)
-{
-}
-
-void Runtime_Call_10ms_offset4(void)
-{
-}
-
-void Runtime_Call_10ms_offset5(void)
-{
-}
-
-void Runtime_Call_10ms_offset6(void)
-{
-}
-
-void Runtime_Call_10ms_offset7(void)
-{
-}
-
-void Runtime_Call_10ms_offset8(void)
-{
-}
-
-void Runtime_Call_10ms_offset9(void)
-{
-}
-
-void Runtime_Call_20ms_offset0(void)
-{
-    DriveTrain_Run_Update();
-    MotorPortHandler_Run_Update();
-    RingLedDisplay_Run_Update();
-    LEDController_Run_Update();
-}
-
-void Runtime_Call_20ms_offset1(void)
-{
-    SensorPortHandler_Run_Update();
-}
-
-void Runtime_Call_20ms_offset2(void)
-{
-}
-
-void Runtime_Call_20ms_offset3(void)
-{
-}
-
-void Runtime_Call_20ms_offset4(void)
-{
-}
-
-void Runtime_Call_20ms_offset5(void)
-{
-}
-
-void Runtime_Call_20ms_offset6(void)
-{
-}
-
-void Runtime_Call_20ms_offset7(void)
-{
-}
-
-void Runtime_Call_20ms_offset8(void)
-{
-}
-
-void Runtime_Call_20ms_offset9(void)
-{
-}
-
-void Runtime_Call_20ms_offset10(void)
-{
-}
-
-void Runtime_Call_20ms_offset11(void)
-{
-}
-
-void Runtime_Call_20ms_offset12(void)
-{
-}
-
-void Runtime_Call_20ms_offset13(void)
-{
-}
-
-void Runtime_Call_20ms_offset14(void)
-{
-}
-
-void Runtime_Call_20ms_offset15(void)
-{
-}
-
-void Runtime_Call_20ms_offset16(void)
-{
-}
-
-void Runtime_Call_20ms_offset17(void)
-{
-}
-
-void Runtime_Call_20ms_offset18(void)
-{
-}
-
-void Runtime_Call_20ms_offset19(void)
-{
-}
-
-void Runtime_Call_100ms(void)
-{
-    BatteryCalculator_Run_Update();
-    BluetoothIndicator_Run_Update();
-    BrainStatusIndicator_Run_Update();
-}
 
 void* SensorPortHandler_Call_Allocate(size_t size)
 {
     return MemoryAllocator_Run_Allocate(size);
 }
 
-void SensorPortHandler_Call_Free(void** ptr)
-{
-    MemoryAllocator_Run_Free(ptr);
-}
-
 void* MotorPortHandler_Call_Allocate(size_t size)
 {
     return MemoryAllocator_Run_Allocate(size);
-}
-
-void MotorPortHandler_Call_Free(void** ptr)
-{
-    MemoryAllocator_Run_Free(ptr);
 }
 
 uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
@@ -343,12 +153,6 @@ uint8_t SensorPortHandler_Read_AdcData(uint32_t index)
     return ADCDispatcher_Sensor_ADC_databuffer[index];
 }
 
-void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, Current_t value)
-{
-    ASSERT(index < ARRAY_SIZE(MotorCurrentFilter_FilteredCurrent_databuffer));
-    MotorCurrentFilter_FilteredCurrent_databuffer[index] = value;
-}
-
 void IMU_Write_GyroscopeSample(const Vector3D_t* value)
 {
     IMU_GyroscopeSample_databuffer_overflow = IMU_GyroscopeSample_databuffer_data_valid;
@@ -393,5 +197,90 @@ void BatteryCalculator_Read_MainBatteryParameters(BatteryConfiguration_t* value)
 void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value)
 {
     ProjectConfiguration_Constant_MotorBatteryParameters(value);
+}
+
+void CommunicationObserver_Call_ErrorLimitReached(void)
+{
+    RestartManager_Run_Reset();
+}
+
+void SensorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
+}
+
+void MotorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
+}
+
+void MasterCommunicationInterface_Call_RxTimeout(void)
+{
+    CommunicationObserver_Run_OnMessageMissed();
+}
+
+void Runtime_Call_OnInit(void)
+{
+    ErrorStorage_Run_OnInit();
+    ADC0_Run_OnInit();
+    ADC1_Run_OnInit();
+    ADCDispatcher_Run_OnInit();
+    MotorCurrentFilter_Run_OnInit();
+    BatteryCharger_Run_OnInit();
+    LEDController_Run_OnInit();
+    BatteryCalculator_Run_OnInit();
+    BluetoothIndicator_Run_OnInit();
+    BrainStatusIndicator_Run_OnInit();
+    IMU_Run_OnInit();
+    HighResolutionTimer_Run_OnInit();
+    MasterStatusObserver_Run_OnInit();
+    BluetoothStatusObserver_Run_OnInit();
+    RingLedDisplay_Run_OnInit();
+    CommunicationObserver_Run_OnInit();
+    DriveTrain_Run_OnInit();
+    GyroscopeOffsetCompensator_Run_OnInit();
+    YawAngleTracker_Run_OnInit();
+    MasterCommunicationInterface_Run_OnInit();
+}
+
+void Runtime_Call_1ms(void)
+{
+    ADC0_Run_Update();
+    ADC1_Run_Update();
+    IMU_Run_OnUpdate();
+    GyroscopeOffsetCompensator_Run_Update();
+    YawAngleTracker_Run_Update();
+    ADCDispatcher_Run_Update();
+    MotorCurrentFilter_Run_Update();
+}
+
+void Runtime_Call_10ms_offset0(void)
+{
+    BatteryCharger_Run_Update();
+}
+
+void Runtime_Call_10ms_offset1(void)
+{
+    WatchdogFeeder_Run_Feed();
+}
+
+void Runtime_Call_20ms_offset0(void)
+{
+    DriveTrain_Run_Update();
+    MotorPortHandler_Run_Update();
+    RingLedDisplay_Run_Update();
+    LEDController_Run_Update();
+}
+
+void Runtime_Call_20ms_offset1(void)
+{
+    SensorPortHandler_Run_Update();
+}
+
+void Runtime_Call_100ms(void)
+{
+    BatteryCalculator_Run_Update();
+    BluetoothIndicator_Run_Update();
+    BrainStatusIndicator_Run_Update();
 }
 
