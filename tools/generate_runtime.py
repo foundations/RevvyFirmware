@@ -24,11 +24,11 @@ port_allows_multiple_consumers = {
 databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
 
 databuffer_buffer_templates = {
-    "variable": "static {{data_type}} {{ buffer_name }}_databuffer = {{{ init_value }}};",
+    "variable": "static {{data_type}} {{ buffer_name }} = {{{ init_value }}};",
     "array":    "static {{data_type}} {{ buffer_name }}[{{ size }}] = { {{ #init_values }}{{value}}{{^last}}, {{/last}}{{ /init_values }} };",
     "queue":    "",
     "queue_1":  """static {{data_type}} {{ buffer_name }};
-static bool {{ buffer_name }}_data_overflow = false;
+static bool {{ buffer_name }}_overflow = false;
 static bool {{ buffer_name }}_data_valid = false;""",
     "constant": None
 }
@@ -104,16 +104,16 @@ consumer_templates = {
         
         if (was_overflow)
         {
-            return Queue_Overflow;
+            return QueueStatus_Overflow;
         }
         else
         {
-            return Queue_Ok;
+            return QueueStatus_Ok;
         }
     }
     else
     {
-        return Queue_Empty;
+        return QueueStatus_Empty;
     }""",
     },
     "ReadValueFromIndex": {  # virtual type to support complex connections

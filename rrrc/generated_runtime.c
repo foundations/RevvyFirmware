@@ -1,11 +1,11 @@
 #include "generated_runtime.h"
 #include "utils.h"
 
-static ChargerState_t BatteryCharger_ChargerState_databuffer_databuffer = ChargerState_NotPluggedIn;
-static bool CommunicationObserver_Enabled_databuffer_databuffer = false;
-static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_databuffer_databuffer = BluetoothStatus_Inactive;
-static Voltage_t ADCDispatcher_MainBatteryVoltage_databuffer_databuffer = 0.0f;
-static Voltage_t ADCDispatcher_MotorBatteryVoltage_databuffer_databuffer = 0.0f;
+static ChargerState_t BatteryCharger_ChargerState_databuffer = ChargerState_NotPluggedIn;
+static bool CommunicationObserver_Enabled_databuffer = false;
+static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_databuffer = BluetoothStatus_Inactive;
+static Voltage_t ADCDispatcher_MainBatteryVoltage_databuffer = 0.0f;
+static Voltage_t ADCDispatcher_MotorBatteryVoltage_databuffer = 0.0f;
 static uint16_t ADC0_RawChannelData_databuffer[4] = { 0u, 0u, 0u, 0u };
 static uint16_t ADC1_RawChannelData_databuffer[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
 static Voltage_t ADC0_ChannelVoltage_databuffer[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -14,7 +14,7 @@ static Current_t ADCDispatcher_MotorCurrent_databuffer[6] = { 0.0f, 0.0f, 0.0f, 
 static uint8_t ADCDispatcher_Sensor_ADC_databuffer[4] = { 0u, 0u, 0u, 0u };
 static Current_t MotorCurrentFilter_FilteredCurrent_databuffer[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static Vector3D_t IMU_GyroscopeSample_databuffer;
-static bool IMU_GyroscopeSample_databuffer_data_overflow = false;
+static bool IMU_GyroscopeSample_databuffer_overflow = false;
 static bool IMU_GyroscopeSample_databuffer_data_valid = false;
 
 void CommunicationObserver_Call_ErrorLimitReached(void)
@@ -367,16 +367,16 @@ QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
         
         if (was_overflow)
         {
-            return Queue_Overflow;
+            return QueueStatus_Overflow;
         }
         else
         {
-            return Queue_Ok;
+            return QueueStatus_Ok;
         }
     }
     else
     {
-        return Queue_Empty;
+        return QueueStatus_Empty;
     }
 }
 
