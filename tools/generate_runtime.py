@@ -8,9 +8,8 @@ from json import JSONDecodeError
 
 import pystache
 
-from tools.generator_common import component_folder_pattern, component_file_pattern, load_component_config, \
-    load_project_config, to_underscore, collect_type_aliases, TypeCollection, change_file, \
-    empty_component, parse_port_reference, process_port_def
+from tools.generator_common import load_component_config, load_project_config, to_underscore, collect_type_aliases, \
+    TypeCollection, change_file, empty_component, parse_port_reference, process_port_def
 
 port_allows_multiple_consumers = {
     "WriteData":        True,
@@ -268,16 +267,16 @@ def validate_runnables(project_config, component_data):
     return runnables_valid
 
 
-def load_component(component):
-    if not os.path.isdir(component_folder_pattern.format(component)):
+def load_component(component_folder, component):
+    if not os.path.isdir("{}/{}".format(component_folder, component)):
         raise Exception('Component folder for {} does not exist'.format(component))
 
     required_files = ['config.json', component + '.c', component + '.h']
     for file in required_files:
-        if not os.path.isfile(component_file_pattern.format(component, file)):
+        if not os.path.isfile("{}/{}/{}".format(component_folder, component, file)):
             raise Exception('{} does not exist in component {}'.format(file, component))
 
-    component_config_file = component_file_pattern.format(component, 'config.json')
+    component_config_file = "{}/{}/{}".format(component_folder, component, 'config.json')
     try:
         return load_component_config(component_config_file)
     except JSONDecodeError:
@@ -454,7 +453,7 @@ if __name__ == "__main__":
         component_data = {}
         for component in project_config['components']:
             log('Loading configuration for {}'.format(component))
-            component_data[component] = load_component(component)
+            component_data[component] = load_component(project_config['settings']['components_folder'], component)
         valid = True
     except Exception as e:
         print('Failed to load component data')

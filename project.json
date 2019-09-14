@@ -1,4 +1,7 @@
 {
+    "settings": {
+        "components_folder": "rrrc/components"
+    },
     "sources": [
         "driver_init.c",
         "main.c",

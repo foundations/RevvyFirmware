@@ -1,9 +1,6 @@
 import json
 import re
 
-component_folder_pattern = 'rrrc/components/{}'
-component_file_pattern = 'rrrc/components/{}/{}'
-
 
 def process_runnable_def(component, runnable_name, runnable):
     return {
@@ -170,6 +167,12 @@ def load_project_config(project_config_file):
             connection['consumers'] = [parse_port_reference(consumer) for consumer in connection['consumers']]
 
             processed_port_connections.append(connection)
+
+        if 'settings' not in project_config:
+            project_config['settings'] = {}
+
+        if 'components_folder' not in project_config['settings']:
+            project_config['settings']['components_folder'] = 'components'
 
         project_config['types'] = process_type_defs(project_config.get('types', {}))
         project_config['runtime']['runnables'] = processed_runnables

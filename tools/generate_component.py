@@ -7,9 +7,8 @@ import shutil
 from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import component_file_pattern, component_folder_pattern, process_runnable_defs, \
-    load_component_config, load_project_config, compact_project_config, to_underscore, collect_type_aliases, \
-    TypeCollection, change_file
+from tools.generator_common import process_runnable_defs, load_component_config, load_project_config, \
+    compact_project_config, to_underscore, collect_type_aliases, TypeCollection, change_file
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -349,12 +348,12 @@ if __name__ == "__main__":
     # gather software component names
     component_name = args.name
 
+    project_config = load_project_config('project.json')
+
 
     def component_file(filename):
-        return component_file_pattern.format(component_name, filename)
+        return "{}/{}/{}".format(project_config['settings']['components_folder'], component_name, filename)
 
-
-    project_config = load_project_config('project.json')
 
     new_folders = []
     new_files = {}
@@ -373,7 +372,7 @@ if __name__ == "__main__":
         project_config['components'] = sorted(project_config['components'])
 
         # Create component skeleton
-        component_dir = component_folder_pattern.format(component_name)
+        component_dir = "{}/{}".format(project_config['settings']['components_folder'], component_name)
         new_folders.append(component_dir)
 
         # create component configuration json
