@@ -2,14 +2,16 @@
 Generate a c/h file pair that contains runnable calls and port connections based on project.json
 """
 import argparse
-import os
 import sys
-from json import JSONDecodeError
 
 import pystache
 
-from tools.generator_common import load_component_config, load_project_config, to_underscore, collect_type_aliases, \
-    TypeCollection, change_file, empty_component, parse_port_reference, process_port_def
+from tools.generator_common import to_underscore, collect_type_aliases, TypeCollection, change_file, empty_component, \
+    parse_port_reference
+from tools.plugins.AtmelStudioSupport import atmel_studio_support
+from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_port_def
+from tools.plugins.ProjectConfigCompactor import project_config_compactor
+from tools.runtime import Runtime
 
 port_allows_multiple_consumers = {
     "WriteData":        True,
@@ -267,22 +269,6 @@ def validate_runnables(project_config, component_data):
     return runnables_valid
 
 
-def load_component(component_folder, component):
-    if not os.path.isdir("{}/{}".format(component_folder, component)):
-        raise Exception('Component folder for {} does not exist'.format(component))
-
-    required_files = ['config.json', component + '.c', component + '.h']
-    for file in required_files:
-        if not os.path.isfile("{}/{}/{}".format(component_folder, component, file)):
-            raise Exception('{} does not exist in component {}'.format(file, component))
-
-    component_config_file = "{}/{}/{}".format(component_folder, component, 'config.json')
-    try:
-        return load_component_config(component_config_file)
-    except JSONDecodeError:
-        raise Exception("Could not read config for {}".format(component))
-
-
 def load_types(project_config, component_data, type_data: TypeCollection):
     # load types defined in project config
     for type_name in project_config['types']:
@@ -445,21 +431,18 @@ if __name__ == "__main__":
 
 
     log('Loading project configuration from {}'.format(args.config))
-    project_config = load_project_config(args.config)
+    rt = Runtime(args.config)
+    rt.add_plugin(project_config_compactor())
+    rt.add_plugin(component_config_compactor())
+    rt.add_plugin(atmel_studio_support())  # including this because it's possible to read non-component files from cproject
+
+    rt.load(True)
+    project_config = rt._project_config
 
     log('')
     log('Load components')
-    try:
-        component_data = {}
-        for component in project_config['components']:
-            log('Loading configuration for {}'.format(component))
-            component_data[component] = load_component(project_config['settings']['components_folder'], component)
-        valid = True
-    except Exception as e:
-        print('Failed to load component data')
-        log('{}: {}'.format(type(e).__name__, e))
-        component_data = {}
-        valid = False
+    component_data = rt._components
+    valid = True
 
     log('')
     log('Validate runnables')

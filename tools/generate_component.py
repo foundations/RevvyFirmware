@@ -4,11 +4,14 @@ import sys
 import os
 import datetime
 import shutil
-from xml.etree import ElementTree
 import pystache
 
-from tools.generator_common import process_runnable_defs, load_component_config, load_project_config, \
-    compact_project_config, to_underscore, collect_type_aliases, TypeCollection, change_file
+from tools.generator_common import compact_project_config, to_underscore, collect_type_aliases, TypeCollection, \
+    change_file
+from tools.plugins.AtmelStudioSupport import atmel_studio_support
+from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
+from tools.plugins.ProjectConfigCompactor import project_config_compactor
+from tools.runtime import Runtime
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
@@ -82,19 +85,6 @@ makefile_component_files_end_marker = '# End of Software Component Source Files\
 default_runnables = {
     'OnInit': {}
 }
-
-
-def read_cproject(path):
-    with open(path, 'r') as xml:
-        xml_in = xml.read().replace('\xef\xbb\xbf', '')  # remove Byte order mark
-        # preprocessing
-        xml_in = xml_in.replace('<Project DefaultTargets="Build" '
-                                'xmlns="http://schemas.microsoft.com/developer/msbuild/2003" '
-                                'ToolsVersion="14.0">',
-                                '<Project DefaultTargets="Build" ToolsVersion="14.0">')
-    ElementTree.register_namespace('', 'http://schemas.microsoft.com/developer/msbuild/2003')
-
-    return ElementTree.fromstring(xml_in)
 
 
 def convert_functions(runnable_data, port_data, type_data: TypeCollection):
@@ -300,38 +290,6 @@ def create_component_config(name, sources, runnables):
     return json.dumps(json_contents, indent=4)
 
 
-def add_component_to_cproject(cproject, new_files, new_folders):
-    # update Atmel Studio project xml
-    tree = read_cproject(cproject)
-    itemgroups = tree.findall('./ItemGroup')
-
-    # add new files to Compile itemgroup
-    compile_itemgroup = itemgroups[0]
-    for filename in new_files:
-        new_compile_item = ElementTree.SubElement(compile_itemgroup, 'Compile')
-        new_compile_item.attrib = {'Include': filename.replace('/', '\\')}
-        ElementTree.SubElement(new_compile_item, 'SubType').text = 'compile'
-
-    # add new folder to folders itemgroup
-    folders_itemgroup = itemgroups[1]
-    for folder in new_folders:
-        new_folder = ElementTree.SubElement(folders_itemgroup, 'Folder')
-        new_folder.attrib = {'Include': folder.replace('/', '\\')}
-
-    # generate xml string
-    xml = ElementTree.tostring(tree, encoding='utf8')
-
-    # postprocess to better match atmel's
-    return xml.decode('utf8') \
-        .replace("<?xml version='1.0' encoding='utf8'?>", '<?xml version="1.0" encoding="utf-8"?>') \
-        .replace('<Project DefaultTargets="Build" ToolsVersion="14.0">',
-                 '<Project DefaultTargets="Build" '
-                 'xmlns="http://schemas.microsoft.com/developer/msbuild/2003" '
-                 'ToolsVersion="14.0">') \
-        .replace('      <framework-data>', '      <framework-data xmlns="">') \
-        .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
-
-
 if __name__ == "__main__":
     # inquire name of new component
     parser = argparse.ArgumentParser()
@@ -348,7 +306,13 @@ if __name__ == "__main__":
     # gather software component names
     component_name = args.name
 
-    project_config = load_project_config('project.json')
+    rt = Runtime("project.json")
+    rt.add_plugin(project_config_compactor())
+    rt.add_plugin(component_config_compactor())
+    rt.add_plugin(atmel_studio_support())
+
+    rt.load(False)
+    project_config = rt._project_config
 
 
     def component_file(filename):
@@ -386,7 +350,8 @@ if __name__ == "__main__":
         modified_files['rrrc_samd51.cproj'] = add_component_to_cproject('rrrc_samd51.cproj', new_files, new_folders)
     else:
         try:
-            component_config = load_component_config(config_json_path)
+            rt.load_component_config(component_name)
+            component_config = rt._components[component_name]
             runnables = component_config['runnables']
             ports = component_config['ports']
             component_types = component_config['types']
