@@ -26,7 +26,10 @@ databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
 databuffer_buffer_templates = {
     "variable": "static {{data_type}} {{ buffer_name }} = {{{ init_value }}};",
     "array":    "static {{data_type}} {{ buffer_name }}[{{ size }}] = { {{ #init_values }}{{value}}{{^last}}, {{/last}}{{ /init_values }} };",
-    "queue":    "",
+    "queue":    """static {{data_type}} {{ buffer_name }}[{{ queue_length }}u];
+static size_t {{ buffer_name}}_count = 0u;
+static size_t {{ buffer_name}}_write_index = 0u;
+static bool {{ buffer_name }}_overflow = false;""",
     "queue_1":  """static {{data_type}} {{ buffer_name }};
 static bool {{ buffer_name }}_overflow = false;
 static bool {{ buffer_name }}_data_valid = false;""",
@@ -43,8 +46,24 @@ databuffer_write_templates = {
         "pointer": "{{ buffer_name }}[{{ index }}] = *{{ value }};"
     },
     "queue":    {
-        "value":   "",
-        "pointer": ""
+        "value":   """if ({{ buffer_name }}_count < {{ queue_length }}u)
+    {
+        ++{{ buffer_name }}_count;
+    }
+    else
+    {
+        {{ buffer_name }}_overflow = true;
+    }
+    size_t writeIdx = {{ buffer_name }}_write_index;
+    {{ buffer_name }}_write_index = ({{ buffer_name }}_write_index + 1u) % {{ queue_length }}u;
+    {{ buffer_name }}[writeIdx] = {{ value }};""",
+        "pointer": """if ({{ buffer_name }}_count < {{ queue_length }}u)
+    {
+        ++{{ buffer_name }}_count;
+    }
+    size_t writeIdx = {{ buffer_name }}_write_index;
+    {{ buffer_name }}_write_index = ({{ buffer_name }}_write_index + 1u) % {{ queue_length }}u;
+    {{ buffer_name }}[writeIdx] = *{{ value }};"""
     },
     "queue_1":  {
         "value":   """{{ buffer_name }}_overflow = {{ buffer_name }}_data_valid;
@@ -94,7 +113,27 @@ consumer_templates = {
         }
     },
     "ReadQueuedValue":    {  # read queued value is always done through pointers because of return value
-        "queue": "",
+        "queue": """if ({{ buffer_name }}_count > 0u)
+    {
+        size_t readIndex = ({{ buffer_name }}_write_index - {{ buffer_name }}_count) % {{ queue_length }}u;
+        --{{ buffer_name }}_count;
+
+        *{{ out_name }} = {{ buffer_name }}[readIndex];
+        
+        if ({{ buffer_name }}_overflow)
+        {
+            {{ buffer_name }}_overflow = false;
+            return QueueStatus_Overflow;
+        }
+        else
+        {
+            return QueueStatus_Ok;
+        }
+    }
+    else
+    {
+        return QueueStatus_Empty;
+    }""",
         "queue_1": """bool was_overflow = {{ buffer_name }}_overflow;
     if ({{ buffer_name }}_data_valid)
     {
@@ -580,7 +619,7 @@ if __name__ == "__main__":
         return port_functions[port['short_name']]
 
 
-    for server_call in classified_connections['call']:
+    for server_call in classified_connections.get('call', []):
         for caller in server_call['providers']:
             function = create_function(caller, port_functions, component_data)
 
@@ -597,7 +636,7 @@ if __name__ == "__main__":
                 function['body'].append(template.format(callee['component'], callee['port'], ', '.join(handler_args)))
 
     variables = {}
-    for variable_connection in classified_connections['variable']:
+    for variable_connection in classified_connections.get('variable', []):
         try:
             # a single databuffer is generated for each write port
             assert len(variable_connection['providers']) == 1
@@ -638,7 +677,7 @@ if __name__ == "__main__":
             print(variable_connection)
             raise
 
-    for variable_connection in classified_connections['array']:
+    for variable_connection in classified_connections.get('array', []):
         try:
             # a single databuffer is generated for each write port for now, TODO lift this restriction
             assert len(variable_connection['providers']) == 1
@@ -696,48 +735,51 @@ if __name__ == "__main__":
             print(variable_connection)
             raise
 
-    for variable_connection in classified_connections['queue_1']:
-        try:
-            # a single databuffer is generated for each write port
-            assert len(variable_connection['providers']) == 1
-            provider = variable_connection['providers'][0]
-            provider_port = get_port(provider, component_data)
+    for connection_type in ['queue', 'queue_1']:
+        for variable_connection in classified_connections.get(connection_type, []):
+            try:
+                # a single databuffer is generated for each write port
+                assert len(variable_connection['providers']) == 1
+                provider = variable_connection['providers'][0]
+                provider_port = get_port(provider, component_data)
 
-            databuffer_name = pystache.render(databuffer_name_template, {
-                'component_name': provider['component'],
-                'port_name':      provider['port']
-            })
-
-            pass_by = type_data[provider_port['data_type']]['pass_semantic']
-            name = 'queue1_{}'.format(provider['short_name'])
-            if name not in variables:
-                provider_function = create_port_function(provider, port_functions, component_data)
-
-                ctx = {
-                    'data_type':   provider_port['data_type'],
-                    'buffer_name': databuffer_name,
-                    'init_value':  provider.get('init_value', type_data.default_value(provider_port['data_type'])),
-                    'value':       provider_function['arguments'][0]['name']
-                }
-                variables[name] = pystache.render(databuffer_buffer_templates['queue_1'], ctx)
-                write_template = databuffer_write_templates['queue_1'][pass_by]
-                provider_function['body'].append(pystache.render(write_template, ctx))
-
-            for consumer in variable_connection['consumers']:
-                consumer_function = create_port_function(consumer, port_functions, component_data)
-
-                consumer_port_type = get_port(consumer, component_data)['port_type']
-                read_template = consumer_templates[consumer_port_type]['queue_1']
-                function_body = pystache.render(read_template, {
-                    'buffer_name': databuffer_name,
-                    'out_name':    consumer_function['arguments'][0]['name']
+                databuffer_name = pystache.render(databuffer_name_template, {
+                    'component_name': provider['component'],
+                    'port_name':      provider['port']
                 })
-                consumer_function['body'].append(function_body)
-        except KeyError:
-            print(variable_connection)
-            raise
 
-    for constant_connection in classified_connections['constant']:
+                pass_by = type_data[provider_port['data_type']]['pass_semantic']
+                name = 'queue1_{}'.format(provider['short_name'])
+                if name not in variables:
+                    provider_function = create_port_function(provider, port_functions, component_data)
+
+                    ctx = {
+                        'data_type':   provider_port['data_type'],
+                        'buffer_name': databuffer_name,
+                        'init_value':  provider.get('init_value', type_data.default_value(provider_port['data_type'])),
+                        'value':       provider_function['arguments'][0]['name'],
+                        'queue_length':   variable_connection['queue_length']
+                    }
+                    variables[name] = pystache.render(databuffer_buffer_templates[connection_type], ctx)
+                    write_template = databuffer_write_templates[connection_type][pass_by]
+                    provider_function['body'].append(pystache.render(write_template, ctx))
+
+                for consumer in variable_connection['consumers']:
+                    consumer_function = create_port_function(consumer, port_functions, component_data)
+
+                    consumer_port_type = get_port(consumer, component_data)['port_type']
+                    read_template = consumer_templates[consumer_port_type][connection_type]
+                    function_body = pystache.render(read_template, {
+                        'buffer_name': databuffer_name,
+                        'out_name':    consumer_function['arguments'][0]['name'],
+                        'queue_length':   variable_connection['queue_length']
+                    })
+                    consumer_function['body'].append(function_body)
+            except KeyError:
+                print(variable_connection)
+                raise
+
+    for constant_connection in classified_connections.get('constant', []):
         try:
             assert len(constant_connection['providers']) == 1
             provider = constant_connection['providers'][0]
@@ -757,7 +799,7 @@ if __name__ == "__main__":
             print(constant_connection)
             raise
 
-    for runnable_connections in classified_connections['event']:
+    for runnable_connections in classified_connections.get('event', []):
         for provider in runnable_connections['providers']:
             function = create_function(provider, port_functions, component_data)
 
