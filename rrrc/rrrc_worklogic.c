@@ -526,79 +526,67 @@ void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
 
 void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+
+    portENTER_CRITICAL();
+    if (!motorControlledByDriveTrain[port_idx])
     {
-        portENTER_CRITICAL();
-        if (!motorControlledByDriveTrain[port_idx])
+        motorDriveRequests[port_idx] = *command;
+    }
+    else
+    {
+        if (motorDriveRequests[port_idx].type == MotorPort_DriveRequest_Position_Relative)
         {
-            motorDriveRequests[port_idx] = *command;
-        }
-        else
-        {
-            if (motorDriveRequests[port_idx].type == MotorPort_DriveRequest_Position_Relative)
+            if (command->type == MotorPort_DriveRequest_Position)
             {
-                if (command->type == MotorPort_DriveRequest_Position)
-                {
-                    /* allow converting relative request to absolute */
-                    /* TODO: motor status should be exposed and this request should be handled by an external component */
-                    motorDriveRequests[port_idx] = *command;
-                }
+                /* allow converting relative request to absolute */
+                /* TODO: motor status should be exposed and this request should be handled by an external component */
+                motorDriveRequests[port_idx] = *command;
             }
         }
-        portEXIT_CRITICAL();
     }
+    portEXIT_CRITICAL();
 }
 
 void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+
+    portENTER_CRITICAL();
+    switch (command->type)
     {
-        portENTER_CRITICAL();
-        switch (command->type)
-        {
-            case DriveTrain_Request_Power:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
-                motorDriveRequests[port_idx].v.pwm = command->v.power;
-                break;
+        case DriveTrain_Request_Power:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+            motorDriveRequests[port_idx].v.pwm = command->v.power;
+            break;
 
-            case DriveTrain_Request_Speed:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Speed;
-                motorDriveRequests[port_idx].v.speed = command->v.speed;
-                break;
+        case DriveTrain_Request_Speed:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Speed;
+            motorDriveRequests[port_idx].v.speed = command->v.speed;
+            break;
 
-            case DriveTrain_Request_Position:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position_Relative;
-                motorDriveRequests[port_idx].v.position = command->v.position;
-                break;
+        case DriveTrain_Request_Position:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position_Relative;
+            motorDriveRequests[port_idx].v.position = command->v.position;
+            break;
 
-            default:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
-                motorDriveRequests[port_idx].v.pwm = 0;
-                break;
-        }
-        motorDriveRequests[port_idx].speed_limit = command->speed_limit;
-        motorDriveRequests[port_idx].power_limit = command->power_limit;
-        portEXIT_CRITICAL();
+        default:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+            motorDriveRequests[port_idx].v.pwm = 0;
+            break;
     }
+    motorDriveRequests[port_idx].speed_limit = command->speed_limit;
+    motorDriveRequests[port_idx].power_limit = command->power_limit;
+    portEXIT_CRITICAL();
 }
 
 void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
-    {
-        portENTER_CRITICAL();
-        *dst = motorDriveRequests[port_idx];
-        portEXIT_CRITICAL();
-    }
-    else
-    {
-        *dst = (MotorPort_DriveRequest_t) {
-            .type = MotorPort_DriveRequest_Power,
-            .v.pwm = 0,
-            .speed_limit = 0.0f,
-            .power_limit = 0.0f
-        };
-    }
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+     
+    portENTER_CRITICAL();
+    *dst = motorDriveRequests[port_idx];
+    portEXIT_CRITICAL();
 }
 
 void MotorPortHandler_Write_MotorDriveValue(uint8_t motor_idx, int8_t value)
@@ -661,29 +649,27 @@ static bool _update_port(uint8_t* pBuffer, uint8_t* pData, uint8_t dataSize)
 
 void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
-    portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_MOTOR_STATUS_SIZE);
 
+    portENTER_CRITICAL();
     status_changed[port_idx] = _update_port(motor_status[port_idx], pData, dataSize);
-
     portEXIT_CRITICAL();
 }
 
 void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
-    portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_SENSOR_STATUS_SIZE);
 
+    portENTER_CRITICAL();
     status_changed[port_idx + 6u] = _update_port(sensor_status[port_idx], pData, dataSize);
-
     portEXIT_CRITICAL();
 }
 
 void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotDataSize)
 {
-    portENTER_CRITICAL();
     ASSERT(slot < ARRAY_SIZE(status_changed));
-
+ 
+    portENTER_CRITICAL();
     *slotDataSize = 0u;
 
     if (status_changed[slot])
