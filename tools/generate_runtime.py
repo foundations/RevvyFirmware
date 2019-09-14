@@ -12,7 +12,6 @@ from tools.generator_common import component_folder_pattern, component_file_patt
     load_project_config, to_underscore, collect_type_aliases, TypeCollection, change_file, \
     empty_component, parse_port_reference, process_port_def
 
-
 port_allows_multiple_consumers = {
     "WriteData":        True,
     "WriteIndexedData": True,
@@ -26,14 +25,16 @@ databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
 databuffer_buffer_templates = {
     "variable": "static {{data_type}} {{ buffer_name }} = {{{ init_value }}};",
     "array":    "static {{data_type}} {{ buffer_name }}[{{ size }}] = { {{ #init_values }}{{value}}{{^last}}, {{/last}}{{ /init_values }} };",
-    "queue":    """static {{data_type}} {{ buffer_name }}[{{ queue_length }}u];
-static size_t {{ buffer_name}}_count = 0u;
-static size_t {{ buffer_name}}_write_index = 0u;
-static bool {{ buffer_name }}_overflow = false;""",
-    "queue_1":  """static {{data_type}} {{ buffer_name }};
-static bool {{ buffer_name }}_overflow = false;
-static bool {{ buffer_name }}_data_valid = false;""",
-    "constant": None
+    "constant": None,
+
+    "queue":    "static {{data_type}} {{ buffer_name }}[{{ queue_length }}u];\n"
+                "static size_t {{ buffer_name}}_count = 0u;\n"
+                "static size_t {{ buffer_name}}_write_index = 0u;\n"
+                "static bool {{ buffer_name }}_overflow = false;",
+
+    "queue_1":  "static {{data_type}} {{ buffer_name }};\n"
+                "static bool {{ buffer_name }}_overflow = false;\n"
+                "static bool {{ buffer_name }}_data_valid = false;"
 }
 
 databuffer_write_templates = {
@@ -45,41 +46,49 @@ databuffer_write_templates = {
         "value":   "{{ buffer_name }}[{{ index }}] = {{ value }};",
         "pointer": "{{ buffer_name }}[{{ index }}] = *{{ value }};"
     },
-    "queue":    {
-        "value":   """if ({{ buffer_name }}_count < {{ queue_length }}u)
-    {
-        ++{{ buffer_name }}_count;
-    }
-    else
-    {
-        {{ buffer_name }}_overflow = true;
-    }
-    size_t writeIdx = {{ buffer_name }}_write_index;
-    {{ buffer_name }}_write_index = ({{ buffer_name }}_write_index + 1u) % {{ queue_length }}u;
-    {{ buffer_name }}[writeIdx] = {{ value }};""",
-        "pointer": """if ({{ buffer_name }}_count < {{ queue_length }}u)
-    {
-        ++{{ buffer_name }}_count;
-    }
-    size_t writeIdx = {{ buffer_name }}_write_index;
-    {{ buffer_name }}_write_index = ({{ buffer_name }}_write_index + 1u) % {{ queue_length }}u;
-    {{ buffer_name }}[writeIdx] = *{{ value }};"""
-    },
-    "queue_1":  {
-        "value":   """{{ buffer_name }}_overflow = {{ buffer_name }}_data_valid;
-    {{ buffer_name }} = {{ value }};
-    {{ buffer_name }}_data_valid = true;""",
-        "pointer": """{{ buffer_name }}_overflow = {{ buffer_name }}_data_valid;
-    {{ buffer_name }} = *{{ value }};
-    {{ buffer_name }}_data_valid = true;""",
-    },
     "constant": None,
     "call":     None,
     "event":    None,
+
+    "queue":    {
+        "value":   "if ({{ buffer_name }}_count < {{ queue_length }}u)\n"
+                   "{\n"
+                   "    ++{{ buffer_name }}_count;\n"
+                   "}\n"
+                   "else\n"
+                   "{\n"
+                   "    {{ buffer_name }}_overflow = true;\n"
+                   "}\n"
+                   "size_t writeIdx = {{ buffer_name }}_write_index;\n"
+                   "{{ buffer_name }}_write_index = ({{ buffer_name }}_write_index + 1u) % {{ queue_length }}u;\n"
+                   "{{ buffer_name }}[writeIdx] = {{ value }};",
+
+        "pointer": "if ({{ buffer_name }}_count < {{ queue_length }}u)\n"
+                   "{\n"
+                   "    ++{{ buffer_name }}_count;\n"
+                   "}\n"
+                   "else\n"
+                   "{\n"
+                   "    {{ buffer_name }}_overflow = true;\n"
+                   "}\n"
+                   "size_t writeIdx = {{ buffer_name }}_write_index;\n"
+                   "{{ buffer_name }}_write_index = ({{ buffer_name }}_write_index + 1u) % {{ queue_length }}u;\n"
+                   "{{ buffer_name }}[writeIdx] = *{{ value }};"
+    },
+
+    "queue_1":  {
+        "value":   "{{ buffer_name }}_overflow = {{ buffer_name }}_data_valid;\n"
+                   "{{ buffer_name }} = {{ value }};\n"
+                   "{{ buffer_name }}_data_valid = true;",
+
+        "pointer": "{{ buffer_name }}_overflow = {{ buffer_name }}_data_valid;\n"
+                   "{{ buffer_name }} = *{{ value }};\n"
+                   "{{ buffer_name }}_data_valid = true;"
+    }
 }
 
 provider_port_types = {
-    "Constant":         ['constant'],
+    "Constant":         ["constant"],
     "WriteData":        ["variable", "queue", "queue_1", "event"],
     "WriteIndexedData": ["array", "event"],
     "WriteDataToIndex": ["array", "event"],  # virtual type to support complex connections
@@ -88,11 +97,11 @@ provider_port_types = {
 }
 
 consumer_port_types = {
-    "ReadValue":  ["variable", "constant"],
-    "ReadIndexedValue": ["array"],
-    "ReadQueuedValue": ["queue"],  # queue_1 is an optimization so it's omitted
+    "ReadValue":          ["variable", "constant"],
+    "ReadIndexedValue":   ["array"],
+    "ReadQueuedValue":    ["queue"],  # queue_1 is an optimization so it's omitted
     "ReadValueFromIndex": ["array"],  # virtual type to support complex connections
-    "Runnable": ["event", "call"]
+    "Runnable":           ["event", "call"]
 }
 
 consumer_templates = {
@@ -113,47 +122,46 @@ consumer_templates = {
         }
     },
     "ReadQueuedValue":    {  # read queued value is always done through pointers because of return value
-        "queue": """if ({{ buffer_name }}_count > 0u)
-    {
-        size_t readIndex = ({{ buffer_name }}_write_index - {{ buffer_name }}_count) % {{ queue_length }}u;
-        --{{ buffer_name }}_count;
+        "queue":   "if ({{ buffer_name }}_count > 0u)\n"
+                   "{\n"
+                   "    size_t readIndex = ({{ buffer_name }}_write_index - {{ buffer_name }}_count) % {{ queue_length }}u;\n"
+                   "    --{{ buffer_name }}_count;\n"
+                   "    *{{ out_name }} = {{ buffer_name }}[readIndex];\n"
+                   "    \n"
+                   "    if ({{ buffer_name }}_overflow)\n"
+                   "    {\n"
+                   "        {{ buffer_name }}_overflow = false;\n"
+                   "        return QueueStatus_Overflow;\n"
+                   "    }\n"
+                   "    else\n"
+                   "    {\n"
+                   "        return QueueStatus_Ok;\n"
+                   "    }\n"
+                   "}\n"
+                   "else\n"
+                   "{\n"
+                   "    return QueueStatus_Empty;\n"
+                   "}",
 
-        *{{ out_name }} = {{ buffer_name }}[readIndex];
-        
-        if ({{ buffer_name }}_overflow)
-        {
-            {{ buffer_name }}_overflow = false;
-            return QueueStatus_Overflow;
-        }
-        else
-        {
-            return QueueStatus_Ok;
-        }
-    }
-    else
-    {
-        return QueueStatus_Empty;
-    }""",
-        "queue_1": """bool was_overflow = {{ buffer_name }}_overflow;
-    if ({{ buffer_name }}_data_valid)
-    {
-        {{ buffer_name }}_overflow = false;
-        *{{ out_name }} = {{ buffer_name }};
-        {{ buffer_name }}_data_valid = false;
-        
-        if (was_overflow)
-        {
-            return QueueStatus_Overflow;
-        }
-        else
-        {
-            return QueueStatus_Ok;
-        }
-    }
-    else
-    {
-        return QueueStatus_Empty;
-    }""",
+        "queue_1": "bool was_overflow = {{ buffer_name }}_overflow;\n"
+                   "if ({{ buffer_name }}_data_valid)\n"
+                   "{\n"
+                   "    {{ buffer_name }}_overflow = false;\n"
+                   "    *{{ out_name }} = {{ buffer_name }};\n"
+                   "    {{ buffer_name }}_data_valid = false;\n"
+                   "    if (was_overflow)\n"
+                   "    {\n"
+                   "        return QueueStatus_Overflow;\n"
+                   "    }\n"
+                   "    else\n"
+                   "    {\n"
+                   "        return QueueStatus_Ok;\n"
+                   "    }\n"
+                   "}\n"
+                   "else\n"
+                   "{\n"
+                   "    return QueueStatus_Empty;\n"
+                   "}",
     },
     "ReadValueFromIndex": {  # virtual type to support complex connections
         "array": ""
@@ -524,7 +532,8 @@ if __name__ == "__main__":
 
             function_name = '{}_Call_{}'.format(caller['component'], caller['port'])
             return_type = caller_port.get('return_type', 'void')
-            arguments = [{'name': arg, 'type': caller_port['arguments'][arg]} for arg in caller_port.get('arguments', [])]
+            arguments = [{'name': arg, 'type': caller_port['arguments'][arg]} for arg in
+                         caller_port.get('arguments', [])]
             if arguments:
                 arguments[len(arguments) - 1]['last'] = True
             port_functions[caller['short_name']] = {
@@ -660,14 +669,14 @@ if __name__ == "__main__":
                     'value':       provider_function['arguments'][0]['name']
                 }
                 variables[name] = pystache.render(databuffer_buffer_templates['variable'], ctx)
-                write_template = databuffer_write_templates['variable'][pass_by]
+                write_template = databuffer_write_templates['variable'][pass_by].replace('\n', '\n    ')
                 provider_function['body'].append(pystache.render(write_template, ctx))
 
             for consumer in variable_connection['consumers']:
                 consumer_function = create_port_function(consumer, port_functions, component_data)
 
                 consumer_port_type = get_port(consumer, component_data)['port_type']
-                read_template = consumer_templates[consumer_port_type]['variable'][pass_by]
+                read_template = consumer_templates[consumer_port_type]['variable'][pass_by].replace('\n', '\n    ')
                 function_body = pystache.render(read_template, {
                     'buffer_name': databuffer_name,
                     'out_name':    consumer_function['arguments'][0]['name'] if pass_by == 'pointer' else ''
@@ -702,8 +711,10 @@ if __name__ == "__main__":
                     'size':        count,
                     'index':       provider_function['arguments'][0]['name'],
                     'value':       provider_function['arguments'][1]['name'],
-                    'init_values': [{'value': value} for value in provider.get('init_values',
-                                                [type_data.default_value(provider_port['data_type'])] * count)]
+                    'init_values': [
+                        {'value': value} for value in provider.get('init_values',
+                                                                   [type_data.default_value(provider_port[
+                                                                                                'data_type'])] * count)]
                 }
                 ctx['init_values'][len(ctx['init_values']) - 1]['last'] = True
 
@@ -711,14 +722,14 @@ if __name__ == "__main__":
                     provider_function['body'].append(pystache.render(assert_template, ctx))
 
                 variables[name] = pystache.render(databuffer_buffer_templates['array'], ctx)
-                write_template = databuffer_write_templates['array'][pass_by]
+                write_template = databuffer_write_templates['array'][pass_by].replace('\n', '\n    ')
                 provider_function['body'].append(pystache.render(write_template, ctx))
 
             for consumer in variable_connection['consumers']:
                 consumer_function = create_port_function(consumer, port_functions, component_data)
 
                 consumer_port_type = get_port(consumer, component_data)['port_type']
-                write_template = consumer_templates[consumer_port_type]['array'][pass_by]
+                read_template = consumer_templates[consumer_port_type]['array'][pass_by].replace('\n', '\n    ')
 
                 ctx = {
                     'buffer_name': databuffer_name,
@@ -729,7 +740,7 @@ if __name__ == "__main__":
                 if not consumer_function['body']:
                     consumer_function['body'].append(pystache.render(assert_template, ctx))
 
-                function_body = pystache.render(write_template, ctx)
+                function_body = pystache.render(read_template, ctx)
                 consumer_function['body'].append(function_body)
         except KeyError:
             print(variable_connection)
@@ -754,25 +765,25 @@ if __name__ == "__main__":
                     provider_function = create_port_function(provider, port_functions, component_data)
 
                     ctx = {
-                        'data_type':   provider_port['data_type'],
-                        'buffer_name': databuffer_name,
-                        'init_value':  provider.get('init_value', type_data.default_value(provider_port['data_type'])),
-                        'value':       provider_function['arguments'][0]['name'],
-                        'queue_length':   variable_connection['queue_length']
+                        'data_type':    provider_port['data_type'],
+                        'buffer_name':  databuffer_name,
+                        'init_value':   provider.get('init_value', type_data.default_value(provider_port['data_type'])),
+                        'value':        provider_function['arguments'][0]['name'],
+                        'queue_length': variable_connection['queue_length']
                     }
                     variables[name] = pystache.render(databuffer_buffer_templates[connection_type], ctx)
-                    write_template = databuffer_write_templates[connection_type][pass_by]
+                    write_template = databuffer_write_templates[connection_type][pass_by].replace('\n', '\n    ')
                     provider_function['body'].append(pystache.render(write_template, ctx))
 
                 for consumer in variable_connection['consumers']:
                     consumer_function = create_port_function(consumer, port_functions, component_data)
 
                     consumer_port_type = get_port(consumer, component_data)['port_type']
-                    read_template = consumer_templates[consumer_port_type][connection_type]
+                    read_template = consumer_templates[consumer_port_type][connection_type].replace('\n', '\n    ')
                     function_body = pystache.render(read_template, {
-                        'buffer_name': databuffer_name,
-                        'out_name':    consumer_function['arguments'][0]['name'],
-                        'queue_length':   variable_connection['queue_length']
+                        'buffer_name':  databuffer_name,
+                        'out_name':     consumer_function['arguments'][0]['name'],
+                        'queue_length': variable_connection['queue_length']
                     })
                     consumer_function['body'].append(function_body)
             except KeyError:
@@ -789,7 +800,7 @@ if __name__ == "__main__":
             for consumer in constant_connection['consumers']:
                 consumer_function = create_port_function(consumer, port_functions, component_data)
                 consumer_port_type = get_port(consumer, component_data)['port_type']
-                const_template = consumer_templates[consumer_port_type]['constant'][pass_by]
+                const_template = consumer_templates[consumer_port_type]['constant'][pass_by].replace('\n', '\n    ')
                 function_body = pystache.render(const_template, {
                     'constant_provider': '{}_Constant_{}'.format(provider['component'], provider['port']),
                     'out_name':          consumer_function['arguments'][0]['name'] if pass_by == 'pointer' else ''

@@ -168,7 +168,6 @@ QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
         IMU_GyroscopeSample_databuffer_overflow = false;
         *value = IMU_GyroscopeSample_databuffer;
         IMU_GyroscopeSample_databuffer_data_valid = false;
-        
         if (was_overflow)
         {
             return QueueStatus_Overflow;
