@@ -9,7 +9,11 @@ from os import listdir
 import pystache
 
 from tools.generate_component import create_component_config, default_runnables
-from tools.generator_common import compact_project_config, load_project_config, change_file
+from tools.generator_common import change_file
+from tools.plugins.ComponentConfigCompactor import component_config_compactor
+from tools.plugins.ProjectConfigCompactor import project_config_compactor
+from tools.plugins.RuntimeEvents import runtime_events
+from tools.runtime import Runtime
 
 makefile_template = """# This Makefile was generated using "python -m tools.generate_makefile"
 C_SRCS += \\
@@ -120,7 +124,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    config = load_project_config(args.config)
+    rt = Runtime(args.config)
+    rt.add_plugin(project_config_compactor())
+    rt.add_plugin(runtime_events())
+    rt.add_plugin(component_config_compactor())
+
+    rt.load(True)
+    config = rt._project_config
 
     source_files = list(config['sources'])
 
@@ -152,7 +162,7 @@ if __name__ == "__main__":
                     f.write(component_config)
 
         with open(args.config, "w") as f:
-            json.dump(compact_project_config(config), f, indent=4)
+            json.dump(config, f, indent=4)
 
     for component in config['components']:
         component_file = 'rrrc/components/{}/{{}}'.format(component)
@@ -167,8 +177,8 @@ if __name__ == "__main__":
         'includes': [{'path': path} for path in config['includes']]
     }
 
-    template_context['sources'][len(template_context['sources']) - 1]['last'] = True
-    template_context['includes'][len(template_context['includes']) - 1]['last'] = True
+    template_context['sources'][-1]['last'] = True
+    template_context['includes'][-1]['last'] = True
 
     makefile_contents = pystache.render(makefile_template, template_context)
 
