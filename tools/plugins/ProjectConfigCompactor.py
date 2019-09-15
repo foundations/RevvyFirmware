@@ -90,11 +90,9 @@ def expand_port_connection(port_connection):
                 dictionary[multiple] = []
 
     connection = dict(port_connection)
-
-    move_single(connection, 'provider', 'providers')
     move_single(connection, 'consumer', 'consumers')
 
-    connection['providers'] = [process_port_ref_shorthand(provider) for provider in connection['providers']]
+    connection['provider'] = process_port_ref_shorthand(connection['provider'])
     connection['consumers'] = [process_port_ref_shorthand(consumer) for consumer in connection['consumers']]
     return connection
 

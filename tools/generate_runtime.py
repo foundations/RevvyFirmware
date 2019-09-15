@@ -317,27 +317,27 @@ if __name__ == "__main__":
         extras = raw_connection.copy()
         del extras['consumers']
 
-        for provider in raw_connection['providers']:
-            try:
-                provider_port = get_port(provider, component_data)
-                port_type = provider_port['port_type']
+        provider = raw_connection['provider']
+        try:
+            provider_port = get_port(provider, component_data)
+            port_type = provider_port['port_type']
 
-                for connection_type in provider_port_types[port_type]:
-                    possible_types[connection_type] = []
+            for connection_type in provider_port_types[port_type]:
+                possible_types[connection_type] = []
 
-                if len(raw_connection['consumers']) == 0:
-                    if provider['component'] == 'Runtime':
-                        if port_type == 'Event':
-                            possible_types['event'] = [{**extras, 'consumers': []}]
-                        elif port_type == 'ServerCall':
-                            possible_types['call'] = [{**extras, 'consumers': []}]
-                if len(raw_connection['consumers']) > 1:
-                    if not port_allows_multiple_consumers[port_type]:
-                        raise Exception(
-                            'Provider port {} does not allow multiple consumers'.format(provider_port['short_name']))
-            except KeyError as e:
-                print(e)
-                raise
+            if len(raw_connection['consumers']) == 0:
+                if provider['component'] == 'Runtime':
+                    if port_type == 'Event':
+                        possible_types['event'] = [{**extras, 'consumers': []}]
+                    elif port_type == 'ServerCall':
+                        possible_types['call'] = [{**extras, 'consumers': []}]
+            if len(raw_connection['consumers']) > 1:
+                if not port_allows_multiple_consumers[port_type]:
+                    raise Exception(
+                        'Provider port {} does not allow multiple consumers'.format(provider_port['short_name']))
+        except KeyError as e:
+            print(e)
+            raise
 
         for consumer in raw_connection['consumers']:
             consumer_component = component_data[consumer['component']]
@@ -547,27 +547,26 @@ if __name__ == "__main__":
 
 
     for server_call in classified_connections.get('call', []):
-        for caller in server_call['providers']:
-            function = create_function(caller, port_functions, component_data)
+        caller = server_call['provider']
+        function = create_function(caller, port_functions, component_data)
 
-            callee = server_call['consumers'][0]
-            if not are_runnables_compatible(caller, callee):
-                valid = False
+        callee = server_call['consumers'][0]
+        if not are_runnables_compatible(caller, callee):
+            valid = False
+        else:
+            handler_runnable = get_runnable(callee, component_data)
+            handler_args = handler_runnable['arguments']
+            if handler_runnable['return_type'] == 'void':
+                template = "{}_Run_{}({});"
             else:
-                handler_runnable = get_runnable(callee, component_data)
-                handler_args = handler_runnable['arguments']
-                if handler_runnable['return_type'] == 'void':
-                    template = "{}_Run_{}({});"
-                else:
-                    template = "return {}_Run_{}({});"
-                function['body'].append(template.format(callee['component'], callee['port'], ', '.join(handler_args)))
+                template = "return {}_Run_{}({});"
+            function['body'].append(template.format(callee['component'], callee['port'], ', '.join(handler_args)))
 
     variables = {}
     for variable_connection in classified_connections.get('variable', []):
         try:
             # a single databuffer is generated for each write port
-            assert len(variable_connection['providers']) == 1
-            provider = variable_connection['providers'][0]
+            provider = variable_connection['provider']
             provider_port = get_port(provider, component_data)
 
             databuffer_name = pystache.render(databuffer_name_template, {
@@ -607,8 +606,7 @@ if __name__ == "__main__":
     for variable_connection in classified_connections.get('array', []):
         try:
             # a single databuffer is generated for each write port for now, TODO lift this restriction
-            assert len(variable_connection['providers']) == 1
-            provider = variable_connection['providers'][0]
+            provider = variable_connection['provider']
             provider_port = get_port(provider, component_data)
 
             databuffer_name = pystache.render(databuffer_name_template, {
@@ -668,8 +666,7 @@ if __name__ == "__main__":
         for variable_connection in classified_connections.get(connection_type, []):
             try:
                 # a single databuffer is generated for each write port
-                assert len(variable_connection['providers']) == 1
-                provider = variable_connection['providers'][0]
+                provider = variable_connection['provider']
                 provider_port = get_port(provider, component_data)
 
                 databuffer_name = pystache.render(databuffer_name_template, {
@@ -710,8 +707,7 @@ if __name__ == "__main__":
 
     for constant_connection in classified_connections.get('constant', []):
         try:
-            assert len(constant_connection['providers']) == 1
-            provider = constant_connection['providers'][0]
+            provider = constant_connection['provider']
             provider_port = get_port(provider, component_data)
             pass_by = type_data[provider_port['data_type']]['pass_semantic']
 
@@ -729,17 +725,17 @@ if __name__ == "__main__":
             raise
 
     for runnable_connections in classified_connections.get('event', []):
-        for provider in runnable_connections['providers']:
-            function = create_function(provider, port_functions, component_data)
+        provider = runnable_connections['provider']
+        function = create_function(provider, port_functions, component_data)
 
-            for handler in runnable_connections['consumers']:
-                if not are_runnables_compatible(provider, handler):
-                    valid = False
-                else:
-                    handler_runnable = get_runnable(handler, component_data)
-                    handler_args = handler_runnable['arguments']
-                    function['body'].append(
-                        "{}_Run_{}({});".format(handler['component'], handler['port'], ', '.join(handler_args)))
+        for handler in runnable_connections['consumers']:
+            if not are_runnables_compatible(provider, handler):
+                valid = False
+            else:
+                handler_runnable = get_runnable(handler, component_data)
+                handler_args = handler_runnable['arguments']
+                function['body'].append(
+                    "{}_Run_{}({});".format(handler['component'], handler['port'], ', '.join(handler_args)))
 
     if not valid:
         print("Configuration invalid, exiting")

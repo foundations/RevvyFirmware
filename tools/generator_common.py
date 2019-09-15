@@ -87,15 +87,7 @@ def compact_project_config(config):
 
     for port_connection in config['runtime']['port_connections']:
         compacted_port_connection = {}
-
-        providers = []
-        for provider in port_connection['providers']:
-            providers.append(compact_port_ref(provider))
-
-        if len(providers) == 1:
-            compacted_port_connection['provider'] = providers[0]
-        else:
-            compacted_port_connection['providers'] = providers
+        compacted_port_connection['provider'] = port_connection['provider']
 
         consumers = []
         for consumer in port_connection['consumers']:
@@ -216,7 +208,7 @@ def collect_type_aliases(types, type_data: TypeCollection):
 
         elif type_type == 'enum':
             enum_values = [{'value': value} for value in type_data[resolved_type]['values']]
-            enum_values[len(enum_values) - 1]['last'] = True
+            pystache_list_mark_last(enum_values)
             aliases.append({
                 'type':      type_type,
                 'is_enum':   True,
@@ -225,13 +217,13 @@ def collect_type_aliases(types, type_data: TypeCollection):
             })
 
         elif type_type == 'struct':
-            struct_fields = [{'name': name, 'type': type_data[resolved_type]['fields'][name]} for name in
-                             type_data[resolved_type]['fields']]
             aliases.append({
                 'type':      type_type,
                 'is_struct': True,
                 'type_name': type_name,
-                'fields':    struct_fields
+                'fields':    dict_to_pystache_list(type_data[resolved_type]['fields'],
+                                                   key_name='name',
+                                                   value_name='type')
             })
         else:
             raise Exception('Can not generate code for type {}'.format(type_type))

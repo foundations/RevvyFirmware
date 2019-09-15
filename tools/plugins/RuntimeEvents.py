@@ -17,7 +17,7 @@ def expand_runtime_events(owner: Runtime, project_config):
         }
         runtime_component['ports'][event] = event_port
         event_connections.append({
-            'providers': [create_port_ref('/'.join(['Runtime', event]))],
+            'provider':  create_port_ref('/'.join(['Runtime', event])),
             'consumers': [create_port_ref(runnable_ref) for runnable_ref in handlers]
         })
 
