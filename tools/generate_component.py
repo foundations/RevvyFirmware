@@ -7,7 +7,7 @@ import shutil
 import pystache
 
 from tools.generator_common import compact_project_config, to_underscore, collect_type_aliases, TypeCollection, \
-    change_file
+    change_file, create_empty_component_data
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
@@ -102,25 +102,25 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
 
         return given_value
 
-    for runnable in runnable_data:
-        runnable_arguments = runnable_data[runnable]['arguments']
+    for rn_name, runnable in runnable_data.items():
+        runnable_arguments = runnable['arguments']
         arguments = [{'name': arg, 'type': runnable_arguments[arg]} for arg in runnable_arguments]
 
         if arguments:
             arguments[len(arguments) - 1]['last'] = True
 
-        return_type = runnable_data[runnable]['return_type']
+        return_type = runnable['return_type']
         functions.append({
-            'name':         'Run_{}'.format(runnable),
+            'name':         'Run_{}'.format(rn_name),
             'return_type':  return_type,
-            'return_value': default_value(return_type, runnable_data[runnable].get('return_value', None)),
+            'return_value': default_value(return_type, runnable.get('return_value', None)),
             'args':         arguments
         })
 
-    for port in port_data:
-        port_type = port_data[port]['port_type']
+    for port_name, port in port_data.items():
+        port_type = port['port_type']
 
-        data_type = port_data[port].get('data_type', 'void')
+        data_type = port.get('data_type', 'void')
         port_data_templates = {
             "WriteData":
                 lambda: {
@@ -151,7 +151,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  data_type,
-                    "return_value": default_value(data_type, port_data[port].get('default_value')),
+                    "return_value": default_value(data_type, port.get('default_value')),
                     "arguments":    [],
                     "weak":         True
                 } if type_data[data_type]['pass_semantic'] == 'value' else {
@@ -160,7 +160,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                     "return_value":        "",
                     "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
                     "out_argument_values": [
-                        {'name': 'value', 'value': default_value(data_type, port_data[port].get('default_value'))}],
+                        {'name': 'value', 'value': default_value(data_type, port.get('default_value'))}],
                     "weak":                True
                 },
             "ReadQueuedValue":
@@ -170,14 +170,14 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                     "return_value":        "QueueStatus_Empty",
                     "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
                     "out_argument_values": [
-                        {'name': 'value', 'value': default_value(data_type, port_data[port].get('default_value'))}],
+                        {'name': 'value', 'value': default_value(data_type, port.get('default_value'))}],
                     "weak":                True
                 },
             "ReadIndexedValue":
                 lambda: {
                     "name":         "Read_{}",
                     "return_type":  data_type,
-                    "return_value": default_value(data_type, port_data[port].get('default_value')),
+                    "return_value": default_value(data_type, port.get('default_value')),
                     "arguments":    [{'name': 'index', 'type': 'uint32_t'}],
                     "weak":         True
                 },
@@ -185,7 +185,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                 lambda: {
                     "name":         "Constant_{}",
                     "return_type":  data_type,
-                    "return_value": port_data[port]['value'],
+                    "return_value": port['value'],
                     "arguments":    [],
                     "weak":         False
                 } if type_data[data_type]['pass_semantic'] == 'value' else {
@@ -193,7 +193,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                     "return_type":         'void',
                     "return_value":        "",
                     "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
-                    "out_argument_values": [{'name': 'value', 'value': port_data[port]['value']}],
+                    "out_argument_values": [{'name': 'value', 'value': port['value']}],
                     "weak":                False
                 },
             "Event":
@@ -220,7 +220,7 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
                 unused_arguments.append(arg)
 
         port_function_data = {
-            'name':         data['name'].format(port),
+            'name':         data['name'].format(port_name),
             'return_type':  data['return_type'],
             'return_value': data['return_value'],
             'args':         data['arguments'],
@@ -282,12 +282,11 @@ def collect_includes(used_types, type_data: TypeCollection):
 
 
 def create_component_config(name, sources, runnables):
-    json_contents = {
-        'component_name': name,
-        'source_files':   sources,
-        'runnables':      process_runnable_defs(name, runnables)
-    }
-    return json.dumps(json_contents, indent=4)
+    contents = create_empty_component_data(name)
+    contents['source_files'] = sources
+    contents['runnables'] = process_runnable_defs(name, runnables)
+
+    return json.dumps(contents, indent=4)
 
 
 if __name__ == "__main__":
@@ -347,7 +346,6 @@ if __name__ == "__main__":
 
         # replace sources list with new one and set for file modification
         modified_files['project.json'] = json.dumps(compact_project_config(project_config), indent=4)
-        modified_files['rrrc_samd51.cproj'] = add_component_to_cproject('rrrc_samd51.cproj', new_files, new_folders)
     else:
         try:
             rt.load_component_config(component_name)
@@ -359,11 +357,11 @@ if __name__ == "__main__":
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
 
-    for builtin_type in project_config['types']:
-        type_data.add(builtin_type, project_config['types'][builtin_type])
+    for builtin_type, type_info in project_config['types'].items():
+        type_data.add(builtin_type, type_info)
 
-    for new_type in component_types:
-        type_data.add(new_type, component_types[new_type])
+    for new_type, type_info in component_types.items():
+        type_data.add(new_type, type_info)
 
     functions = convert_functions(runnables, ports, type_data)
     used_types = collect_used_types(functions, component_types, type_data)
@@ -397,10 +395,10 @@ if __name__ == "__main__":
             print('NF: {}'.format(folder))
             os.makedirs(folder, exist_ok=True)
 
-        for file_name in new_files:
+        for file_name, contents in new_files.items():
             print('N: {}'.format(file_name))
             with open(file_name, 'w+') as file:
-                file.write(new_files[file_name])
+                file.write(contents)
 
 
         def modify_file(fn, modified_contents):
@@ -411,9 +409,9 @@ if __name__ == "__main__":
                 os.remove(fn + ".bak")
 
 
-        for file_name in modified_files:
+        for file_name, contents in modified_files.items():
             print('C: {}'.format(file_name))
-            modify_file(file_name, modified_files[file_name])
+            modify_file(file_name, contents)
 
     except Exception:
         def delete(path):

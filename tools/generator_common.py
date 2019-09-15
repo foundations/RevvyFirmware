@@ -1,6 +1,34 @@
 import re
 
 
+def create_empty_component_data(name: str):
+    return {
+        'name':         name,
+        'source_files': [],
+        'runnables':    {},
+        'ports':        {},
+        'types':        {}
+    }
+
+
+def create_port_ref(port):
+    if type(port) is str:
+        parts = port.split('/')
+        return {
+            'short_name': port,
+            'component':  parts[0],
+            'port':       parts[1]
+        }
+    elif type(port) is dict:
+        return {
+            'short_name': port['short_name'],
+            'component':  port['component'],
+            'port':       port.get('runnable', port.get('port'))
+        }
+    else:
+        raise TypeError("port must either be a dict or a str")
+
+
 def parse_port_reference(port):
     """Parse shorthand form of port reference into a dictionary"""
     if type(port) is str:
@@ -19,9 +47,9 @@ def parse_port_reference(port):
 def empty_component(name):
     return {
         'component_name': name,
-        'runnables': {},
-        'ports': {},
-        'types': {}
+        'runnables':      {},
+        'ports':          {},
+        'types':          {}
     }
 
 

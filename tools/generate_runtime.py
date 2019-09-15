@@ -6,11 +6,11 @@ import sys
 
 import pystache
 
-from tools.generator_common import to_underscore, collect_type_aliases, TypeCollection, change_file, empty_component, \
-    parse_port_reference
+from tools.generator_common import to_underscore, collect_type_aliases, TypeCollection, change_file
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
-from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_port_def
+from tools.plugins.ComponentConfigCompactor import component_config_compactor
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
+from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
 
 port_allows_multiple_consumers = {
@@ -250,8 +250,8 @@ def validate_runnables(project_config, component_data):
 
     runnables_valid = True
     runtime_config = project_config['runtime']
-    for runnable_group in runtime_config['runnables']:
-        for runnable in runtime_config['runnables'][runnable_group]:
+    for event_name, runnables in runtime_config['runnables'].items():
+        for runnable in runnables:
             provider_component_name = runnable['component']
             if provider_component_name not in project_config['components']:
                 print('Component {} does not exist'.format(provider_component_name))
@@ -267,17 +267,6 @@ def validate_runnables(project_config, component_data):
                     print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
                     runnables_valid = False
     return runnables_valid
-
-
-def load_types(project_config, component_data, type_data: TypeCollection):
-    # load types defined in project config
-    for type_name in project_config['types']:
-        type_data.add(type_name, project_config['types'][type_name])
-
-    # load types defined in component config
-    for component in component_data:
-        for data_type in component_data[component]['types']:
-            type_data.add(data_type, component_data[component]['types'][data_type])
 
 
 def create_runnable_groups(config):
@@ -299,36 +288,6 @@ if __name__ == "__main__":
     else:
         def log(x):
             pass
-
-
-    def create_runtime_events(project_config, component_data):
-        """
-        Gather runnable groups and create a virtual component that provides events for them
-        """
-        if 'Runtime' in component_data:
-            raise Exception('Runtime component already exists')
-
-        component_data['Runtime'] = empty_component('Runtime')
-
-        event_connections = []
-        for runnable_group in project_config['runtime']['runnables']:
-            def create_port_ref(runnable):
-                return {
-                    'short_name': runnable['short_name'],
-                    'component':  runnable['component'],
-                    'port':       runnable['runnable']
-                }
-
-            log('Creating runtime event: {}'.format(runnable_group))
-            event_port = process_port_def('Runtime', runnable_group, {'port_type': 'Event'})
-            component_data['Runtime']['ports'][runnable_group] = event_port
-            event_connections.append({
-                'providers': [parse_port_reference(event_port['short_name'])],
-                'consumers': [create_port_ref(runnable_ref) for runnable_ref in
-                              project_config['runtime']['runnables'][runnable_group]]
-            })
-
-        project_config['runtime']['port_connections'] += event_connections
 
 
     def get_runnable(runnable_ref, components):
@@ -420,12 +379,11 @@ if __name__ == "__main__":
 
         for connection in project_config['runtime']['port_connections']:
             filtered_connections = determine_connection_type(connection, component_data)
-            for connection_type in filtered_connections:
-                for filtered_connection in filtered_connections[connection_type]:
-                    try:
-                        connections[connection_type].append(filtered_connection)
-                    except KeyError:
-                        connections[connection_type] = [filtered_connection]
+            for connection_type, f_connections in filtered_connections.items():
+                try:
+                    connections[connection_type] += f_connections
+                except KeyError:
+                    connections[connection_type] = f_connections
 
         return connections
 
@@ -433,6 +391,7 @@ if __name__ == "__main__":
     log('Loading project configuration from {}'.format(args.config))
     rt = Runtime(args.config)
     rt.add_plugin(project_config_compactor())
+    rt.add_plugin(runtime_events())
     rt.add_plugin(component_config_compactor())
     rt.add_plugin(atmel_studio_support())  # including this because it's possible to read non-component files from cproject
 
@@ -448,13 +407,8 @@ if __name__ == "__main__":
     log('Validate runnables')
     valid = valid and validate_runnables(project_config, component_data)
 
-    type_data = TypeCollection()
+    type_data = rt._types
 
-    log('')
-    log('Load types')
-    load_types(project_config, component_data, type_data)
-
-    create_runtime_events(project_config, component_data)
     classified_connections = classify_connections(project_config, component_data)
 
 
@@ -463,14 +417,15 @@ if __name__ == "__main__":
             provider_port_data = get_port(provider, component_data)
             consumer_port_data = get_runnable(consumer, component_data)
 
-            provider_args = provider_port_data.get('arguments', [])
+            provider_args = provider_port_data.get('arguments', {})
             consumer_args = consumer_port_data['arguments']
 
             # accept cases when more arguments are provided than used
-            for arg in consumer_args:
-                if arg not in provider_args:
-                    return False
+            common_arg_names = consumer_args.keys() & provider_args.keys()
+            if len(common_arg_names) != len(consumer_args):
+                return False
 
+            for arg in common_arg_names:
                 if provider_args[arg] != consumer_args[arg]:
                     return False
 

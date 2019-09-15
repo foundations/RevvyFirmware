@@ -1,5 +1,7 @@
 import json
 
+from tools.generator_common import TypeCollection
+
 
 class RuntimePlugin:
     def __init__(self, name, handlers: dict):
@@ -26,6 +28,7 @@ class Runtime:
         self._defined_types = {}
         self._project_config = {}
         self._components = {}
+        self._types = TypeCollection()
 
     def add_plugin(self, plugin: RuntimePlugin):
         self._plugins[plugin.name] = plugin
@@ -52,11 +55,15 @@ class Runtime:
 
         self._project_config = project_config
 
+        # add defined types
+        for type_name, type_info in project_config['types'].items():
+            self._types.add(type_name, type_info)
+
         if load_components:
             for component_name in project_config['components']:
                 self.load_component_config(component_name)
 
-        self._call_plugin_event('project_config_loaded')
+        self._call_plugin_event('project_config_loaded', project_config)
 
     def load_component_config(self, component_name):
         if not self._project_config:
@@ -69,6 +76,10 @@ class Runtime:
             component_config = json.load(file)
             self._call_plugin_event('load_component_config', component_name, component_config)
             self._components[component_name] = component_config
+
+            # add defined types
+            for data_type, type_info in component_config['types'].items():
+                self._types.add(data_type, type_info)
 
     def create_component(self, component):
         pass

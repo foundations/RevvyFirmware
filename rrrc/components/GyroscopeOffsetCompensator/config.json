@@ -14,14 +14,8 @@
         }
     },
     "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": []
-        },
-        "Update": {
-            "return_type": "void",
-            "arguments": []
-        }
+        "OnInit": {},
+        "Update": {}
     },
     "ports": {
         "AngularSpeeds": {

@@ -2,9 +2,19 @@ from tools.runtime import RuntimePlugin
 
 
 def process_runnable_def(component, runnable_name, runnable):
+    short_name = '{}/{}'.format(component, runnable_name)
+
+    try:
+        args = runnable['arguments']
+        if type(args) is list:
+            print('Warning: converting argument list to dict in {}'.format(short_name))
+            args = {}
+    except KeyError:
+        args = {}
+
     return {
-        'short_name':  '{}/{}'.format(component, runnable_name),
-        'arguments':   runnable.get('arguments', {}),
+        'short_name':  short_name,
+        'arguments':   args,
         'return_type': runnable.get('return_type', 'void')
     }
 
