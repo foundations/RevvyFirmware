@@ -7,7 +7,7 @@ import shutil
 import pystache
 
 from tools.generator_common import compact_project_config, to_underscore, collect_type_aliases, TypeCollection, \
-    change_file, create_empty_component_data
+    change_file, create_empty_component_data, dict_to_pystache_list
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
@@ -15,7 +15,7 @@ from tools.runtime import Runtime
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
-fn_header_template = '{{return_type}} {{ component_name }}_{{name}}(' + argument_list_template + ')'
+fn_header_template = '{{return_type}} {{name}}(' + argument_list_template + ')'
 
 typedef_template = """{{ #aliased }}
 typedef {{ aliased }} {{ type_name }};
@@ -64,7 +64,7 @@ __attribute__((weak)){{/weak}}
 ''' + fn_header_template + '''
 {
     {{#unused_args}}
-    (void) {{name}};
+    (void) {{ . }};
     {{/unused_args}}
     {{#arg_values}}
     *{{name}} = {{{value}}};
@@ -76,18 +76,12 @@ __attribute__((weak)){{/weak}}
 {{/functions}}
 '''
 
-include_pattern = '#include "components/{0}/{0}.h"'
-init_fn_call_pattern = "{}_Run_OnInit();"
-
-makefile_component_files_start_marker = '# Software Component Source Files\n'
-makefile_component_files_end_marker = '# End of Software Component Source Files\n'
-
 default_runnables = {
     'OnInit': {}
 }
 
 
-def convert_functions(runnable_data, port_data, type_data: TypeCollection):
+def convert_functions(component_name, runnable_data, port_data, type_data: TypeCollection):
     functions = []
 
     def default_value(type_name, given_value):
@@ -103,135 +97,120 @@ def convert_functions(runnable_data, port_data, type_data: TypeCollection):
         return given_value
 
     for rn_name, runnable in runnable_data.items():
-        runnable_arguments = runnable['arguments']
-        arguments = [{'name': arg, 'type': runnable_arguments[arg]} for arg in runnable_arguments]
-
-        if arguments:
-            arguments[len(arguments) - 1]['last'] = True
-
         return_type = runnable['return_type']
         functions.append({
-            'name':         'Run_{}'.format(rn_name),
+            'name':         '{}_Run_{}'.format(component_name, rn_name),
             'return_type':  return_type,
             'return_value': default_value(return_type, runnable.get('return_value', None)),
-            'args':         arguments
+            'args':         dict_to_pystache_list(runnable['arguments'],
+                                                  key_name='name',
+                                                  value_name='type',
+                                                  last_key='last')
         })
 
     for port_name, port in port_data.items():
         port_type = port['port_type']
 
         data_type = port.get('data_type', 'void')
+        passed_by = type_data[data_type]['pass_semantic']
         port_data_templates = {
             "WriteData":
                 lambda: {
-                    "name":         "Write_{}",
-                    "return_type":  "void",
-                    "return_value": "",
-                    "arguments":    [{'name': 'value', 'type': data_type}],
-                    "weak":         True
-                } if type_data[data_type]['pass_semantic'] == 'value' else {
-                    "name":         "Write_{}",
-                    "return_type":  'void',
-                    "return_value": "",
-                    "arguments":    [{'name': 'value', 'type': "const {}*".format(data_type)}],
-                    "weak":         True
+                    "name":        "{}_Write_{}",
+                    "return_type": "void",
+                    "arguments":   {'value': data_type if passed_by == 'value' else "const {}*".format(data_type)},
+                    "weak":        True
                 },
             "WriteIndexedData":
                 lambda: {
-                    "name":         "Write_{}",
-                    "return_type":  "void",
-                    "return_value": "",
-                    "arguments":    [
-                        {'name': 'index', 'type': 'uint32_t'},
-                        {'name': 'value', 'type': data_type}
-                    ],
-                    "weak":         True
+                    "name":        "{}_Write_{}",
+                    "return_type": "void",
+                    "arguments":   {
+                        'index': 'uint32_t',
+                        'value': data_type if passed_by == 'value' else "const {}*".format(data_type)
+                    },
+                    "weak":        True
                 },
             "ReadValue":
                 lambda: {
-                    "name":         "Read_{}",
+                    "name":         "{}_Read_{}",
                     "return_type":  data_type,
                     "return_value": default_value(data_type, port.get('default_value')),
-                    "arguments":    [],
+                    "arguments":    {},
                     "weak":         True
-                } if type_data[data_type]['pass_semantic'] == 'value' else {
-                    "name":                "Read_{}",
+                } if passed_by == 'value' else {
+                    "name":                "{}_Read_{}",
                     "return_type":         'void',
-                    "return_value":        "",
-                    "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
-                    "out_argument_values": [
-                        {'name': 'value', 'value': default_value(data_type, port.get('default_value'))}],
+                    "arguments":           {'value': "{}*".format(data_type)},
+                    "out_argument_values": {'value': default_value(data_type, port.get('default_value'))},
                     "weak":                True
                 },
             "ReadQueuedValue":
                 lambda: {
-                    "name":                "Read_{}",
+                    "name":                "{}_Read_{}",
                     "return_type":         'QueueStatus_t',
                     "return_value":        "QueueStatus_Empty",
-                    "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
-                    "out_argument_values": [
-                        {'name': 'value', 'value': default_value(data_type, port.get('default_value'))}],
+                    "arguments":           {'value': "{}*".format(data_type)},
+                    "out_argument_values": {'value': default_value(data_type, port.get('default_value'))},
                     "weak":                True
                 },
             "ReadIndexedValue":
                 lambda: {
-                    "name":         "Read_{}",
+                    "name":         "{}_Read_{}",
                     "return_type":  data_type,
                     "return_value": default_value(data_type, port.get('default_value')),
-                    "arguments":    [{'name': 'index', 'type': 'uint32_t'}],
+                    "arguments":    {'index': 'uint32_t'},
                     "weak":         True
+                } if passed_by == 'value' else {
+                    "name":                "{}_Read_{}",
+                    "return_type":         'void',
+                    "arguments":           {'index': 'uint32_t', 'value': "{}*".format(data_type)},
+                    "out_argument_values": {'value': default_value(data_type, port.get('default_value'))},
+                    "weak":                True
                 },
             "Constant":
                 lambda: {
-                    "name":         "Constant_{}",
+                    "name":         "{}_Constant_{}",
                     "return_type":  data_type,
                     "return_value": port['value'],
-                    "arguments":    [],
+                    "arguments":    {},
                     "weak":         False
-                } if type_data[data_type]['pass_semantic'] == 'value' else {
-                    "name":                "Constant_{}",
+                } if passed_by == 'value' else {
+                    "name":                "{}_Constant_{}",
                     "return_type":         'void',
-                    "return_value":        "",
-                    "arguments":           [{'name': 'value', 'type': "{}*".format(data_type)}],
-                    "out_argument_values": [{'name': 'value', 'value': port['value']}],
+                    "arguments":           {'value': "{}*".format(data_type)},
+                    "out_argument_values": {'value': port['value']},
                     "weak":                False
                 },
             "Event":
                 lambda: {
-                    "name":         "Call_{}",
-                    "return_type":  "void",
-                    "return_value": "",
-                    "arguments":    [],
-                    "weak":         True
+                    "name":        "{}_Call_{}",
+                    "return_type": "void",
+                    "arguments":   port.get('arguments', {}),
+                    "weak":        True
                 }
         }
 
         data = port_data_templates[port_type]()
+        out_args = data.get('out_argument_values', {})
 
-        unused_arguments = []
-        out_arg_values = data.get('out_argument_values', [])
-        for arg in data['arguments']:
-            found = False
-            for out in out_arg_values:
-                # noinspection PyTypeChecker
-                if arg['name'] == out['name']:
-                    found = True
-            if not found:
-                unused_arguments.append(arg)
+        arguments = dict_to_pystache_list(data['arguments'], key_name='name', value_name='type', last_key='last')
+        out_arguments = dict_to_pystache_list(out_args, key_name='name', value_name='value')
+
+        argument_names = data['arguments'].keys()
+        used_argument_names = out_args.keys()
+
+        unused_arguments = argument_names - used_argument_names
 
         port_function_data = {
-            'name':         data['name'].format(port_name),
+            'name':         data['name'].format(component_name, port_name),
             'return_type':  data['return_type'],
-            'return_value': data['return_value'],
-            'args':         data['arguments'],
+            'return_value': data.get('return_value', ''),
+            'args':         arguments,
             'unused_args':  unused_arguments,
-            'arg_values':   out_arg_values,
+            'arg_values':   out_arguments,
             'weak':         data['weak']
         }
-
-        if port_function_data['args']:
-            port_function_data['args'][len(port_function_data['args']) - 1]['last'] = True
-
         functions.append(port_function_data)
 
     return functions
@@ -271,9 +250,10 @@ def collect_includes(used_types, type_data: TypeCollection):
         if resolved_type['type'] == 'external_type_def':
             if resolved_type['defined_in'] is not None:
                 includes.add(resolved_type['defined_in'])
+
         elif resolved_type['type'] == 'struct':
-            for field in resolved_type['fields']:
-                add_type(resolved_type['fields'][field])
+            for field in resolved_type['fields'].values():
+                add_type(field)
 
     for used in used_types:
         add_type(used)
@@ -363,7 +343,7 @@ if __name__ == "__main__":
     for new_type, type_info in component_types.items():
         type_data.add(new_type, type_info)
 
-    functions = convert_functions(runnables, ports, type_data)
+    functions = convert_functions(component_name, runnables, ports, type_data)
     used_types = collect_used_types(functions, component_types, type_data)
     template_ctx = {
         'component_name': component_name,

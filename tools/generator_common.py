@@ -262,3 +262,25 @@ def change_file(filename, contents):
             f.write(contents)
 
     return file_changed
+
+
+def pystache_list_mark_last(data, last_key='last'):
+    if data:
+        data[-1][last_key] = True
+
+
+def dict_to_pystache_list(data, key_name, value_name, last_key=None):
+    """Transform a list of key-value pairs to a list of dicts with given key and value names.
+
+    This is useful for passing dictionaries to pystache.
+    If the last_key is given, the last item has an extra element with the last_key as key and True as value.
+
+    >>> dict_to_pystache_list({'foo': 'bar'}, 'key', 'value')
+    [{'key': 'foo', 'value': 'bar'}]
+    >>> dict_to_pystache_list({'foo': 'bar', 'bar': 'baz'}, 'key', 'value', 'last')
+    [{'key': 'foo', 'value': 'bar'}, {'key': 'bar', 'value': 'baz', 'last': True}]
+    """
+    pystache_list = [{key_name: key, value_name: value} for key, value in data.items()]
+    if last_key:
+        pystache_list_mark_last(pystache_list, last_key)
+    return pystache_list

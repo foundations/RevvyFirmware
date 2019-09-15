@@ -6,8 +6,8 @@ import sys
 
 import pystache
 
-from tools.generator_common import to_underscore, collect_type_aliases, TypeCollection, change_file
-from tools.plugins.AtmelStudioSupport import atmel_studio_support
+from tools.generator_common import to_underscore, collect_type_aliases, change_file, pystache_list_mark_last, \
+    dict_to_pystache_list
 from tools.plugins.ComponentConfigCompactor import component_config_compactor
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
@@ -253,19 +253,21 @@ def validate_runnables(project_config, component_data):
     for event_name, runnables in runtime_config['runnables'].items():
         for runnable in runnables:
             provider_component_name = runnable['component']
-            if provider_component_name not in project_config['components']:
-                print('Component {} does not exist'.format(provider_component_name))
-                runnables_valid = False
-            else:
+            runnable_name = runnable['runnable']
+            try:
                 component_config = component_data[provider_component_name]
-                runnable_name = runnable['runnable']
-                if runnable_name not in component_config.get('runnables', {}):
+                try:
+                    if component_config['runnables'][runnable_name]['arguments']:
+                        print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
+                        runnables_valid = False
+                except KeyError:
                     print('Component {} does not have a runnable called {}'
                           .format(provider_component_name, runnable_name))
                     runnables_valid = False
-                elif component_config['runnables'][runnable_name]['arguments']:
-                    print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
-                    runnables_valid = False
+            except KeyError:
+                print('Component {} does not exist'.format(provider_component_name))
+                runnables_valid = False
+
     return runnables_valid
 
 
@@ -312,7 +314,7 @@ if __name__ == "__main__":
 
     def determine_connection_type(raw_connection, component_data):
         possible_types = {}
-        extras = dict(raw_connection)
+        extras = raw_connection.copy()
         del extras['consumers']
 
         for provider in raw_connection['providers']:
@@ -351,6 +353,7 @@ if __name__ == "__main__":
                         added = True
                 if not added:
                     raise Exception('Port {} assigned to incompatible provider'.format(consumer['short_name']))
+
             elif consumer['port'] in consumer_component['runnables']:
                 runnable = get_runnable(consumer, component_data)
                 if runnable['return_type'] == 'void':
@@ -362,6 +365,7 @@ if __name__ == "__main__":
                     possible_types[consumer_type].append({**extras, 'consumers': [consumer]})
                 else:
                     raise Exception('Runnable {} assigned to incompatible provider port'.format(consumer['short_name']))
+
             else:
                 raise Exception('Unknown port or runnable: {}'.format(consumer['short_name']))
 
@@ -393,7 +397,6 @@ if __name__ == "__main__":
     rt.add_plugin(project_config_compactor())
     rt.add_plugin(runtime_events())
     rt.add_plugin(component_config_compactor())
-    rt.add_plugin(atmel_studio_support())  # including this because it's possible to read non-component files from cproject
 
     rt.load(True)
     project_config = rt._project_config
@@ -425,27 +428,12 @@ if __name__ == "__main__":
             if len(common_arg_names) != len(consumer_args):
                 return False
 
+            # check if argument types are the same
             for arg in common_arg_names:
                 if provider_args[arg] != consumer_args[arg]:
                     return False
 
             return True
-        except KeyError as e:
-            log('{}: {}'.format(type(e).__name__, e))
-            return False
-
-
-    def port_ref_valid(port):
-        try:
-            return port['port'] in component_data[port['component']]['ports']
-        except KeyError as e:
-            log('{}: {}'.format(type(e).__name__, e))
-            return False
-
-
-    def runnable_ref_valid(port):
-        try:
-            return port['port'] in component_data[port['component']]['runnables']
         except KeyError as e:
             log('{}: {}'.format(type(e).__name__, e))
             return False
@@ -461,96 +449,89 @@ if __name__ == "__main__":
     port_functions = {}
 
 
-    def create_function(caller, port_functions, component_data):
-        if caller['short_name'] not in port_functions:
-            caller_port = get_port(caller, component_data)
-            if caller_port['port_type'] not in ['Event', 'ServerCall']:
-                return create_port_function(caller, port_functions, component_data)
-
-            function_name = '{}_Call_{}'.format(caller['component'], caller['port'])
-            return_type = caller_port.get('return_type', 'void')
-            arguments = [{'name': arg, 'type': caller_port['arguments'][arg]} for arg in
-                         caller_port.get('arguments', [])]
-            if arguments:
-                arguments[len(arguments) - 1]['last'] = True
-            port_functions[caller['short_name']] = {
-                'port':          caller,
-                'type':          'runnable_connection',
-                'function_name': function_name,
-                'return_type':   return_type,
-                'arguments':     arguments,
-                'body':          []
-            }
-            log('Created function: {}'.format(function_name))
-            log('  Return type: {}'.format(return_type))
-            log('  Arguments: {}'.format(", ".join(["{}: {}".format(arg['name'], arg['type']) for arg in arguments])))
-        return port_functions[caller['short_name']]
-
-
-    def create_port_function(port, port_functions, component_data):
+    def create_function(port, port_functions, component_data):
         if port['short_name'] not in port_functions:
-            port_data = component_data[port['component']]['ports'][port['port']]
+            port_data = get_port(port, component_data)
             port_type = port_data['port_type']
 
             data_type = port_data.get('data_type', 'void')
+            passed_by = type_data[data_type]['pass_semantic']
+
             port_data_templates = {
                 "WriteData":
                     lambda: {
                         "name":        "{}_Write_{}",
                         "return_type": "void",
-                        "arguments":   [{
-                            'name': 'value',
-                            'type': data_type if type_data[data_type]['pass_semantic'] == 'value'
-                                    else "const {}*".format(data_type)}],
+                        "arguments":   {
+                            'value': data_type if passed_by == 'value' else "const {}*".format(data_type)},
                     },
                 "WriteIndexedData":
                     lambda: {
                         "name":        "{}_Write_{}",
                         "return_type": "void",
-                        "arguments":   [
-                            {'name': 'index', 'type': 'uint32_t'},
-                            {'name': 'value', 'type': data_type}
-                        ]
+                        "arguments":   {
+                            'index': 'uint32_t',
+                            'value': data_type if passed_by == 'value' else "const {}*".format(data_type)
+                        }
                     },
                 "ReadValue":
                     lambda: {
                         "name":        "{}_Read_{}",
                         "return_type": data_type,
-                        "arguments":   []
-                    } if type_data[data_type]['pass_semantic'] == 'value' else {
+                        "arguments":   {}
+                    } if passed_by == 'value' else {
                         "name":        "{}_Read_{}",
                         "return_type": 'void',
-                        "arguments":   [{'name': 'value', 'type': "{}*".format(data_type)}]
+                        "arguments":   {'value': "{}*".format(data_type)}
                     },
                 "ReadQueuedValue":
                     lambda: {
                         "name":        "{}_Read_{}",
                         "return_type": 'QueueStatus_t',
-                        "arguments":   [{'name': 'value', 'type': "{}*".format(data_type)}]
+                        "arguments":   {'value': "{}*".format(data_type)}
                     },
                 "ReadIndexedValue":
                     lambda: {
                         "name":        "{}_Read_{}",
                         "return_type": data_type,
-                        "arguments":   [{'name': 'index', 'type': 'uint32_t'}]
+                        "arguments":   {'index': 'uint32_t'},
+                    } if passed_by == 'value' else {
+                        "name":        "{}_Read_{}",
+                        "return_type": 'void',
+                        "arguments":   {'index': 'uint32_t', 'value': "{}*".format(data_type)},
                     },
                 "Constant":
                     lambda: {
                         "name":        "{}_Constant_{}",
                         "return_type": data_type,
-                        "arguments":   []
-                    } if type_data[data_type]['pass_semantic'] == 'value' else {
-                        "name":        "Constant_{}",
+                        "arguments":   {}
+                    } if passed_by == 'value' else {
+                        "name":        "{}_Constant_{}",
                         "return_type": 'void',
-                        "arguments":   [{'name': 'value', 'type': "{}*".format(data_type)}]
+                        "arguments":   {'value': "{}*".format(data_type)}
+                    },
+                "Event":
+                    lambda: {
+                        'name':        '{}_Call_{}',
+                        'return_type': 'void',
+                        'arguments':   port_data.get('arguments', {})
+                    },
+                "ServerCall":
+                    lambda: {
+                        'name':        '{}_Call_{}',
+                        'return_type': port_data.get('return_type', 'void'),
+                        'arguments':   port_data.get('arguments', {})
                     }
             }
 
             data = port_data_templates[port_type]()
             function_name = data['name'].format(port['component'], port['port'])
-            arguments = data['arguments']
-            if arguments:
-                arguments[len(arguments) - 1]['last'] = True
+            arguments = dict_to_pystache_list(data['arguments'],
+                                              key_name='name',
+                                              value_name='type',
+                                              last_key='last')
+
+            pystache_list_mark_last(arguments)
             port_functions[port['short_name']] = {
                 'port':          port,
                 'type':          'runnable_connection',
@@ -597,7 +578,7 @@ if __name__ == "__main__":
             pass_by = type_data[provider_port['data_type']]['pass_semantic']
             name = 'variable_{}'.format(provider['short_name'])
             if name not in variables:
-                provider_function = create_port_function(provider, port_functions, component_data)
+                provider_function = create_function(provider, port_functions, component_data)
 
                 ctx = {
                     'data_type':   provider_port['data_type'],
@@ -610,7 +591,7 @@ if __name__ == "__main__":
                 provider_function['body'].append(pystache.render(write_template, ctx))
 
             for consumer in variable_connection['consumers']:
-                consumer_function = create_port_function(consumer, port_functions, component_data)
+                consumer_function = create_function(consumer, port_functions, component_data)
 
                 consumer_port_type = get_port(consumer, component_data)['port_type']
                 read_template = consumer_templates[consumer_port_type]['variable'][pass_by].replace('\n', '\n    ')
@@ -635,25 +616,25 @@ if __name__ == "__main__":
                 'port_name':      provider['port']
             })
 
-            pass_by = type_data[provider_port['data_type']]['pass_semantic']
+            data_type = provider_port['data_type']
+            pass_by = type_data[data_type]['pass_semantic']
             name = 'array_{}'.format(provider['short_name'])
             assert_template = 'ASSERT({{index}} < ARRAY_SIZE({{ buffer_name }}));'
             count = provider_port['count']
 
             if name not in variables:
-                provider_function = create_port_function(provider, port_functions, component_data)
+                provider_function = create_function(provider, port_functions, component_data)
                 ctx = {
-                    'data_type':   provider_port['data_type'],
+                    'data_type':   data_type,
                     'buffer_name': databuffer_name,
                     'size':        count,
                     'index':       provider_function['arguments'][0]['name'],
                     'value':       provider_function['arguments'][1]['name'],
                     'init_values': [
                         {'value': value} for value in provider.get('init_values',
-                                                                   [type_data.default_value(provider_port[
-                                                                                                'data_type'])] * count)]
+                                                                   [type_data.default_value(data_type)] * count)]
                 }
-                ctx['init_values'][len(ctx['init_values']) - 1]['last'] = True
+                pystache_list_mark_last(ctx['init_values'])
 
                 if not provider_function['body']:
                     provider_function['body'].append(pystache.render(assert_template, ctx))
@@ -663,7 +644,7 @@ if __name__ == "__main__":
                 provider_function['body'].append(pystache.render(write_template, ctx))
 
             for consumer in variable_connection['consumers']:
-                consumer_function = create_port_function(consumer, port_functions, component_data)
+                consumer_function = create_function(consumer, port_functions, component_data)
 
                 consumer_port_type = get_port(consumer, component_data)['port_type']
                 read_template = consumer_templates[consumer_port_type]['array'][pass_by].replace('\n', '\n    ')
@@ -699,7 +680,7 @@ if __name__ == "__main__":
                 pass_by = type_data[provider_port['data_type']]['pass_semantic']
                 name = 'queue1_{}'.format(provider['short_name'])
                 if name not in variables:
-                    provider_function = create_port_function(provider, port_functions, component_data)
+                    provider_function = create_function(provider, port_functions, component_data)
 
                     ctx = {
                         'data_type':    provider_port['data_type'],
@@ -713,7 +694,7 @@ if __name__ == "__main__":
                     provider_function['body'].append(pystache.render(write_template, ctx))
 
                 for consumer in variable_connection['consumers']:
-                    consumer_function = create_port_function(consumer, port_functions, component_data)
+                    consumer_function = create_function(consumer, port_functions, component_data)
 
                     consumer_port_type = get_port(consumer, component_data)['port_type']
                     read_template = consumer_templates[consumer_port_type][connection_type].replace('\n', '\n    ')
@@ -735,7 +716,7 @@ if __name__ == "__main__":
             pass_by = type_data[provider_port['data_type']]['pass_semantic']
 
             for consumer in constant_connection['consumers']:
-                consumer_function = create_port_function(consumer, port_functions, component_data)
+                consumer_function = create_function(consumer, port_functions, component_data)
                 consumer_port_type = get_port(consumer, component_data)['port_type']
                 const_template = consumer_templates[consumer_port_type]['constant'][pass_by].replace('\n', '\n    ')
                 function_body = pystache.render(const_template, {
