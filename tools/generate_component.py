@@ -87,7 +87,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
     def default_value(type_name, given_value):
         if given_value is None:
             default = type_data.default_value(type_name)
-            if type_data[type_name]['type'] == 'struct':
+            if type_data[type_name]['type'] == TypeCollection.STRUCT:
                 field_default_strs = ['.{} = {}'.format(field, default[field]) for field in default]
                 return '({}) {{ {} }}'.format(type_name, ", ".join(field_default_strs))
 
@@ -224,8 +224,11 @@ def collect_used_types(functions, component_types, type_data: TypeCollection):
         resolved_name = type_data.resolve(sanitized_name)
         resolved_type = type_data[sanitized_name]
 
+        if type_data.get(sanitized_name)['type'] == TypeCollection.ALIAS:
+            types.add(sanitized_name)
+
         types.add(resolved_name)
-        if resolved_type['type'] == 'struct':
+        if resolved_type['type'] == TypeCollection.STRUCT:
             for field in resolved_type['fields']:
                 add_type(resolved_type['fields'][field])
 
@@ -247,11 +250,11 @@ def collect_includes(used_types, type_data: TypeCollection):
         sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
         resolved_type = type_data[sanitized_name]
 
-        if resolved_type['type'] == 'external_type_def':
+        if resolved_type['type'] == TypeCollection.EXTERNAL_DEF:
             if resolved_type['defined_in'] is not None:
                 includes.add(resolved_type['defined_in'])
 
-        elif resolved_type['type'] == 'struct':
+        elif resolved_type['type'] == TypeCollection.STRUCT:
             for field in resolved_type['fields'].values():
                 add_type(field)
 

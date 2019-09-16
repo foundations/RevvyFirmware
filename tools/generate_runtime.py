@@ -7,7 +7,7 @@ import sys
 import pystache
 
 from tools.generator_common import to_underscore, collect_type_aliases, change_file, pystache_list_mark_last, \
-    dict_to_pystache_list
+    dict_to_pystache_list, TypeCollection
 from tools.plugins.ComponentConfigCompactor import component_config_compactor
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
@@ -326,6 +326,8 @@ if __name__ == "__main__":
                 possible_types[connection_type] = []
 
             if len(raw_connection['consumers']) == 0:
+                # FIXME: temporarily generate empty functions for Runtime events
+                #   to be moved to component later
                 if provider['component'] == 'Runtime':
                     if port_type == 'Event':
                         possible_types['event'] = [{**extras, 'consumers': []}]
@@ -414,6 +416,15 @@ if __name__ == "__main__":
 
     classified_connections = classify_connections(project_config, component_data)
 
+    type_aliases = collect_type_aliases(type_data, type_data)
+    type_includes = set()
+    for type_alias in type_aliases:
+        if type_alias['type'] == TypeCollection.EXTERNAL_DEF:
+            type_includes.add(type_alias['defined_in'])
+
+    port_connections = []
+    port_functions = {}
+
 
     def are_runnables_compatible(provider, consumer):
         try:
@@ -437,16 +448,6 @@ if __name__ == "__main__":
         except KeyError as e:
             log('{}: {}'.format(type(e).__name__, e))
             return False
-
-
-    type_aliases = collect_type_aliases(type_data, type_data)
-    type_includes = set()
-    for type_alias in type_aliases:
-        if 'defined_in' in type_alias and type_alias['defined_in'] is not None:
-            type_includes.add(type_alias['defined_in'])
-
-    port_connections = []
-    port_functions = {}
 
 
     def create_function(port, port_functions, component_data):

@@ -29,21 +29,6 @@ def create_port_ref(port):
         raise TypeError("port must either be a dict or a str")
 
 
-def parse_port_reference(port):
-    """Parse shorthand form of port reference into a dictionary"""
-    if type(port) is str:
-        parts = port.split('/')
-        port = {
-            'short_name': port,
-            'component':  parts[0],
-            'port':       parts[1]
-        }
-    else:
-        port['short_name'] = "{}/{}".format(port['component'], port['port'])
-
-    return port
-
-
 def empty_component(name):
     return {
         'component_name': name,
@@ -86,8 +71,7 @@ def compact_project_config(config):
             compacted['runtime']['runnables'][group].append(compacted_runnable)
 
     for port_connection in config['runtime']['port_connections']:
-        compacted_port_connection = {}
-        compacted_port_connection['provider'] = port_connection['provider']
+        compacted_port_connection = {'provider': port_connection['provider']}
 
         consumers = []
         for consumer in port_connection['consumers']:
@@ -104,29 +88,40 @@ def compact_project_config(config):
 
 
 class TypeCollection:
+    BUILTIN = 'builtin'
+    ALIAS = 'type_alias'
+    EXTERNAL_DEF = 'external_type_def'
+    ENUM = 'enum'
+    STRUCT = 'struct'
+
     def __init__(self):
-        self._type_data = {}
-        self._resolved_names = {}
+        self._type_data = {
+            'void': {
+                'type': TypeCollection.BUILTIN,
+                'pass_semantic': 'value'
+            }
+        }
+        self._resolved_names = {'void': 'void'}
 
     def add(self, type_name, info):
         if type_name in self._type_data:
             # type already exists, check if they are the same
             resolved_known = self.resolve(type_name)
 
-            if info['type'] == 'type_alias':
+            if info['type'] == TypeCollection.ALIAS:
                 resolved_new = self.resolve(info['aliases'])
                 if resolved_known != resolved_new:
                     raise Exception('Type {} is already defined'.format(type_name))
 
-            elif info['type'] == 'external_type_def':
+            elif info['type'] == TypeCollection.EXTERNAL_DEF:
                 if info['defined_in'] != self._type_data[resolved_known]['defined_in']:
                     raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
 
-            elif info['type'] == 'enum':
+            elif info['type'] == TypeCollection.ENUM:
                 if info['values'] != self._type_data[resolved_known]['values']:
                     raise Exception('Enum {} is incompatible with previous definition'.format(type_name))
 
-            elif info['type'] == 'struct':
+            elif info['type'] == TypeCollection.STRUCT:
                 if info['fields'] != self._type_data[resolved_known]['fields']:
                     raise Exception('Structure {} is incompatible with previous definition'.format(type_name))
 
@@ -149,9 +144,8 @@ class TypeCollection:
         elif type_name in past:
             raise Exception('Circular type definition for {}'.format(type_name))
 
-        if self._type_data[type_name]['type'] in ['type_alias', 'enum', 'struct']:
-
-            if self._type_data[type_name]['type'] == 'type_alias':
+        if self._type_data[type_name]['type'] != TypeCollection.EXTERNAL_DEF:
+            if self._type_data[type_name]['type'] == TypeCollection.ALIAS:
                 past.append(type_name)
                 resolved = self._resolve(self._type_data[type_name]['aliases'], past)
             else:
@@ -161,13 +155,13 @@ class TypeCollection:
 
             return resolved
 
-        if self._type_data[type_name]['type'] == 'external_type_def':
+        else:
             self._resolved_names[type_name] = type_name
             return type_name
 
     def default_value(self, type_name):
         resolved = self[type_name]
-        if resolved['type'] == 'struct':
+        if resolved['type'] == TypeCollection.STRUCT:
             return {field: self.default_value(resolved['fields'][field]) for field in resolved['fields']}
 
         else:
@@ -192,21 +186,24 @@ def collect_type_aliases(types, type_data: TypeCollection):
         resolved_type = type_data.resolve(type_name)
         type_type = type_data.get(type_name)['type']
 
-        if type_type == 'type_alias':
+        if type_type == TypeCollection.BUILTIN:
+            pass
+
+        elif type_type == TypeCollection.ALIAS:
             aliases.append({
                 'type':      type_type,
                 'type_name': type_name,
                 'aliased':   resolved_type
             })
 
-        elif type_type == 'external_type_def':
+        elif type_type == TypeCollection.EXTERNAL_DEF:
             aliases.append({
                 'type':       type_type,
                 'type_name':  type_name,
                 'defined_in': type_data[resolved_type]['defined_in']
             })
 
-        elif type_type == 'enum':
+        elif type_type == TypeCollection.ENUM:
             enum_values = [{'value': value} for value in type_data[resolved_type]['values']]
             pystache_list_mark_last(enum_values)
             aliases.append({
@@ -216,7 +213,7 @@ def collect_type_aliases(types, type_data: TypeCollection):
                 'values':    enum_values
             })
 
-        elif type_type == 'struct':
+        elif type_type == TypeCollection.STRUCT:
             aliases.append({
                 'type':      type_type,
                 'is_struct': True,
@@ -225,6 +222,7 @@ def collect_type_aliases(types, type_data: TypeCollection):
                                                    key_name='name',
                                                    value_name='type')
             })
+
         else:
             raise Exception('Can not generate code for type {}'.format(type_type))
 

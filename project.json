@@ -135,12 +135,6 @@
         "YawAngleTracker"
     ],
     "types": {
-        "void": {
-            "type": "external_type_def",
-            "defined_in": null,
-            "default_value": "",
-            "pass_semantic": "value"
-        },
         "uint8_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
