@@ -383,7 +383,6 @@ if __name__ == "__main__":
     if args.update_source:
         update_file(component_file(component_name + '.c'), pystache.render(source_template, template_ctx))
 
-    # noinspection PyBroadException
     try:
         for folder in new_folders:
             print('NF: {}'.format(folder))
@@ -424,3 +423,5 @@ if __name__ == "__main__":
 
         for folder in new_folders:
             shutil.rmtree(folder)
+
+        raise
