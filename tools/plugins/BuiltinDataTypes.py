@@ -1,5 +1,42 @@
-from tools.generator_common import TypeCollection, copy
+import pystache
+
+from tools.generator_common import TypeCollection, copy, pystache_list_mark_last, dict_to_pystache_list
 from tools.runtime import RuntimePlugin
+
+
+def render_alias_typedef(type_collection: TypeCollection, type_name):
+    context = {
+        'type_name': type_name,
+        'aliased':   type_collection.resolve(type_name)
+    }
+
+    return pystache.render("typedef {{ aliased }} {{ type_name }};", context)
+
+
+def render_enum_typedef(type_collection: TypeCollection, type_name):
+    context = {
+        'type_name': type_name,
+        'values':    pystache_list_mark_last([{'value': value} for value in type_collection[type_name]['values']])
+    }
+
+    return pystache.render("""typedef enum {
+    {{ #values }}
+    {{ value }}{{ ^last }},{{ /last }}
+    {{ /values }}
+} {{ type_name }};""", context)
+
+
+def render_struct_typedef(type_collection: TypeCollection, type_name):
+    context = {
+        'type_name': type_name,
+        'fields':    dict_to_pystache_list(type_collection[type_name]['fields'], key_name='name', value_name='type')
+    }
+
+    return pystache.render("""typedef struct {
+    {{ #fields }}
+    {{ type }} {{ name }};
+    {{ /fields }}
+} {{ type_name }};""", context)
 
 
 def process_type_def(type_name, type_def):
@@ -19,7 +56,10 @@ def process_type_def(type_name, type_def):
         TypeCollection.ALIAS:        {
             'required': ['aliases'],
             'optional': {'default_value': None, 'pass_semantic': None},
-            'static':   {'type': TypeCollection.ALIAS}
+            'static':   {
+                'type':           TypeCollection.ALIAS,
+                'render_typedef': render_alias_typedef
+            }
         },
 
         TypeCollection.EXTERNAL_DEF: {
@@ -31,13 +71,19 @@ def process_type_def(type_name, type_def):
         TypeCollection.ENUM:         {
             'required': ['values', 'default_value'],
             'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
-            'static':   {'type': TypeCollection.ENUM}
+            'static':   {
+                'type':           TypeCollection.ENUM,
+                'render_typedef': render_enum_typedef
+            }
         },
 
         TypeCollection.STRUCT:       {
             'required': ['fields', 'default_value'],
             'optional': {'pass_semantic': TypeCollection.PASS_BY_POINTER},
-            'static':   {'type': TypeCollection.STRUCT}
+            'static':   {
+                'type':           TypeCollection.STRUCT,
+                'render_typedef': render_struct_typedef
+            }
         }
     }
 

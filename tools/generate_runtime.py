@@ -6,7 +6,7 @@ import sys
 
 import pystache
 
-from tools.generator_common import to_underscore, collect_type_aliases, change_file, pystache_list_mark_last, \
+from tools.generator_common import to_underscore, render_typedefs, change_file, pystache_list_mark_last, \
     dict_to_pystache_list, TypeCollection
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor
@@ -174,24 +174,6 @@ runnable_templates = {
     "server_call": "{{ component }}_Run_{{ runnable }}({{ arguments }});"
 }
 
-typedef_template = """{{ #aliased }}
-typedef {{ aliased }} {{ type_name }};
-{{ /aliased }}
-{{ #is_enum }}
-typedef enum {
-    {{ #values }}
-    {{ value }}{{ ^last }},{{ /last }}
-    {{ /values }}
-} {{ type_name }};
-{{ /is_enum }}
-{{ #is_struct }}
-typedef struct {
-    {{ #fields }}
-    {{ type }} {{ name }};
-    {{ /fields }}
-} {{ type_name }};
-{{ /is_struct }}"""
-
 header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
@@ -200,7 +182,7 @@ header_template = """#ifndef GENERATED_RUNTIME_H_
 {{ /type_includes }}
 
 {{ #types }}
-""" + typedef_template + """
+{{{ . }}}
 {{ /types }}
 
 {{ #components }}
@@ -422,9 +404,9 @@ if __name__ == "__main__":
 
     classified_connections = classify_connections(project_config, component_data)
 
-    type_aliases = collect_type_aliases(type_data, type_data)
     type_includes = set()
-    for type_alias in type_aliases:
+    for type_name in type_data:
+        type_alias = type_data.get(type_name)
         if type_alias['type'] == TypeCollection.EXTERNAL_DEF:
             type_includes.add(type_alias['defined_in'])
 
@@ -784,7 +766,7 @@ if __name__ == "__main__":
         } for component in project_config['components']],
         'variables':       variables.values(),
         'port_functions':  port_functions.values(),
-        'types':           type_aliases,
+        'types':           render_typedefs(type_data, type_data),
         'type_includes':   sorted(type_includes),
         'runnable_groups': create_runnable_groups(project_config['runtime']['runnables'])
     }

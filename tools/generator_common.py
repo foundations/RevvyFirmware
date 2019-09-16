@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 
 def create_empty_component_data(name: str):
@@ -194,53 +195,17 @@ class TypeCollection:
         return iter(self._type_data.keys())
 
 
-def collect_type_aliases(types, type_data: TypeCollection):
-    aliases = []
+def render_typedefs(types, type_data: TypeCollection):
+    typedefs = []
     for type_name in types:
-        resolved_type = type_data.resolve(type_name)
-        type_type = type_data.get(type_name)['type']
-
-        if type_type == TypeCollection.BUILTIN:
+        try:
+            renderer = type_data.get(type_name)['render_typedef']
+            # noinspection PyCallingNonCallable
+            typedefs.append(renderer(type_data, type_name))
+        except KeyError:
             pass
 
-        elif type_type == TypeCollection.ALIAS:
-            aliases.append({
-                'type':      type_type,
-                'type_name': type_name,
-                'aliased':   resolved_type
-            })
-
-        elif type_type == TypeCollection.EXTERNAL_DEF:
-            aliases.append({
-                'type':       type_type,
-                'type_name':  type_name,
-                'defined_in': type_data[resolved_type]['defined_in']
-            })
-
-        elif type_type == TypeCollection.ENUM:
-            enum_values = [{'value': value} for value in type_data[resolved_type]['values']]
-            pystache_list_mark_last(enum_values)
-            aliases.append({
-                'type':      type_type,
-                'is_enum':   True,
-                'type_name': type_name,
-                'values':    enum_values
-            })
-
-        elif type_type == TypeCollection.STRUCT:
-            aliases.append({
-                'type':      type_type,
-                'is_struct': True,
-                'type_name': type_name,
-                'fields':    dict_to_pystache_list(type_data[resolved_type]['fields'],
-                                                   key_name='name',
-                                                   value_name='type')
-            })
-
-        else:
-            raise Exception('Can not generate code for type {}'.format(type_type))
-
-    return aliases
+    return typedefs
 
 
 def to_underscore(name):
@@ -271,6 +236,7 @@ def change_file(filename, contents):
 def pystache_list_mark_last(data, last_key='last'):
     if data:
         data[-1][last_key] = True
+    return data
 
 
 def dict_to_pystache_list(data, key_name, value_name, last_key=None):

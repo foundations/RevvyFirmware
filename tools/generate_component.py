@@ -6,7 +6,7 @@ import datetime
 import shutil
 import pystache
 
-from tools.generator_common import compact_project_config, to_underscore, collect_type_aliases, TypeCollection, \
+from tools.generator_common import compact_project_config, to_underscore, render_typedefs, TypeCollection, \
     change_file, create_empty_component_data, dict_to_pystache_list
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
@@ -19,24 +19,6 @@ argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
 argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
 fn_header_template = '{{return_type}} {{name}}(' + argument_list_template + ')'
 
-typedef_template = """{{ #aliased }}
-typedef {{ aliased }} {{ type_name }};
-{{ /aliased }}
-{{ #is_enum }}
-typedef enum {
-    {{ #values }}
-    {{ value }}{{ ^last }},{{ /last }}
-    {{ /values }}
-} {{ type_name }};
-{{ /is_enum }}
-{{ #is_struct }}
-typedef struct {
-    {{ #fields }}
-    {{ type }} {{ name }};
-    {{ /fields }}
-} {{ type_name }};
-{{ /is_struct }}"""
-
 header_template = '''#ifndef {{ guard_def }}
 #define {{ guard_def }}
 
@@ -48,7 +30,7 @@ header_template = '''#ifndef {{ guard_def }}
 {{ /type_includes }}
 
 {{ #types }}
-''' + typedef_template + '''
+{{{ . }}}
 {{ /types }}
 
 #endif /* {{ type_guard_def }} */
@@ -366,7 +348,7 @@ if __name__ == "__main__":
         'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
         'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
         'functions':      functions,
-        'types':          collect_type_aliases(used_types, type_data)
+        'types':          render_typedefs(used_types, type_data)
     }
 
 
