@@ -4,12 +4,16 @@ from tools.generator_common import TypeCollection
 
 
 class RuntimePlugin:
-    def __init__(self, name, handlers: dict):
+    def __init__(self, name, handlers: dict, requires: list = None):
         self.name = name
         self._event_handlers = handlers
         self._owner = None
+        self._requires = requires or []
 
     def bind(self, owner):
+        for plugin in self._requires:
+            if plugin not in owner._plugins:
+                raise Exception('{} requires unloaded plugin {}'.format(self.name, plugin))
         self._owner = owner
 
     def handle(self, event_name, args):
@@ -36,6 +40,7 @@ class Runtime:
         plugin.bind(self)
 
     def load(self, load_components=True):
+        self._call_plugin_event('init')
         with open(self._project_config_file, "r") as file:
             project_config = json.load(file)
 
