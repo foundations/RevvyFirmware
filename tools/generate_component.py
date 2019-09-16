@@ -9,9 +9,10 @@ import pystache
 from tools.generator_common import compact_project_config, to_underscore, collect_type_aliases, TypeCollection, \
     change_file, create_empty_component_data, dict_to_pystache_list
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
-from tools.plugins.BuiltinTypes import builtin_types
+from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
+from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
 
 argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
@@ -299,7 +300,8 @@ if __name__ == "__main__":
     rt = Runtime("project.json")
     rt.add_plugin(project_config_compactor())
     rt.add_plugin(component_config_compactor())
-    rt.add_plugin(builtin_types())
+    rt.add_plugin(runtime_events())
+    rt.add_plugin(builtin_data_types())
     rt.add_plugin(atmel_studio_support())
 
     rt.load(False)

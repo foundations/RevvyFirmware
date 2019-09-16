@@ -288,3 +288,20 @@ def dict_to_pystache_list(data, key_name, value_name, last_key=None):
     if last_key:
         pystache_list_mark_last(pystache_list, last_key)
     return pystache_list
+
+
+def copy(src, required, optional):
+    """This function makes sure src contains required and optional keys and nothing else"""
+
+    dst = {**optional}
+    required_keys_found = 0
+    for key, value in src.items():
+        if key in required:
+            required_keys_found += 1
+            dst[key] = value
+        elif key in optional:
+            dst[key] = value
+        else:
+            raise Exception(key)
+
+    return dst

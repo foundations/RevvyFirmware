@@ -1,6 +1,7 @@
 import json
+import pystache
 
-from tools.generator_common import TypeCollection
+from tools.generator_common import TypeCollection, change_file, copy
 
 
 class RuntimePlugin:
@@ -34,6 +35,7 @@ class Runtime:
         self._project_config = {}
         self._components = {}
         self._types = TypeCollection()
+        self._port_types = {}
 
     def add_plugin(self, plugin: RuntimePlugin):
         self._plugins[plugin.name] = plugin
@@ -41,6 +43,7 @@ class Runtime:
 
     def load(self, load_components=True):
         self._call_plugin_event('init')
+
         with open(self._project_config_file, "r") as file:
             project_config = json.load(file)
 
@@ -87,14 +90,22 @@ class Runtime:
             for data_type, type_info in component_config['types'].items():
                 self._types.add(data_type, type_info)
 
+            for port_name, port_data in component_config['ports'].items():
+                component_config['ports'][port_name] = self.process_port_def(component_name, port_name, port_data)
+
     def create_component(self, component):
         pass
 
-    def update_component(self, update_header=True, update_source=True):
+    def update_component(self, component_name, update_header=True, update_source=True):
         pass
 
-    def generate_runtime(self):
-        pass
+    def generate_runtime(self, filename):
+        generator_context = {}
+
+        self._call_plugin_event('generate_runtime', generator_context)
+
+        # change_file(filename + '.h', pystache.render(header_template, generator_context))
+        # change_file(filename + '.c', pystache.render(source_template, generator_context))
 
     def _call_plugin_event(self, event_name, *args):
         for plugin in self._plugins:
@@ -103,3 +114,26 @@ class Runtime:
             except Exception:
                 print('Error while processing {}/{}'.format(plugin, event_name))
                 raise
+
+    def add_port_type(self, port_type_name, data):
+        self._port_types[port_type_name] = data
+
+    def process_port_def(self, component_name, port_name, port):
+        short_name = '{}/{}'.format(component_name, port_name)
+        port_type = port['port_type']
+
+        try:
+            attributes = self._port_types[port_type]['def_attributes']
+            del port['port_type']
+            return {
+                'short_name': short_name,
+                'port_type':  port_type,
+                **attributes['static'],
+                **copy(port, attributes['required'], attributes['optional'])
+            }
+
+        except KeyError:
+            return port
+
+        except Exception as e:
+            raise Exception('Port {} ({}) has unexpected attribute set: {}'.format(short_name, port_type, e))

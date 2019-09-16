@@ -8,7 +8,7 @@ import pystache
 
 from tools.generator_common import to_underscore, collect_type_aliases, change_file, pystache_list_mark_last, \
     dict_to_pystache_list, TypeCollection
-from tools.plugins.BuiltinTypes import builtin_types
+from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
@@ -98,14 +98,14 @@ provider_port_types = {
 }
 
 consumer_port_types = {
-    "ReadValue":          ["variable", "constant"],
-    "ReadIndexedValue":   ["array"],
-    "ReadQueuedValue":    ["queue"],  # queue_1 is an optimization so it's omitted
-    "Runnable":           ["event", "call"]
+    "ReadValue":        ["variable", "constant"],
+    "ReadIndexedValue": ["array"],
+    "ReadQueuedValue":  ["queue"],  # queue_1 is an optimization so it's omitted
+    "Runnable":         ["event", "call"]
 }
 
 consumer_templates = {
-    "ReadValue":          {
+    "ReadValue":        {
         "variable": {
             "value":   "return {{ buffer_name }};",
             "pointer": "*{{ out_name }} = {{ buffer_name }};"
@@ -115,54 +115,63 @@ consumer_templates = {
             "pointer": "{{ constant_provider }}({{ out_name }});"
         },
     },
-    "ReadIndexedValue":   {
+    "ReadIndexedValue": {
         "array": {
             "value":   "return {{ buffer_name }}[{{ index }}];",
             "pointer": "*{{ out_name }} = {{ buffer_name }}[{{ index }}];"
         }
     },
-    "ReadQueuedValue":    {  # read queued value is always done through pointers because of return value
-        "queue":   "if ({{ buffer_name }}_count > 0u)\n"
-                   "{\n"
-                   "    size_t readIndex = ({{ buffer_name }}_write_index - {{ buffer_name }}_count) % {{ queue_length }}u;\n"
-                   "    --{{ buffer_name }}_count;\n"
-                   "    *{{ out_name }} = {{ buffer_name }}[readIndex];\n"
-                   "    \n"
-                   "    if ({{ buffer_name }}_overflow)\n"
-                   "    {\n"
-                   "        {{ buffer_name }}_overflow = false;\n"
-                   "        return QueueStatus_Overflow;\n"
-                   "    }\n"
-                   "    else\n"
-                   "    {\n"
-                   "        return QueueStatus_Ok;\n"
-                   "    }\n"
-                   "}\n"
-                   "else\n"
-                   "{\n"
-                   "    return QueueStatus_Empty;\n"
-                   "}",
+    "ReadQueuedValue":  {  # read queued value is always done through pointers because of return value
+        "queue":   {
+            "pointer": "if ({{ buffer_name }}_count > 0u)\n"
+                       "{\n"
+                       "    size_t readIndex = ({{ buffer_name }}_write_index - {{ buffer_name }}_count) % {{ queue_length }}u;\n"
+                       "    --{{ buffer_name }}_count;\n"
+                       "    *{{ out_name }} = {{ buffer_name }}[readIndex];\n"
+                       "    \n"
+                       "    if ({{ buffer_name }}_overflow)\n"
+                       "    {\n"
+                       "        {{ buffer_name }}_overflow = false;\n"
+                       "        return QueueStatus_Overflow;\n"
+                       "    }\n"
+                       "    else\n"
+                       "    {\n"
+                       "        return QueueStatus_Ok;\n"
+                       "    }\n"
+                       "}\n"
+                       "else\n"
+                       "{\n"
+                       "    return QueueStatus_Empty;\n"
+                       "}",
+        },
 
-        "queue_1": "bool was_overflow = {{ buffer_name }}_overflow;\n"
-                   "if ({{ buffer_name }}_data_valid)\n"
-                   "{\n"
-                   "    {{ buffer_name }}_overflow = false;\n"
-                   "    *{{ out_name }} = {{ buffer_name }};\n"
-                   "    {{ buffer_name }}_data_valid = false;\n"
-                   "    if (was_overflow)\n"
-                   "    {\n"
-                   "        return QueueStatus_Overflow;\n"
-                   "    }\n"
-                   "    else\n"
-                   "    {\n"
-                   "        return QueueStatus_Ok;\n"
-                   "    }\n"
-                   "}\n"
-                   "else\n"
-                   "{\n"
-                   "    return QueueStatus_Empty;\n"
-                   "}",
+        "queue_1": {
+            "pointer":
+                "bool was_overflow = {{ buffer_name }}_overflow;\n"
+                "if ({{ buffer_name }}_data_valid)\n"
+                "{\n"
+                "    {{ buffer_name }}_overflow = false;\n"
+                "    *{{ out_name }} = {{ buffer_name }};\n"
+                "    {{ buffer_name }}_data_valid = false;\n"
+                "    if (was_overflow)\n"
+                "    {\n"
+                "        return QueueStatus_Overflow;\n"
+                "    }\n"
+                "    else\n"
+                "    {\n"
+                "        return QueueStatus_Ok;\n"
+                "    }\n"
+                "}\n"
+                "else\n"
+                "{\n"
+                "    return QueueStatus_Empty;\n"
+                "}"
+        }
     }
+}
+runnable_templates = {
+    "event":       "{{ component }}_Run_{{ runnable }}({{ arguments }});",
+    "server_call": "{{ component }}_Run_{{ runnable }}({{ arguments }});"
 }
 
 typedef_template = """{{ #aliased }}
@@ -393,9 +402,9 @@ if __name__ == "__main__":
     log('Loading project configuration from {}'.format(args.config))
     rt = Runtime(args.config)
     rt.add_plugin(project_config_compactor())
+    rt.add_plugin(builtin_data_types())
     rt.add_plugin(runtime_events())
     rt.add_plugin(component_config_compactor())
-    rt.add_plugin(builtin_types())
 
     rt.load(True)
     project_config = rt._project_config
@@ -461,7 +470,8 @@ if __name__ == "__main__":
                         "name":        "{}_Write_{}",
                         "return_type": "void",
                         "arguments":   {
-                            'value': data_type if passed_by_value else "const {}*".format(data_type)},
+                            'value': data_type if passed_by_value else "const {}*".format(data_type)
+                        },
                     },
                 "WriteIndexedData":
                     lambda: {
@@ -544,21 +554,37 @@ if __name__ == "__main__":
         return port_functions[port['short_name']]
 
 
+    def get_consumer_template(consumer, passby, databuffer):
+        consumer_port_type = get_port(consumer, component_data)['port_type']
+        return consumer_templates[consumer_port_type][databuffer][passby].replace('\n', '\n    ')
+
+
+    def get_consumer_runnable_template(connection):
+        return runnable_templates[connection].replace('\n', '\n    ')
+
+
     for server_call in classified_connections.get('call', []):
         caller = server_call['provider']
         function = create_function(caller, port_functions, component_data)
 
+        assert len(server_call['consumers']) == 1
         callee = server_call['consumers'][0]
         if not are_runnables_compatible(caller, callee):
             valid = False
         else:
             handler_runnable = get_runnable(callee, component_data)
-            handler_args = handler_runnable['arguments']
+
             if handler_runnable['return_type'] == 'void':
-                template = "{}_Run_{}({});"
+                template = get_consumer_runnable_template('event')
             else:
-                template = "return {}_Run_{}({});"
-            function['body'].append(template.format(callee['component'], callee['port'], ', '.join(handler_args)))
+                template = "return " + get_consumer_runnable_template('server_call')
+
+            function_body = pystache.render(template, {
+                'component': callee['component'],
+                'runnable':  callee['port'],
+                'arguments': ', '.join(handler_runnable['arguments'])
+            })
+            function['body'].append(function_body)
 
     variables = {}
     for variable_connection in classified_connections.get('variable', []):
@@ -573,9 +599,7 @@ if __name__ == "__main__":
             })
 
             pass_by = type_data.passed_by(provider_port['data_type'])
-            print('{} -> {}'.format(provider_port['data_type'], pass_by))
-            name = 'variable_{}'.format(provider['short_name'])
-            if name not in variables:
+            if provider['short_name'] not in variables:
                 provider_function = create_function(provider, port_functions, component_data)
 
                 ctx = {
@@ -584,7 +608,7 @@ if __name__ == "__main__":
                     'init_value':  provider.get('init_value', type_data.default_value(provider_port['data_type'])),
                     'value':       provider_function['arguments'][0]['name']
                 }
-                variables[name] = pystache.render(databuffer_buffer_templates['variable'], ctx)
+                variables[provider['short_name']] = pystache.render(databuffer_buffer_templates['variable'], ctx)
                 write_template = databuffer_write_templates['variable'][pass_by].replace('\n', '\n    ')
                 provider_function['body'].append(pystache.render(write_template, ctx))
 
@@ -595,7 +619,8 @@ if __name__ == "__main__":
                 read_template = consumer_templates[consumer_port_type]['variable'][pass_by].replace('\n', '\n    ')
                 function_body = pystache.render(read_template, {
                     'buffer_name': databuffer_name,
-                    'out_name':    consumer_function['arguments'][0]['name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
+                    'out_name':    consumer_function['arguments'][0][
+                                       'name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
                 })
                 consumer_function['body'].append(function_body)
         except KeyError:
@@ -615,11 +640,10 @@ if __name__ == "__main__":
 
             data_type = provider_port['data_type']
             pass_by = type_data.passed_by(data_type)
-            name = 'array_{}'.format(provider['short_name'])
             assert_template = 'ASSERT({{index}} < ARRAY_SIZE({{ buffer_name }}));'
             count = provider_port['count']
 
-            if name not in variables:
+            if provider['short_name'] not in variables:
                 provider_function = create_function(provider, port_functions, component_data)
                 ctx = {
                     'data_type':   data_type,
@@ -636,26 +660,24 @@ if __name__ == "__main__":
                 if not provider_function['body']:
                     provider_function['body'].append(pystache.render(assert_template, ctx))
 
-                variables[name] = pystache.render(databuffer_buffer_templates['array'], ctx)
+                variables[provider['short_name']] = pystache.render(databuffer_buffer_templates['array'], ctx)
                 write_template = databuffer_write_templates['array'][pass_by].replace('\n', '\n    ')
                 provider_function['body'].append(pystache.render(write_template, ctx))
 
             for consumer in variable_connection['consumers']:
                 consumer_function = create_function(consumer, port_functions, component_data)
 
-                consumer_port_type = get_port(consumer, component_data)['port_type']
-                read_template = consumer_templates[consumer_port_type]['array'][pass_by].replace('\n', '\n    ')
-
                 ctx = {
                     'buffer_name': databuffer_name,
                     'index':       consumer_function['arguments'][0]['name'],
-                    'out_name':    consumer_function['arguments'][1]['name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
+                    'out_name':    consumer_function['arguments'][1][
+                                       'name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
                 }
 
                 if not consumer_function['body']:
                     consumer_function['body'].append(pystache.render(assert_template, ctx))
 
-                function_body = pystache.render(read_template, ctx)
+                function_body = pystache.render(get_consumer_template(consumer, pass_by, 'array'), ctx)
                 consumer_function['body'].append(function_body)
         except KeyError:
             print(variable_connection)
@@ -675,8 +697,9 @@ if __name__ == "__main__":
 
                 data_type = provider_port['data_type']
                 pass_by = type_data.passed_by(data_type)
-                name = 'queue1_{}'.format(provider['short_name'])
-                if name not in variables:
+                consumer_pass_by = 'pointer'
+
+                if provider['short_name'] not in variables:
                     provider_function = create_function(provider, port_functions, component_data)
 
                     ctx = {
@@ -686,16 +709,16 @@ if __name__ == "__main__":
                         'value':        provider_function['arguments'][0]['name'],
                         'queue_length': variable_connection['queue_length']
                     }
-                    variables[name] = pystache.render(databuffer_buffer_templates[connection_type], ctx)
+                    variables[provider['short_name']] = pystache.render(databuffer_buffer_templates[connection_type],
+                                                                        ctx)
                     write_template = databuffer_write_templates[connection_type][pass_by].replace('\n', '\n    ')
                     provider_function['body'].append(pystache.render(write_template, ctx))
 
                 for consumer in variable_connection['consumers']:
                     consumer_function = create_function(consumer, port_functions, component_data)
+                    consumer_template = get_consumer_template(consumer, consumer_pass_by, connection_type)
 
-                    consumer_port_type = get_port(consumer, component_data)['port_type']
-                    read_template = consumer_templates[consumer_port_type][connection_type].replace('\n', '\n    ')
-                    function_body = pystache.render(read_template, {
+                    function_body = pystache.render(consumer_template, {
                         'buffer_name':  databuffer_name,
                         'out_name':     consumer_function['arguments'][0]['name'],
                         'queue_length': variable_connection['queue_length']
@@ -715,11 +738,12 @@ if __name__ == "__main__":
 
             for consumer in constant_connection['consumers']:
                 consumer_function = create_function(consumer, port_functions, component_data)
-                consumer_port_type = get_port(consumer, component_data)['port_type']
-                const_template = consumer_templates[consumer_port_type]['constant'][pass_by].replace('\n', '\n    ')
-                function_body = pystache.render(const_template, {
+                consumer_template = get_consumer_template(consumer, pass_by, 'constant')
+
+                function_body = pystache.render(consumer_template, {
                     'constant_provider': '{}_Constant_{}'.format(provider['component'], provider['port']),
-                    'out_name':          consumer_function['arguments'][0]['name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
+                    'out_name':          consumer_function['arguments'][0][
+                                             'name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
                 })
                 consumer_function['body'].append(function_body)
         except KeyError:
@@ -736,8 +760,13 @@ if __name__ == "__main__":
             else:
                 handler_runnable = get_runnable(handler, component_data)
                 handler_args = handler_runnable['arguments']
-                function['body'].append(
-                    "{}_Run_{}({});".format(handler['component'], handler['port'], ', '.join(handler_args)))
+                consumer_template = get_consumer_runnable_template('event')
+
+                function_body = pystache.render(consumer_template, {
+                    'component': handler['component'],
+                    'runnable':  handler['port'],
+                    'arguments': ', '.join(handler_args)})
+                function['body'].append(function_body)
 
     if not valid:
         print("Configuration invalid, exiting")

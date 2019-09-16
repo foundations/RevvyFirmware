@@ -1,6 +1,6 @@
 
 /* This file is generated during the build process */
 #ifndef FW_VERSION
-#define FW_VERSION "564"
-#define FW_VERSION_NUMBER 564
+#define FW_VERSION "565"
+#define FW_VERSION_NUMBER 565
 #endif
