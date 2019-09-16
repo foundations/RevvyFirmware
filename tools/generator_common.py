@@ -101,7 +101,8 @@ class TypeCollection:
         self._type_data = {
             'void': {
                 'type': TypeCollection.BUILTIN,
-                'pass_semantic': TypeCollection.PASS_BY_VALUE
+                'pass_semantic': TypeCollection.PASS_BY_VALUE,
+                'default_value': None
             }
         }
         self._resolved_names = {'void': 'void'}
@@ -163,12 +164,28 @@ class TypeCollection:
             return type_name
 
     def default_value(self, type_name):
-        resolved = self[type_name]
+        resolved = self.get(type_name)
+        while 'default_value' not in resolved or not resolved['default_value']:
+            if resolved['type'] == TypeCollection.ALIAS:
+                resolved = self.get(resolved['aliases'])
+            else:
+                break
+
         if resolved['type'] == TypeCollection.STRUCT:
             return {name: self.default_value(field_type) for name, field_type in resolved['fields'].items()}
 
         else:
             return resolved['default_value']
+
+    def passed_by(self, type_name):
+        resolved = self.get(type_name)
+        while not resolved['pass_semantic']:
+            if resolved['type'] == TypeCollection.ALIAS:
+                resolved = self.get(resolved['aliases'])
+            else:
+                raise Exception('Pass semantic not defined for {}'.format(type_name))
+
+        return resolved['pass_semantic']
 
     def resolve(self, type_name):
         return self._resolve(type_name, [])

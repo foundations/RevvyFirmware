@@ -453,7 +453,7 @@ if __name__ == "__main__":
             port_type = port_data['port_type']
 
             data_type = port_data.get('data_type', 'void')
-            passed_by = type_data[data_type]['pass_semantic']
+            passed_by = type_data.passed_by(data_type)
 
             port_data_templates = {
                 "WriteData":
@@ -572,7 +572,8 @@ if __name__ == "__main__":
                 'port_name':      provider['port']
             })
 
-            pass_by = type_data[provider_port['data_type']]['pass_semantic']
+            pass_by = type_data.passed_by(provider_port['data_type'])
+            print('{} -> {}'.format(provider_port['data_type'], pass_by))
             name = 'variable_{}'.format(provider['short_name'])
             if name not in variables:
                 provider_function = create_function(provider, port_functions, component_data)
@@ -613,7 +614,7 @@ if __name__ == "__main__":
             })
 
             data_type = provider_port['data_type']
-            pass_by = type_data[data_type]['pass_semantic']
+            pass_by = type_data.passed_by(data_type)
             name = 'array_{}'.format(provider['short_name'])
             assert_template = 'ASSERT({{index}} < ARRAY_SIZE({{ buffer_name }}));'
             count = provider_port['count']
@@ -672,15 +673,16 @@ if __name__ == "__main__":
                     'port_name':      provider['port']
                 })
 
-                pass_by = type_data[provider_port['data_type']]['pass_semantic']
+                data_type = provider_port['data_type']
+                pass_by = type_data.passed_by(data_type)
                 name = 'queue1_{}'.format(provider['short_name'])
                 if name not in variables:
                     provider_function = create_function(provider, port_functions, component_data)
 
                     ctx = {
-                        'data_type':    provider_port['data_type'],
+                        'data_type':    data_type,
                         'buffer_name':  databuffer_name,
-                        'init_value':   provider.get('init_value', type_data.default_value(provider_port['data_type'])),
+                        'init_value':   provider.get('init_value', type_data.default_value(data_type)),
                         'value':        provider_function['arguments'][0]['name'],
                         'queue_length': variable_connection['queue_length']
                     }
@@ -707,7 +709,9 @@ if __name__ == "__main__":
         try:
             provider = constant_connection['provider']
             provider_port = get_port(provider, component_data)
-            pass_by = type_data[provider_port['data_type']]['pass_semantic']
+
+            data_type = provider_port['data_type']
+            pass_by = type_data.passed_by(data_type)
 
             for consumer in constant_connection['consumers']:
                 consumer_function = create_function(consumer, port_functions, component_data)

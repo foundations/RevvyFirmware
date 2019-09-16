@@ -8,9 +8,7 @@ def copy(src, required, optional):
     dst = {**optional}
     required_keys_found = 0
     for key, value in src.items():
-        if key == 'port_type':
-            pass
-        elif key in required:
+        if key in required:
             required_keys_found += 1
             dst[key] = value
         elif key in optional:
@@ -41,10 +39,10 @@ def process_type_def(type_name, type_def):
         TypeCollection.STRUCT: ['fields', 'default_value']
     }
     optional = {
-        TypeCollection.ALIAS: {'default_value': None, 'pass_semantic': None},  # TODO implement these
-        TypeCollection.EXTERNAL_DEF: {'pass_semantic': 'value'},
-        TypeCollection.ENUM: {'pass_semantic': 'value'},
-        TypeCollection.STRUCT: {'pass_semantic': 'pointer'}
+        TypeCollection.ALIAS: {'default_value': None, 'pass_semantic': None},
+        TypeCollection.EXTERNAL_DEF: {'pass_semantic': TypeCollection.PASS_BY_VALUE},
+        TypeCollection.ENUM: {'pass_semantic': TypeCollection.PASS_BY_VALUE},
+        TypeCollection.STRUCT: {'pass_semantic': TypeCollection.PASS_BY_POINTER}
     }
     constants = {
         TypeCollection.ALIAS: {'type': TypeCollection.ALIAS},
@@ -67,6 +65,8 @@ def process_type_def(type_name, type_def):
 
 def process_port_def(component_name, port_name, port):
     short_name = '{}/{}'.format(component_name, port_name)
+    port_type = port['port_type']
+    del port['port_type']
 
     required_attributes = {
         "Event":            [],
@@ -100,20 +100,20 @@ def process_port_def(component_name, port_name, port):
     }
 
     try:
-        required = required_attributes[port['port_type']]
-        optional = optional_attributes[port['port_type']]
+        required = required_attributes[port_type]
+        optional = optional_attributes[port_type]
 
         processed = {
             'short_name': short_name,
-            'port_type':  port['port_type'],
-            **constant_attributes[port['port_type']],
+            'port_type':  port_type,
+            **constant_attributes[port_type],
             **copy(port, required, optional)
         }
     except KeyError:
-        print('Unknown port type {} found in port {}'.format(port['port_type'], short_name))
+        print('Unknown port type {} found in port {}'.format(port_type, short_name))
         raise
     except Exception as e:
-        raise Exception('Port {} ({}) has unexpected attribute set: {}'.format(short_name, port['port_type'], e))
+        raise Exception('Port {} ({}) has unexpected attribute set: {}'.format(short_name, port_type, e))
 
     return processed
 

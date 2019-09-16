@@ -113,13 +113,13 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
         port_type = port['port_type']
 
         data_type = port.get('data_type', 'void')
-        passed_by = type_data[data_type]['pass_semantic']
+        pass_by = type_data.passed_by(data_type)
         port_data_templates = {
             "WriteData":
                 lambda: {
                     "name":        "{}_Write_{}",
                     "return_type": "void",
-                    "arguments":   {'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)},
+                    "arguments":   {'value': data_type if pass_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)},
                     "weak":        True
                 },
             "WriteIndexedData":
@@ -128,7 +128,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                     "return_type": "void",
                     "arguments":   {
                         'index': 'uint32_t',
-                        'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)
+                        'value': data_type if pass_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)
                     },
                     "weak":        True
                 },
@@ -139,7 +139,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                     "return_value": default_value(data_type, port.get('default_value')),
                     "arguments":    {},
                     "weak":         True
-                } if passed_by == 'value' else {
+                } if pass_by == TypeCollection.PASS_BY_VALUE else {
                     "name":                "{}_Read_{}",
                     "return_type":         'void',
                     "arguments":           {'value': "{}*".format(data_type)},
@@ -162,7 +162,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                     "return_value": default_value(data_type, port.get('default_value')),
                     "arguments":    {'index': 'uint32_t'},
                     "weak":         True
-                } if passed_by == 'value' else {
+                } if pass_by == TypeCollection.PASS_BY_VALUE else {
                     "name":                "{}_Read_{}",
                     "return_type":         'void',
                     "arguments":           {'index': 'uint32_t', 'value': "{}*".format(data_type)},
@@ -176,7 +176,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                     "return_value": port['value'],
                     "arguments":    {},
                     "weak":         False
-                } if passed_by == TypeCollection.PASS_BY_VALUE else {
+                } if pass_by == TypeCollection.PASS_BY_VALUE else {
                     "name":                "{}_Constant_{}",
                     "return_type":         'void',
                     "arguments":           {'value': "{}*".format(data_type)},
