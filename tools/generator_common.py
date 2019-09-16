@@ -148,20 +148,14 @@ class TypeCollection:
         elif type_name in past:
             raise Exception('Circular type definition for {}'.format(type_name))
 
+        resolved = type_name
         if self._type_data[type_name]['type'] != TypeCollection.EXTERNAL_DEF:
             if self._type_data[type_name]['type'] == TypeCollection.ALIAS:
                 past.append(type_name)
                 resolved = self._resolve(self._type_data[type_name]['aliases'], past)
-            else:
-                resolved = type_name
 
-            self._resolved_names[type_name] = resolved
-
-            return resolved
-
-        else:
-            self._resolved_names[type_name] = type_name
-            return type_name
+        self._resolved_names[type_name] = resolved
+        return resolved
 
     def default_value(self, type_name):
         resolved = self.get(type_name)

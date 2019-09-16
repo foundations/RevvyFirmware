@@ -453,7 +453,7 @@ if __name__ == "__main__":
             port_type = port_data['port_type']
 
             data_type = port_data.get('data_type', 'void')
-            passed_by = type_data.passed_by(data_type)
+            passed_by_value = type_data.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
 
             port_data_templates = {
                 "WriteData":
@@ -461,7 +461,7 @@ if __name__ == "__main__":
                         "name":        "{}_Write_{}",
                         "return_type": "void",
                         "arguments":   {
-                            'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)},
+                            'value': data_type if passed_by_value else "const {}*".format(data_type)},
                     },
                 "WriteIndexedData":
                     lambda: {
@@ -469,7 +469,7 @@ if __name__ == "__main__":
                         "return_type": "void",
                         "arguments":   {
                             'index': 'uint32_t',
-                            'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)
+                            'value': data_type if passed_by_value else "const {}*".format(data_type)
                         }
                     },
                 "ReadValue":
@@ -477,7 +477,7 @@ if __name__ == "__main__":
                         "name":        "{}_Read_{}",
                         "return_type": data_type,
                         "arguments":   {}
-                    } if passed_by == TypeCollection.PASS_BY_VALUE else {
+                    } if passed_by_value else {
                         "name":        "{}_Read_{}",
                         "return_type": 'void',
                         "arguments":   {'value': "{}*".format(data_type)}
@@ -493,7 +493,7 @@ if __name__ == "__main__":
                         "name":        "{}_Read_{}",
                         "return_type": data_type,
                         "arguments":   {'index': 'uint32_t'},
-                    } if passed_by == TypeCollection.PASS_BY_VALUE else {
+                    } if passed_by_value else {
                         "name":        "{}_Read_{}",
                         "return_type": 'void',
                         "arguments":   {'index': 'uint32_t', 'value': "{}*".format(data_type)},
@@ -503,7 +503,7 @@ if __name__ == "__main__":
                         "name":        "{}_Constant_{}",
                         "return_type": data_type,
                         "arguments":   {}
-                    } if passed_by == TypeCollection.PASS_BY_VALUE else {
+                    } if passed_by_value else {
                         "name":        "{}_Constant_{}",
                         "return_type": 'void',
                         "arguments":   {'value': "{}*".format(data_type)}
