@@ -5,10 +5,13 @@ def process_runnable_def(component, runnable_name, runnable):
     short_name = '{}/{}'.format(component, runnable_name)
 
     try:
-        args = runnable['arguments']
-        if type(args) is list:
+        if type(runnable['arguments']) is list:
             print('Warning: converting argument list to dict in {}'.format(short_name))
             args = {}
+            for arg_type in runnable['arguments']:
+                args['arg_{}'.format(len(args))] = arg_type
+        else:
+            args = runnable['arguments']
     except KeyError:
         args = {}
 
