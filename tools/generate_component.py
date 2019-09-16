@@ -9,6 +9,7 @@ import pystache
 from tools.generator_common import compact_project_config, to_underscore, collect_type_aliases, TypeCollection, \
     change_file, create_empty_component_data, dict_to_pystache_list
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
+from tools.plugins.BuiltinTypes import builtin_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.runtime import Runtime
@@ -118,7 +119,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                 lambda: {
                     "name":        "{}_Write_{}",
                     "return_type": "void",
-                    "arguments":   {'value': data_type if passed_by == 'value' else "const {}*".format(data_type)},
+                    "arguments":   {'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)},
                     "weak":        True
                 },
             "WriteIndexedData":
@@ -127,7 +128,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                     "return_type": "void",
                     "arguments":   {
                         'index': 'uint32_t',
-                        'value': data_type if passed_by == 'value' else "const {}*".format(data_type)
+                        'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)
                     },
                     "weak":        True
                 },
@@ -175,7 +176,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                     "return_value": port['value'],
                     "arguments":    {},
                     "weak":         False
-                } if passed_by == 'value' else {
+                } if passed_by == TypeCollection.PASS_BY_VALUE else {
                     "name":                "{}_Constant_{}",
                     "return_type":         'void',
                     "arguments":           {'value': "{}*".format(data_type)},
@@ -291,6 +292,7 @@ if __name__ == "__main__":
     rt = Runtime("project.json")
     rt.add_plugin(project_config_compactor())
     rt.add_plugin(component_config_compactor())
+    rt.add_plugin(builtin_types())
     rt.add_plugin(atmel_studio_support())
 
     rt.load(False)

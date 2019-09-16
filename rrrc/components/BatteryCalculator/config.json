@@ -32,12 +32,12 @@
         "MainBatteryParametersChanged": {
             "port_type": "ReadValue",
             "data_type": "bool",
-            "value": "false"
+            "default_value": "false"
         },
         "MotorBatteryParametersChanged": {
             "port_type": "ReadValue",
             "data_type": "bool",
-            "value": "false"
+            "default_value": "false"
         },
         "MainBatteryVoltage": {
             "port_type": "ReadValue",

@@ -8,6 +8,7 @@ import pystache
 
 from tools.generator_common import to_underscore, collect_type_aliases, change_file, pystache_list_mark_last, \
     dict_to_pystache_list, TypeCollection
+from tools.plugins.BuiltinTypes import builtin_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
@@ -92,7 +93,6 @@ provider_port_types = {
     "Constant":         ["constant"],
     "WriteData":        ["variable", "queue", "queue_1", "event"],
     "WriteIndexedData": ["array", "event"],
-    "WriteDataToIndex": ["array", "event"],  # virtual type to support complex connections
     "ServerCall":       ["call", "event"],
     "Event":            ["event"],
 }
@@ -101,7 +101,6 @@ consumer_port_types = {
     "ReadValue":          ["variable", "constant"],
     "ReadIndexedValue":   ["array"],
     "ReadQueuedValue":    ["queue"],  # queue_1 is an optimization so it's omitted
-    "ReadValueFromIndex": ["array"],  # virtual type to support complex connections
     "Runnable":           ["event", "call"]
 }
 
@@ -163,9 +162,6 @@ consumer_templates = {
                    "{\n"
                    "    return QueueStatus_Empty;\n"
                    "}",
-    },
-    "ReadValueFromIndex": {  # virtual type to support complex connections
-        "array": ""
     }
 }
 
@@ -399,6 +395,7 @@ if __name__ == "__main__":
     rt.add_plugin(project_config_compactor())
     rt.add_plugin(runtime_events())
     rt.add_plugin(component_config_compactor())
+    rt.add_plugin(builtin_types())
 
     rt.load(True)
     project_config = rt._project_config
@@ -464,7 +461,7 @@ if __name__ == "__main__":
                         "name":        "{}_Write_{}",
                         "return_type": "void",
                         "arguments":   {
-                            'value': data_type if passed_by == 'value' else "const {}*".format(data_type)},
+                            'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)},
                     },
                 "WriteIndexedData":
                     lambda: {
@@ -472,7 +469,7 @@ if __name__ == "__main__":
                         "return_type": "void",
                         "arguments":   {
                             'index': 'uint32_t',
-                            'value': data_type if passed_by == 'value' else "const {}*".format(data_type)
+                            'value': data_type if passed_by == TypeCollection.PASS_BY_VALUE else "const {}*".format(data_type)
                         }
                     },
                 "ReadValue":
@@ -480,7 +477,7 @@ if __name__ == "__main__":
                         "name":        "{}_Read_{}",
                         "return_type": data_type,
                         "arguments":   {}
-                    } if passed_by == 'value' else {
+                    } if passed_by == TypeCollection.PASS_BY_VALUE else {
                         "name":        "{}_Read_{}",
                         "return_type": 'void',
                         "arguments":   {'value': "{}*".format(data_type)}
@@ -496,7 +493,7 @@ if __name__ == "__main__":
                         "name":        "{}_Read_{}",
                         "return_type": data_type,
                         "arguments":   {'index': 'uint32_t'},
-                    } if passed_by == 'value' else {
+                    } if passed_by == TypeCollection.PASS_BY_VALUE else {
                         "name":        "{}_Read_{}",
                         "return_type": 'void',
                         "arguments":   {'index': 'uint32_t', 'value': "{}*".format(data_type)},
@@ -506,7 +503,7 @@ if __name__ == "__main__":
                         "name":        "{}_Constant_{}",
                         "return_type": data_type,
                         "arguments":   {}
-                    } if passed_by == 'value' else {
+                    } if passed_by == TypeCollection.PASS_BY_VALUE else {
                         "name":        "{}_Constant_{}",
                         "return_type": 'void',
                         "arguments":   {'value': "{}*".format(data_type)}
@@ -597,7 +594,7 @@ if __name__ == "__main__":
                 read_template = consumer_templates[consumer_port_type]['variable'][pass_by].replace('\n', '\n    ')
                 function_body = pystache.render(read_template, {
                     'buffer_name': databuffer_name,
-                    'out_name':    consumer_function['arguments'][0]['name'] if pass_by == 'pointer' else ''
+                    'out_name':    consumer_function['arguments'][0]['name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
                 })
                 consumer_function['body'].append(function_body)
         except KeyError:
@@ -651,7 +648,7 @@ if __name__ == "__main__":
                 ctx = {
                     'buffer_name': databuffer_name,
                     'index':       consumer_function['arguments'][0]['name'],
-                    'out_name':    consumer_function['arguments'][1]['name'] if pass_by == 'pointer' else ''
+                    'out_name':    consumer_function['arguments'][1]['name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
                 }
 
                 if not consumer_function['body']:
@@ -718,7 +715,7 @@ if __name__ == "__main__":
                 const_template = consumer_templates[consumer_port_type]['constant'][pass_by].replace('\n', '\n    ')
                 function_body = pystache.render(const_template, {
                     'constant_provider': '{}_Constant_{}'.format(provider['component'], provider['port']),
-                    'out_name':          consumer_function['arguments'][0]['name'] if pass_by == 'pointer' else ''
+                    'out_name':          consumer_function['arguments'][0]['name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
                 })
                 consumer_function['body'].append(function_body)
         except KeyError:

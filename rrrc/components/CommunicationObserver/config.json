@@ -23,8 +23,7 @@
     },
     "ports": {
         "ErrorLimitReached": {
-            "port_type": "Event",
-            "data_type": "void"
+            "port_type": "Event"
         },
         "Enabled": {
             "port_type": "WriteData",

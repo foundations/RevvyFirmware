@@ -15,10 +15,11 @@ class RuntimePlugin:
     def handle(self, event_name, args):
         try:
             handler = self._event_handlers[event_name]
-            print('Running {}::{}'.format(self.name, event_name))
-            handler(self._owner, *args)
         except KeyError:
-            pass
+            return
+
+        print('Running {}::{}'.format(self.name, event_name))
+        handler(self._owner, *args)
 
 
 class Runtime:
@@ -92,4 +93,8 @@ class Runtime:
 
     def _call_plugin_event(self, event_name, *args):
         for plugin in self._plugins:
-            self._plugins[plugin].handle(event_name, args)
+            try:
+                self._plugins[plugin].handle(event_name, args)
+            except Exception:
+                print('Error while processing {}/{}'.format(plugin, event_name))
+                raise

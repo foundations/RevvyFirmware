@@ -94,11 +94,14 @@ class TypeCollection:
     ENUM = 'enum'
     STRUCT = 'struct'
 
+    PASS_BY_VALUE = 'value'
+    PASS_BY_POINTER = 'pointer'
+
     def __init__(self):
         self._type_data = {
             'void': {
                 'type': TypeCollection.BUILTIN,
-                'pass_semantic': 'value'
+                'pass_semantic': TypeCollection.PASS_BY_VALUE
             }
         }
         self._resolved_names = {'void': 'void'}
@@ -162,7 +165,7 @@ class TypeCollection:
     def default_value(self, type_name):
         resolved = self[type_name]
         if resolved['type'] == TypeCollection.STRUCT:
-            return {field: self.default_value(resolved['fields'][field]) for field in resolved['fields']}
+            return {name: self.default_value(field_type) for name, field_type in resolved['fields'].items()}
 
         else:
             return resolved['default_value']

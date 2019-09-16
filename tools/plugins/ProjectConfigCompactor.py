@@ -1,3 +1,4 @@
+from tools.generator_common import TypeCollection
 from tools.runtime import RuntimePlugin
 
 
@@ -31,37 +32,6 @@ def process_port_ref_shorthand(port):
     return port
 
 
-def process_type_def_shorthand(type_def):
-    processed_type_def = {}
-
-    if 'defined_in' in type_def:
-        processed_type_def['type'] = 'external_type_def'
-        processed_type_def['defined_in'] = type_def['defined_in']
-        processed_type_def['default_value'] = type_def['default_value']
-        processed_type_def['pass_semantic'] = type_def.get('pass_semantic', 'value')
-
-    elif 'aliases' in type_def:
-        processed_type_def['type'] = 'type_alias'
-        processed_type_def['aliases'] = type_def['aliases']
-
-    else:
-        processed_type_def['type'] = type_def['type']
-        if type_def['type'] == 'enum':
-            processed_type_def['values'] = type_def['values']
-            processed_type_def['default_value'] = type_def['default_value']
-            processed_type_def['pass_semantic'] = type_def.get('pass_semantic', 'value')
-
-        elif type_def['type'] == 'struct':
-            processed_type_def['fields'] = type_def['fields']
-            processed_type_def['default_values'] = type_def.get('default_values', {})
-            processed_type_def['pass_semantic'] = type_def.get('pass_semantic', 'pointer')
-
-        else:
-            raise Exception('Unsupported type {}'.format(type_def['type']))
-
-    return processed_type_def
-
-
 def expand_project_config(owner, project_config):
     """Expand shorthand forms in project configuration"""
     processed_runnables = {}
@@ -74,8 +44,6 @@ def expand_project_config(owner, project_config):
     for port_connection in project_config['runtime'].get('port_connections', []):
         processed_port_connections.append(expand_port_connection(port_connection))
 
-    defs = project_config.get('types', {})
-    project_config['types'] = {type_name: process_type_def_shorthand(defs[type_name]) for type_name in defs}
     project_config['runtime']['runnables'] = processed_runnables
     project_config['runtime']['port_connections'] = processed_port_connections
 
