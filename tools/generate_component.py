@@ -150,7 +150,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                 lambda: {
                     "name":                "{}_Read_{}",
                     "return_type":         'QueueStatus_t',
-                    "return_value":        "QueueStatus_Empty",
+                    "return_value":        default_value('QueueStatus_t', None),
                     "arguments":           {'value': "{}*".format(data_type)},
                     "out_argument_values": {'value': default_value(data_type, port.get('default_value'))},
                     "weak":                True
