@@ -2,7 +2,7 @@
     "settings": {
         "name": "RevvyFirmware",
         "components_folder": "rrrc/components",
-        "required_plugins": ["ProjectConfigCompactor", "ComponentConfigCompactor"]
+        "required_plugins": ["ProjectConfigCompactor", "ComponentConfigCompactor", "BuiltinDataTypes", "RuntimeEvents"]
     },
     "sources": [
         "driver_init.c",
