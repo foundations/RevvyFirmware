@@ -189,6 +189,13 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
                     "return_type": "void",
                     "arguments":   port.get('arguments', {}),
                     "weak":        True
+                },
+            "ServerCall":
+                lambda: {
+                    "name":        "{}_Call_{}",
+                    "return_type": port.get('return_type', 'void'),
+                    "arguments":   port.get('arguments', {}),
+                    "weak":        True
                 }
         }
 
