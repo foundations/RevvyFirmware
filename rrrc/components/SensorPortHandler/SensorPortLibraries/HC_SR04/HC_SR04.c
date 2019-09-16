@@ -65,7 +65,8 @@ static void update_filtered_distance(SensorLibrary_HC_SR04_Data_t* sens_data)
             }
         }
 
-        sens_data->filtered_distance_tick = ordered[HCSR05_MEDIAN_FITLER_SIZE / 2];
+        uint32_t filtered = ordered[HCSR05_MEDIAN_FITLER_SIZE / 2];
+        sens_data->filtered_distance_tick = min(distance, filtered);
     }
 }
  
