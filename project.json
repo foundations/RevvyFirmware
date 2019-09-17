@@ -237,12 +237,14 @@
                 "MotorCurrentFilter/Update"
             ],
             "10ms_offset0": [
-                "BatteryCharger/Update"
+                "BatteryCharger/Update",
+                "WatchdogFeeder/Feed",
+                "DriveTrain/Update"
             ],
             "10ms_offset1": [
-                "WatchdogFeeder/Feed"
             ],
-            "10ms_offset2": [],
+            "10ms_offset2": [
+            ],
             "10ms_offset3": [],
             "10ms_offset4": [],
             "10ms_offset5": [],
@@ -251,13 +253,10 @@
             "10ms_offset8": [],
             "10ms_offset9": [],
             "20ms_offset0": [
-                "DriveTrain/Update",
-                "MotorPortHandler/Update",
-                "RingLedDisplay/Update",
-                "LEDController/Update"
+                "RingLedDisplay/Update"
             ],
             "20ms_offset1": [
-                "SensorPortHandler/Update"
+                "LEDController/Update"
             ],
             "20ms_offset2": [],
             "20ms_offset3": [],
@@ -279,6 +278,8 @@
             "20ms_offset19": [],
             "100ms": [
                 "BatteryCalculator/Update",
+                "SensorPortHandler/Update",
+                "MotorPortHandler/Update",
                 "BluetoothIndicator/Update",
                 "BrainStatusIndicator/Update"
             ]

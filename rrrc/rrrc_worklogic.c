@@ -189,14 +189,30 @@ static void ProcessTasks_10ms(uint8_t offset)
             break;
             
         case 2u:
+            Runtime_Call_10ms_offset4();
+            MotorPortHandler_Run_PortUpdate(4u);
+            MotorDerating_Run_OnUpdate(4u);
+            MotorPortHandler_Run_PortUpdate(5u);
+            MotorDerating_Run_OnUpdate(5u);
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
             Runtime_Call_10ms_offset2();
             break;
             
         case 3u:
+            MotorPortHandler_Run_PortUpdate(1u);
+            MotorDerating_Run_OnUpdate(1u);
+            MotorPortHandler_Run_PortUpdate(2u);
+            MotorDerating_Run_OnUpdate(2u);
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
             Runtime_Call_10ms_offset3();
             break;
             
         case 4u:
+            MotorPortHandler_Run_PortUpdate(0u);
+            MotorDerating_Run_OnUpdate(0u);
+            MotorPortHandler_Run_PortUpdate(3u);
+            MotorDerating_Run_OnUpdate(3u);
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
             Runtime_Call_10ms_offset4();
             break;
             
@@ -214,10 +230,14 @@ static void ProcessTasks_10ms(uint8_t offset)
             
         case 8u:
             Runtime_Call_10ms_offset8();
+            SensorPortHandler_Run_PortUpdate(0u);
+            SensorPortHandler_Run_PortUpdate(1u);
             break;
             
         case 9u:
             Runtime_Call_10ms_offset9();
+            SensorPortHandler_Run_PortUpdate(2u);
+            SensorPortHandler_Run_PortUpdate(3u);
             break;
     }
 }
@@ -235,65 +255,46 @@ static void ProcessTasks_20ms(uint8_t offset)
             break;
             
         case 2u:
-            MotorPortHandler_Run_PortUpdate(0u);
-            MotorDerating_Run_OnUpdate(0u);
             Runtime_Call_20ms_offset2();
             break;
             
         case 3u:
-            MotorPortHandler_Run_PortUpdate(1u);
-            MotorDerating_Run_OnUpdate(1u);
             Runtime_Call_20ms_offset3();
             break;
             
         case 4u:
-            MotorPortHandler_Run_PortUpdate(2u);
-            MotorDerating_Run_OnUpdate(2u);
             Runtime_Call_20ms_offset4();
             break;
             
         case 5u:
-            MotorPortHandler_Run_PortUpdate(3u);
-            MotorDerating_Run_OnUpdate(3u);
             Runtime_Call_20ms_offset5();
             break;
             
         case 6u:
-            MotorPortHandler_Run_PortUpdate(4u);
-            MotorDerating_Run_OnUpdate(4u);
             Runtime_Call_20ms_offset6();
             break;
             
         case 7u:
-            MotorPortHandler_Run_PortUpdate(5u);
-            MotorDerating_Run_OnUpdate(5u);
             Runtime_Call_20ms_offset7();
             break;
             
         case 8u:
-            MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
-            MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
-            MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
             Runtime_Call_20ms_offset8();
             break;
             
         case 9u:
-            SensorPortHandler_Run_PortUpdate(0u);
             Runtime_Call_20ms_offset9();
             break;
 
         case 10u:
-            SensorPortHandler_Run_PortUpdate(1u);
             Runtime_Call_20ms_offset10();
             break;
 
         case 11u:
-            SensorPortHandler_Run_PortUpdate(2u);
             Runtime_Call_20ms_offset11();
             break;
 
         case 12u:
-            SensorPortHandler_Run_PortUpdate(3u);
             Runtime_Call_20ms_offset12();
             break;
 

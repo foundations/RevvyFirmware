@@ -256,11 +256,12 @@ void Runtime_Call_1ms(void)
 void Runtime_Call_10ms_offset0(void)
 {
     BatteryCharger_Run_Update();
+    WatchdogFeeder_Run_Feed();
+    DriveTrain_Run_Update();
 }
 
 void Runtime_Call_10ms_offset1(void)
 {
-    WatchdogFeeder_Run_Feed();
 }
 
 void Runtime_Call_10ms_offset2(void)
@@ -297,15 +298,12 @@ void Runtime_Call_10ms_offset9(void)
 
 void Runtime_Call_20ms_offset0(void)
 {
-    DriveTrain_Run_Update();
-    MotorPortHandler_Run_Update();
     RingLedDisplay_Run_Update();
-    LEDController_Run_Update();
 }
 
 void Runtime_Call_20ms_offset1(void)
 {
-    SensorPortHandler_Run_Update();
+    LEDController_Run_Update();
 }
 
 void Runtime_Call_20ms_offset2(void)
@@ -383,6 +381,8 @@ void Runtime_Call_20ms_offset19(void)
 void Runtime_Call_100ms(void)
 {
     BatteryCalculator_Run_Update();
+    SensorPortHandler_Run_Update();
+    MotorPortHandler_Run_Update();
     BluetoothIndicator_Run_Update();
     BrainStatusIndicator_Run_Update();
 }

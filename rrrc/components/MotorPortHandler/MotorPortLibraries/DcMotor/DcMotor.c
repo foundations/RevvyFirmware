@@ -2,7 +2,7 @@
  * DcMotor.c
  *
  * Created: 2019. 05. 24. 15:03:34
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
  
 #include "DcMotor.h"
@@ -115,7 +115,7 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
  
         /* Calculate speed - 20ms cycle time */
         /* float dt = 0.02f; -> multiply by 50 */
-        float speed = avgPosDiff * 50.0f;
+        float speed = avgPosDiff * 100.0f;
 
         libdata->speed = speed;
 
