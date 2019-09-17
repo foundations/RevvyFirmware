@@ -401,6 +401,8 @@ if __name__ == "__main__":
 
     type_data = rt._types
 
+    rt.generate_runtime('generated_runtime_')
+
     classified_connections = classify_connections(project_config, component_data)
 
     type_includes = set()

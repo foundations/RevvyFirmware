@@ -103,6 +103,11 @@ class TypeCollection:
                 'type': TypeCollection.BUILTIN,
                 'pass_semantic': TypeCollection.PASS_BY_VALUE,
                 'default_value': None
+            },
+            'void*': {
+                'type': TypeCollection.BUILTIN,
+                'pass_semantic': TypeCollection.PASS_BY_VALUE,
+                'default_value': 'NULL'
             }
         }
         self._resolved_names = {'void': 'void'}

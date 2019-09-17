@@ -29,6 +29,22 @@ class RuntimePlugin:
 
 
 class FunctionDescriptor:
+
+    @staticmethod
+    def create(name, data: dict = None):
+        if not data:
+            data = {}
+
+        fd = FunctionDescriptor(name, data.get('return_type', 'void'))
+
+        for name, data_type in data.get('arguments', {}).items():
+            fd.add_argument(name, data_type)
+
+        for attribute in data.get('attributes', []):
+            fd.add_attribute(attribute)
+
+        return fd
+
     def __init__(self, func_name, return_type='void'):
         self._name = func_name
         self._return_type = return_type
@@ -44,17 +60,28 @@ class FunctionDescriptor:
     def add_argument(self, name, data_type):
         self._arguments[name] = data_type
 
-    def add_input_assert(self, argument, operator, value):
-        self._asserts.add('ASSERT({} {} {});'.format(argument, operator, value))
+    def add_input_assert(self, statements):
+        if type(statements) is str:
+            self._asserts.add('ASSERT({});'.format(statements))
+        else:
+            for statement in statements:
+                self._asserts.add('ASSERT({});'.format(statement))
+
+    def add_body(self, body):
+        if type(body) is str:
+            self._body.append(body)
+        else:
+            self._body += list(body)
 
     def set_return_statement(self, statement):
-        if self._return_type == 'void':
-            raise Exception('Function {} is void'.format(self._name))
-
         if self._return_statement:
             raise Exception('Return statement already set for {}'.format(self._name))
 
-        self._return_statement = statement
+        if statement:
+            if self._return_type == 'void':
+                raise Exception('Function {} is void'.format(self._name))
+
+            self._return_statement = statement
 
     def get_header(self):
         ctx = {
@@ -69,27 +96,27 @@ class FunctionDescriptor:
 
     def get_function(self):
         ctx = {
-            'template': "{{# attributes }}__attribute__(({{ . }})){{/ attributes }}"
+            'template': "{{# attributes }}__attribute__(({{ . }}))\n{{/ attributes }}"
                         "{{ header }}\n"
                         "{\n"
-                        "    {{# asserts }}\n"
-                        "    {{{ . }}}\n"
-                        "    {{/ asserts }}\n"
-                        "    {{# body }}\n"
-                        "    {{{ . }}}\n"
-                        "    {{/ body }}\n"
-                        "    {{ return_statement }}\n"
+                        "{{# asserts }}\n"
+                        "    {{{ . }}}{{/ asserts }}{{# body }}\n"
+                        "    {{{ . }}}{{/ body }}{{# return_statement }}\n"
+                        "    return {{{ return_statement }}};{{/ return_statement }}\n"
                         "}\n",
 
             'data':     {
-                'header': self.get_header(),
+                'header':           self.get_header(),
                 'return_statement': self._return_statement,
-                'attributes': list(self._attributes),
-                'asserts': list(self._asserts),
-                'body': [chunk.replace('\n', '    \n') for chunk in self._body]
+                'attributes':       list(self._attributes),
+                'asserts':          list(self._asserts),
+                'body':             [chunk.replace('\n', '    \n') for chunk in self._body]
             }
         }
         return chevron.render(**ctx)
+
+    def referenced_types(self):
+        return list(self._arguments.values()) + [self._return_type]
 
 
 class Runtime:
@@ -163,7 +190,7 @@ class Runtime:
         pass
 
     def update_component(self, component_name, update_header=True, update_source=True):
-        pass
+        self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
 
     def generate_runtime(self, filename):
         generator_context = {}
@@ -189,7 +216,7 @@ class Runtime:
         port_type = port['port_type']
 
         try:
-            attributes = self._port_types[port_type]['def_attributes']
+            attributes = self._port_types[port_type]
             del port['port_type']
             return {
                 'short_name': short_name,
@@ -210,3 +237,7 @@ class Runtime:
     @property
     def functions(self):
         return self._functions
+
+    @property
+    def types(self):
+        return self._types

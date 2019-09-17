@@ -7,7 +7,7 @@ import shutil
 import chevron
 
 from tools.generator_common import compact_project_config, to_underscore, render_typedefs, TypeCollection, \
-    change_file, create_empty_component_data, dict_to_chevron_list
+    change_file, create_empty_component_data
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
@@ -15,221 +15,64 @@ from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
 
-argument_template = '{{type}} {{name}}{{^last}}, {{/last}}'
-argument_list_template = '{{#args}}' + argument_template + '{{/args}}{{^args}}void{{/args}}'
-fn_header_template = '{{return_type}} {{name}}(' + argument_list_template + ')'
-
 header_template = '''#ifndef {{ guard_def }}
 #define {{ guard_def }}
 
 #ifndef {{ type_guard_def }}
 #define {{ type_guard_def }}
 
-{{ #type_includes }}
-#include {{{ include }}}
-{{ /type_includes }}
+{{# type_includes }}
+#include {{{ . }}}
+{{/ type_includes }}
 
-{{ #types }}
+{{# types }}
 {{{ . }}}
-{{ /types }}
+{{/ types }}
 
 #endif /* {{ type_guard_def }} */
 
-{{#functions}}
-''' + fn_header_template + ''';
-{{/functions}}
+{{# function_headers }}
+{{{ . }}};
+{{/ function_headers }}
 
 #endif /* {{ guard_def }} */
 '''
 
 source_template = '''#include "{{ component_name }}.h"
-{{#functions}}{{#weak}}
-__attribute__((weak)){{/weak}}
-''' + fn_header_template + '''
-{
-    {{#unused_args}}
-    (void) {{ . }};
-    {{/unused_args}}
-    {{#arg_values}}
-    *{{name}} = {{{value}}};
-    {{/arg_values}}
-    {{#return_value}}
-    return {{{.}}};
-    {{/return_value}}
-}
-{{/functions}}
-'''
+
+{{# functions }}
+{{{ . }}}
+{{/ functions }}'''
 
 default_runnables = {
     'OnInit': {}
 }
 
 
-def convert_functions(component_name, runnable_data, port_data, type_data: TypeCollection):
-    functions = []
-
-    def default_value(type_name, given_value):
-        if given_value is None:
-            default = type_data.default_value(type_name)
-            if type_data[type_name]['type'] == TypeCollection.STRUCT:
-                field_default_strs = ['.{} = {}'.format(field, default[field]) for field in default]
-                return '({}) {{ {} }}'.format(type_name, ", ".join(field_default_strs))
-
-            else:
-                return default
-
-        return given_value
-
-    for rn_name, runnable in runnable_data.items():
-        return_type = runnable['return_type']
-        functions.append({
-            'name':         '{}_Run_{}'.format(component_name, rn_name),
-            'return_type':  return_type,
-            'return_value': default_value(return_type, runnable.get('return_value', None)),
-            'args':         dict_to_chevron_list(runnable['arguments'],
-                                                 key_name='name',
-                                                 value_name='type',
-                                                 last_key='last')
-        })
-
-    for port_name, port in port_data.items():
-        port_type = port['port_type']
-
-        data_type = port.get('data_type', 'void')
-        passed_by_value = type_data.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
-        port_data_templates = {
-            "WriteData":
-                lambda: {
-                    "name":        "{}_Write_{}",
-                    "return_type": "void",
-                    "arguments":   {'value': data_type if passed_by_value else "const {}*".format(data_type)},
-                    "weak":        True
-                },
-            "WriteIndexedData":
-                lambda: {
-                    "name":        "{}_Write_{}",
-                    "return_type": "void",
-                    "arguments":   {
-                        'index': 'uint32_t',
-                        'value': data_type if passed_by_value else "const {}*".format(data_type)
-                    },
-                    "weak":        True
-                },
-            "ReadValue":
-                lambda: {
-                    "name":         "{}_Read_{}",
-                    "return_type":  data_type,
-                    "return_value": default_value(data_type, port.get('default_value')),
-                    "arguments":    {},
-                    "weak":         True
-                } if passed_by_value else {
-                    "name":                "{}_Read_{}",
-                    "return_type":         'void',
-                    "arguments":           {'value': "{}*".format(data_type)},
-                    "out_argument_values": {'value': default_value(data_type, port.get('default_value'))},
-                    "weak":                True
-                },
-            "ReadQueuedValue":
-                lambda: {
-                    "name":                "{}_Read_{}",
-                    "return_type":         'QueueStatus_t',
-                    "return_value":        default_value('QueueStatus_t', None),
-                    "arguments":           {'value': "{}*".format(data_type)},
-                    "out_argument_values": {'value': default_value(data_type, port.get('default_value'))},
-                    "weak":                True
-                },
-            "ReadIndexedValue":
-                lambda: {
-                    "name":         "{}_Read_{}",
-                    "return_type":  data_type,
-                    "return_value": default_value(data_type, port.get('default_value')),
-                    "arguments":    {'index': 'uint32_t'},
-                    "weak":         True
-                } if passed_by_value else {
-                    "name":                "{}_Read_{}",
-                    "return_type":         'void',
-                    "arguments":           {'index': 'uint32_t', 'value': "{}*".format(data_type)},
-                    "out_argument_values": {'value': default_value(data_type, port.get('default_value'))},
-                    "weak":                True
-                },
-            "Constant":
-                lambda: {
-                    "name":         "{}_Constant_{}",
-                    "return_type":  data_type,
-                    "return_value": port['value'],
-                    "arguments":    {},
-                    "weak":         False
-                } if passed_by_value else {
-                    "name":                "{}_Constant_{}",
-                    "return_type":         'void',
-                    "arguments":           {'value': "{}*".format(data_type)},
-                    "out_argument_values": {'value': port['value']},
-                    "weak":                False
-                },
-            "Event":
-                lambda: {
-                    "name":        "{}_Call_{}",
-                    "return_type": "void",
-                    "arguments":   port.get('arguments', {}),
-                    "weak":        True
-                },
-            "ServerCall":
-                lambda: {
-                    "name":        "{}_Call_{}",
-                    "return_type": port.get('return_type', 'void'),
-                    "arguments":   port.get('arguments', {}),
-                    "weak":        True
-                }
-        }
-
-        data = port_data_templates[port_type]()
-        out_args = data.get('out_argument_values', {})
-
-        arguments = dict_to_chevron_list(data['arguments'], key_name='name', value_name='type', last_key='last')
-        out_arguments = dict_to_chevron_list(out_args, key_name='name', value_name='value')
-
-        argument_names = data['arguments'].keys()
-        used_argument_names = out_args.keys()
-
-        unused_arguments = argument_names - used_argument_names
-
-        port_function_data = {
-            'name':         data['name'].format(component_name, port_name),
-            'return_type':  data['return_type'],
-            'return_value': data.get('return_value', ''),
-            'args':         arguments,
-            'unused_args':  unused_arguments,
-            'arg_values':   out_arguments,
-            'weak':         data['weak']
-        }
-        functions.append(port_function_data)
-
-    return functions
-
-
 def collect_used_types(functions, component_types, type_data: TypeCollection):
     types = set()
 
     def add_type(type_name):
-        sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
-        resolved_name = type_data.resolve(sanitized_name)
-        resolved_type = type_data[sanitized_name]
+        if type(type_name) is str:
+            sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
+            resolved_name = type_data.resolve(sanitized_name)
+            resolved_type = type_data[sanitized_name]
 
-        if type_data.get(sanitized_name)['type'] == TypeCollection.ALIAS:
-            types.add(sanitized_name)
+            if type_data.get(sanitized_name)['type'] == TypeCollection.ALIAS:
+                types.add(sanitized_name)
 
-        types.add(resolved_name)
-        if resolved_type['type'] == TypeCollection.STRUCT:
-            for field in resolved_type['fields']:
-                add_type(resolved_type['fields'][field])
+            types.add(resolved_name)
+
+            if resolved_type['type'] == TypeCollection.STRUCT:
+                add_type(resolved_type['fields'].values())
+        else:
+            for t in type_name:
+                add_type(t)
 
     for fun in functions:
-        add_type(fun['return_type'])
-        for arg in fun['args']:
-            add_type(arg['type'])
+        add_type(fun.referenced_types())
 
-    for type_name in component_types:
-        add_type(type_name)
+    add_type(component_types.keys())
 
     return sorted(types)
 
@@ -237,8 +80,8 @@ def collect_used_types(functions, component_types, type_data: TypeCollection):
 def collect_includes(used_types, type_data: TypeCollection):
     includes = set()
 
-    def add_type(type_name):
-        sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
+    if type(used_types) is str:
+        sanitized_name = used_types.replace('const', '').replace('*', '').replace(' ', '')
         resolved_type = type_data[sanitized_name]
 
         if resolved_type['type'] == TypeCollection.EXTERNAL_DEF:
@@ -246,11 +89,11 @@ def collect_includes(used_types, type_data: TypeCollection):
                 includes.add(resolved_type['defined_in'])
 
         elif resolved_type['type'] == TypeCollection.STRUCT:
-            for field in resolved_type['fields'].values():
-                add_type(field)
+            includes.update(collect_includes(resolved_type['fields'].values(), type_data))
 
-    for used in used_types:
-        add_type(used)
+    else:
+        for t in used_types:
+            includes.update(collect_includes(t, type_data))
 
     return sorted(includes)
 
@@ -298,7 +141,7 @@ if __name__ == "__main__":
     new_files = {}
     modified_files = {}
 
-    type_data = TypeCollection()
+    type_data = rt.types
 
     config_json_path = component_file('config.json')
     if args.create:
@@ -326,29 +169,29 @@ if __name__ == "__main__":
         try:
             rt.load_component_config(component_name)
             component_config = rt._components[component_name]
-            runnables = component_config['runnables']
             ports = component_config['ports']
             component_types = component_config['types']
         except FileNotFoundError:
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
 
-    for builtin_type, type_info in project_config['types'].items():
-        type_data.add(builtin_type, type_info)
+    rt.update_component(component_name, args.update_header, args.update_source)
 
-    for new_type, type_info in component_types.items():
-        type_data.add(new_type, type_info)
+    funcs = rt.functions.values()
 
-    functions = convert_functions(component_name, runnables, ports, type_data)
-    used_types = collect_used_types(functions, component_types, type_data)
+    function_headers = [fn.get_header() for fn in funcs]
+    functions = [fn.get_function() for fn in funcs]
+
+    used_types = collect_used_types(rt.functions.values(), component_types, type_data)
     template_ctx = {
-        'component_name': component_name,
-        'type_includes':  collect_includes(used_types, type_data),
-        'guard_def':      'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
-        'type_guard_def': 'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
-        'date':           datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions':      functions,
-        'types':          render_typedefs(used_types, type_data)
+        'component_name':   component_name,
+        'type_includes':    collect_includes(used_types, type_data),
+        'guard_def':        'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
+        'type_guard_def':   'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
+        'date':             datetime.datetime.now().strftime("%Y. %m. %d"),
+        'functions':        functions,
+        'function_headers': function_headers,
+        'types':            render_typedefs(used_types, type_data)
     }
 
 

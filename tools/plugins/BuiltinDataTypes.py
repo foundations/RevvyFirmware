@@ -1,7 +1,7 @@
 import chevron
 
 from tools.generator_common import TypeCollection, copy, chevron_list_mark_last, dict_to_chevron_list
-from tools.runtime import RuntimePlugin, FunctionDescriptor
+from tools.runtime import RuntimePlugin, FunctionDescriptor, Runtime
 
 
 def render_alias_typedef(type_collection: TypeCollection, type_name):
@@ -119,9 +119,21 @@ port_type_data = {
             'optional': {'default_value': None},
             'static':   {}
         },
-        'default_impl': {
-            'data_by_value': {},
-            'data_by_pointer': {},
+        'default_impl':   {
+            'common':  lambda types, port_data: {
+                'attributes':        ['weak'],
+                'func_name_pattern': '{}_Read_{}',
+            },
+            'value':   lambda types, port_data: {
+                'return_type':  port_data['data_type'],
+                'arguments':    {},
+                'return_value': port_data.get('value', types.default_value(port_data['data_type']))
+            },
+            'pointer': lambda types, port_data: {
+                'return_type': 'void',
+                'arguments':   {'value': '{}*'.format(port_data['data_type'])},
+                'asserts':     'value != NULL'
+            }
         }
     },
     'ReadQueuedValue':  {
@@ -130,9 +142,19 @@ port_type_data = {
             'optional': {'default_value': None},
             'static':   {}
         },
-        'default_impl': {
-            'data_by_value': {},
-            'data_by_pointer': {},
+        'default_impl':   {
+            'common':  lambda types, port_data: {
+                'attributes':        ['weak'],
+                'return_type':       'QueueStatus_t',
+                'func_name_pattern': '{}_Read_{}'
+            },
+            'value':   lambda types, port_data: {
+                'arguments': {'value': '{}*'.format(port_data['data_type'])},
+            },
+            'pointer': lambda types, port_data: {
+                'arguments': {'value': '{}*'.format(port_data['data_type'])},
+                'asserts':   'value != NULL'
+            }
         }
     },
     'ReadIndexedValue': {
@@ -141,9 +163,25 @@ port_type_data = {
             'optional': {'default_value': None},
             'static':   {}
         },
-        'default_impl': {
-            'data_by_value': {},
-            'data_by_pointer': {},
+        'default_impl':   {
+            'common':  lambda types, port_data: {
+                'attributes':        ['weak'],
+                'func_name_pattern': '{}_Read_{}'
+            },
+            'value':   lambda types, port_data: {
+                'return_type':  port_data['data_type'],
+                'arguments':    {'index': 'uint32_t'},
+                'return_value': port_data.get('value', types.default_value(port_data['data_type'])),
+                'asserts':      'index < {}'.format(port_data['count'])
+            },
+            'pointer': lambda types, port_data: {
+                'return_type': 'void',
+                'arguments':   {'index': 'uint32_t', 'value': '{}*'.format(port_data['data_type'])},
+                'asserts':     [
+                    'index < {}'.format(port_data['count']),
+                    'value != NULL'
+                ]
+            }
         }
     },
     'WriteData':        {
@@ -152,9 +190,19 @@ port_type_data = {
             'optional': {},
             'static':   {}
         },
-        'default_impl': {
-            'data_by_value': {},
-            'data_by_pointer': {},
+        'default_impl':   {
+            'common':  lambda types, port_data: {
+                'attributes':        ['weak'],
+                'func_name_pattern': '{}_Write_{}',
+                'return_type':       'void'
+            },
+            'value':   lambda types, port_data: {
+                'arguments': {'value': 'const {}'.format(port_data['data_type'])}
+            },
+            'pointer': lambda types, port_data: {
+                'arguments': {'value': 'const {}*'.format(port_data['data_type'])},
+                'asserts':   'value != NULL'
+            }
         }
     },
     'WriteIndexedData': {
@@ -163,9 +211,23 @@ port_type_data = {
             'optional': {},
             'static':   {}
         },
-        'default_impl': {
-            'data_by_value': {},
-            'data_by_pointer': {},
+        'default_impl':   {
+            'common':  lambda types, port_data: {
+                'attributes':        ['weak'],
+                'func_name_pattern': '{}_Write_{}',
+                'return_type':       'void'
+            },
+            'value':   lambda types, port_data: {
+                'arguments': {'index': 'uint32_t', 'value': 'const {}'.format(port_data['data_type'])},
+                'asserts':   'index < {}'.format(port_data['count']),
+            },
+            'pointer': lambda types, port_data: {
+                'arguments': {'index': 'uint32_t', 'value': 'const {}*'.format(port_data['data_type'])},
+                'asserts':   [
+                    'index < {}'.format(port_data['count']),
+                    'value != NULL'
+                ]
+            }
         }
     },
     'Constant':         {
@@ -174,9 +236,21 @@ port_type_data = {
             'optional': {},
             'static':   {}
         },
-        'default_impl': {
-            'data_by_value': {},
-            'data_by_pointer': {},
+        'default_impl':   {
+            'common':  lambda types, port_data: {
+                'func_name_pattern': '{}_Constant_{}'
+            },
+            'value':   lambda types, port_data: {
+                'return_type':  port_data['data_type'],
+                'arguments':    {},
+                'return_value': port_data['value']
+            },
+            'pointer': lambda types, port_data: {
+                'return_type': 'void',
+                'arguments':   {'value': '{}*'.format(port_data['data_type'])},
+                'body':        '*value = {};'.format(port_data['value']),
+                'asserts':     'value != NULL'
+            }
         }
     }
 }
@@ -184,7 +258,7 @@ port_type_data = {
 
 def init(owner):
     for port_type_name, data in port_type_data.items():
-        owner.add_port_type(port_type_name, data)
+        owner.add_port_type(port_type_name, data['def_attributes'])
 
 
 def process_project_types(owner, project_config):
@@ -204,10 +278,26 @@ def process_component_ports_and_types(owner, component_name, component_config):
                                  for type_name, type_def in defs.items()}
 
 
-def create_component_ports(owner, component_name, port_name, port_data):
-    port_type = port_data['port_type']
-    if port_type in port_type_data:
-        owner.add_function(port_type_data[port_type]['create_port_default_impl'](port_name, port_data))
+def create_component_ports(owner: Runtime, component_name, component_data):
+    for port_name, port_data in component_data['ports'].items():
+        port_type = port_data['port_type']
+        if port_type in port_type_data:
+            implementation_data = port_type_data[port_type]['default_impl']
+            pass_by = owner.types.passed_by(port_data['data_type'])
+
+            # noinspection PyCallingNonCallable
+            function_data = {
+                **implementation_data['common'](owner.types, port_data),
+                **implementation_data[pass_by](owner.types, port_data)
+            }
+            fn_name = function_data['func_name_pattern'].format(component_name, port_name)
+            function = FunctionDescriptor.create(fn_name, function_data)
+
+            function.add_input_assert(function_data.get('asserts', []))
+            function.add_body(function_data.get('body', []))
+            function.set_return_statement(function_data.get('return_value'))
+
+            owner.add_function(port_data['short_name'], function)
 
 
 def builtin_data_types():
