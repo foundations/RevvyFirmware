@@ -1,7 +1,7 @@
 import chevron
 
 from tools.generator_common import TypeCollection, copy, chevron_list_mark_last, dict_to_chevron_list
-from tools.runtime import RuntimePlugin
+from tools.runtime import RuntimePlugin, FunctionDescriptor
 
 
 def render_alias_typedef(type_collection: TypeCollection, type_name):
@@ -118,6 +118,10 @@ port_type_data = {
             'required': ['data_type'],
             'optional': {'default_value': None},
             'static':   {}
+        },
+        'default_impl': {
+            'data_by_value': {},
+            'data_by_pointer': {},
         }
     },
     'ReadQueuedValue':  {
@@ -125,6 +129,10 @@ port_type_data = {
             'required': ['data_type'],
             'optional': {'default_value': None},
             'static':   {}
+        },
+        'default_impl': {
+            'data_by_value': {},
+            'data_by_pointer': {},
         }
     },
     'ReadIndexedValue': {
@@ -132,6 +140,10 @@ port_type_data = {
             'required': ['data_type', 'count'],
             'optional': {'default_value': None},
             'static':   {}
+        },
+        'default_impl': {
+            'data_by_value': {},
+            'data_by_pointer': {},
         }
     },
     'WriteData':        {
@@ -139,6 +151,10 @@ port_type_data = {
             'required': ['data_type'],
             'optional': {},
             'static':   {}
+        },
+        'default_impl': {
+            'data_by_value': {},
+            'data_by_pointer': {},
         }
     },
     'WriteIndexedData': {
@@ -146,6 +162,10 @@ port_type_data = {
             'required': ['data_type', 'count'],
             'optional': {},
             'static':   {}
+        },
+        'default_impl': {
+            'data_by_value': {},
+            'data_by_pointer': {},
         }
     },
     'Constant':         {
@@ -153,6 +173,10 @@ port_type_data = {
             'required': ['data_type', 'value'],
             'optional': {},
             'static':   {}
+        },
+        'default_impl': {
+            'data_by_value': {},
+            'data_by_pointer': {},
         }
     }
 }
@@ -180,9 +204,16 @@ def process_component_ports_and_types(owner, component_name, component_config):
                                  for type_name, type_def in defs.items()}
 
 
+def create_component_ports(owner, component_name, port_name, port_data):
+    port_type = port_data['port_type']
+    if port_type in port_type_data:
+        owner.add_function(port_type_data[port_type]['create_port_default_impl'](port_name, port_data))
+
+
 def builtin_data_types():
     return RuntimePlugin("BuiltinDataTypes", {
-        'init':                  init,
-        'load_project_config':   process_project_types,
-        'load_component_config': process_component_ports_and_types
+        'init':                   init,
+        'load_project_config':    process_project_types,
+        'load_component_config':  process_component_ports_and_types,
+        'create_component_ports': create_component_ports
     })

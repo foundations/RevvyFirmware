@@ -87,9 +87,9 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
             'return_type':  return_type,
             'return_value': default_value(return_type, runnable.get('return_value', None)),
             'args':         dict_to_chevron_list(runnable['arguments'],
-                                                  key_name='name',
-                                                  value_name='type',
-                                                  last_key='last')
+                                                 key_name='name',
+                                                 value_name='type',
+                                                 last_key='last')
         })
 
     for port_name, port in port_data.items():

@@ -1,6 +1,8 @@
 import json
 
-from tools.generator_common import TypeCollection, change_file, copy
+import chevron
+
+from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list
 
 
 class RuntimePlugin:
@@ -26,6 +28,70 @@ class RuntimePlugin:
         handler(self._owner, *args)
 
 
+class FunctionDescriptor:
+    def __init__(self, func_name, return_type='void'):
+        self._name = func_name
+        self._return_type = return_type
+        self._arguments = {}
+        self._asserts = set()
+        self._return_statement = None
+        self._body = []
+        self._attributes = set()
+
+    def add_attribute(self, attribute):
+        self._attributes.add(attribute)
+
+    def add_argument(self, name, data_type):
+        self._arguments[name] = data_type
+
+    def add_input_assert(self, argument, operator, value):
+        self._asserts.add('ASSERT({} {} {});'.format(argument, operator, value))
+
+    def set_return_statement(self, statement):
+        if self._return_type == 'void':
+            raise Exception('Function {} is void'.format(self._name))
+
+        if self._return_statement:
+            raise Exception('Return statement already set for {}'.format(self._name))
+
+        self._return_statement = statement
+
+    def get_header(self):
+        ctx = {
+            'template': '{{ return_type }} {{ function_name }}({{^ arguments }}void{{/ arguments }}{{# arguments }}{{ type }} {{ name }}{{^ last}}, {{/ last }}{{/ arguments }})',
+            'data':     {
+                'return_type':   self._return_type,
+                'function_name': self._name,
+                'arguments':     dict_to_chevron_list(self._arguments, 'name', 'type', 'last')
+            }
+        }
+        return chevron.render(**ctx)
+
+    def get_function(self):
+        ctx = {
+            'template': "{{# attributes }}__attribute__(({{ . }})){{/ attributes }}"
+                        "{{ header }}\n"
+                        "{\n"
+                        "    {{# asserts }}\n"
+                        "    {{{ . }}}\n"
+                        "    {{/ asserts }}\n"
+                        "    {{# body }}\n"
+                        "    {{{ . }}}\n"
+                        "    {{/ body }}\n"
+                        "    {{ return_statement }}\n"
+                        "}\n",
+
+            'data':     {
+                'header': self.get_header(),
+                'return_statement': self._return_statement,
+                'attributes': list(self._attributes),
+                'asserts': list(self._asserts),
+                'body': [chunk.replace('\n', '    \n') for chunk in self._body]
+            }
+        }
+        return chevron.render(**ctx)
+
+
 class Runtime:
     def __init__(self, project_config_file):
         self._project_config_file = project_config_file
@@ -35,6 +101,7 @@ class Runtime:
         self._components = {}
         self._types = TypeCollection()
         self._port_types = {}
+        self._functions = {}
 
     def add_plugin(self, plugin: RuntimePlugin):
         self._plugins[plugin.name] = plugin
@@ -136,3 +203,10 @@ class Runtime:
 
         except Exception as e:
             raise Exception('Port {} ({}) has unexpected attribute set: {}'.format(short_name, port_type, e))
+
+    def add_function(self, key, function: FunctionDescriptor):
+        self._functions[key] = function
+
+    @property
+    def functions(self):
+        return self._functions
