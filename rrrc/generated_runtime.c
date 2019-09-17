@@ -50,6 +50,7 @@ void RunnableGroup_10ms_offset2(void)
 
 void RunnableGroup_10ms_offset3(void)
 {
+    DriveTrain_Run_Update();
 }
 
 void RunnableGroup_10ms_offset4(void)
@@ -78,15 +79,12 @@ void RunnableGroup_10ms_offset9(void)
 
 void RunnableGroup_20ms_offset0(void)
 {
-    DriveTrain_Run_Update();
-    MotorPortHandler_Run_Update();
     RingLedDisplay_Run_Update();
-    LEDController_Run_Update();
 }
 
 void RunnableGroup_20ms_offset1(void)
 {
-    SensorPortHandler_Run_Update();
+    LEDController_Run_Update();
 }
 
 void RunnableGroup_20ms_offset2(void)
@@ -163,6 +161,8 @@ void RunnableGroup_20ms_offset19(void)
 
 void RunnableGroup_100ms(void)
 {
+    SensorPortHandler_Run_Update();
+    MotorPortHandler_Run_Update();
     BluetoothIndicator_Run_Update();
     BrainStatusIndicator_Run_Update();
 }

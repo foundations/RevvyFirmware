@@ -1,17 +1,12 @@
-/*
- * HC_SR04.c
- *
- * Created: 10/05/2019 10:49:56
- *  Author: Dániel Buga
- */ 
 #include "HC_SR04.h"
 #include <hal_delay.h>
 #include <string.h>
 #include <math.h>
+#include "FreeRTOS.h"
 
 #define HCSR05_MEDIAN_FITLER_SIZE ((uint8_t) 5u)
 
-typedef struct 
+typedef struct
 {
     bool isMeasuring;
     bool finished;
@@ -42,6 +37,23 @@ static inline void swap_uint32(uint32_t* a, uint32_t* b)
     *b = t;
 }
 
+static void _select_next_active_sensor(void)
+{
+    for (uint8_t i = 0u; i < sizeof(ultrasonic_used); i++)
+    {
+        if (!ultrasonic_used[ultrasonic_active])
+        {
+            /* current sensor is inactive, check the next */
+            ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
+        }
+        else
+        {
+            /* an active sensor is selected, stop searching */
+            break;
+        }
+    }
+}
+
 static void update_filtered_distance(SensorLibrary_HC_SR04_Data_t* sens_data)
 {
     uint32_t ordered[HCSR05_MEDIAN_FITLER_SIZE];
@@ -69,7 +81,7 @@ static void update_filtered_distance(SensorLibrary_HC_SR04_Data_t* sens_data)
         sens_data->filtered_distance_tick = min(distance, filtered);
     }
 }
- 
+
 SensorLibraryStatus_t HC_SR04_Init(SensorPort_t* sensorPort)
 {
     SensorLibrary_HC_SR04_Data_t* libdata = SensorPortHandler_Call_Allocate(sizeof(SensorLibrary_HC_SR04_Data_t));
@@ -80,7 +92,7 @@ SensorLibraryStatus_t HC_SR04_Init(SensorPort_t* sensorPort)
 
     sensorPort->libraryData = libdata;
     SensorPort_SetGreenLed(sensorPort, true);
-    
+
     SensorPort_SetVccIo(sensorPort, Sensor_VccIo_5V);
     SensorPort_ConfigureGpio0_Output(sensorPort);
     SensorPort_ConfigureGpio1_Interrupt(sensorPort);
@@ -92,6 +104,11 @@ SensorLibraryStatus_t HC_SR04_Init(SensorPort_t* sensorPort)
 
 SensorLibraryStatus_t HC_SR04_DeInit(SensorPort_t* sensorPort)
 {
+    if (ultrasonic_active == sensorPort->port_idx)
+    {
+        _select_next_active_sensor();
+    }
+
     ultrasonic_used[sensorPort->port_idx] = false;
 
     SensorPort_SetVccIo(sensorPort, Sensor_VccIo_3V3);
@@ -101,6 +118,7 @@ SensorLibraryStatus_t HC_SR04_DeInit(SensorPort_t* sensorPort)
     SensorPort_SetOrangeLed(sensorPort, false);
     SensorPort_SetGreenLed(sensorPort, false);
     SensorPortHandler_Call_Free(&sensorPort->libraryData);
+
     return SensorLibraryStatus_Ok;
 }
 
@@ -108,52 +126,20 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
 {
     SensorLibrary_HC_SR04_Data_t* libdata = (SensorLibrary_HC_SR04_Data_t*) sensorPort->libraryData;
 
-    if (!libdata->isMeasuring)
-    {
-        /* make sure an active sensor is selected */
-        for (uint8_t i = 0u; i < sizeof(ultrasonic_used); i++)
-        {
-            if (!ultrasonic_used[ultrasonic_active])
-            {
-                /* current sensor is inactive, check the next */
-                ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
-            }
-            else
-            {
-                /* an active sensor is selected, stop searching */
-                break;
-            }
-        }
-        
-        /* if the current sensor is active, start measurement */
-        if (ultrasonic_active == sensorPort->port_idx)
-        {
-            if (SensorPort_Read_Gpio1(sensorPort) == false)
-            {
-                SensorPort_SetGpio0_Output(sensorPort, true);
-                delay_us(30);
-                SensorPort_SetGpio0_Output(sensorPort, false);
-
-                libdata->timeout = 0u;
-
-                libdata->finished = false;
-                libdata->isMeasuring = true;
-            }
-        }
-    }
-    else
+    if (libdata->isMeasuring)
     {
         /* this sensor is currently measuring - check if it has finished */
         if (libdata->finished)
         {
             update_filtered_distance(libdata);
-            
+
             uint32_t cm = _get_cm(libdata->filtered_distance_tick);
             SensorPort_Write_PortState(sensorPort->port_idx, (uint8_t*) &cm, sizeof(cm));
-            
+
             /* mark next sensor as active */
             ultrasonic_active = (ultrasonic_active + 1u) % ARRAY_SIZE(ultrasonic_used);
             libdata->isMeasuring = false;
+            _select_next_active_sensor();
         }
         else
         {
@@ -162,6 +148,7 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
                 libdata->finished = false;
                 libdata->isMeasuring = false;
                 SensorPort_SetOrangeLed(sensorPort, false);
+                _select_next_active_sensor();
             }
             else
             {
@@ -169,7 +156,34 @@ SensorLibraryStatus_t HC_SR04_Update(SensorPort_t* sensorPort)
             }
         }
     }
-    
+
+    /* avoid getting stuck */
+    if (!ultrasonic_used[ultrasonic_active])
+    {
+        _select_next_active_sensor();
+    }
+
+    /* if the current sensor is active, start measurement */
+    if (ultrasonic_active == sensorPort->port_idx)
+    {
+        if (!libdata->isMeasuring)
+        {
+            if (SensorPort_Read_Gpio1(sensorPort) == false)
+            {
+                portENTER_CRITICAL();
+                SensorPort_SetGpio0_Output(sensorPort, true);
+                delay_us(30);
+                SensorPort_SetGpio0_Output(sensorPort, false);
+                portEXIT_CRITICAL();
+
+                libdata->timeout = 0u;
+
+                libdata->finished = false;
+                libdata->isMeasuring = true;
+            }
+        }
+    }
+
     return SensorLibraryStatus_Ok;
 }
 
@@ -194,7 +208,7 @@ SensorLibraryStatus_t HC_SR04_PrepareGetValue(SensorPort_t* sensorPort, const ui
 SensorLibraryStatus_t HC_SR04_GetValue(SensorPort_t* sensorPort, uint8_t* value, uint8_t maxSize, uint8_t* valueSize)
 {
     SensorLibrary_HC_SR04_Data_t* libdata = (SensorLibrary_HC_SR04_Data_t*) sensorPort->libraryData;
-    
+
     ASSERT(maxSize >= sizeof(uint32_t));
 
     uint32_t cm = _get_cm(libdata->filtered_distance_tick);
@@ -246,7 +260,7 @@ SensorLibraryStatus_t HC_SR04_InterruptCallback(SensorPort_t* sensorPort, bool s
     return SensorLibraryStatus_Ok;
 }
 
-const SensorLibrary_t sensor_library_hc_sr04 = 
+const SensorLibrary_t sensor_library_hc_sr04 =
 {
     .name                = "HC_SR04",
     .Init                = &HC_SR04_Init,
