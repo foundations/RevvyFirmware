@@ -1,5 +1,4 @@
 import json
-import pystache
 
 from tools.generator_common import TypeCollection, change_file, copy
 

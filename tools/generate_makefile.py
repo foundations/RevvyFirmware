@@ -6,7 +6,7 @@ import shutil
 from json import JSONDecodeError
 from os import listdir
 
-import pystache
+import chevron
 
 from tools.generate_component import create_component_config, default_runnables
 from tools.generator_common import change_file
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     template_context['sources'][-1]['last'] = True
     template_context['includes'][-1]['last'] = True
 
-    makefile_contents = pystache.render(makefile_template, template_context)
+    makefile_contents = chevron.render(makefile_template, template_context)
 
     if change_file('Makefile', makefile_contents):
         print('New makefile generated')

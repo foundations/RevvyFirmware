@@ -1,4 +1,3 @@
-from tools.generator_common import TypeCollection
 from tools.runtime import RuntimePlugin
 
 

@@ -4,10 +4,10 @@ import sys
 import os
 import datetime
 import shutil
-import pystache
+import chevron
 
 from tools.generator_common import compact_project_config, to_underscore, render_typedefs, TypeCollection, \
-    change_file, create_empty_component_data, dict_to_pystache_list
+    change_file, create_empty_component_data, dict_to_chevron_list
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
@@ -26,7 +26,7 @@ header_template = '''#ifndef {{ guard_def }}
 #define {{ type_guard_def }}
 
 {{ #type_includes }}
-#include {{{.}}}
+#include {{{ include }}}
 {{ /type_includes }}
 
 {{ #types }}
@@ -86,7 +86,7 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
             'name':         '{}_Run_{}'.format(component_name, rn_name),
             'return_type':  return_type,
             'return_value': default_value(return_type, runnable.get('return_value', None)),
-            'args':         dict_to_pystache_list(runnable['arguments'],
+            'args':         dict_to_chevron_list(runnable['arguments'],
                                                   key_name='name',
                                                   value_name='type',
                                                   last_key='last')
@@ -185,8 +185,8 @@ def convert_functions(component_name, runnable_data, port_data, type_data: TypeC
         data = port_data_templates[port_type]()
         out_args = data.get('out_argument_values', {})
 
-        arguments = dict_to_pystache_list(data['arguments'], key_name='name', value_name='type', last_key='last')
-        out_arguments = dict_to_pystache_list(out_args, key_name='name', value_name='value')
+        arguments = dict_to_chevron_list(data['arguments'], key_name='name', value_name='type', last_key='last')
+        out_arguments = dict_to_chevron_list(out_args, key_name='name', value_name='value')
 
         argument_names = data['arguments'].keys()
         used_argument_names = out_args.keys()
@@ -360,10 +360,10 @@ if __name__ == "__main__":
 
 
     if args.update_header:
-        update_file(component_file(component_name + '.h'), pystache.render(header_template, template_ctx))
+        update_file(component_file(component_name + '.h'), chevron.render(header_template, template_ctx))
 
     if args.update_source:
-        update_file(component_file(component_name + '.c'), pystache.render(source_template, template_ctx))
+        update_file(component_file(component_name + '.c'), chevron.render(source_template, template_ctx))
 
     try:
         for folder in new_folders:

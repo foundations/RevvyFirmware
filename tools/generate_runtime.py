@@ -3,11 +3,10 @@ Generate a c/h file pair that contains runnable calls and port connections based
 """
 import argparse
 import sys
+import chevron
 
-import pystache
-
-from tools.generator_common import to_underscore, render_typedefs, change_file, pystache_list_mark_last, \
-    dict_to_pystache_list, TypeCollection
+from tools.generator_common import to_underscore, render_typedefs, change_file, chevron_list_mark_last, \
+    dict_to_chevron_list, TypeCollection, list_to_chevron_list
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ComponentConfigCompactor import component_config_compactor
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
@@ -26,15 +25,15 @@ databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
 
 databuffer_buffer_templates = {
     "variable": "static {{data_type}} {{ buffer_name }} = {{{ init_value }}};",
-    "array":    "static {{data_type}} {{ buffer_name }}[{{ size }}] = { {{ #init_values }}{{value}}{{^last}}, {{/last}}{{ /init_values }} };",
+    "array":    "static {{data_type}} {{ buffer_name }}[{{ size }}] = { {{# init_values }}{{ value }}{{^ last }}, {{/ last }}{{/ init_values }} };",
     "constant": None,
 
-    "queue":    "static {{data_type}} {{ buffer_name }}[{{ queue_length }}u];\n"
+    "queue":    "static {{ data_type }} {{ buffer_name }}[{{ queue_length }}u];\n"
                 "static size_t {{ buffer_name}}_count = 0u;\n"
                 "static size_t {{ buffer_name}}_write_index = 0u;\n"
                 "static bool {{ buffer_name }}_overflow = false;",
 
-    "queue_1":  "static {{data_type}} {{ buffer_name }};\n"
+    "queue_1":  "static {{ data_type }} {{ buffer_name }};\n"
                 "static bool {{ buffer_name }}_overflow = false;\n"
                 "static bool {{ buffer_name }}_data_valid = false;"
 }
@@ -177,21 +176,21 @@ runnable_templates = {
 header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
-{{ #type_includes }}
-#include {{{.}}}
-{{ /type_includes }}
+{{# type_includes }}
+#include {{{ header }}}
+{{/ type_includes }}
 
-{{ #types }}
+{{# types }}
 {{{ . }}}
-{{ /types }}
+{{/ types }}
 
-{{ #components }}
+{{# components }}
 #define COMPONENT_TYPES_{{ guard_def }}_H_
-{{ /components }}
+{{/ components }}
 
-{{ #components }}
+{{# components }}
 #include "components/{{ name }}/{{ name }}.h"
-{{ /components }}
+{{/ components }}
 
 {{#runnable_groups}}
 void Runtime_Call_{{ . }}(void);
@@ -203,30 +202,30 @@ void Runtime_Call_{{ . }}(void);
 source_template = """#include "{{ output_filename }}.h"
 #include "utils.h"
 
-{{ #_variables }}
-{{ #is_simple }}
+{{# _variables }}
+{{# is_simple }}
 static {{type}} {{ name }} = {{ init_value }};
-{{ /is_simple }}
-{{ #is_struct }}
-static {{type}} {{ name }} = { {{ #fields }} .{{ name }} = {{ value }}{{ ^last }}, {{ /last }} {{ /fields }} };
-{{ /is_struct }}
-{{ #is_array }}
-static {{type}} {{ name }}[{{ size }}] = { {{ #init_values }} {{ value }}{{ ^last }}, {{ /last }} {{ /init_values }} };
-{{ /is_array }}
-{{ /_variables }}
-{{ #variables }}
+{{/ is_simple }}
+{{# is_struct }}
+static {{type}} {{ name }} = { {{# fields }} .{{ name }} = {{ value }}{{^ last }}, {{/ last }} {{/ fields }} };
+{{/ is_struct }}
+{{# is_array }}
+static {{type}} {{ name }}[{{ size }}] = { {{# init_values }} {{ value }}{{^ last }}, {{/ last }} {{/ init_values }} };
+{{/ is_array }}
+{{/ _variables }}
+{{# variables }}
 {{{ . }}}
-{{ /variables }}
+{{/ variables }}
 
-{{#port_functions}}
-{{ return_type }} {{ function_name }}({{ ^arguments }}void{{ /arguments }}{{ #arguments }}{{type}} {{name}}{{^last}}, {{/last}}{{ /arguments }})
+{{# port_functions }}
+{{ return_type }} {{ function_name }}({{^ arguments }}void{{/ arguments }}{{# arguments }}{{ type }} {{ name }}{{^ last}}, {{/ last }}{{/ arguments }})
 {
-    {{ #body }}
+    {{# body }}
     {{{ . }}}
-    {{ /body }}
+    {{/ body }}
 }
 
-{{/port_functions}}
+{{/ port_functions }}
 """
 
 
@@ -410,6 +409,8 @@ if __name__ == "__main__":
         if type_alias['type'] == TypeCollection.EXTERNAL_DEF:
             type_includes.add(type_alias['defined_in'])
 
+    type_includes = list_to_chevron_list(sorted(type_includes), key_name='header')
+
     port_connections = []
     port_functions = {}
 
@@ -516,12 +517,12 @@ if __name__ == "__main__":
 
             data = port_data_templates[port_type]()
             function_name = data['name'].format(port['component'], port['port'])
-            arguments = dict_to_pystache_list(data['arguments'],
+            arguments = dict_to_chevron_list(data['arguments'],
                                               key_name='name',
                                               value_name='type',
                                               last_key='last')
 
-            pystache_list_mark_last(arguments)
+            chevron_list_mark_last(arguments)
             port_functions[port['short_name']] = {
                 'port':          port,
                 'type':          'runnable_connection',
@@ -561,7 +562,7 @@ if __name__ == "__main__":
             else:
                 template = "return " + get_consumer_runnable_template('server_call')
 
-            function_body = pystache.render(template, {
+            function_body = chevron.render(template, {
                 'component': callee['component'],
                 'runnable':  callee['port'],
                 'arguments': ', '.join(handler_runnable['arguments'])
@@ -575,7 +576,7 @@ if __name__ == "__main__":
             provider = variable_connection['provider']
             provider_port = get_port(provider, component_data)
 
-            databuffer_name = pystache.render(databuffer_name_template, {
+            databuffer_name = chevron.render(databuffer_name_template, {
                 'component_name': provider['component'],
                 'port_name':      provider['port']
             })
@@ -590,16 +591,16 @@ if __name__ == "__main__":
                     'init_value':  provider.get('init_value', type_data.default_value(provider_port['data_type'])),
                     'value':       provider_function['arguments'][0]['name']
                 }
-                variables[provider['short_name']] = pystache.render(databuffer_buffer_templates['variable'], ctx)
+                variables[provider['short_name']] = chevron.render(databuffer_buffer_templates['variable'], ctx)
                 write_template = databuffer_write_templates['variable'][pass_by].replace('\n', '\n    ')
-                provider_function['body'].append(pystache.render(write_template, ctx))
+                provider_function['body'].append(chevron.render(write_template, ctx))
 
             for consumer in variable_connection['consumers']:
                 consumer_function = create_function(consumer, port_functions, component_data)
 
                 consumer_port_type = get_port(consumer, component_data)['port_type']
                 read_template = consumer_templates[consumer_port_type]['variable'][pass_by].replace('\n', '\n    ')
-                function_body = pystache.render(read_template, {
+                function_body = chevron.render(read_template, {
                     'buffer_name': databuffer_name,
                     'out_name':    consumer_function['arguments'][0][
                                        'name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
@@ -615,7 +616,7 @@ if __name__ == "__main__":
             provider = variable_connection['provider']
             provider_port = get_port(provider, component_data)
 
-            databuffer_name = pystache.render(databuffer_name_template, {
+            databuffer_name = chevron.render(databuffer_name_template, {
                 'component_name': provider['component'],
                 'port_name':      provider['port']
             })
@@ -637,14 +638,14 @@ if __name__ == "__main__":
                         {'value': value} for value in provider.get('init_values',
                                                                    [type_data.default_value(data_type)] * count)]
                 }
-                pystache_list_mark_last(ctx['init_values'])
+                chevron_list_mark_last(ctx['init_values'])
 
                 if not provider_function['body']:
-                    provider_function['body'].append(pystache.render(assert_template, ctx))
+                    provider_function['body'].append(chevron.render(assert_template, ctx))
 
-                variables[provider['short_name']] = pystache.render(databuffer_buffer_templates['array'], ctx)
+                variables[provider['short_name']] = chevron.render(databuffer_buffer_templates['array'], ctx)
                 write_template = databuffer_write_templates['array'][pass_by].replace('\n', '\n    ')
-                provider_function['body'].append(pystache.render(write_template, ctx))
+                provider_function['body'].append(chevron.render(write_template, ctx))
 
             for consumer in variable_connection['consumers']:
                 consumer_function = create_function(consumer, port_functions, component_data)
@@ -657,9 +658,9 @@ if __name__ == "__main__":
                 }
 
                 if not consumer_function['body']:
-                    consumer_function['body'].append(pystache.render(assert_template, ctx))
+                    consumer_function['body'].append(chevron.render(assert_template, ctx))
 
-                function_body = pystache.render(get_consumer_template(consumer, pass_by, 'array'), ctx)
+                function_body = chevron.render(get_consumer_template(consumer, pass_by, 'array'), ctx)
                 consumer_function['body'].append(function_body)
         except KeyError:
             print(variable_connection)
@@ -672,7 +673,7 @@ if __name__ == "__main__":
                 provider = variable_connection['provider']
                 provider_port = get_port(provider, component_data)
 
-                databuffer_name = pystache.render(databuffer_name_template, {
+                databuffer_name = chevron.render(databuffer_name_template, {
                     'component_name': provider['component'],
                     'port_name':      provider['port']
                 })
@@ -691,16 +692,16 @@ if __name__ == "__main__":
                         'value':        provider_function['arguments'][0]['name'],
                         'queue_length': variable_connection['queue_length']
                     }
-                    variables[provider['short_name']] = pystache.render(databuffer_buffer_templates[connection_type],
+                    variables[provider['short_name']] = chevron.render(databuffer_buffer_templates[connection_type],
                                                                         ctx)
                     write_template = databuffer_write_templates[connection_type][pass_by].replace('\n', '\n    ')
-                    provider_function['body'].append(pystache.render(write_template, ctx))
+                    provider_function['body'].append(chevron.render(write_template, ctx))
 
                 for consumer in variable_connection['consumers']:
                     consumer_function = create_function(consumer, port_functions, component_data)
                     consumer_template = get_consumer_template(consumer, consumer_pass_by, connection_type)
 
-                    function_body = pystache.render(consumer_template, {
+                    function_body = chevron.render(consumer_template, {
                         'buffer_name':  databuffer_name,
                         'out_name':     consumer_function['arguments'][0]['name'],
                         'queue_length': variable_connection['queue_length']
@@ -722,7 +723,7 @@ if __name__ == "__main__":
                 consumer_function = create_function(consumer, port_functions, component_data)
                 consumer_template = get_consumer_template(consumer, pass_by, 'constant')
 
-                function_body = pystache.render(consumer_template, {
+                function_body = chevron.render(consumer_template, {
                     'constant_provider': '{}_Constant_{}'.format(provider['component'], provider['port']),
                     'out_name':          consumer_function['arguments'][0][
                                              'name'] if pass_by == TypeCollection.PASS_BY_POINTER else ''
@@ -744,7 +745,7 @@ if __name__ == "__main__":
                 handler_args = handler_runnable['arguments']
                 consumer_template = get_consumer_runnable_template('event')
 
-                function_body = pystache.render(consumer_template, {
+                function_body = chevron.render(consumer_template, {
                     'component': handler['component'],
                     'runnable':  handler['port'],
                     'arguments': ', '.join(handler_args)})
@@ -764,12 +765,12 @@ if __name__ == "__main__":
             'name':      component,
             'guard_def': to_underscore(component).upper()
         } for component in project_config['components']],
-        'variables':       variables.values(),
-        'port_functions':  port_functions.values(),
+        'variables':       list(variables.values()),
+        'port_functions':  list(port_functions.values()),
         'types':           render_typedefs(type_data, type_data),
-        'type_includes':   sorted(type_includes),
+        'type_includes':   type_includes,
         'runnable_groups': create_runnable_groups(project_config['runtime']['runnables'])
     }
 
-    change_file(args.output + '.h', pystache.render(header_template, template_ctx))
-    change_file(args.output + '.c', pystache.render(source_template, template_ctx))
+    change_file(args.output + '.h', chevron.render(template=header_template, data=template_ctx))
+    change_file(args.output + '.c', chevron.render(source_template, template_ctx))
