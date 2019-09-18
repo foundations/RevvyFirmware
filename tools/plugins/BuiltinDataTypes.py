@@ -8,13 +8,24 @@ class VariableSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple')
 
-    def create(self, connection: SignalConnection):
+    def create(self, context, connection: SignalConnection):
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(connection.provider)
+        data_type = provider_port_data['data_type']
+        ctx = {
+            'template': 'static {{ data_type }} {{ signal_name }} = {{ init_value }};',
+            'data':     {
+                'init_value':  connection.attributes.get('init_value', runtime.types.default_value(data_type)),
+                'data_type':   data_type,
+                'signal_name': connection.name
+            }
+        }
+        context['declarations'].append(chevron.render(**ctx))
+
+    def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_provider(self, connection: SignalConnection):
-        pass
-
-    def generate_consumer(self, connection: SignalConnection):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         pass
 
 
@@ -22,13 +33,26 @@ class ArraySignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple')
 
-    def create(self, connection: SignalConnection):
+    def create(self, context, connection: SignalConnection):
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(connection.provider)
+        data_type = provider_port_data['data_type']
+        count = provider_port_data['count']
+        ctx = {
+            'template': 'static {{ data_type }} {{ signal_name }}[{{ size }}] = { {{ init_value }} };',
+            'data':     {
+                'init_value':  connection.attributes.get('init_value', ', '.join([runtime.types.default_value(data_type)] * count)),
+                'data_type':   data_type,
+                'signal_name': connection.name,
+                'size':        count
+            }
+        }
+        context['declarations'].append(chevron.render(**ctx))
+
+    def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_provider(self, connection: SignalConnection):
-        pass
-
-    def generate_consumer(self, connection: SignalConnection):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         pass
 
 
@@ -36,13 +60,13 @@ class QueueSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple_signals', required_attributes=['queue_length'])
 
-    def create(self, connection: SignalConnection):
+    def create(self, context, connection: SignalConnection):
         pass
 
-    def generate_provider(self, connection: SignalConnection):
+    def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, connection: SignalConnection):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         pass
 
 
@@ -50,13 +74,13 @@ class ConstantSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple')
 
-    def create(self, connection: SignalConnection):
+    def create(self, context, connection: SignalConnection):
         pass
 
-    def generate_provider(self, connection: SignalConnection):
+    def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, connection: SignalConnection):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         pass
 
 

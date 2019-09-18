@@ -6,13 +6,13 @@ class EventSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple')
 
-    def create(self, connection: SignalConnection):
+    def create(self, context, connection: SignalConnection):
         pass
 
-    def generate_provider(self, connection: SignalConnection):
+    def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, connection: SignalConnection):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         pass
 
 
@@ -20,13 +20,13 @@ class ServerCallSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='single')
 
-    def create(self, connection: SignalConnection):
+    def create(self, context, connection: SignalConnection):
         pass
 
-    def generate_provider(self, connection: SignalConnection):
+    def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, connection: SignalConnection):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         pass
 
 

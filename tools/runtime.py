@@ -117,15 +117,20 @@ class FunctionDescriptor:
 
 
 class SignalConnection:
-    def __init__(self, name, signal, provider, attributes):
+    def __init__(self, context, name, signal, provider_name, attributes):
         self.name = name
         self.signal = signal
-        self.provider = provider
+        self.provider = provider_name
         self.attributes = attributes
         self.consumers = []
+        self.context = context
 
-    def add_consumer(self, consumer):
-        self.consumers.append(consumer)
+        signal.create(context, self)
+        signal.generate_provider(context, self, provider_name)
+
+    def add_consumer(self, consumer_name):
+        self.consumers.append(consumer_name)
+        self.signal.generate_consumer(self.context, self, consumer_name)
 
 
 class SignalType:
@@ -140,21 +145,21 @@ class SignalType:
     def consumers(self):
         return self._consumers
 
-    def create(self, connection: SignalConnection, provider: FunctionDescriptor):
+    def create(self, context, connection: SignalConnection):
         pass
 
-    def generate_provider(self, connection: SignalConnection, provider: FunctionDescriptor):
+    def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, connection: SignalConnection, provider: FunctionDescriptor, consumer: FunctionDescriptor):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         pass
 
-    def create_connection(self, name, provider, attributes):
+    def create_connection(self, context, name, provider, attributes):
         missing_attributes = self.required_attributes.difference(attributes.keys())
         if missing_attributes:
             raise Exception('{} attributes are missing from connection provided by {}'
                             .format(", ".join(missing_attributes), provider))
-        return SignalConnection(name, self, provider, attributes)
+        return SignalConnection(context, name, self, provider, attributes)
 
 
 class Runtime:
@@ -249,10 +254,21 @@ class Runtime:
         function_data = self._port_impl_lookup[port_type](self._types, port_data)
         return function_data
 
+    def get_port(self, short_name):
+        parts = short_name.split('/')
+        return self._components[parts[0]]['ports'][parts[1]]
+
     def get_port_data(self, component_name, port_name):
         return self._components[component_name]['ports'][port_name]
 
     def generate_runtime(self, filename):
+        context = {
+            'runtime': self,
+            'functions': {},
+            'declarations': [],
+            'exported_function_declarations': []
+        }
+
         consumers = {}
         providers = {}
 
@@ -271,6 +287,7 @@ class Runtime:
                 providers[provider_short_name] = self.create_function_for_port(component_name, provider_port_name)
 
             provider_func = providers[provider_short_name]
+            context['functions'][provider_short_name] = provider_func
 
             attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumers']}
 
@@ -312,13 +329,18 @@ class Runtime:
                     if 'weak' in function_data.get('attributes', []):
                         func = self.create_function_for_port(consumer_component, consumer_port, function_data)
                         consumers[consumer_short_name] = func
-                        consumer_func = consumers[consumer_short_name]
+                        context['functions'][consumer_short_name] = func
                     else:
-                        consumer_func = None
+                        context['functions'][consumer_short_name] = None
 
                 signal_name = '{}_{}_{}'\
                     .format(provider_short_name, consumer_short_name, signal_type_name)\
                     .replace('/', '_')
+
+                def create_signal_connection(attributes, signal_name, signal_type):
+                    signal = signal_type.create_connection(context, signal_name, provider_short_name, attributes)
+                    signal.add_consumer(consumer_short_name)
+                    return signal
 
                 try:
                     signals_of_current_type = signals[provider_short_name][signal_type_name]
@@ -327,26 +349,18 @@ class Runtime:
                             # create new signal in all cases
                             signal_name += str(len(signals_of_current_type))
 
-                            new_signal = signal_type.create_connection(signal_name, provider_short_name, attributes)
-                            new_signal.add_consumer(consumer_short_name)
+                            new_signal = create_signal_connection(attributes, signal_name, signal_type)
 
                             signals_of_current_type.append(new_signal)
-                            # TODO add to provider function
-                            # TODO add to consumer function
                         else:
                             signals_of_current_type.add_consumer(consumer_short_name)
-                            # TODO add to consumer function
                     elif signal_type.consumers == 'multiple':
                         signals_of_current_type.add_consumer(consumer_short_name)
-                        # TODO add to consumer function
                     else:
                         raise Exception('Multiple consumers not allowed for {} signal (provided by {})'
                                         .format(signal_type_name, provider_short_name))
                 except KeyError:
-                    new_signal = signal_type.create_connection(signal_name, provider_short_name, attributes)
-                    new_signal.add_consumer(consumer_short_name)
-                    # TODO add to provider function
-                    # TODO add to consumer function
+                    new_signal = create_signal_connection(attributes, signal_name, signal_type)
 
                     if signal_type.consumers == 'multiple_signals':
                         signals[provider_short_name][signal_type_name] = [new_signal]
