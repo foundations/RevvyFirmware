@@ -1,7 +1,7 @@
 import chevron
 
 from tools.generator_common import TypeCollection, copy, chevron_list_mark_last, dict_to_chevron_list
-from tools.runtime import RuntimePlugin, FunctionDescriptor, Runtime, SignalType, SignalConnection
+from tools.runtime import RuntimePlugin, Runtime, SignalType, SignalConnection
 
 
 class VariableSignal(SignalType):
@@ -12,10 +12,12 @@ class VariableSignal(SignalType):
         runtime = context['runtime']
         provider_port_data = runtime.get_port(connection.provider)
         data_type = provider_port_data['data_type']
+        types = runtime.types
+        init_value = connection.attributes.get('init_value', types.default_value(data_type))
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }} = {{ init_value }};',
             'data':     {
-                'init_value':  connection.attributes.get('init_value', runtime.types.default_value(data_type)),
+                'init_value':  init_value,
                 'data_type':   data_type,
                 'signal_name': connection.name
             }
@@ -23,10 +25,54 @@ class VariableSignal(SignalType):
         context['declarations'].append(chevron.render(**ctx))
 
     def generate_provider(self, context, connection: SignalConnection, provider_name):
-        pass
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(provider_name)
+        data_type = provider_port_data['data_type']
+
+        if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
+            template = '{{ signal_name }} = {{ value }};'
+        else:
+            template = '{{ signal_name }} = *{{ value }};'
+
+        function = context['functions'][provider_name]
+        argument_names = list(function.arguments.keys())
+        data = {
+            'signal_name': connection.name,
+            'value':       argument_names[0]
+        }
+        function.add_body(chevron.render(template, data))
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
-        pass
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(connection.provider)
+        expected_data_type = provider_port_data['data_type']
+
+        consumer_port_data = runtime.get_port(consumer_name)
+        data_type = consumer_port_data['data_type']
+
+        if data_type != expected_data_type:
+            raise Exception('Port data types don\'t match')
+
+        function = context['functions'][consumer_name]
+        argument_names = list(function.arguments.keys())
+        if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
+            ctx = {
+                'template': '{{ signal_name }}',
+                'data':     {
+                    'signal_name': connection.name
+                }
+            }
+            function.set_return_statement(chevron.render(**ctx))
+        else:
+            ctx = {
+                'template': '*{{ out_name} = {{ signal_name }};',
+                'data':     {
+                    'signal_name': connection.name,
+                    'out_name':    argument_names[0]
+                }
+            }
+
+            function.add_body(chevron.render(**ctx))
 
 
 class ArraySignal(SignalType):
@@ -38,10 +84,12 @@ class ArraySignal(SignalType):
         provider_port_data = runtime.get_port(connection.provider)
         data_type = provider_port_data['data_type']
         count = provider_port_data['count']
+        init_value = connection.attributes.get('init_value',
+                                               ', '.join([runtime.types.default_value(data_type)] * count))
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }}[{{ size }}] = { {{ init_value }} };',
             'data':     {
-                'init_value':  connection.attributes.get('init_value', ', '.join([runtime.types.default_value(data_type)] * count)),
+                'init_value':  init_value,
                 'data_type':   data_type,
                 'signal_name': connection.name,
                 'size':        count
@@ -50,10 +98,57 @@ class ArraySignal(SignalType):
         context['declarations'].append(chevron.render(**ctx))
 
     def generate_provider(self, context, connection: SignalConnection, provider_name):
-        pass
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(provider_name)
+        data_type = provider_port_data['data_type']
+
+        if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
+            template = '{{ signal_name }}[{{ index }}] = {{ value }};'
+        else:
+            template = '{{ signal_name }}[{{ index }}] = *{{ value }};'
+
+        function = context['functions'][provider_name]
+        argument_names = list(function.arguments.keys())
+        data = {
+            'signal_name': connection.name,
+            'index':       argument_names[0],
+            'value':       argument_names[1]
+        }
+        function.add_body(chevron.render(template, data))
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
-        pass
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(connection.provider)
+        expected_data_type = provider_port_data['data_type']
+
+        consumer_port_data = runtime.get_port(consumer_name)
+        data_type = consumer_port_data['data_type']
+
+        if data_type != expected_data_type:
+            raise Exception('Port data types don\'t match')
+
+        function = context['functions'][consumer_name]
+        argument_names = list(function.arguments.keys())
+        if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
+            ctx = {
+                'template': '{{ signal_name }}[{{ index }}]',
+                'data':     {
+                    'signal_name': connection.name,
+                    'index':       argument_names[0]
+                }
+            }
+            function.set_return_statement(chevron.render(**ctx))
+        else:
+            ctx = {
+                'template': '*{{ out_name} = {{ signal_name }}[{{ index }};',
+                'data':     {
+                    'signal_name': connection.name,
+                    'index':       argument_names[0],
+                    'out_name':    argument_names[1]
+                }
+            }
+
+            function.add_body(chevron.render(**ctx))
 
 
 class QueueSignal(SignalType):
@@ -61,13 +156,114 @@ class QueueSignal(SignalType):
         super().__init__(consumers='multiple_signals', required_attributes=['queue_length'])
 
     def create(self, context, connection: SignalConnection):
-        pass
+        if connection.attributes['queue_length'] == 1:
+            template = \
+                "static {{ data_type }} {{ signal_name }};\n" \
+                "static bool {{ signal_name }}_overflow = false;\n" \
+                "static bool {{ signal_name }}_data_valid = false;"
+        else:
+            template = \
+                "static {{ data_type }} {{ signal_name }}[{{ queue_length }}u];\n" \
+                "static size_t {{ signal_name}}_count = 0u;\n" \
+                "static size_t {{ signal_name}}_write_index = 0u;\n" \
+                "static bool {{ signal_name }}_overflow = false;"
+
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(connection.provider)
+        data_type = provider_port_data['data_type']
+
+        data = {
+            'data_type':    data_type,
+            'signal_name':  connection.name,
+            'queue_length': connection.attributes['queue_length']
+        }
+        context['declarations'].append(chevron.render(template, data))
 
     def generate_provider(self, context, connection: SignalConnection, provider_name):
-        pass
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(provider_name)
+        data_type = provider_port_data['data_type']
+
+        if connection.attributes['queue_length'] == 1:
+            template = \
+                "{{ signal_name }}_overflow = {{ signal_name }}_data_valid;\n" \
+                "{{ signal_name }} = {{ value }};\n" \
+                "{{ signal_name }}_data_valid = true;"
+        else:
+            template = \
+                "if ({{ signal_name }}_count < {{ queue_length }}u)\n" \
+                "{\n" \
+                "    ++{{ signal_name }}_count;\n" \
+                "}\n" \
+                "else\n" \
+                "{\n" \
+                "    {{ signal_name }}_overflow = true;\n" \
+                "}\n" \
+                "size_t idx = {{ signal_name }}_write_index;\n" \
+                "{{ signal_name }}_write_index = ({{ signal_name }}_write_index + 1u) % {{ queue_length }}u;\n" \
+                "{{ signal_name }}[idx] = {{ value }};"
+
+        function = context['functions'][provider_name]
+        argument_names = list(function.arguments.keys())
+        passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
+        data = {
+            'signal_name': connection.name,
+            'value':       argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
+        }
+        function.add_body(chevron.render(template, data))
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
-        pass
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(connection.provider)
+        data_type = provider_port_data['data_type']
+
+        if connection.attributes['queue_length'] == 1:
+            template = \
+                "QueueStatus_t return_value = QueueStatus_Empty;" \
+                "bool was_overflow = {{ signal_name }}_overflow;\n" \
+                "if ({{ signal_name }}_data_valid)\n" \
+                "{\n" \
+                "    {{ signal_name }}_overflow = false;\n" \
+                "    *{{ out_name }} = {{ signal_name }};\n" \
+                "    {{ signal_name }}_data_valid = false;\n" \
+                "    if (was_overflow)\n" \
+                "    {\n" \
+                "        return_value = QueueStatus_Overflow;\n" \
+                "    }\n" \
+                "    else\n" \
+                "    {\n" \
+                "        return_value = QueueStatus_Ok;\n" \
+                "    }\n" \
+                "}"
+        else:
+            template = \
+                "QueueStatus_t return_value = QueueStatus_Empty;" \
+                "if ({{ signal_name }}_count > 0u)\n" \
+                "{\n" \
+                "    size_t idx = ({{ signal_name }}_write_index - {{ signal_name }}_count) % {{ queue_length }}u;\n" \
+                "    --{{ signal_name }}_count;\n" \
+                "    *{{ out_name }} = {{ signal_name }}[idx];\n" \
+                "    \n" \
+                "    if ({{ signal_name }}_overflow)\n" \
+                "    {\n" \
+                "        {{ signal_name }}_overflow = false;\n" \
+                "        return_value = QueueStatus_Overflow;\n" \
+                "    }\n" \
+                "    else\n" \
+                "    {\n" \
+                "        return_value = QueueStatus_Ok;\n" \
+                "    }\n" \
+                "}"
+
+        function = context['functions'][consumer_name]
+        argument_names = list(function.arguments.keys())
+        passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
+        data = {
+            'signal_name': connection.name,
+            'out_name':    argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
+        }
+        function.add_body(chevron.render(template, data))
+        function.set_return_statement('return_value')
 
 
 class ConstantSignal(SignalType):
@@ -81,7 +277,39 @@ class ConstantSignal(SignalType):
         pass
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
-        pass
+        runtime = context['runtime']
+        provider_port_data = runtime.get_port(connection.provider)
+        expected_data_type = provider_port_data['data_type']
+
+        consumer_port_data = runtime.get_port(consumer_name)
+        data_type = consumer_port_data['data_type']
+
+        if data_type != expected_data_type:
+            raise Exception('Port data types don\'t match')
+
+        function = context['functions'][consumer_name]
+        argument_names = list(function.arguments.keys())
+
+        component_name, port_name = provider_port_data['short_name'].split('/')
+        constant_provider_name = '{}_Constant_{}'.format(component_name, port_name)
+        if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
+            ctx = {
+                'template': '{{ constant_provider }}()',
+                'data':     {
+                    'constant_provider': constant_provider_name
+                }
+            }
+            function.set_return_statement(chevron.render(**ctx))
+        else:
+            ctx = {
+                'template': '{{ constant_provider }}({{ out_name}});',
+                'data':     {
+                    'constant_provider': constant_provider_name,
+                    'out_name':          argument_names[0]
+                }
+            }
+
+            function.add_body(chevron.render(**ctx))
 
 
 signal_types = {
@@ -404,7 +632,6 @@ def create_component_ports(owner: Runtime, component_name, component_data):
             for attribute in function_data.get('attributes', []):
                 function.add_attribute(attribute)
 
-            function.add_input_assert(function_data.get('asserts', []))
             function.add_body(function_data.get('body', []))
             function.set_return_statement(function_data.get('return_value'))
 

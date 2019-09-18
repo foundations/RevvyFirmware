@@ -1,3 +1,5 @@
+import chevron
+
 from tools.generator_common import create_port_ref, create_empty_component_data
 from tools.runtime import RuntimePlugin, Runtime, FunctionDescriptor, SignalType, SignalConnection
 
@@ -13,7 +15,27 @@ class EventSignal(SignalType):
         pass
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
-        pass
+        runtime = context['runtime']
+
+        consumer_port_data = runtime.get_port(consumer_name)
+        function = context['functions'][connection.provider]
+        argument_names = function.arguments.keys()
+
+        if len([arg for arg in consumer_port_data['arguments'] if arg not in argument_names]) != 0:
+            raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
+
+        component_name, port_name = consumer_port_data['short_name'].split('/')
+
+        ctx = {
+            'template': "{{ component }}_Run_{{ runnable }}({{ arguments }});",
+            'data':     {
+                'component': component_name,
+                'runnable':  port_name,
+                'arguments': ', '.join(consumer_port_data['arguments'].keys())
+            }
+        }
+
+        function.add_body(chevron.render(**ctx))
 
 
 class ServerCallSignal(SignalType):
@@ -27,7 +49,35 @@ class ServerCallSignal(SignalType):
         pass
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
-        pass
+        runtime = context['runtime']
+
+        consumer_port_data = runtime.get_port(consumer_name)
+        function = context['functions'][connection.provider]
+        argument_names = list(function.arguments.keys())
+
+        if len([arg for arg in consumer_port_data['arguments'] if arg not in argument_names]) != 0:
+            raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
+
+        component_name, port_name = consumer_port_data['short_name'].split('/')
+
+        data = {
+            'component': component_name,
+            'runnable':  port_name,
+            'arguments': ', '.join(consumer_port_data['arguments'].keys()),
+            'data_type': consumer_port_data['return_type']
+        }
+
+        if function.return_type == 'void':
+            template = "{{ component }}_Run_{{ runnable }}({{ arguments }});"
+            function.add_body(chevron.render(template, data))
+        else:
+            if function.return_type != consumer_port_data['return_type']:
+                raise Exception('Callee return type is incompatible ({} instead of {})'
+                                .format(consumer_port_data['return_type'], function.return_type))
+
+            template = "{{ data_type }} return_value = {{ component }}_Run_{{ runnable }}({{ arguments }});"
+            function.add_body(chevron.render(template, data))
+            function.set_return_statement('return_value')
 
 
 signal_types = {

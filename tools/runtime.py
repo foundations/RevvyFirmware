@@ -112,6 +112,14 @@ class FunctionDescriptor:
         }
         return chevron.render(**ctx)
 
+    @property
+    def return_type(self):
+        return self._return_type
+
+    @property
+    def arguments(self):
+        return self._arguments
+
     def referenced_types(self):
         return list(self._arguments.values()) + [self._return_type]
 
@@ -246,7 +254,10 @@ class Runtime:
             function_data = self._get_function_data(component_name, port_name)
 
         fn_name = function_data['func_name_pattern'].format(component_name, port_name)
-        return FunctionDescriptor.create(fn_name, function_data)
+        function = FunctionDescriptor.create(fn_name, function_data)
+        function.add_input_assert(function_data.get('asserts', []))
+
+        return function
 
     def _get_function_data(self, component_name, port_name):
         port_data = self.get_port_data(component_name, port_name)
@@ -284,7 +295,11 @@ class Runtime:
             provided_signal_types = provider_port_data['provides']
 
             if provider_short_name not in providers:
-                providers[provider_short_name] = self.create_function_for_port(component_name, provider_port_name)
+                function_data = self._get_function_data(component_name, provider_port_name)
+                if 'weak' in function_data.get('attributes', []):
+                    providers[provider_short_name] = self.create_function_for_port(component_name, provider_port_name, function_data)
+                else:
+                    providers[provider_short_name] = None
 
             provider_func = providers[provider_short_name]
             context['functions'][provider_short_name] = provider_func
