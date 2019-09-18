@@ -40,9 +40,6 @@ class FunctionDescriptor:
         for name, data_type in data.get('arguments', {}).items():
             fd.add_argument(name, data_type)
 
-        for attribute in data.get('attributes', []):
-            fd.add_attribute(attribute)
-
         return fd
 
     def __init__(self, func_name, return_type='void'):
@@ -119,6 +116,47 @@ class FunctionDescriptor:
         return list(self._arguments.values()) + [self._return_type]
 
 
+class SignalConnection:
+    def __init__(self, name, signal, provider, attributes):
+        self.name = name
+        self.signal = signal
+        self.provider = provider
+        self.attributes = attributes
+        self.consumers = []
+
+    def add_consumer(self, consumer):
+        self.consumers.append(consumer)
+
+
+class SignalType:
+    def __init__(self, consumers='multiple', required_attributes=None):
+        if required_attributes is None:
+            required_attributes = []
+
+        self._consumers = consumers
+        self.required_attributes = frozenset(required_attributes)
+
+    @property
+    def consumers(self):
+        return self._consumers
+
+    def create(self, connection: SignalConnection, provider: FunctionDescriptor):
+        pass
+
+    def generate_provider(self, connection: SignalConnection, provider: FunctionDescriptor):
+        pass
+
+    def generate_consumer(self, connection: SignalConnection, provider: FunctionDescriptor, consumer: FunctionDescriptor):
+        pass
+
+    def create_connection(self, name, provider, attributes):
+        missing_attributes = self.required_attributes.difference(attributes.keys())
+        if missing_attributes:
+            raise Exception('{} attributes are missing from connection provided by {}'
+                            .format(", ".join(missing_attributes), provider))
+        return SignalConnection(name, self, provider, attributes)
+
+
 class Runtime:
     def __init__(self, project_config_file):
         self._project_config_file = project_config_file
@@ -128,6 +166,8 @@ class Runtime:
         self._components = {}
         self._types = TypeCollection()
         self._port_types = {}
+        self._port_impl_lookup = {}
+        self._signal_types = {}
         self._functions = {}
 
     def add_plugin(self, plugin: RuntimePlugin):
@@ -176,15 +216,16 @@ class Runtime:
         component_config_file = '{}/{}/config.json'.format(project_settings['components_folder'], component_name)
         with open(component_config_file, "r") as file:
             component_config = json.load(file)
-            self._call_plugin_event('load_component_config', component_name, component_config)
-            self._components[component_name] = component_config
+            self.add_component(component_name, component_config)
 
-            # add defined types
-            for data_type, type_info in component_config['types'].items():
-                self._types.add(data_type, type_info)
-
-            for port_name, port_data in component_config['ports'].items():
-                component_config['ports'][port_name] = self.process_port_def(component_name, port_name, port_data)
+    def add_component(self, component_name, component_config):
+        self._call_plugin_event('load_component_config', component_name, component_config)
+        self._components[component_name] = component_config
+        # add defined types
+        for data_type, type_info in component_config['types'].items():
+            self._types.add(data_type, type_info)
+        for port_name, port_data in component_config['ports'].items():
+            component_config['ports'][port_name] = self.process_port_def(component_name, port_name, port_data)
 
     def create_component(self, component):
         pass
@@ -192,14 +233,129 @@ class Runtime:
     def update_component(self, component_name, update_header=True, update_source=True):
         self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
 
-    def generate_runtime(self, filename):
-        generator_context = {}
+    def add_signal_type(self, name, signal_type: SignalType):
+        self._signal_types[name] = signal_type
 
-        self._call_plugin_event('generate_runtime', generator_context)
+    def create_function_for_port(self, component_name, port_name, function_data=None):
+        if not function_data:
+            function_data = self._get_function_data(component_name, port_name)
+
+        fn_name = function_data['func_name_pattern'].format(component_name, port_name)
+        return FunctionDescriptor.create(fn_name, function_data)
+
+    def _get_function_data(self, component_name, port_name):
+        port_data = self.get_port_data(component_name, port_name)
+        port_type = port_data['port_type']
+        function_data = self._port_impl_lookup[port_type](self._types, port_data)
+        return function_data
+
+    def get_port_data(self, component_name, port_name):
+        return self._components[component_name]['ports'][port_name]
+
+    def generate_runtime(self, filename):
+        consumers = {}
+        providers = {}
+
+        signals = {}
+
+        for connection in self._project_config['runtime']['port_connections']:
+            component_name = connection['provider']['component']
+            provider_port_name = connection['provider']['port']
+            provider_port_config = self.get_port_data(component_name, provider_port_name)
+            provider_port_data = self._port_types[provider_port_config['port_type']]
+
+            provider_short_name = "{}/{}".format(component_name, provider_port_name)
+            provided_signal_types = provider_port_data['provides']
+
+            if provider_short_name not in providers:
+                providers[provider_short_name] = self.create_function_for_port(component_name, provider_port_name)
+
+            provider_func = providers[provider_short_name]
+
+            attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumers']}
+
+            if provider_short_name not in signals:
+                signals[provider_short_name] = {}
+
+            for consumer_ref in connection['consumers']:
+                consumer_component = consumer_ref['component']
+                consumer_port = consumer_ref['port']
+                consumer_short_name = "{}/{}".format(consumer_component, consumer_port)
+
+                consumer_port_config = self.get_port_data(consumer_component, consumer_port)
+                consumer_port_type = consumer_port_config['port_type']
+
+                consumed_signal_types = self._port_types[consumer_port_type]['consumes'].keys()
+
+                inferred_signal_type = provided_signal_types.intersection(consumed_signal_types)
+
+                if len(inferred_signal_type) == 0:
+                    raise Exception('Incompatible ports: {} and {}'.format(provider_short_name, consumer_short_name))
+                elif len(inferred_signal_type) > 1:
+                    raise Exception('Connection type can not be inferred for {} and {}'
+                                    .format(provider_short_name, consumer_short_name))
+
+                signal_type_name = inferred_signal_type.pop()
+                signal_type = self._signal_types[signal_type_name]
+
+                if consumer_short_name in consumers:
+                    # this port already is the consumer of some signal
+                    # some ports can consume multiple signals, this is set in the port data
+                    # (e.g. a runnable can be called by multiple events or calls)
+                    if self._port_types[consumer_port_type]['consumes'][signal_type_name] == 'single':
+                        raise Exception('{} cannot consume multiple signals'.format(consumer_short_name))
+
+                    consumer_func = consumers[consumer_short_name]
+                else:
+                    function_data = self._get_function_data(consumer_component, consumer_port)
+                    # only weak functions need implementation generated
+                    if 'weak' in function_data.get('attributes', []):
+                        func = self.create_function_for_port(consumer_component, consumer_port, function_data)
+                        consumers[consumer_short_name] = func
+                        consumer_func = consumers[consumer_short_name]
+                    else:
+                        consumer_func = None
+
+                signal_name = '{}_{}_{}'\
+                    .format(provider_short_name, consumer_short_name, signal_type_name)\
+                    .replace('/', '_')
+
+                try:
+                    signals_of_current_type = signals[provider_short_name][signal_type_name]
+                    if type(signals_of_current_type) is list:
+                        if signal_type.consumers == 'multiple_signals':
+                            # create new signal in all cases
+                            signal_name += str(len(signals_of_current_type))
+
+                            new_signal = signal_type.create_connection(signal_name, provider_short_name, attributes)
+                            new_signal.add_consumer(consumer_short_name)
+
+                            signals_of_current_type.append(new_signal)
+                            # TODO add to provider function
+                            # TODO add to consumer function
+                        else:
+                            signals_of_current_type.add_consumer(consumer_short_name)
+                            # TODO add to consumer function
+                    elif signal_type.consumers == 'multiple':
+                        signals_of_current_type.add_consumer(consumer_short_name)
+                        # TODO add to consumer function
+                    else:
+                        raise Exception('Multiple consumers not allowed for {} signal (provided by {})'
+                                        .format(signal_type_name, provider_short_name))
+                except KeyError:
+                    new_signal = signal_type.create_connection(signal_name, provider_short_name, attributes)
+                    new_signal.add_consumer(consumer_short_name)
+                    # TODO add to provider function
+                    # TODO add to consumer function
+
+                    if signal_type.consumers == 'multiple_signals':
+                        signals[provider_short_name][signal_type_name] = [new_signal]
+                    else:
+                        signals[provider_short_name][signal_type_name] = new_signal
 
         # change_file(filename + '.h', pystache.render(header_template, generator_context))
         # change_file(filename + '.c', pystache.render(source_template, generator_context))
-        return generator_context
+        pass
 
     def _call_plugin_event(self, event_name, *args):
         for plugin in self._plugins:
@@ -209,8 +365,9 @@ class Runtime:
                 print('Error while processing {}/{}'.format(plugin, event_name))
                 raise
 
-    def add_port_type(self, port_type_name, data):
+    def add_port_type(self, port_type_name, data, lookup):
         self._port_types[port_type_name] = data
+        self._port_impl_lookup[port_type_name] = lookup
 
     def process_port_def(self, component_name, port_name, port):
         short_name = '{}/{}'.format(component_name, port_name)

@@ -6,7 +6,7 @@
     "runnables": {
         "OnInit": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         }
     }
 }

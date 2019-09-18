@@ -6,19 +6,19 @@
     "runnables": {
         "OnInit": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "OnMessageMissed": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "OnMessageReceived": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "Enable": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         }
     },
     "ports": {

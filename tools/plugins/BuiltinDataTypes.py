@@ -1,22 +1,72 @@
 import chevron
 
 from tools.generator_common import TypeCollection, copy, chevron_list_mark_last, dict_to_chevron_list
-from tools.runtime import RuntimePlugin, FunctionDescriptor, Runtime
+from tools.runtime import RuntimePlugin, FunctionDescriptor, Runtime, SignalType, SignalConnection
+
+
+class VariableSignal(SignalType):
+    def __init__(self):
+        super().__init__(consumers='multiple')
+
+    def create(self, connection: SignalConnection):
+        pass
+
+    def generate_provider(self, connection: SignalConnection):
+        pass
+
+    def generate_consumer(self, connection: SignalConnection):
+        pass
+
+
+class ArraySignal(SignalType):
+    def __init__(self):
+        super().__init__(consumers='multiple')
+
+    def create(self, connection: SignalConnection):
+        pass
+
+    def generate_provider(self, connection: SignalConnection):
+        pass
+
+    def generate_consumer(self, connection: SignalConnection):
+        pass
+
+
+class QueueSignal(SignalType):
+    def __init__(self):
+        super().__init__(consumers='multiple_signals', required_attributes=['queue_length'])
+
+    def create(self, connection: SignalConnection):
+        pass
+
+    def generate_provider(self, connection: SignalConnection):
+        pass
+
+    def generate_consumer(self, connection: SignalConnection):
+        pass
+
+
+class ConstantSignal(SignalType):
+    def __init__(self):
+        super().__init__(consumers='multiple')
+
+    def create(self, connection: SignalConnection):
+        pass
+
+    def generate_provider(self, connection: SignalConnection):
+        pass
+
+    def generate_consumer(self, connection: SignalConnection):
+        pass
+
 
 signal_types = {
-    'variable': {
-        'consumers': 'multiple'
-    },
-    'array': {
-        'consumers': 'multiple'
-    },
-    'constant': {
-        'consumers': 'multiple'
-    },
-    'queue': {
-        'consumers': 'multiple_signals'
-    }
+    'variable': VariableSignal(),
+    'array':    ArraySignal(),
+    'constant': ConstantSignal(),
+    'queue':    QueueSignal()
 }
+
 
 def render_alias_typedef(type_collection: TypeCollection, type_name):
     context = {
@@ -128,7 +178,10 @@ def process_type_def(type_name, type_def):
 
 port_type_data = {
     'ReadValue':        {
-        'consumes':       ['variable', 'constant'],
+        'consumes':       {
+            'variable': 'single',
+            'constant': 'single'
+        },
         'def_attributes': {
             'required': ['data_type'],
             'optional': {'default_value': None},
@@ -152,7 +205,7 @@ port_type_data = {
         }
     },
     'ReadQueuedValue':  {
-        'consumes':       ['queue'],
+        'consumes':       {'queue': 'single'},
         'def_attributes': {
             'required': ['data_type'],
             'optional': {'default_value': None},
@@ -174,7 +227,9 @@ port_type_data = {
         }
     },
     'ReadIndexedValue': {
-        'consumes':       ['array'],
+        'consumes':       {
+            'array': 'multiple'
+        },
         'def_attributes': {
             'required': ['data_type', 'count'],
             'optional': {'default_value': None},
@@ -202,7 +257,7 @@ port_type_data = {
         }
     },
     'WriteData':        {
-        'provides':       ['variable', 'queue'],
+        'provides':       {'variable', 'queue'},
         'def_attributes': {
             'required': ['data_type'],
             'optional': {},
@@ -224,7 +279,7 @@ port_type_data = {
         }
     },
     'WriteIndexedData': {
-        'provides':       ['array'],
+        'provides':       {'array'},
         'def_attributes': {
             'required': ['data_type', 'count'],
             'optional': {},
@@ -250,7 +305,7 @@ port_type_data = {
         }
     },
     'Constant':         {
-        'provides':       ['constant'],
+        'provides':       {'constant'},
         'def_attributes': {
             'required': ['data_type', 'value'],
             'optional': {},
@@ -276,9 +331,26 @@ port_type_data = {
 }
 
 
+def impl_data_lookup(types, port_data):
+    port_type = port_data['port_type']
+    if port_type not in port_type_data:
+        return None
+
+    implementation_data = port_type_data[port_type]['default_impl']
+    pass_by = types.passed_by(port_data['data_type'])
+    # noinspection PyCallingNonCallable
+    return {
+        **implementation_data['common'](types, port_data),
+        **implementation_data[pass_by](types, port_data)
+    }
+
+
 def init(owner):
     for port_type_name, data in port_type_data.items():
-        owner.add_port_type(port_type_name, data)
+        owner.add_port_type(port_type_name, data, impl_data_lookup)
+
+    for signal_name, signal in signal_types.items():
+        owner.add_signal_type(signal_name, signal)
 
 
 def process_project_types(owner, project_config):
@@ -302,16 +374,11 @@ def create_component_ports(owner: Runtime, component_name, component_data):
     for port_name, port_data in component_data['ports'].items():
         port_type = port_data['port_type']
         if port_type in port_type_data:
-            implementation_data = port_type_data[port_type]['default_impl']
-            pass_by = owner.types.passed_by(port_data['data_type'])
+            function_data = impl_data_lookup(owner.types, port_data)
+            function = owner.create_function_for_port(component_name, port_name, function_data)
 
-            # noinspection PyCallingNonCallable
-            function_data = {
-                **implementation_data['common'](owner.types, port_data),
-                **implementation_data[pass_by](owner.types, port_data)
-            }
-            fn_name = function_data['func_name_pattern'].format(component_name, port_name)
-            function = FunctionDescriptor.create(fn_name, function_data)
+            for attribute in function_data.get('attributes', []):
+                function.add_attribute(attribute)
 
             function.add_input_assert(function_data.get('asserts', []))
             function.add_body(function_data.get('body', []))

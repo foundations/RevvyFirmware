@@ -25,11 +25,11 @@
     "runnables": {
         "OnInit": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "OnUpdate": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         }
     },
     "ports": {

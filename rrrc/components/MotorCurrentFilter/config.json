@@ -10,12 +10,10 @@
     },
     "runnables": {
         "OnInit": {
-            "short_name": "MotorCurrentFilter/OnInit",
             "arguments": {},
             "return_type": "void"
         },
         "Update": {
-            "short_name": "MotorCurrentFilter/Update",
             "arguments": {},
             "return_type": "void"
         }

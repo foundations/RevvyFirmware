@@ -6,11 +6,11 @@
     "runnables": {
         "Reset":  {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "RebootToBootloader":  {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         }
     }
 }

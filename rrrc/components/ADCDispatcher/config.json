@@ -13,12 +13,10 @@
     },
     "runnables": {
         "OnInit": {
-            "short_name": "ADCDispatcher/OnInit",
             "arguments": {},
             "return_type": "void"
         },
         "Update": {
-            "short_name": "ADCDispatcher/OnUpdate",
             "arguments": {},
             "return_type": "void"
         }
