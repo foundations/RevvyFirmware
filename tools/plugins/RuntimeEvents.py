@@ -1,8 +1,18 @@
 from tools.generator_common import create_port_ref, create_empty_component_data
 from tools.runtime import RuntimePlugin, Runtime, FunctionDescriptor
 
+signal_types = {
+    'event': {
+        'consumers': 'multiple'
+    },
+    'call': {
+        'consumers': 'single'
+    }
+}
+
 port_type_data = {
     'Runnable':   {
+        'consumers':      ['call', 'event'],
         'def_attributes': {
             'required': [],
             'optional': {'arguments': {}},
@@ -15,6 +25,7 @@ port_type_data = {
         }
     },
     'Event':      {
+        'provides':       ['event'],
         'def_attributes': {
             'required': [],
             'optional': {'arguments': {}},
@@ -28,6 +39,7 @@ port_type_data = {
         }
     },
     'ServerCall': {
+        'provides':       ['call'],
         'def_attributes': {
             'required': [],
             'optional': {
@@ -71,8 +83,13 @@ def expand_runtime_events(owner: Runtime, project_config):
 
 
 def init(owner):
+    add_event_to = ['WriteData', 'WriteIndexedData']
+    for port_type, known_port_type in owner.port_types.items():
+        if port_type in add_event_to:
+            known_port_type['provides'].append('event')
+
     for port_type_name, data in port_type_data.items():
-        owner.add_port_type(port_type_name, data['def_attributes'])
+        owner.add_port_type(port_type_name, data)
 
 
 def create_component_runnables(owner: Runtime, component_name, component_data):

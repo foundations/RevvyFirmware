@@ -3,6 +3,20 @@ import chevron
 from tools.generator_common import TypeCollection, copy, chevron_list_mark_last, dict_to_chevron_list
 from tools.runtime import RuntimePlugin, FunctionDescriptor, Runtime
 
+signal_types = {
+    'variable': {
+        'consumers': 'multiple'
+    },
+    'array': {
+        'consumers': 'multiple'
+    },
+    'constant': {
+        'consumers': 'multiple'
+    },
+    'queue': {
+        'consumers': 'multiple_signals'
+    }
+}
 
 def render_alias_typedef(type_collection: TypeCollection, type_name):
     context = {
@@ -114,6 +128,7 @@ def process_type_def(type_name, type_def):
 
 port_type_data = {
     'ReadValue':        {
+        'consumes':       ['variable', 'constant'],
         'def_attributes': {
             'required': ['data_type'],
             'optional': {'default_value': None},
@@ -137,6 +152,7 @@ port_type_data = {
         }
     },
     'ReadQueuedValue':  {
+        'consumes':       ['queue'],
         'def_attributes': {
             'required': ['data_type'],
             'optional': {'default_value': None},
@@ -158,6 +174,7 @@ port_type_data = {
         }
     },
     'ReadIndexedValue': {
+        'consumes':       ['array'],
         'def_attributes': {
             'required': ['data_type', 'count'],
             'optional': {'default_value': None},
@@ -185,6 +202,7 @@ port_type_data = {
         }
     },
     'WriteData':        {
+        'provides':       ['variable', 'queue'],
         'def_attributes': {
             'required': ['data_type'],
             'optional': {},
@@ -206,6 +224,7 @@ port_type_data = {
         }
     },
     'WriteIndexedData': {
+        'provides':       ['array'],
         'def_attributes': {
             'required': ['data_type', 'count'],
             'optional': {},
@@ -231,6 +250,7 @@ port_type_data = {
         }
     },
     'Constant':         {
+        'provides':       ['constant'],
         'def_attributes': {
             'required': ['data_type', 'value'],
             'optional': {},
@@ -258,7 +278,7 @@ port_type_data = {
 
 def init(owner):
     for port_type_name, data in port_type_data.items():
-        owner.add_port_type(port_type_name, data['def_attributes'])
+        owner.add_port_type(port_type_name, data)
 
 
 def process_project_types(owner, project_config):

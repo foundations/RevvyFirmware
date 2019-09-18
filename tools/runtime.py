@@ -199,6 +199,7 @@ class Runtime:
 
         # change_file(filename + '.h', pystache.render(header_template, generator_context))
         # change_file(filename + '.c', pystache.render(source_template, generator_context))
+        return generator_context
 
     def _call_plugin_event(self, event_name, *args):
         for plugin in self._plugins:
@@ -216,7 +217,7 @@ class Runtime:
         port_type = port['port_type']
 
         try:
-            attributes = self._port_types[port_type]
+            attributes = self._port_types[port_type]['def_attributes']
             del port['port_type']
             return {
                 'short_name': short_name,
@@ -241,3 +242,7 @@ class Runtime:
     @property
     def types(self):
         return self._types
+
+    @property
+    def port_types(self):
+        return self._port_types

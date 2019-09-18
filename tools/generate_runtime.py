@@ -13,14 +13,6 @@ from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
 
-port_allows_multiple_consumers = {
-    "WriteData":        True,
-    "WriteIndexedData": True,
-    "Constant":         True,
-    "Event":            True,
-    "ServerCall":       False
-}
-
 databuffer_name_template = "{{component_name}}_{{port_name}}_databuffer"
 
 databuffer_buffer_templates = {
@@ -86,21 +78,6 @@ databuffer_write_templates = {
                    "{{ buffer_name }} = *{{ value }};\n"
                    "{{ buffer_name }}_data_valid = true;"
     }
-}
-
-provider_port_types = {
-    "Constant":         ["constant"],
-    "WriteData":        ["variable", "queue", "queue_1", "event"],
-    "WriteIndexedData": ["array", "event"],
-    "ServerCall":       ["call", "event"],
-    "Event":            ["event"],
-}
-
-consumer_port_types = {
-    "ReadValue":        ["variable", "constant"],
-    "ReadIndexedValue": ["array"],
-    "ReadQueuedValue":  ["queue"],  # queue_1 is an optimization so it's omitted
-    "Runnable":         ["event", "call"]
 }
 
 consumer_templates = {
@@ -192,39 +169,21 @@ header_template = """#ifndef GENERATED_RUNTIME_H_
 #include "components/{{ name }}/{{ name }}.h"
 {{/ components }}
 
-{{#runnable_groups}}
-void Runtime_Call_{{ . }}(void);
-{{/runnable_groups}}
-
+{{# runtime_events }}
+{{{ . }}}
+{{/ runtime_events }}
 #endif /* GENERATED_RUNTIME_H */
 """
 
 source_template = """#include "{{ output_filename }}.h"
 #include "utils.h"
 
-{{# _variables }}
-{{# is_simple }}
-static {{type}} {{ name }} = {{ init_value }};
-{{/ is_simple }}
-{{# is_struct }}
-static {{type}} {{ name }} = { {{# fields }} .{{ name }} = {{ value }}{{^ last }}, {{/ last }} {{/ fields }} };
-{{/ is_struct }}
-{{# is_array }}
-static {{type}} {{ name }}[{{ size }}] = { {{# init_values }} {{ value }}{{^ last }}, {{/ last }} {{/ init_values }} };
-{{/ is_array }}
-{{/ _variables }}
 {{# variables }}
 {{{ . }}}
 {{/ variables }}
 
 {{# port_functions }}
-{{ return_type }} {{ function_name }}({{^ arguments }}void{{/ arguments }}{{# arguments }}{{ type }} {{ name }}{{^ last}}, {{/ last }}{{/ arguments }})
-{
-    {{# body }}
-    {{{ . }}}
-    {{/ body }}
-}
-
+{{{ . }}}
 {{/ port_functions }}
 """
 
@@ -759,6 +718,8 @@ if __name__ == "__main__":
     elif args.validate_only:
         print("Runtime configuration is valid, exiting")
         sys.exit(0)
+
+    ctx = rt.generate_runtime('generated_runtime')
 
     template_ctx = {
         'output_filename': args.output[args.output.rfind('/') + 1:],
