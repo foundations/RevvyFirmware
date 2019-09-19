@@ -3,7 +3,7 @@ import json
 import chevron
 
 from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list, to_underscore, \
-    list_to_chevron_list
+    list_to_chevron_list, unique
 
 runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
@@ -362,19 +362,17 @@ class Runtime:
                 break
 
         ty = self._process_type(self._components[component_name].get('types', []))
-
+        types = ty['defs']
         for f in funcs:
             t = self._process_type(f.referenced_types())
-            for typedef in t['defs']:
-                if typedef not in ty['defs']:
-                    ty['defs'].append(typedef)
+            types += t['defs']
             ty['includes'].update(t['includes'])
 
         template_ctx = {
             'includes':         includes,
             'component_name':   component_name,
             'guard_def':        to_underscore(component_name).upper(),
-            'types':            list(ty['defs']),
+            'types':            unique(types),
             'type_includes':    list_to_chevron_list(sorted(ty['includes']), 'header'),
             'functions':        functions,
             'function_headers': function_headers
@@ -530,17 +528,13 @@ class Runtime:
         for c in self._components.values():
             for t in c.get('types', {}).keys():
                 t = self._process_type(t)
-                for typedef in t['defs']:
-                    if typedef not in types:
-                        types.append(typedef)
+                types += t['defs']
                 includes.update(t['includes'])
 
         for f in context['functions'].values():
             if f:
                 t = self._process_type(f.referenced_types())
-                for typedef in t['defs']:
-                    if typedef not in types:
-                        types.append(typedef)
+                types += t['defs']
                 includes.update(t['includes'])
 
         template_data = {
@@ -551,7 +545,7 @@ class Runtime:
             'output_filename':       filename[filename.rfind('/') + 1:],
             'components':            [{'name': name, 'guard_def': to_underscore(name).upper()} for name in
                                       self._components if name != 'Runtime'],
-            'types':                 types,
+            'types':                 unique(types),
             'type_includes':         list_to_chevron_list(sorted(includes), 'header'),
             'function_declarations': [context['functions'][func].get_header() for func in
                                       context['exported_function_declarations']],

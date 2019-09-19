@@ -1,222 +1,20 @@
 #include "generated_runtime.h"
 #include "utils.h"
 
-static ChargerState_t BatteryCharger_ChargerState_databuffer = ChargerState_NotPluggedIn;
-static bool CommunicationObserver_Enabled_databuffer = false;
-static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_databuffer = BluetoothStatus_Inactive;
-static Voltage_t ADCDispatcher_MainBatteryVoltage_databuffer = 0.0f;
-static Voltage_t ADCDispatcher_MotorBatteryVoltage_databuffer = 0.0f;
-static uint16_t ADC0_RawChannelData_databuffer[4] = { 0u, 0u, 0u, 0u };
-static uint16_t ADC1_RawChannelData_databuffer[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
-static Voltage_t ADC0_ChannelVoltage_databuffer[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-static Voltage_t ADC1_ChannelVoltage_databuffer[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-static Current_t ADCDispatcher_MotorCurrent_databuffer[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-static uint8_t ADCDispatcher_Sensor_ADC_databuffer[4] = { 0u, 0u, 0u, 0u };
-static Vector3D_t IMU_GyroscopeSample_databuffer;
-static bool IMU_GyroscopeSample_databuffer_overflow = false;
-static bool IMU_GyroscopeSample_databuffer_data_valid = false;
-
-void* SensorPortHandler_Call_Allocate(size_t size)
-{
-    return MemoryAllocator_Run_Allocate(size);
-}
-
-void* MotorPortHandler_Call_Allocate(size_t size)
-{
-    return MemoryAllocator_Run_Allocate(size);
-}
-
-uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
-{
-    return HighResolutionTimer_Run_GetTickCount();
-}
-
-void BatteryCharger_Write_ChargerState(ChargerState_t value)
-{
-    BatteryCharger_ChargerState_databuffer = value;
-}
-
-ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
-{
-    return BatteryCharger_ChargerState_databuffer;
-}
-
-void CommunicationObserver_Write_Enabled(bool value)
-{
-    CommunicationObserver_Enabled_databuffer = value;
-}
-
-bool RingLedDisplay_Read_MasterReady(void)
-{
-    return CommunicationObserver_Enabled_databuffer;
-}
-
-void BluetoothStatusObserver_Write_ConnectionStatus(BluetoothStatus_t value)
-{
-    BluetoothStatusObserver_ConnectionStatus_databuffer = value;
-}
-
-BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
-{
-    return BluetoothStatusObserver_ConnectionStatus_databuffer;
-}
-
-void ADCDispatcher_Write_MainBatteryVoltage(Voltage_t value)
-{
-    ADCDispatcher_MainBatteryVoltage_databuffer = value;
-}
-
-Voltage_t BatteryCalculator_Read_MainBatteryVoltage(void)
-{
-    return ADCDispatcher_MainBatteryVoltage_databuffer;
-}
-
-void ADCDispatcher_Write_MotorBatteryVoltage(Voltage_t value)
-{
-    ADCDispatcher_MotorBatteryVoltage_databuffer = value;
-}
-
-Voltage_t BatteryCalculator_Read_MotorBatteryVoltage(void)
-{
-    return ADCDispatcher_MotorBatteryVoltage_databuffer;
-}
-
-void ADC0_Write_RawChannelData(uint32_t index, uint16_t value)
-{
-    ASSERT(index < ARRAY_SIZE(ADC0_RawChannelData_databuffer));
-    ADC0_RawChannelData_databuffer[index] = value;
-}
-
-uint16_t ADCDispatcher_Read_ADC0_RawChannelData(uint32_t index)
-{
-    ASSERT(index < ARRAY_SIZE(ADC0_RawChannelData_databuffer));
-    return ADC0_RawChannelData_databuffer[index];
-}
-
-void ADC1_Write_RawChannelData(uint32_t index, uint16_t value)
-{
-    ASSERT(index < ARRAY_SIZE(ADC1_RawChannelData_databuffer));
-    ADC1_RawChannelData_databuffer[index] = value;
-}
-
-uint16_t ADCDispatcher_Read_ADC1_RawChannelData(uint32_t index)
-{
-    ASSERT(index < ARRAY_SIZE(ADC1_RawChannelData_databuffer));
-    return ADC1_RawChannelData_databuffer[index];
-}
-
-void ADC0_Write_ChannelVoltage(uint32_t index, Voltage_t value)
-{
-    ASSERT(index < ARRAY_SIZE(ADC0_ChannelVoltage_databuffer));
-    ADC0_ChannelVoltage_databuffer[index] = value;
-}
-
-Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
-{
-    ASSERT(index < ARRAY_SIZE(ADC0_ChannelVoltage_databuffer));
-    return ADC0_ChannelVoltage_databuffer[index];
-}
-
-void ADC1_Write_ChannelVoltage(uint32_t index, Voltage_t value)
-{
-    ASSERT(index < ARRAY_SIZE(ADC1_ChannelVoltage_databuffer));
-    ADC1_ChannelVoltage_databuffer[index] = value;
-}
-
-Voltage_t ADCDispatcher_Read_ADC1_ChannelVoltage(uint32_t index)
-{
-    ASSERT(index < ARRAY_SIZE(ADC1_ChannelVoltage_databuffer));
-    return ADC1_ChannelVoltage_databuffer[index];
-}
-
-void ADCDispatcher_Write_MotorCurrent(uint32_t index, Current_t value)
-{
-    ASSERT(index < ARRAY_SIZE(ADCDispatcher_MotorCurrent_databuffer));
-    ADCDispatcher_MotorCurrent_databuffer[index] = value;
-}
-
-Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
-{
-    ASSERT(index < ARRAY_SIZE(ADCDispatcher_MotorCurrent_databuffer));
-    return ADCDispatcher_MotorCurrent_databuffer[index];
-}
-
-void ADCDispatcher_Write_Sensor_ADC(uint32_t index, uint8_t value)
-{
-    ASSERT(index < ARRAY_SIZE(ADCDispatcher_Sensor_ADC_databuffer));
-    ADCDispatcher_Sensor_ADC_databuffer[index] = value;
-}
-
-uint8_t SensorPortHandler_Read_AdcData(uint32_t index)
-{
-    ASSERT(index < ARRAY_SIZE(ADCDispatcher_Sensor_ADC_databuffer));
-    return ADCDispatcher_Sensor_ADC_databuffer[index];
-}
-
-void IMU_Write_GyroscopeSample(const Vector3D_t* value)
-{
-    IMU_GyroscopeSample_databuffer_overflow = IMU_GyroscopeSample_databuffer_data_valid;
-    IMU_GyroscopeSample_databuffer = *value;
-    IMU_GyroscopeSample_databuffer_data_valid = true;
-}
-
-QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
-{
-    bool was_overflow = IMU_GyroscopeSample_databuffer_overflow;
-    if (IMU_GyroscopeSample_databuffer_data_valid)
-    {
-        IMU_GyroscopeSample_databuffer_overflow = false;
-        *value = IMU_GyroscopeSample_databuffer;
-        IMU_GyroscopeSample_databuffer_data_valid = false;
-        if (was_overflow)
-        {
-            return QueueStatus_Overflow;
-        }
-        else
-        {
-            return QueueStatus_Ok;
-        }
-    }
-    else
-    {
-        return QueueStatus_Empty;
-    }
-}
-
-float YawAngleTracker_Read_SampleTime(void)
-{
-    return IMU_Constant_SampleTime();
-}
-
-void BatteryCalculator_Read_MainBatteryParameters(BatteryConfiguration_t* value)
-{
-    ProjectConfiguration_Constant_MainBatteryParameters(value);
-}
-
-void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value)
-{
-    ProjectConfiguration_Constant_MotorBatteryParameters(value);
-}
-
-void CommunicationObserver_Call_ErrorLimitReached(void)
-{
-    RestartManager_Run_Reset();
-}
-
-void SensorPortHandler_Call_Free(void** ptr)
-{
-    MemoryAllocator_Run_Free(ptr);
-}
-
-void MotorPortHandler_Call_Free(void** ptr)
-{
-    MemoryAllocator_Run_Free(ptr);
-}
-
-void MasterCommunicationInterface_Call_RxTimeout(void)
-{
-    CommunicationObserver_Run_OnMessageMissed();
-}
+static ChargerState_t BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable = ChargerState_NotPluggedIn;
+static bool CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable = false;
+static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable = BluetoothStatus_Inactive;
+static Vector3D_t IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue;
+static bool IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = false;
+static bool IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = false;
+static uint16_t ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[4] = { 0u, 0u, 0u, 0u };
+static uint16_t ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
+static Voltage_t ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+static Voltage_t ADC1_ChannelVoltage_ADCDispatcher_ADC1_ChannelVoltage_array[8] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+static Current_t ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+static Voltage_t ADCDispatcher_MainBatteryVoltage_BatteryCalculator_MainBatteryVoltage_variable = 0.0f;
+static Voltage_t ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatteryVoltage_variable = 0.0f;
+static uint8_t ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[4] = { 0u, 0u, 0u, 0u };
 
 void Runtime_Call_OnInit(void)
 {
@@ -387,3 +185,213 @@ void Runtime_Call_100ms(void)
     BrainStatusIndicator_Run_Update();
 }
 
+void CommunicationObserver_Call_ErrorLimitReached(void)
+{
+    RestartManager_Run_Reset();
+}
+
+void MasterCommunicationInterface_Call_RxTimeout(void)
+{
+    CommunicationObserver_Run_OnMessageMissed();
+}
+
+void* SensorPortHandler_Call_Allocate(size_t size)
+{
+    void* return_value = MemoryAllocator_Run_Allocate(size);
+    return return_value;
+}
+
+void SensorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
+}
+
+void* MotorPortHandler_Call_Allocate(size_t size)
+{
+    void* return_value = MemoryAllocator_Run_Allocate(size);
+    return return_value;
+}
+
+void MotorPortHandler_Call_Free(void** ptr)
+{
+    MemoryAllocator_Run_Free(ptr);
+}
+
+uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
+{
+    uint16_t return_value = HighResolutionTimer_Run_GetTickCount();
+    return return_value;
+}
+
+void ADC0_Write_ChannelVoltage(uint32_t index, const Voltage_t value)
+{
+    ASSERT(index < 4);
+    ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[index] = value;
+}
+
+void ADC0_Write_RawChannelData(uint32_t index, const uint16_t value)
+{
+    ASSERT(index < 4);
+    ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[index] = value;
+}
+
+void ADC1_Write_ChannelVoltage(uint32_t index, const Voltage_t value)
+{
+    ASSERT(index < 8);
+    ADC1_ChannelVoltage_ADCDispatcher_ADC1_ChannelVoltage_array[index] = value;
+}
+
+void ADC1_Write_RawChannelData(uint32_t index, const uint16_t value)
+{
+    ASSERT(index < 8);
+    ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[index] = value;
+}
+
+void ADCDispatcher_Write_MainBatteryVoltage(const Voltage_t value)
+{
+    ADCDispatcher_MainBatteryVoltage_BatteryCalculator_MainBatteryVoltage_variable = value;
+}
+
+void ADCDispatcher_Write_MotorBatteryVoltage(const Voltage_t value)
+{
+    ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatteryVoltage_variable = value;
+}
+
+void ADCDispatcher_Write_MotorCurrent(uint32_t index, const Current_t value)
+{
+    ASSERT(index < 6);
+    ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[index] = value;
+}
+
+void ADCDispatcher_Write_Sensor_ADC(uint32_t index, const uint8_t value)
+{
+    ASSERT(index < 4);
+    ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[index] = value;
+}
+
+void BatteryCharger_Write_ChargerState(const ChargerState_t value)
+{
+    BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable = value;
+}
+
+void BluetoothStatusObserver_Write_ConnectionStatus(const BluetoothStatus_t value)
+{
+    BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable = value;
+}
+
+void CommunicationObserver_Write_Enabled(const bool value)
+{
+    CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable = value;
+}
+
+void IMU_Write_GyroscopeSample(const Vector3D_t* value)
+{
+    ASSERT(value != NULL);
+    IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid;    
+    IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue = *value;    
+    IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = true;
+}
+
+void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t value)
+{
+    ASSERT(index < 6);
+}
+
+Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
+{
+    ASSERT(index < 4);
+    return ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[index];
+}
+
+uint16_t ADCDispatcher_Read_ADC0_RawChannelData(uint32_t index)
+{
+    ASSERT(index < 4);
+    return ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[index];
+}
+
+Voltage_t ADCDispatcher_Read_ADC1_ChannelVoltage(uint32_t index)
+{
+    ASSERT(index < 8);
+    return ADC1_ChannelVoltage_ADCDispatcher_ADC1_ChannelVoltage_array[index];
+}
+
+uint16_t ADCDispatcher_Read_ADC1_RawChannelData(uint32_t index)
+{
+    ASSERT(index < 8);
+    return ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[index];
+}
+
+void BatteryCalculator_Read_MainBatteryParameters(BatteryConfiguration_t* value)
+{
+    ASSERT(value != NULL);
+    ProjectConfiguration_Constant_MainBatteryParameters(value);
+}
+
+Voltage_t BatteryCalculator_Read_MainBatteryVoltage(void)
+{
+    return ADCDispatcher_MainBatteryVoltage_BatteryCalculator_MainBatteryVoltage_variable;
+}
+
+void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value)
+{
+    ASSERT(value != NULL);
+    ProjectConfiguration_Constant_MotorBatteryParameters(value);
+}
+
+Voltage_t BatteryCalculator_Read_MotorBatteryVoltage(void)
+{
+    return ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatteryVoltage_variable;
+}
+
+ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
+{
+    return BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
+}
+
+BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
+{
+    return BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable;
+}
+
+QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
+{
+    ASSERT(value != NULL);
+    QueueStatus_t return_value = QueueStatus_Empty;bool was_overflow = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow;    
+    if (IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid)    
+    {    
+        IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = false;    
+        *value = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue;    
+        IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = false;    
+        if (was_overflow)    
+        {    
+            return_value = QueueStatus_Overflow;    
+        }    
+        else    
+        {    
+            return_value = QueueStatus_Ok;    
+        }    
+    }
+    return return_value;
+}
+
+Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
+{
+    ASSERT(index < 6);
+    return ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[index];
+}
+
+bool RingLedDisplay_Read_MasterReady(void)
+{
+    return CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable;
+}
+
+uint8_t SensorPortHandler_Read_AdcData(uint32_t index)
+{
+    ASSERT(index < 4);
+    return ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[index];
+}
+
+float YawAngleTracker_Read_SampleTime(void)
+{
+    return IMU_Constant_SampleTime();
+}

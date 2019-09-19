@@ -6,11 +6,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef enum {
-    QueueStatus_Empty,
-    QueueStatus_Ok,
-    QueueStatus_Overflow
-} QueueStatus_t;
 typedef float Voltage_t;
 typedef float Current_t;
 typedef struct {
@@ -57,6 +52,11 @@ typedef enum {
     RingLedScenario_BusyIndicator,
     RingLedScenario_BreathingGreen
 } RingLedScenario_t;
+typedef enum {
+    QueueStatus_Empty,
+    QueueStatus_Ok,
+    QueueStatus_Overflow
+} QueueStatus_t;
 
 #define COMPONENT_TYPES_ADC0_H_
 #define COMPONENT_TYPES_ADC1_H_

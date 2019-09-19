@@ -4,7 +4,7 @@ import sys
 import os
 import shutil
 
-from tools.generator_common import compact_project_config, TypeCollection, change_file, create_empty_component_data
+from tools.generator_common import compact_project_config, change_file, create_empty_component_data
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
@@ -14,55 +14,6 @@ from tools.runtime import Runtime
 default_runnables = {
     'OnInit': {}
 }
-
-
-def collect_used_types(functions, component_types, type_data: TypeCollection):
-    types = set()
-
-    def add_type(type_name):
-        if type(type_name) is str:
-            sanitized_name = type_name.replace('const', '').replace('*', '').replace(' ', '')
-            resolved_name = type_data.resolve(sanitized_name)
-            resolved_type = type_data[sanitized_name]
-
-            if type_data.get(sanitized_name)['type'] == TypeCollection.ALIAS:
-                types.add(sanitized_name)
-
-            types.add(resolved_name)
-
-            if resolved_type['type'] == TypeCollection.STRUCT:
-                add_type(resolved_type['fields'].values())
-        else:
-            for t in type_name:
-                add_type(t)
-
-    for fun in functions:
-        add_type(fun.referenced_types())
-
-    add_type(component_types.keys())
-
-    return sorted(types)
-
-
-def collect_includes(used_types, type_data: TypeCollection):
-    includes = set()
-
-    if type(used_types) is str:
-        sanitized_name = used_types.replace('const', '').replace('*', '').replace(' ', '')
-        resolved_type = type_data[sanitized_name]
-
-        if resolved_type['type'] == TypeCollection.EXTERNAL_DEF:
-            if resolved_type['defined_in'] is not None:
-                includes.add(resolved_type['defined_in'])
-
-        elif resolved_type['type'] == TypeCollection.STRUCT:
-            includes.update(collect_includes(resolved_type['fields'].values(), type_data))
-
-    else:
-        for t in used_types:
-            includes.update(collect_includes(t, type_data))
-
-    return sorted(includes)
 
 
 def create_component_config(name, sources, runnables):

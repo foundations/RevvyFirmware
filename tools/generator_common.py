@@ -292,3 +292,15 @@ def copy(src, required, optional):
             raise Exception(key)
 
     return dst
+
+
+def unique(values: list):
+    """Removes duplicates from the input list
+
+    >>> unique(['a', 'b', 'a', 'a', 'c', 'b', 'd'])
+    ['a', 'b', 'c', 'd']"""
+    unique_values = []
+    for value in values:
+        if value not in unique_values:
+            unique_values.append(value)
+    return unique_values
