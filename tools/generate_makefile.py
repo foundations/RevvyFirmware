@@ -10,21 +10,21 @@ import chevron
 
 from tools.generate_component import create_component_config, default_runnables
 from tools.generator_common import change_file
-from tools.plugins.ComponentConfigCompactor import component_config_compactor
+from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
 
 makefile_template = """# This Makefile was generated using "python -m tools.generate_makefile"
 C_SRCS += \\
-{{ #sources }}
-{{ source }}{{ ^last }} \\{{ /last }}
-{{ /sources }}
+{{# sources }}
+{{ source }}{{^ last }} \\{{/ last }}
+{{/ sources }}
 
 INCLUDE_PATHS += \\
-{{ #includes }}
--I{{ path }}{{ ^last }} \\{{ /last }}
-{{ /includes }}
+{{# includes }}
+-I{{ path }}{{^ last }} \\{{/ last }}
+{{/ includes }}
 
 COMPILE_FLAGS += \\
 -x c \\
@@ -126,8 +126,8 @@ if __name__ == "__main__":
 
     rt = Runtime(args.config)
     rt.add_plugin(project_config_compactor())
+    rt.add_plugin(builtin_data_types())
     rt.add_plugin(runtime_events())
-    rt.add_plugin(component_config_compactor())
 
     rt.load(True)
     config = rt._project_config

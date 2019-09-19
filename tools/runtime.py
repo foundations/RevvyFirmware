@@ -17,7 +17,7 @@ runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 {{/ types }}
 
 {{# components }}
-#define COMPONENT_TYPES_{{ guard_def }}
+#define COMPONENT_TYPES_{{ guard_def }}_H_
 {{/ components }}
 
 {{# components }}
@@ -34,8 +34,8 @@ runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 component_header_template = '''#ifndef COMPONENT_{{ guard_def }}_H_
 #define COMPONENT_{{ guard_def }}_H_
 
-#ifndef COMPONENT_TYPES_{{ guard_def }}
-#define COMPONENT_TYPES_{{ guard_def }}
+#ifndef COMPONENT_TYPES_{{ guard_def }}_H_
+#define COMPONENT_TYPES_{{ guard_def }}_H_
 
 {{# type_includes }}
 #include {{{ header }}}
@@ -45,7 +45,7 @@ component_header_template = '''#ifndef COMPONENT_{{ guard_def }}_H_
 {{{ . }}}
 {{/ types }}
 
-#endif /* COMPONENT_TYPES_{{ guard_def }} */
+#endif /* COMPONENT_TYPES_{{ guard_def }}_H_ */
 
 {{# function_headers }}
 {{{ . }}};
@@ -166,9 +166,9 @@ class FunctionDescriptor:
                         "}\n",
 
             'data':     {
-                'header':           self.get_header(),
-                'attributes':       list(self._attributes),
-                'body':             body
+                'header':     self.get_header(),
+                'attributes': list(self._attributes),
+                'body':       body
             }
         }
         return chevron.render(**ctx)
@@ -308,8 +308,11 @@ class Runtime:
         defs = []
         includes = set()
         if type(type_name) is str:
-            type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
-            type_data = self._types.get(type_name)
+            try:
+                type_data = self._types.get(type_name)
+            except KeyError:
+                type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
+                type_data = self._types.get(type_name)
 
             if self._types[type_name]['type'] == TypeCollection.EXTERNAL_DEF:
                 includes.add(self._types[type_name]['defined_in'])
@@ -332,7 +335,7 @@ class Runtime:
                 includes.update(d['includes'])
 
         return {
-            'defs': defs,
+            'defs':     defs,
             'includes': includes
         }
 
@@ -349,6 +352,15 @@ class Runtime:
         function_headers = [fn.get_header() for fn in funcs]
         functions = [fn.get_function() for fn in funcs]
 
+        includes = [
+            {'header': '"{}.h"'.format(component_name)},
+            {'header': '"utils.h"'}
+        ]
+        for f in funcs:
+            if f._asserts:
+                includes.append({'header': '"utils_assert.h"'})
+                break
+
         ty = self._process_type(self._components[component_name].get('types', []))
 
         for f in funcs:
@@ -359,7 +371,7 @@ class Runtime:
             ty['includes'].update(t['includes'])
 
         template_ctx = {
-            'includes':         [{'header': '"{}.h"'.format(component_name)}],
+            'includes':         includes,
             'component_name':   component_name,
             'guard_def':        to_underscore(component_name).upper(),
             'types':            list(ty['defs']),
@@ -515,6 +527,14 @@ class Runtime:
         types = []
         includes = set()
 
+        for c in self._components.values():
+            for t in c.get('types', {}).keys():
+                t = self._process_type(t)
+                for typedef in t['defs']:
+                    if typedef not in types:
+                        types.append(typedef)
+                includes.update(t['includes'])
+
         for f in context['functions'].values():
             if f:
                 t = self._process_type(f.referenced_types())
@@ -530,7 +550,7 @@ class Runtime:
             ],
             'output_filename':       filename[filename.rfind('/') + 1:],
             'components':            [{'name': name, 'guard_def': to_underscore(name).upper()} for name in
-                                      self._components],
+                                      self._components if name != 'Runtime'],
             'types':                 types,
             'type_includes':         list_to_chevron_list(sorted(includes), 'header'),
             'function_declarations': [context['functions'][func].get_header() for func in
