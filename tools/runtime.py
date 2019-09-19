@@ -2,10 +2,9 @@ import json
 
 import chevron
 
-from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list
+from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list, to_underscore
 
-
-header_template = """#ifndef GENERATED_RUNTIME_H_
+runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
 {{# type_includes }}
@@ -17,7 +16,7 @@ header_template = """#ifndef GENERATED_RUNTIME_H_
 {{/ types }}
 
 {{# components }}
-#define COMPONENT_TYPES_{{ guard_def }}_H_
+#define COMPONENT_TYPES_{{ guard_def }}
 {{/ components }}
 
 {{# components }}
@@ -31,8 +30,32 @@ header_template = """#ifndef GENERATED_RUNTIME_H_
 #endif /* GENERATED_RUNTIME_H */
 """
 
-source_template = """#include "{{ output_filename }}.h"
-#include "utils.h"
+component_header_template = '''#ifndef COMPONENT_{{ guard_def }}_H_
+#define COMPONENT_{{ guard_def }}_H_
+
+#ifndef COMPONENT_TYPES_{{ guard_def }}
+#define COMPONENT_TYPES_{{ guard_def }}
+
+{{# type_includes }}
+#include {{{ . }}}
+{{/ type_includes }}
+
+{{# types }}
+{{{ . }}}
+{{/ types }}
+
+#endif /* COMPONENT_TYPES_{{ guard_def }} */
+
+{{# function_headers }}
+{{{ . }}};
+{{/ function_headers }}
+
+#endif /* COMPONENT_{{ guard_def }}_H_ */
+'''
+
+source_template = '''{{# includes }}
+#include {{{ header }}}
+{{/ includes }}
 
 {{# variables }}
 {{{ . }}}
@@ -40,8 +63,7 @@ source_template = """#include "{{ output_filename }}.h"
 
 {{# functions }}
 {{{ . }}}
-{{/ functions }}
-"""
+{{/ functions }}'''
 
 
 class RuntimePlugin:
@@ -282,8 +304,26 @@ class Runtime:
     def create_component(self, component):
         pass
 
-    def update_component(self, component_name, update_header=True, update_source=True):
+    def update_component(self, component_name):
         self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
+        # self._call_plugin_event('before_generating_component', context)
+
+        funcs = self.functions.values()
+
+        function_headers = [fn.get_header() for fn in funcs]
+        functions = [fn.get_function() for fn in funcs]
+
+        template_ctx = {
+            'component_name':   component_name,
+            'guard_def':        to_underscore(component_name).upper(),
+            'functions':        functions,
+            'function_headers': function_headers
+        }
+
+        return {
+            component_name + '.c': chevron.render(source_template, template_ctx),
+            component_name + '.h': chevron.render(component_header_template, template_ctx)
+        }
 
     def add_signal_type(self, name, signal_type: SignalType):
         self._signal_types[name] = signal_type
@@ -313,9 +353,9 @@ class Runtime:
 
     def generate_runtime(self, filename):
         context = {
-            'runtime': self,
-            'functions': {},
-            'declarations': [],
+            'runtime':                        self,
+            'functions':                      {},
+            'declarations':                   [],
             'exported_function_declarations': []
         }
 
@@ -336,7 +376,8 @@ class Runtime:
             if provider_short_name not in providers:
                 function_data = self._get_function_data(component_name, provider_port_name)
                 if 'weak' in function_data.get('attributes', []):
-                    providers[provider_short_name] = self.create_function_for_port(component_name, provider_port_name, function_data)
+                    providers[provider_short_name] = self.create_function_for_port(component_name, provider_port_name,
+                                                                                   function_data)
                 else:
                     providers[provider_short_name] = None
 
@@ -387,8 +428,8 @@ class Runtime:
                     else:
                         context['functions'][consumer_short_name] = None
 
-                signal_name = '{}_{}_{}'\
-                    .format(provider_short_name, consumer_short_name, signal_type_name)\
+                signal_name = '{}_{}_{}' \
+                    .format(provider_short_name, consumer_short_name, signal_type_name) \
                     .replace('/', '_')
 
                 def create_signal_connection(attributes, signal_name, signal_type):
@@ -424,19 +465,25 @@ class Runtime:
         self._call_plugin_event('before_generating_runtime', context)
 
         template_data = {
-            'output_filename': filename[filename.rfind('/')+1:],
-            'components': {},
-            'types': [],
-            'type_includes': [],
-            'function_declarations': [context['functions'][func].get_header() for func in context['exported_function_declarations']],
-            'functions': [func.get_function() for func in context['functions'].values() if func is not None],
-            'variables': context['declarations']
+            'includes':              [
+                {'header': '"{}.h"'.format(filename[filename.rfind('/') + 1:])},
+                {'header': '"utils.h"'}
+            ],
+            'output_filename':       filename[filename.rfind('/') + 1:],
+            'components':            {},
+            'types':                 [],
+            'type_includes':         [],
+            'function_declarations': [context['functions'][func].get_header() for func in
+                                      context['exported_function_declarations']],
+            'functions':             [func.get_function() for func in context['functions'].values() if
+                                      func is not None],
+            'variables':             context['declarations']
         }
 
         source = chevron.render(source_template, template_data)
         return {
             filename + '.c': source,
-            filename + '.h': chevron.render(header_template, template_data)
+            filename + '.h': chevron.render(runtime_header_template, template_data)
         }
 
     def _call_plugin_event(self, event_name, *args):

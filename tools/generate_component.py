@@ -10,39 +10,9 @@ from tools.generator_common import compact_project_config, to_underscore, render
     change_file, create_empty_component_data
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
-from tools.plugins.ComponentConfigCompactor import component_config_compactor, process_runnable_defs
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
-
-header_template = '''#ifndef {{ guard_def }}
-#define {{ guard_def }}
-
-#ifndef {{ type_guard_def }}
-#define {{ type_guard_def }}
-
-{{# type_includes }}
-#include {{{ . }}}
-{{/ type_includes }}
-
-{{# types }}
-{{{ . }}}
-{{/ types }}
-
-#endif /* {{ type_guard_def }} */
-
-{{# function_headers }}
-{{{ . }}};
-{{/ function_headers }}
-
-#endif /* {{ guard_def }} */
-'''
-
-source_template = '''#include "{{ component_name }}.h"
-
-{{# functions }}
-{{{ . }}}
-{{/ functions }}'''
 
 default_runnables = {
     'OnInit': {}
@@ -101,7 +71,7 @@ def collect_includes(used_types, type_data: TypeCollection):
 def create_component_config(name, sources, runnables):
     contents = create_empty_component_data(name)
     contents['source_files'] = sources
-    contents['runnables'] = process_runnable_defs(name, runnables)
+    contents['runnables'] = {}
 
     return json.dumps(contents, indent=4)
 
@@ -124,7 +94,6 @@ if __name__ == "__main__":
 
     rt = Runtime("project.json")
     rt.add_plugin(project_config_compactor())
-    rt.add_plugin(component_config_compactor())
     rt.add_plugin(builtin_data_types())
     rt.add_plugin(runtime_events())
     rt.add_plugin(atmel_studio_support())
@@ -158,7 +127,7 @@ if __name__ == "__main__":
         new_folders.append(component_dir)
 
         # create component configuration json
-        runnables = process_runnable_defs(component_name, default_runnables)
+        runnables = {}
         ports = {}
         component_types = {}
         new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)
@@ -175,24 +144,7 @@ if __name__ == "__main__":
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
 
-    rt.update_component(component_name, args.update_header, args.update_source)
-
-    funcs = rt.functions.values()
-
-    function_headers = [fn.get_header() for fn in funcs]
-    functions = [fn.get_function() for fn in funcs]
-
-    used_types = collect_used_types(rt.functions.values(), component_types, type_data)
-    template_ctx = {
-        'component_name':   component_name,
-        'type_includes':    collect_includes(used_types, type_data),
-        'guard_def':        'COMPONENT_{}_H_'.format(to_underscore(component_name).upper()),
-        'type_guard_def':   'COMPONENT_TYPES_{}_H_'.format(to_underscore(component_name).upper()),
-        'date':             datetime.datetime.now().strftime("%Y. %m. %d"),
-        'functions':        functions,
-        'function_headers': function_headers,
-        'types':            render_typedefs(used_types, type_data)
-    }
+    files = rt.update_component(component_name)
 
 
     def update_file(file_path, contents):
@@ -203,10 +155,10 @@ if __name__ == "__main__":
 
 
     if args.update_header:
-        update_file(component_file(component_name + '.h'), chevron.render(header_template, template_ctx))
+        update_file(component_file(component_name + '.h'), files[component_name + '.h'])
 
     if args.update_source:
-        update_file(component_file(component_name + '.c'), chevron.render(source_template, template_ctx))
+        update_file(component_file(component_name + '.c'), files[component_name + '.c'])
 
     try:
         for folder in new_folders:
