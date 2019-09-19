@@ -61,10 +61,8 @@ source_template = '''{{# includes }}
 {{# variables }}
 {{{ . }}}
 {{/ variables }}
-
 {{# functions }}
-{{{ . }}}
-{{/ functions }}'''
+\n{{{ . }}}{{/ functions }}'''
 
 
 class RuntimePlugin:
@@ -154,22 +152,23 @@ class FunctionDescriptor:
         return chevron.render(**ctx)
 
     def get_function(self):
+        body = list(self._asserts)
+        body += [chunk.replace('\n', '    \n') for chunk in self._body]
+        if self._return_statement:
+            body.append('return {};'.format(self._return_statement))
         ctx = {
             'template': "{{# attributes }}__attribute__(({{ . }}))\n{{/ attributes }}"
                         "{{ header }}\n"
                         "{\n"
-                        "{{# asserts }}\n"
-                        "    {{{ . }}}{{/ asserts }}{{# body }}\n"
-                        "    {{{ . }}}{{/ body }}{{# return_statement }}\n"
-                        "    return {{{ return_statement }}};{{/ return_statement }}\n"
+                        "{{# body }}\n"
+                        "    {{{ . }}}\n"
+                        "{{/ body }}\n"
                         "}\n",
 
             'data':     {
                 'header':           self.get_header(),
-                'return_statement': self._return_statement,
                 'attributes':       list(self._attributes),
-                'asserts':          list(self._asserts),
-                'body':             [chunk.replace('\n', '    \n') for chunk in self._body]
+                'body':             body
             }
         }
         return chevron.render(**ctx)
