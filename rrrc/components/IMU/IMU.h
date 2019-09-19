@@ -1,43 +1,35 @@
-/*
- * IMU.h
- *
- * Created: 2019. 07. 25. 16:31:00
- *  Author: Dániel Buga
- */
-
 #ifndef COMPONENT_IMU_H_
 #define COMPONENT_IMU_H_
 
+#ifndef COMPONENT_TYPES_IMU_H_
+#define COMPONENT_TYPES_IMU_H_
+
+#include <float.h>
+#include <stdbool.h>
 #include <stdint.h>
 
-typedef struct 
-{
+typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
 } IMU_RawSample_t;
-
 typedef struct {
     float x;
     float y;
     float z;
-} IMU_AxlSample_t;
+} Vector3D_t;
 
-typedef struct {
-    float x;
-    float y;
-    float z;
-} IMU_GyroSample_t;
+#endif /* COMPONENT_TYPES_IMU_H_ */
 
 void IMU_Run_OnInit(void);
 void IMU_Run_OnUpdate(void);
-
-void IMU_Write_AccelerometerSample(const IMU_AxlSample_t* sample);
-void IMU_Write_GyroscopeSample(const IMU_GyroSample_t* sample);
-void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample);
-void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample);
-
 void IMU_Call_LogError(void);
 float IMU_Constant_SampleTime(void);
+void IMU_Write_AccelerometerSample(const Vector3D_t* value);
+void IMU_Write_GyroscopeSample(const Vector3D_t* value);
+void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* value);
+void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* value);
+void IMU_Write_AccelerometerDataReady(bool value);
+void IMU_Write_GyroscopeDataReady(bool value);
 
 #endif /* COMPONENT_IMU_H_ */

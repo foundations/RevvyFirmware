@@ -1,4 +1,9 @@
 {
+    "settings": {
+        "name": "RevvyFirmware",
+        "components_folder": "rrrc/components",
+        "required_plugins": ["ProjectConfigCompactor", "BuiltinDataTypes", "RuntimeEvents"]
+    },
     "sources": [
         "driver_init.c",
         "main.c",
@@ -93,6 +98,7 @@
     "components": [
         "ADC0",
         "ADC1",
+        "ADCDispatcher",
         "BatteryCalculator",
         "BatteryCharger",
         "BatteryIndicator",
@@ -115,6 +121,7 @@
         "McuStatusCollector",
         "McuStatusCollectorWrapper",
         "MemoryAllocator",
+        "MotorCurrentFilter",
         "MotorDerating",
         "MotorDriver_8833",
         "MotorPortHandler",
@@ -128,55 +135,68 @@
         "YawAngleTracker"
     ],
     "types": {
-        "void": {
-            "type": "external_type_def",
-            "defined_in": "<stdint.h>",
-            "default_value": ""
-        },
         "uint8_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "uint16_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "uint32_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "int8_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0"
+            "default_value": "0",
+            "pass_semantic": "value"
         },
         "int16_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0"
+            "default_value": "0",
+            "pass_semantic": "value"
         },
         "int32_t": {
             "type": "external_type_def",
             "defined_in": "<stdint.h>",
-            "default_value": "0"
+            "default_value": "0",
+            "pass_semantic": "value"
         },
         "size_t": {
             "type": "external_type_def",
             "defined_in": "<stdio.h>",
-            "default_value": "0u"
+            "default_value": "0u",
+            "pass_semantic": "value"
         },
         "bool": {
             "type": "external_type_def",
             "defined_in": "<stdbool.h>",
-            "default_value": "false"
+            "default_value": "false",
+            "pass_semantic": "value"
         },
         "float": {
             "type": "external_type_def",
             "defined_in": "<float.h>",
-            "default_value": "0.0f"
+            "default_value": "0.0f",
+            "pass_semantic": "value"
+        },
+        "QueueStatus_t": {
+            "type": "enum",
+            "values": [
+                "QueueStatus_Empty",
+                "QueueStatus_Ok",
+                "QueueStatus_Overflow"
+            ],
+            "default_value": "QueueStatus_Empty"
         }
     },
     "runtime": {
@@ -185,8 +205,11 @@
                 "ErrorStorage/OnInit",
                 "ADC0/OnInit",
                 "ADC1/OnInit",
+                "ADCDispatcher/OnInit",
+                "MotorCurrentFilter/OnInit",
                 "BatteryCharger/OnInit",
                 "LEDController/OnInit",
+                "BatteryCalculator/OnInit",
                 "BluetoothIndicator/OnInit",
                 "BrainStatusIndicator/OnInit",
                 "IMU/OnInit",
@@ -205,7 +228,9 @@
                 "ADC1/Update",
                 "IMU/OnUpdate",
                 "GyroscopeOffsetCompensator/Update",
-                "YawAngleTracker/Update"
+                "YawAngleTracker/Update",
+                "ADCDispatcher/Update",
+                "MotorCurrentFilter/Update"
             ],
             "10ms_offset0": [
                 "BatteryCharger/Update",
@@ -250,6 +275,7 @@
             "100ms": [
                 "SensorPortHandler/Update",
                 "MotorPortHandler/Update",
+                "BatteryCalculator/Update",
                 "BluetoothIndicator/Update",
                 "BrainStatusIndicator/Update"
             ]
@@ -298,6 +324,55 @@
             {
                 "provider": "BluetoothStatusObserver/ConnectionStatus",
                 "consumer": "BluetoothIndicator/ConnectionStatus"
+            },
+            {
+                "provider": "IMU/GyroscopeSample",
+                "consumer": "GyroscopeOffsetCompensator/AngularSpeeds",
+                "queue_length": 1
+            },
+            {
+                "provider": "ADC0/RawChannelData",
+                "consumer": "ADCDispatcher/ADC0_RawChannelData"
+            },
+            {
+                "provider": "ADC1/RawChannelData",
+                "consumer": "ADCDispatcher/ADC1_RawChannelData"
+            },
+            {
+                "provider": "ADC0/ChannelVoltage",
+                "consumer": "ADCDispatcher/ADC0_ChannelVoltage"
+            },
+            {
+                "provider": "ADC1/ChannelVoltage",
+                "consumer": "ADCDispatcher/ADC1_ChannelVoltage"
+            },
+            {
+                "provider": "ADCDispatcher/MotorCurrent",
+                "consumer": "MotorCurrentFilter/RawCurrent"
+            },
+            {
+                "provider": "ADCDispatcher/MainBatteryVoltage",
+                "consumer": "BatteryCalculator/MainBatteryVoltage"
+            },
+            {
+                "provider": "ADCDispatcher/MotorBatteryVoltage",
+                "consumer": "BatteryCalculator/MotorBatteryVoltage"
+            },
+            {
+                "provider": "ADCDispatcher/Sensor_ADC",
+                "consumer": "SensorPortHandler/AdcData"
+            },
+            {
+                "provider": "MotorCurrentFilter/FilteredCurrent",
+                "consumers": []
+            },
+            {
+                "provider": "ProjectConfiguration/MainBatteryParameters",
+                "consumer": "BatteryCalculator/MainBatteryParameters"
+            },
+            {
+                "provider": "ProjectConfiguration/MotorBatteryParameters",
+                "consumer": "BatteryCalculator/MotorBatteryParameters"
             }
         ]
     }

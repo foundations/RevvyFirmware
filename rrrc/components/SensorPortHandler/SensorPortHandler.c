@@ -27,7 +27,7 @@ static SensorPort_t* sensorPorts = NULL;
 static SensorPort_t* configuredPort = NULL;
 static SensorPort_t* activePort = NULL;
 
-static void SensorPort_ext1_callback(void* user_data)
+void SensorPort_ext1_callback(void* user_data)
 {
     SensorPort_t* port = (SensorPort_t*) user_data;
 
@@ -61,9 +61,7 @@ static void _init_port(SensorPort_t* port)
     
     _gpio_set_continuous_sampling(port->gpio0);
     //_gpio_set_continuous_sampling(port->gpio1);
-
-    ext_irq_register(port->gpio1, &SensorPort_ext1_callback, port);
-
+    
     /* set dummy library */
     port->library = &sensor_library_dummy;
 }
@@ -308,7 +306,7 @@ void SensorPortHandler_Run_PortUpdate(uint8_t port_idx)
 }
 
 __attribute__((weak))
-uint8_t SensorPortHandler_Read_AdcData(uint8_t channel_idx)
+uint8_t SensorPortHandler_Read_AdcData(uint32_t channel_idx)
 {
     (void) channel_idx;
     return 0u;

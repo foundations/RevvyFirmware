@@ -38,4 +38,6 @@ void SensorPort_SetGpio1_Output(struct _SensorPort_t* port, bool state);
 
 void SensorPort_SetVccIo(struct _SensorPort_t* port, Sensor_VccIo_t voltage);
 
+void SensorPort_ext1_callback(void* user_data);
+
 #endif /* SENSOR_PORT_HANDLER_INTERNAL_H_ */

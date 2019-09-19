@@ -3,6 +3,30 @@
     "source_files": [
         "ProjectConfiguration.c"
     ],
+    "types": {
+        "Voltage_t": {
+            "aliases": "float"
+        },
+        "BatteryConfiguration_t": {
+            "type": "struct",
+            "fields": {
+                "detectionVoltage": "Voltage_t",
+                "minVoltage": "Voltage_t",
+                "maxVoltage": "Voltage_t"
+            }
+        }
+    },
     "runnables": {},
-    "ports": {}
+    "ports": {
+        "MainBatteryParameters": {
+            "port_type": "Constant",
+            "data_type": "BatteryConfiguration_t",
+            "value": "(BatteryConfiguration_t) {.detectionVoltage = 2000.0f, .minVoltage = 3400.0f, .maxVoltage = 4100.0f}"
+        },
+        "MotorBatteryParameters": {
+            "port_type": "Constant",
+            "data_type": "BatteryConfiguration_t",
+            "value": "(BatteryConfiguration_t) {.detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f}"
+        }
+    }
 }

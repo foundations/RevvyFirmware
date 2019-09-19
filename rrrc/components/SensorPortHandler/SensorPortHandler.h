@@ -48,7 +48,7 @@ Comm_Status_t SensorPortHandler_GetSensorData_GetResult(uint8_t* response, uint8
 void SensorPortHandler_Run_OnInit(SensorPort_t* ports, size_t portCount);
 void SensorPortHandler_Run_Update(void);
 void SensorPortHandler_Run_PortUpdate(uint8_t port_idx);
-uint8_t SensorPortHandler_Read_AdcData(uint8_t port_idx);
+uint8_t SensorPortHandler_Read_AdcData(uint32_t port_idx);
 void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize);
 uint16_t SensorPortHandler_Call_ReadCurrentTicks(void);
 

@@ -3,31 +3,55 @@
 
 #include <float.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef float Voltage_t;
+typedef float Current_t;
+
+typedef struct {
+    Voltage_t detectionVoltage;
+    Voltage_t minVoltage;
+    Voltage_t maxVoltage;
+} BatteryConfiguration_t;
+
 typedef enum {
     ChargerState_NotPluggedIn,
     ChargerState_Charging,
     ChargerState_Charged,
     ChargerState_Fault
 } ChargerState_t;
+
 typedef enum {
     BluetoothStatus_Inactive,
     BluetoothStatus_NotConnected,
     BluetoothStatus_Connected
 } BluetoothStatus_t;
+
 typedef enum {
     SystemState_Startup,
     SystemState_Operational,
     SystemState_Error
 } SystemState_t;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} Vector3D_t;
+
+typedef struct {
+    int16_t x;
+    int16_t y;
+    int16_t z;
+} IMU_RawSample_t;
+
 typedef enum {
     MasterStatus_Unknown,
     MasterStatus_Operational,
     MasterStatus_Controlled
 } MasterStatus_t;
+
 typedef enum {
     RingLedScenario_Off,
     RingLedScenario_UserFrame,
@@ -37,8 +61,15 @@ typedef enum {
     RingLedScenario_BreathingGreen
 } RingLedScenario_t;
 
+typedef enum {
+    QueueStatus_Empty,
+    QueueStatus_Ok,
+    QueueStatus_Overflow
+} QueueStatus_t;
+
 #define COMPONENT_TYPES_ADC0_H_
 #define COMPONENT_TYPES_ADC1_H_
+#define COMPONENT_TYPES_ADC_DISPATCHER_H_
 #define COMPONENT_TYPES_BATTERY_CALCULATOR_H_
 #define COMPONENT_TYPES_BATTERY_CHARGER_H_
 #define COMPONENT_TYPES_BATTERY_INDICATOR_H_
@@ -61,6 +92,7 @@ typedef enum {
 #define COMPONENT_TYPES_MCU_STATUS_COLLECTOR_H_
 #define COMPONENT_TYPES_MCU_STATUS_COLLECTOR_WRAPPER_H_
 #define COMPONENT_TYPES_MEMORY_ALLOCATOR_H_
+#define COMPONENT_TYPES_MOTOR_CURRENT_FILTER_H_
 #define COMPONENT_TYPES_MOTOR_DERATING_H_
 #define COMPONENT_TYPES_MOTOR_DRIVER_8833_H_
 #define COMPONENT_TYPES_MOTOR_PORT_HANDLER_H_
@@ -75,6 +107,7 @@ typedef enum {
 
 #include "components/ADC0/ADC0.h"
 #include "components/ADC1/ADC1.h"
+#include "components/ADCDispatcher/ADCDispatcher.h"
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryCharger/BatteryCharger.h"
 #include "components/BatteryIndicator/BatteryIndicator.h"
@@ -97,6 +130,7 @@ typedef enum {
 #include "components/McuStatusCollector/McuStatusCollector.h"
 #include "components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.h"
 #include "components/MemoryAllocator/MemoryAllocator.h"
+#include "components/MotorCurrentFilter/MotorCurrentFilter.h"
 #include "components/MotorDerating/MotorDerating.h"
 #include "components/MotorDriver_8833/MotorDriver_8833.h"
 #include "components/MotorPortHandler/MotorPortHandler.h"
@@ -109,38 +143,38 @@ typedef enum {
 #include "components/WatchdogFeeder/WatchdogFeeder.h"
 #include "components/YawAngleTracker/YawAngleTracker.h"
 
-void RunnableGroup_OnInit(void);
-void RunnableGroup_1ms(void);
-void RunnableGroup_10ms_offset0(void);
-void RunnableGroup_10ms_offset1(void);
-void RunnableGroup_10ms_offset2(void);
-void RunnableGroup_10ms_offset3(void);
-void RunnableGroup_10ms_offset4(void);
-void RunnableGroup_10ms_offset5(void);
-void RunnableGroup_10ms_offset6(void);
-void RunnableGroup_10ms_offset7(void);
-void RunnableGroup_10ms_offset8(void);
-void RunnableGroup_10ms_offset9(void);
-void RunnableGroup_20ms_offset0(void);
-void RunnableGroup_20ms_offset1(void);
-void RunnableGroup_20ms_offset2(void);
-void RunnableGroup_20ms_offset3(void);
-void RunnableGroup_20ms_offset4(void);
-void RunnableGroup_20ms_offset5(void);
-void RunnableGroup_20ms_offset6(void);
-void RunnableGroup_20ms_offset7(void);
-void RunnableGroup_20ms_offset8(void);
-void RunnableGroup_20ms_offset9(void);
-void RunnableGroup_20ms_offset10(void);
-void RunnableGroup_20ms_offset11(void);
-void RunnableGroup_20ms_offset12(void);
-void RunnableGroup_20ms_offset13(void);
-void RunnableGroup_20ms_offset14(void);
-void RunnableGroup_20ms_offset15(void);
-void RunnableGroup_20ms_offset16(void);
-void RunnableGroup_20ms_offset17(void);
-void RunnableGroup_20ms_offset18(void);
-void RunnableGroup_20ms_offset19(void);
-void RunnableGroup_100ms(void);
+void Runtime_Call_OnInit(void);
+void Runtime_Call_1ms(void);
+void Runtime_Call_10ms_offset0(void);
+void Runtime_Call_10ms_offset1(void);
+void Runtime_Call_10ms_offset2(void);
+void Runtime_Call_10ms_offset3(void);
+void Runtime_Call_10ms_offset4(void);
+void Runtime_Call_10ms_offset5(void);
+void Runtime_Call_10ms_offset6(void);
+void Runtime_Call_10ms_offset7(void);
+void Runtime_Call_10ms_offset8(void);
+void Runtime_Call_10ms_offset9(void);
+void Runtime_Call_20ms_offset0(void);
+void Runtime_Call_20ms_offset1(void);
+void Runtime_Call_20ms_offset2(void);
+void Runtime_Call_20ms_offset3(void);
+void Runtime_Call_20ms_offset4(void);
+void Runtime_Call_20ms_offset5(void);
+void Runtime_Call_20ms_offset6(void);
+void Runtime_Call_20ms_offset7(void);
+void Runtime_Call_20ms_offset8(void);
+void Runtime_Call_20ms_offset9(void);
+void Runtime_Call_20ms_offset10(void);
+void Runtime_Call_20ms_offset11(void);
+void Runtime_Call_20ms_offset12(void);
+void Runtime_Call_20ms_offset13(void);
+void Runtime_Call_20ms_offset14(void);
+void Runtime_Call_20ms_offset15(void);
+void Runtime_Call_20ms_offset16(void);
+void Runtime_Call_20ms_offset17(void);
+void Runtime_Call_20ms_offset18(void);
+void Runtime_Call_20ms_offset19(void);
+void Runtime_Call_100ms(void);
 
 #endif /* GENERATED_RUNTIME_H */

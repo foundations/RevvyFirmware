@@ -1,10 +1,3 @@
-/*
- * rrrc_worklogic.c
- *
- * Created: 2/14/2019 11:38:22 AM
- *  Author: User
- */ 
- 
 #include "rrrc_hal.h"
 #include "rrrc_worklogic.h"
 #include "rrrc_indication.h"
@@ -13,16 +6,10 @@
 #include <string.h>
 #include "utils/functions.h"
 
-BatteryCalculator_Context_t mainBattery;
-BatteryCalculator_Context_t motorBattery;
-
 BatteryIndicator_Context_t mainBatteryIndicator;
 BatteryIndicator_Context_t motorBatteryIndicator;
 
-static bool mainBatteryDetected;
 static bool motorBatteryDetected;
-static float mainBatteryVoltage;
-static float motorBatteryVoltage;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
@@ -186,7 +173,7 @@ static void ProcessTasks_1ms(void)
     {
         MotorThermalModel_Run_OnUpdate(&motorThermalModels[i]);
     }
-    RunnableGroup_1ms();
+    Runtime_Call_1ms();
 }
 
 static void ProcessTasks_10ms(uint8_t offset)
@@ -194,11 +181,11 @@ static void ProcessTasks_10ms(uint8_t offset)
     switch (offset)
     {
         case 0u:
-            RunnableGroup_10ms_offset0();
+            Runtime_Call_10ms_offset0();
             break;
 
         case 1u:
-            RunnableGroup_10ms_offset1();
+            Runtime_Call_10ms_offset1();
             break;
             
         case 2u:
@@ -207,49 +194,49 @@ static void ProcessTasks_10ms(uint8_t offset)
             MotorPortHandler_Run_PortUpdate(5u);
             MotorDerating_Run_OnUpdate(5u);
             MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
-            RunnableGroup_10ms_offset2();
+            Runtime_Call_10ms_offset2();
             break;
-            
+
         case 3u:
             MotorPortHandler_Run_PortUpdate(1u);
             MotorDerating_Run_OnUpdate(1u);
             MotorPortHandler_Run_PortUpdate(2u);
             MotorDerating_Run_OnUpdate(2u);
             MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
-            RunnableGroup_10ms_offset3();
+            Runtime_Call_10ms_offset3();
             break;
-            
+
         case 4u:
             MotorPortHandler_Run_PortUpdate(0u);
             MotorDerating_Run_OnUpdate(0u);
             MotorPortHandler_Run_PortUpdate(3u);
             MotorDerating_Run_OnUpdate(3u);
             MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
-            RunnableGroup_10ms_offset4();
+            Runtime_Call_10ms_offset4();
             break;
             
         case 5u:
-            RunnableGroup_10ms_offset5();
+            SensorPortHandler_Run_PortUpdate(0u);
+            Runtime_Call_10ms_offset5();
             break;
             
         case 6u:
-            RunnableGroup_10ms_offset6();
+            SensorPortHandler_Run_PortUpdate(1u);
+            Runtime_Call_10ms_offset6();
             break;
             
         case 7u:
-            RunnableGroup_10ms_offset7();
+            SensorPortHandler_Run_PortUpdate(2u);
+            Runtime_Call_10ms_offset7();
             break;
             
         case 8u:
-            RunnableGroup_10ms_offset8();
-            SensorPortHandler_Run_PortUpdate(0u);
-            SensorPortHandler_Run_PortUpdate(1u);
+            SensorPortHandler_Run_PortUpdate(3u);
+            Runtime_Call_10ms_offset8();
             break;
             
         case 9u:
-            RunnableGroup_10ms_offset9();
-            SensorPortHandler_Run_PortUpdate(2u);
-            SensorPortHandler_Run_PortUpdate(3u);
+            Runtime_Call_10ms_offset9();
             break;
     }
 }
@@ -259,83 +246,83 @@ static void ProcessTasks_20ms(uint8_t offset)
     switch (offset)
     {
         case 0u:
-            RunnableGroup_20ms_offset0();
+            Runtime_Call_20ms_offset0();
             break;
 
         case 1u:
-            RunnableGroup_20ms_offset1();
+            Runtime_Call_20ms_offset1();
             break;
             
         case 2u:
-            RunnableGroup_20ms_offset2();
+            Runtime_Call_20ms_offset2();
             break;
-            
+
         case 3u:
-            RunnableGroup_20ms_offset3();
+            Runtime_Call_20ms_offset3();
             break;
-            
+
         case 4u:
-            RunnableGroup_20ms_offset4();
+            Runtime_Call_20ms_offset4();
             break;
-            
+
         case 5u:
-            RunnableGroup_20ms_offset5();
+            Runtime_Call_20ms_offset5();
             break;
-            
+
         case 6u:
-            RunnableGroup_20ms_offset6();
+            Runtime_Call_20ms_offset6();
             break;
-            
+
         case 7u:
-            RunnableGroup_20ms_offset7();
+            Runtime_Call_20ms_offset7();
             break;
-            
+
         case 8u:
-            RunnableGroup_20ms_offset8();
+            Runtime_Call_20ms_offset8();
             break;
-            
+
         case 9u:
-            RunnableGroup_20ms_offset9();
+            Runtime_Call_20ms_offset9();
             break;
 
         case 10u:
-            RunnableGroup_20ms_offset10();
+            Runtime_Call_20ms_offset10();
             break;
 
         case 11u:
-            RunnableGroup_20ms_offset11();
+            Runtime_Call_20ms_offset11();
             break;
 
         case 12u:
-            RunnableGroup_20ms_offset12();
+            Runtime_Call_20ms_offset12();
             break;
 
         case 13u:
-            RunnableGroup_20ms_offset13();
+            Runtime_Call_20ms_offset13();
             break;
 
         case 14u:
-            RunnableGroup_20ms_offset14();
+            Runtime_Call_20ms_offset14();
             break;
 
         case 15u:
-            RunnableGroup_20ms_offset15();
+            Runtime_Call_20ms_offset15();
             break;
 
         case 16u:
-            RunnableGroup_20ms_offset16();
+            Runtime_Call_20ms_offset16();
             break;
 
         case 17u:
-            RunnableGroup_20ms_offset17();
+            Runtime_Call_20ms_offset17();
             break;
 
         case 18u:
-            RunnableGroup_20ms_offset18();
+            Runtime_Call_20ms_offset18();
             break;
 
         case 19u:
-            RunnableGroup_20ms_offset19();
+            Runtime_Call_20ms_offset19();
             break;
 
         default:
@@ -345,13 +332,13 @@ static void ProcessTasks_20ms(uint8_t offset)
 
 static void ProcessTasks_100ms(void)
 {
-    BatteryCalculator_Run_Update(&mainBattery);
-    BatteryCalculator_Run_Update(&motorBattery);
-
     BatteryIndicator_Run_Update(&mainBatteryIndicator);
     BatteryIndicator_Run_Update(&motorBatteryIndicator);
 
-    RunnableGroup_100ms();
+    MotorPortHandler_Run_Update();
+    SensorPortHandler_Run_Update();
+
+    Runtime_Call_100ms();
 }
 
 void RRRC_ProcessLogic_Init(void)
@@ -378,27 +365,14 @@ void RRRC_ProcessLogic_Init(void)
     }
 
     MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
-    RunnableGroup_OnInit();
+    Runtime_Call_OnInit();
 
     for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
     {
         MotorThermalModel_Run_OnInit(&motorThermalModels[i]);
     }
 
-    /* 1 cell LiPoly */
-    mainBattery.detectionVoltage = 2000.0f;
-    mainBattery.minVoltage = 3400.0f;
-    mainBattery.maxVoltage = 4100.0f;
-
-    BatteryCalculator_Run_OnInit(&mainBattery);
     BatteryIndicator_Run_OnInit(&mainBatteryIndicator);
-    
-    /* 6xAA rechargeable */
-    motorBattery.detectionVoltage = 4000.0f;
-    motorBattery.minVoltage = 5400.0f;
-    motorBattery.maxVoltage = 7000.0f;
-
-    BatteryCalculator_Run_OnInit(&motorBattery);
     BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
 
     RingLedDisplay_Run_SelectScenario(RingLedScenario_ColorWheel);
@@ -438,176 +412,21 @@ void RRRC_ProcessLogic_xTask(void* user)
     }
 }
 
-static uint8_t sensorAdcValues[ARRAY_SIZE(sensorPorts)];
-static float motorCurrents[ARRAY_SIZE(motorPorts)];
-static float motorPreviousCurrents[ARRAY_SIZE(motorPorts)];
-static float motorTemperatures[ARRAY_SIZE(motorPorts)];
-static uint16_t motorRawCurrents[ARRAY_SIZE(motorPorts)];
-
-void ADC0_Write_RawChannelData(uint32_t channel_idx, uint16_t adc_data)
+void BatteryCalculator_Write_MainBatteryLevel(uint8_t value)
 {
-    switch (channel_idx)
-    {
-        case M1_ISEN_CH:
-            motorRawCurrents[4] = adc_data;
-            break;
-
-        case M3_ISEN_CH:
-            motorRawCurrents[2] = adc_data;
-            break;
-
-        case M4_ISEN_CH:
-            motorRawCurrents[1] = adc_data;
-            break;
-
-        case S0_ADC_CH:
-            sensorAdcValues[3] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-    }
-}
-
-void ADC1_Write_RawChannelData(uint32_t channel_idx, uint16_t adc_data)
-{
-    switch (channel_idx)
-    {
-        case S1_ADC_CH:
-            sensorAdcValues[2] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-
-        case S2_ADC_CH:
-            sensorAdcValues[1] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-
-        case S3_ADC_CH:
-            sensorAdcValues[0] = adc_data >> 4; /* 12 -> 8 bit */
-            break;
-
-        case M0_ISEN_CH:
-            motorRawCurrents[3] = adc_data;
-            break;
-
-        case M2_ISEN_CH:
-            motorRawCurrents[5] = adc_data;
-            break;
-
-        case M5_ISEN_CH:
-            motorRawCurrents[0] = adc_data;
-            break;
-    }
-}
-
-static inline void _update_current(uint8_t idx, float voltage)
-{
-    motorPreviousCurrents[idx] = motorCurrents[idx];
-    motorCurrents[idx] = map_constrained(voltage, 0, 200, 0, 1.66667f) * 0.05f + motorPreviousCurrents[idx] * 0.95f;
-}
-
-void ADC0_Write_ChannelVoltage(uint32_t channel_idx, float voltage)
-{
-    switch (channel_idx)
-    {
-        case M1_ISEN_CH:
-            _update_current(4, voltage);
-            break;
-
-        case M3_ISEN_CH:
-            _update_current(2, voltage);
-            break;
-
-        case M4_ISEN_CH:
-            _update_current(1, voltage);
-            break;
-    }
-}
-
-void ADC1_Write_ChannelVoltage(uint32_t channel_idx, float voltage)
-{
-    switch (channel_idx)
-    {
-        case ADC_CH_MOT_VOLTAGE:
-            motorBatteryVoltage = (uint32_t) lroundf(voltage * (130.0f / 30.0f));
-            break;
-
-        case ADC_CH_BAT_VOLTAGE:
-            mainBatteryVoltage = (uint32_t) lroundf(voltage * (340.0f / 240.0f));
-            break;
-
-        case M0_ISEN_CH:
-            _update_current(3, voltage);
-            break;
-
-        case M2_ISEN_CH:
-            _update_current(5, voltage);
-            break;
-
-        case M5_ISEN_CH:
-            _update_current(0, voltage);
-            break;
-    }
-}
-
-uint8_t SensorPortHandler_Read_AdcData(uint8_t port_idx)
-{
-    ASSERT(port_idx < ARRAY_SIZE(sensorPorts));
-
-    return sensorAdcValues[port_idx];
-}
-
-float BatteryCalculator_Read_Voltage(BatteryCalculator_Context_t* context)
-{
-    if (context == &mainBattery)
-    {
-        return mainBatteryVoltage;
-    }
-    else if (context == &motorBattery)
-    {
-        return motorBatteryVoltage;
-    }
-    else
-    {
-        ASSERT(0);
-    }
-
-    return 0.0f;
-}
-
-void BatteryCalculator_Write_Percentage(BatteryCalculator_Context_t* context, uint8_t percent)
-{
-    if (context == &mainBattery)
-    {
-        if (mainBatteryPercentage != percent)
-        {
-            mainBatteryPercentage = percent;
-        }
-    }
-    else if (context == &motorBattery)
-    {
-        if (motorBatteryPercentage != percent)
-        {
-            motorBatteryPercentage = percent;
-        }
-    }
-    else
-    {
-        ASSERT(0);
-    }
+    mainBatteryPercentage = value;
     status_changed[10u] = true;
 }
 
-void BatteryCalculator_Write_BatteryPresent(BatteryCalculator_Context_t* context, bool present)
+void BatteryCalculator_Write_MotorBatteryLevel(uint8_t value)
 {
-    if (context == &mainBattery)
-    {
-        mainBatteryDetected = present;
-    }
-    else if (context == &motorBattery)
-    {
-        motorBatteryDetected = present;
-    }
-    else
-    {
-        ASSERT(0);
-    }
+    motorBatteryPercentage = value;
+    status_changed[10u] = true;
+}
+
+void BatteryCalculator_Write_MotorBatteryPresent(bool value)
+{
+    motorBatteryDetected = value;
 }
 
 uint8_t BatteryIndicator_Read_Percentage(BatteryIndicator_Context_t* context)
@@ -632,18 +451,11 @@ BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context
 {
     if (context == &mainBatteryIndicator)
     {
-        if (mainBatteryDetected)
+        switch (BatteryStatusProvider_Read_IsMainBatteryCharging())
         {
-            switch (BatteryStatusProvider_Read_IsMainBatteryCharging())
-            {
-                case ChargerState_Charging: return BatteryStatus_Charging;
-                case ChargerState_Fault:    return BatteryStatus_Charging_Fault;
-                default:                    return BatteryStatus_Present;
-            }
-        }
-        else
-        {
-            return BatteryStatus_NotPresent;
+            case ChargerState_Charging: return BatteryStatus_Charging;
+            case ChargerState_Fault:    return BatteryStatus_Charging_Fault;
+            default:                    return BatteryStatus_Present;
         }
     }
     else if (context == &motorBatteryIndicator)
@@ -702,12 +514,11 @@ uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
 
 uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
 {
-    return motorBatteryDetected ? motorBatteryPercentage : 0u;
+    return motorBatteryPercentage;
 }
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
 static int8_t driveValues[ARRAY_SIZE(motorPorts)] = {0};
-static int8_t deratedDriveValues[ARRAY_SIZE(motorPorts)] = {0};
 static bool motorControlledByDriveTrain[ARRAY_SIZE(motorPorts)] = {0};
 
 void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
@@ -718,89 +529,67 @@ void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
 
 void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+
+    portENTER_CRITICAL();
+    if (!motorControlledByDriveTrain[port_idx])
     {
-        portENTER_CRITICAL();
-        if (!motorControlledByDriveTrain[port_idx])
+        motorDriveRequests[port_idx] = *command;
+    }
+    else
+    {
+        if (motorDriveRequests[port_idx].type == MotorPort_DriveRequest_Position_Relative)
         {
-            motorDriveRequests[port_idx] = *command;
-        }
-        else
-        {
-            if (motorDriveRequests[port_idx].type == MotorPort_DriveRequest_Position_Relative)
+            if (command->type == MotorPort_DriveRequest_Position)
             {
-                if (command->type == MotorPort_DriveRequest_Position)
-                {
-                    /* allow converting relative request to absolute */
-                    /* TODO: motor status should be exposed and this request should be handled by an external component */
-                    motorDriveRequests[port_idx] = *command;
-                }
+                /* allow converting relative request to absolute */
+                /* TODO: motor status should be exposed and this request should be handled by an external component */
+                motorDriveRequests[port_idx] = *command;
             }
         }
-        portEXIT_CRITICAL();
     }
+    portEXIT_CRITICAL();
 }
 
 void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+
+    portENTER_CRITICAL();
+    switch (command->type)
     {
-        portENTER_CRITICAL();
-        switch (command->type)
-        {
-            case DriveTrain_Request_Power:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
-                motorDriveRequests[port_idx].v.pwm = command->v.power;
-                break;
+        case DriveTrain_Request_Power:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+            motorDriveRequests[port_idx].v.pwm = command->v.power;
+            break;
 
-            case DriveTrain_Request_Speed:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Speed;
-                motorDriveRequests[port_idx].v.speed = command->v.speed;
-                break;
+        case DriveTrain_Request_Speed:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Speed;
+            motorDriveRequests[port_idx].v.speed = command->v.speed;
+            break;
 
-            case DriveTrain_Request_Position:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position_Relative;
-                motorDriveRequests[port_idx].v.position = command->v.position;
-                break;
+        case DriveTrain_Request_Position:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Position_Relative;
+            motorDriveRequests[port_idx].v.position = command->v.position;
+            break;
 
-            default:
-                motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
-                motorDriveRequests[port_idx].v.pwm = 0;
-                break;
-        }
-        motorDriveRequests[port_idx].speed_limit = command->speed_limit;
-        motorDriveRequests[port_idx].power_limit = command->power_limit;
-        portEXIT_CRITICAL();
+        default:
+            motorDriveRequests[port_idx].type = MotorPort_DriveRequest_Power;
+            motorDriveRequests[port_idx].v.pwm = 0;
+            break;
     }
+    motorDriveRequests[port_idx].speed_limit = command->speed_limit;
+    motorDriveRequests[port_idx].power_limit = command->power_limit;
+    portEXIT_CRITICAL();
 }
 
 void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst)
 {
-    if (port_idx < ARRAY_SIZE(motorPorts))
-    {
-        portENTER_CRITICAL();
-        *dst = motorDriveRequests[port_idx];
-        portEXIT_CRITICAL();
-    }
-    else
-    {
-        *dst = (MotorPort_DriveRequest_t) {
-            .type = MotorPort_DriveRequest_Power,
-            .v.pwm = 0,
-            .speed_limit = 0.0f,
-            .power_limit = 0.0f
-        };
-    }
-}
-
-int8_t MotorDerating_Read_ControlValue(uint8_t motor_idx)
-{
-    return driveValues[motor_idx];
-}
-
-void MotorDerating_Write_ControlValue(uint8_t motor_idx, int8_t control_value)
-{
-    deratedDriveValues[motor_idx] = control_value;
+    ASSERT(port_idx < ARRAY_SIZE(motorPorts));
+     
+    portENTER_CRITICAL();
+    *dst = motorDriveRequests[port_idx];
+    portEXIT_CRITICAL();
 }
 
 void MotorPortHandler_Write_MotorDriveValue(uint8_t motor_idx, int8_t value)
@@ -812,9 +601,9 @@ int8_t MotorDriver_8833_Read_DriveRequest_ChannelA(MotorDriver_8833_t* driver)
 {
     switch (driver->idx)
     {
-        case 0u: return deratedDriveValues[4];
-        case 1u: return deratedDriveValues[3];
-        case 2u: return deratedDriveValues[2];
+        case 0u: return driveValues[4];
+        case 1u: return driveValues[3];
+        case 2u: return driveValues[2];
 
         default:
             ASSERT(0);
@@ -826,29 +615,14 @@ int8_t MotorDriver_8833_Read_DriveRequest_ChannelB(MotorDriver_8833_t* driver)
 {
     switch (driver->idx)
     {
-        case 0u: return deratedDriveValues[5];
-        case 1u: return deratedDriveValues[0];
-        case 2u: return deratedDriveValues[1];
+        case 0u: return driveValues[5];
+        case 1u: return driveValues[0];
+        case 2u: return driveValues[1];
 
         default:
             ASSERT(0);
             return 0;
     }
-}
-
-float MotorThermalModel_Read_MotorCurrent(MotorThermalModel_t* model)
-{
-    return motorCurrents[model->idx];
-}
-
-void MotorThermalModel_Write_Temperature(MotorThermalModel_t* model, float temp)
-{
-    motorTemperatures[model->idx] = temp;
-}
-
-float MotorDerating_Read_MotorTemperature(uint8_t motor_idx)
-{
-    return motorTemperatures[motor_idx];
 }
 
 static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)
@@ -878,29 +652,27 @@ static bool _update_port(uint8_t* pBuffer, uint8_t* pData, uint8_t dataSize)
 
 void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
-    portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_MOTOR_STATUS_SIZE);
 
+    portENTER_CRITICAL();
     status_changed[port_idx] = _update_port(motor_status[port_idx], pData, dataSize);
-
     portEXIT_CRITICAL();
 }
 
 void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
 {
-    portENTER_CRITICAL();
     ASSERT(dataSize <= MAX_SENSOR_STATUS_SIZE);
 
+    portENTER_CRITICAL();
     status_changed[port_idx + 6u] = _update_port(sensor_status[port_idx], pData, dataSize);
-
     portEXIT_CRITICAL();
 }
 
 void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotDataSize)
 {
-    portENTER_CRITICAL();
     ASSERT(slot < ARRAY_SIZE(status_changed));
-
+ 
+    portENTER_CRITICAL();
     *slotDataSize = 0u;
 
     if (status_changed[slot])

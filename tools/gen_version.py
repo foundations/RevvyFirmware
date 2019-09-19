@@ -2,6 +2,8 @@
 import os
 import argparse
 
+from tools.generator_common import change_file
+
 file = "Config/fw_version.h"
 template = """
 /* This file is generated during the build process */
@@ -21,8 +23,8 @@ if __name__ == '__main__':
         version = version.strip()
     else:
         version = args.version
-        
-    with open(file, 'w') as out:
-        out.write(template.replace("{{FW_VERSION}}", version))
 
-    print('Version file updated to {}'.format(version))
+    if change_file(file, template.replace("{{FW_VERSION}}", version)):
+        print('Version file updated to {}'.format(version))
+    else:
+        print('Version file up to date, version {}'.format(version))

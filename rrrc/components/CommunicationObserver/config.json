@@ -6,25 +6,24 @@
     "runnables": {
         "OnInit": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "OnMessageMissed": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "OnMessageReceived": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         },
         "Enable": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         }
     },
     "ports": {
         "ErrorLimitReached": {
-            "port_type": "Event",
-            "data_type": "void"
+            "port_type": "Event"
         },
         "Enabled": {
             "port_type": "WriteData",

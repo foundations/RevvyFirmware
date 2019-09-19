@@ -1,145 +1,41 @@
-import json
 import re
 
-component_folder_pattern = 'rrrc/components/{}'
-component_file_pattern = 'rrrc/components/{}/{}'
 
-
-def process_runnable(runnable):
+def create_empty_component_data(name: str):
     return {
-        'arguments':   runnable.get('arguments', {}),
-        'return_type': runnable.get('return_type', 'void')
+        'name':         name,
+        'source_files': [],
+        'runnables':    {},
+        'ports':        {},
+        'types':        {}
     }
 
 
-def process_port(port):
-    if port['port_type'] == 'Event':
-        return {
-            'port_type':   port['port_type'],
-            'return_type': 'void',
-            'arguments':   port.get('arguments', {})
-        }
-    if port['port_type'] == 'ServerCall':
-        return {
-            'port_type':   port['port_type'],
-            'return_type': port.get('return_type', 'void'),
-            'arguments':   port.get('arguments', {})
-        }
-    elif port['port_type'] == 'ReadValue':
-        return {
-            'port_type':     port['port_type'],
-            'data_type':     port['data_type'],
-            'default_value': port.get('default_value', None)
-        }
-    else:
-        return port
-
-
-def process_type_def(type_def):
-    processed_type_def = {}
-
-    if 'defined_in' in type_def:
-        processed_type_def['type'] = 'external_type_def'
-        processed_type_def['defined_in'] = type_def['defined_in']
-        processed_type_def['default_value'] = type_def['default_value']
-    elif 'aliases' in type_def:
-        processed_type_def['type'] = 'type_alias'
-        processed_type_def['aliases'] = type_def['aliases']
-    else:
-        processed_type_def['type'] = type_def['type']
-        if type_def['type'] == 'enum':
-            processed_type_def['values'] = type_def['values']
-            processed_type_def['default_value'] = type_def['default_value']
-        else:
-            raise Exception('Unsupported type {}'.format(type_def['type']))
-
-    return processed_type_def
-
-
-def process_runnables(runnable_config):
-    return {runnable: process_runnable(runnable_config[runnable]) for runnable in runnable_config}
-
-
-def process_ports(port_config):
-    return {port: process_port(port_config[port]) for port in port_config}
-
-
-def process_type_defs(type_defs):
-    return {type_name: process_type_def(type_defs[type_name]) for type_name in type_defs}
-
-
-def load_component_config(path):
-    with open(path, 'r') as component_config_file:
-        component_config = json.load(component_config_file)
-        component_config['runnables'] = process_runnables(component_config.get('runnables', {}))
-        component_config['ports'] = process_ports(component_config.get('ports', {}))
-        component_config['types'] = process_type_defs(component_config.get('types', {}))
-    return component_config
-
-
-def parse_runnable(runnable):
-    """Parse shorthand form of runnable reference into a dictionary"""
-    if type(runnable) is str:
-        parts = runnable.split('/')
-        runnable = {
-            'component': parts[0],
-            'runnable':  parts[1]
-        }
-
-    return runnable
-
-
-def parse_port(port):
-    """Parse shorthand form of port reference into a dictionary"""
+def create_port_ref(port):
     if type(port) is str:
         parts = port.split('/')
-        port = {
-            'component': parts[0],
-            'port':      parts[1]
+        return {
+            'short_name': port,
+            'component':  parts[0],
+            'port':       parts[1]
         }
+    elif type(port) is dict:
+        return {
+            'short_name': port['short_name'],
+            'component':  port['component'],
+            'port':       port.get('runnable', port.get('port'))
+        }
+    else:
+        raise TypeError("port must either be a dict or a str")
 
-    return port
 
-
-def load_project_config(project_config_file):
-    """Load configuration file and expand shorthand forms for the later stages"""
-    with open(project_config_file, "r") as f:
-        project_config = json.load(f)
-
-        processed_runnables = {}
-        for runnable_group in project_config['runtime'].get('runnables', {}):
-            processed_runnables[runnable_group] = []
-            for runnable in project_config['runtime']['runnables'][runnable_group]:
-                processed_runnables[runnable_group].append(parse_runnable(runnable))
-
-        processed_port_connections = []
-        for port_connection in project_config['runtime'].get('port_connections', []):
-            if 'providers' not in port_connection:
-                try:
-                    providers = [port_connection['provider']]
-                except KeyError:
-                    providers = []
-            else:
-                providers = port_connection['providers']
-
-            if 'consumers' not in port_connection:
-                try:
-                    consumers = [port_connection['consumer']]
-                except KeyError:
-                    consumers = []
-            else:
-                consumers = port_connection['consumers']
-
-            processed_port_connections.append({
-                'providers': [parse_port(provider) for provider in providers],
-                'consumers': [parse_port(consumer) for consumer in consumers]
-            })
-
-        project_config['types'] = process_type_defs(project_config.get('types', {}))
-        project_config['runtime']['runnables'] = processed_runnables
-        project_config['runtime']['port_connections'] = processed_port_connections
-
-    return project_config
+def empty_component(name):
+    return {
+        'component_name': name,
+        'runnables':      {},
+        'ports':          {},
+        'types':          {}
+    }
 
 
 def compact_project_config(config):
@@ -161,11 +57,11 @@ def compact_project_config(config):
         else:
             return "{}/{}".format(port['component'], port['port'])
 
-    def compact_runnable_ref(runnable):
-        if type(runnable) is str:
-            return runnable
+    def compact_runnable_ref(runnable_ref):
+        if type(runnable_ref) is str:
+            return runnable_ref
         else:
-            return "{}/{}".format(runnable['component'], runnable['runnable'])
+            return "{}/{}".format(runnable_ref['component'], runnable_ref['runnable'])
 
     for group in config['runtime']['runnables']:
         compacted['runtime']['runnables'][group] = []
@@ -175,16 +71,7 @@ def compact_project_config(config):
             compacted['runtime']['runnables'][group].append(compacted_runnable)
 
     for port_connection in config['runtime']['port_connections']:
-        compacted_port_connection = {}
-
-        providers = []
-        for provider in port_connection['providers']:
-            providers.append(compact_port_ref(provider))
-
-        if len(providers) == 1:
-            compacted_port_connection['provider'] = providers[0]
-        else:
-            compacted_port_connection['providers'] = providers
+        compacted_port_connection = {'provider': port_connection['provider']}
 
         consumers = []
         for consumer in port_connection['consumers']:
@@ -200,90 +87,129 @@ def compact_project_config(config):
     return compacted
 
 
-def resolve_type(type_name, type_data, resolved_types, past=None):
-    if type_name not in type_data:
-        raise Exception('Incomplete type: {}'.format(type_name))
+class TypeCollection:
+    BUILTIN = 'builtin'
+    ALIAS = 'type_alias'
+    EXTERNAL_DEF = 'external_type_def'
+    ENUM = 'enum'
+    STRUCT = 'struct'
 
-    if type_name in resolved_types:  # cache
-        return resolved_types[type_name]
+    PASS_BY_VALUE = 'value'
+    PASS_BY_POINTER = 'pointer'
 
-    # record visited types to detect circular definition
-    if past is None:
-        past = []
-    elif type_name in past:
-        raise Exception('Circular type definition for {}'.format(type_name))
+    def __init__(self):
+        self._type_data = {
+            'void': {
+                'type': TypeCollection.BUILTIN,
+                'pass_semantic': TypeCollection.PASS_BY_VALUE,
+                'default_value': None
+            },
+            'void*': {
+                'type': TypeCollection.BUILTIN,
+                'pass_semantic': TypeCollection.PASS_BY_VALUE,
+                'default_value': 'NULL'
+            }
+        }
+        self._resolved_names = {'void': 'void'}
 
-    if type_data[type_name]['type'] in ['type_alias', 'enum']:
+    def add(self, type_name, info):
+        if type_name in self._type_data:
+            # type already exists, check if they are the same
+            resolved_known = self.resolve(type_name)
 
-        if type_data[type_name]['type'] == 'type_alias':
-            past.append(type_name)
-            resolved = resolve_type(type_data[type_name]['aliases'], type_data, resolved_types, past)
+            if info['type'] == TypeCollection.ALIAS:
+                resolved_new = self.resolve(info['aliases'])
+                if resolved_known != resolved_new:
+                    raise Exception('Type {} is already defined'.format(type_name))
+
+            elif info['type'] == TypeCollection.EXTERNAL_DEF:
+                if info['defined_in'] != self._type_data[resolved_known]['defined_in']:
+                    raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
+
+            elif info['type'] == TypeCollection.ENUM:
+                if info['values'] != self._type_data[resolved_known]['values']:
+                    raise Exception('Enum {} is incompatible with previous definition'.format(type_name))
+
+            elif info['type'] == TypeCollection.STRUCT:
+                if info['fields'] != self._type_data[resolved_known]['fields']:
+                    raise Exception('Structure {} is incompatible with previous definition'.format(type_name))
+
+            else:
+                raise Exception('Invalid type definition {}'.format(type_name))
+
         else:
-            resolved = type_name
+            self._type_data[type_name] = info
 
-        resolved_types[type_name] = resolved
+    def _resolve(self, type_name, past):
+        if type_name not in self._type_data:
+            raise Exception('Incomplete type: {}'.format(type_name))
 
+        if type_name in self._resolved_names:  # cache
+            return self._resolved_names[type_name]
+
+        # record visited types to detect circular definition
+        if past is None:
+            past = []
+        elif type_name in past:
+            raise Exception('Circular type definition for {}'.format(type_name))
+
+        resolved = type_name
+        if self._type_data[type_name]['type'] != TypeCollection.EXTERNAL_DEF:
+            if self._type_data[type_name]['type'] == TypeCollection.ALIAS:
+                past.append(type_name)
+                resolved = self._resolve(self._type_data[type_name]['aliases'], past)
+
+        self._resolved_names[type_name] = resolved
         return resolved
 
-    if type_data[type_name]['type'] == 'external_type_def':
-        resolved_types[type_name] = type_name
-        return type_name
+    def default_value(self, type_name):
+        resolved = self.get(type_name)
+        while 'default_value' not in resolved or not resolved['default_value']:
+            if resolved['type'] == TypeCollection.ALIAS:
+                resolved = self.get(resolved['aliases'])
+            else:
+                break
 
+        if resolved['type'] == TypeCollection.STRUCT:
+            return {name: self.default_value(field_type) for name, field_type in resolved['fields'].items()}
 
-def add_data_type(type_name, info, type_data, resolved_types):
-    if type_name in type_data:
-        # type already exists, check if they are the same
-        resolved_known = resolve_type(type_name, type_data, resolved_types)
-
-        if info['type'] == 'type_alias':
-            resolved_new = resolve_type(info['aliases'], type_data, resolved_types)
-            if resolved_known != resolved_new:
-                raise Exception('Type {} is already defined'.format(type_name))
-
-        elif info['type'] == 'external_type_def':
-            if info['defined_in'] != type_data[resolved_known]['defined_in']:
-                raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
-
-        elif info['type'] == 'enum':
-            pass
         else:
-            raise Exception('Invalid type definition {}'.format(type_name))
+            return resolved['default_value']
 
-    else:
-        type_data[type_name] = info
+    def passed_by(self, type_name):
+        resolved = self.get(type_name)
+        while not resolved['pass_semantic']:
+            if resolved['type'] == TypeCollection.ALIAS:
+                resolved = self.get(resolved['aliases'])
+            else:
+                raise Exception('Pass semantic not defined for {}'.format(type_name))
+
+        return resolved['pass_semantic']
+
+    def resolve(self, type_name):
+        return self._resolve(type_name, [])
+
+    def __getitem__(self, type_name):
+        return self.get(self.resolve(type_name))
+
+    def get(self, type_name):
+        return self._type_data[type_name]
+
+    def __iter__(self):
+        return iter(self._type_data.keys())
 
 
-def collect_type_aliases(types, type_data, resolved_types):
-    aliases = []
+def render_typedefs(types, type_data: TypeCollection):
+    typedefs = []
     for type_name in types:
-        resolved_type = resolve_type(type_name, type_data, resolved_types)
-        type_type = type_data[type_name]['type']
+        try:
+            renderer = type_data.get(type_name)['render_typedef']
+            # noinspection PyCallingNonCallable
+            typedefs.append(renderer(type_data, type_name))
+        except KeyError:
+            pass
 
-        if type_type == 'type_alias':
-            aliases.append({
-                'type':      type_type,
-                'type_name': type_name,
-                'aliased':   resolved_type
-            })
-
-        elif type_type == 'external_type_def':
-            aliases.append({
-                'type':       type_type,
-                'type_name':  type_name,
-                'defined_in': type_data[resolved_type]['defined_in']
-            })
-
-        elif type_type == 'enum':
-            enum_values = [{'value': value} for value in type_data[resolved_type]['values']]
-            enum_values[len(enum_values) - 1]['last'] = True
-            aliases.append({
-                'type':      type_type,
-                'is_enum':   True,
-                'type_name': type_name,
-                'values':    enum_values
-            })
-
-    return aliases
+    return typedefs
 
 
 def to_underscore(name):
@@ -295,3 +221,86 @@ def to_underscore(name):
     """
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def change_file(filename, contents):
+    try:
+        with open(filename, "r") as f:
+            file_changed = contents != f.read()
+    except FileNotFoundError:
+        file_changed = True
+
+    if file_changed:
+        with open(filename, "w+") as f:
+            f.write(contents)
+
+    return file_changed
+
+
+def chevron_list_mark_last(data, last_key='last'):
+    if data:
+        data[-1][last_key] = True
+    return data
+
+
+def list_to_chevron_list(data, key_name, last_key=None):
+    """Transform a list of key-value pairs to a list of dicts with given key and value names.
+
+    This is useful for passing dictionaries to chevron.
+    If the last_key is given, the last item has an extra element with the last_key as key and True as value.
+
+    >>> list_to_chevron_list(['foo', 'bar'], 'key')
+    [{'key': 'foo'}, {'key': 'bar'}]
+    >>> list_to_chevron_list(['foo', 'bar'], 'key', 'last')
+    [{'key': 'foo'}, {'key': 'bar', 'last': True}]
+    """
+    chevron_list = [{key_name: value} for value in data]
+    if last_key:
+        chevron_list_mark_last(chevron_list, last_key)
+    return chevron_list
+
+
+def dict_to_chevron_list(data, key_name, value_name, last_key=None):
+    """Transform a list of key-value pairs to a list of dicts with given key and value names.
+
+    This is useful for passing dictionaries to chevron.
+    If the last_key is given, the last item has an extra element with the last_key as key and True as value.
+
+    >>> dict_to_chevron_list({'foo': 'bar'}, 'key', 'value')
+    [{'key': 'foo', 'value': 'bar'}]
+    >>> dict_to_chevron_list({'foo': 'bar', 'bar': 'baz'}, 'key', 'value', 'last')
+    [{'key': 'foo', 'value': 'bar'}, {'key': 'bar', 'value': 'baz', 'last': True}]
+    """
+    chevron_list = [{key_name: key, value_name: value} for key, value in data.items()]
+    if last_key:
+        chevron_list_mark_last(chevron_list, last_key)
+    return chevron_list
+
+
+def copy(src, required, optional):
+    """This function makes sure src contains required and optional keys and nothing else"""
+
+    dst = {**optional}
+    required_keys_found = 0
+    for key, value in src.items():
+        if key in required:
+            required_keys_found += 1
+            dst[key] = value
+        elif key in optional:
+            dst[key] = value
+        else:
+            raise Exception(key)
+
+    return dst
+
+
+def unique(values: list):
+    """Removes duplicates from the input list
+
+    >>> unique(['a', 'b', 'a', 'a', 'c', 'b', 'd'])
+    ['a', 'b', 'c', 'd']"""
+    unique_values = []
+    for value in values:
+        if value not in unique_values:
+            unique_values.append(value)
+    return unique_values

@@ -9,7 +9,7 @@
     "runnables": {
         "Update": {
             "return_type": "void",
-            "arguments": []
+            "arguments": {}
         }
     },
     "ports": {

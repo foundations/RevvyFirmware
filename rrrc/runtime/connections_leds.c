@@ -9,7 +9,6 @@
 #include "../rrrc_worklogic.h"
 #include "../rrrc_indication.h"
 
-extern BatteryCalculator_Context_t mainBattery;
 extern BatteryIndicator_Context_t mainBatteryIndicator;
 extern BatteryIndicator_Context_t motorBatteryIndicator;
 
@@ -172,12 +171,9 @@ bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
     return masterStatus == MasterStatus_Controlled;
 }
 
-void BatteryCalculator_Write_LowBatteryCondition(BatteryCalculator_Context_t* context, bool low)
+void BatteryCalculator_Write_MainBatteryLow(bool low)
 {
-    if (context == &mainBattery)
-    {
-        battery_low = low;
-    }
+    battery_low = low;
 }
 
 uint8_t LEDController_Read_MaxBrightness(void)

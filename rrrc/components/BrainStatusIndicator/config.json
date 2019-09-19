@@ -15,25 +15,19 @@
         }
     },
     "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": []
-        },
-        "Update": {
-            "return_type": "void",
-            "arguments": []
-        }
+        "OnInit": {},
+        "Update": {}
     },
     "ports": {
         "SystemState": {
             "data_type": "SystemState_t",
             "port_type": "ReadValue",
-            "unconnected_value": "SystemState_Operational"
+            "default_value": "SystemState_Operational"
         },
         "BluetoothControllerPresent": {
             "data_type": "bool",
             "port_type": "ReadValue",
-            "unconnected_value": "false"
+            "default_value": "false"
         }
     }
 }

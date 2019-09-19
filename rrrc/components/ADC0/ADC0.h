@@ -13,7 +13,7 @@ typedef float Voltage_t;
 
 void ADC0_Run_OnInit(void);
 void ADC0_Run_Update(void);
-void ADC0_Write_RawChannelData(uint32_t index, uint16_t value);
-void ADC0_Write_ChannelVoltage(uint32_t index, Voltage_t value);
+void ADC0_Write_ChannelVoltage(uint32_t index, const Voltage_t value);
+void ADC0_Write_RawChannelData(uint32_t index, const uint16_t value);
 
 #endif /* COMPONENT_ADC0_H_ */

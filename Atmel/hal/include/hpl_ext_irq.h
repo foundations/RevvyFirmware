@@ -50,6 +50,11 @@ extern "C" {
 #endif
 
 /**
+ * \brief External IRQ callback type
+ */
+typedef void (*ext_irq_cb_t)(void* user_data);
+
+/**
  * \name HPL functions
  */
 //@{
@@ -58,13 +63,11 @@ extern "C" {
  *
  * This function does low level external interrupt configuration.
  *
- * \param[in] cb The pointer to callback function from external interrupt
- *
  * \return Initialization status.
  * \retval -1 External irq module is already initialized
  * \retval 0 The initialization is completed successfully
  */
-int32_t _ext_irq_init(void (*cb)(const uint32_t pin));
+int32_t _ext_irq_init(void);
 
 /**
  * \brief Deinitialize external interrupt module
@@ -85,7 +88,7 @@ int32_t _ext_irq_deinit(void);
  * \retval -1 External irq module can't be enabled / disabled
  * \retval 0 External irq module is enabled / disabled successfully
  */
-int32_t _ext_irq_enable(const uint32_t pin, const bool enable);
+int32_t _ext_irq_enable(const uint32_t pin, const bool enable, ext_irq_cb_t callback, void* user_data);
 //@}
 
 #ifdef __cplusplus
