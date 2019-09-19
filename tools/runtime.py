@@ -2,7 +2,8 @@ import json
 
 import chevron
 
-from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list, to_underscore
+from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list, to_underscore, \
+    list_to_chevron_list
 
 runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
@@ -37,7 +38,7 @@ component_header_template = '''#ifndef COMPONENT_{{ guard_def }}_H_
 #define COMPONENT_TYPES_{{ guard_def }}
 
 {{# type_includes }}
-#include {{{ . }}}
+#include {{{ header }}}
 {{/ type_includes }}
 
 {{# types }}
@@ -304,18 +305,66 @@ class Runtime:
     def create_component(self, component):
         pass
 
+    def _process_type(self, type_name):
+        defs = []
+        includes = set()
+        if type(type_name) is str:
+            type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
+            type_data = self._types.get(type_name)
+
+            if self._types[type_name]['type'] == TypeCollection.EXTERNAL_DEF:
+                includes.add(self._types[type_name]['defined_in'])
+
+            if self._types[type_name]['type'] == TypeCollection.STRUCT:
+                d = self._process_type(self._types[type_name]['fields'].values())
+                for typedef in d['defs']:
+                    if typedef not in defs:
+                        defs.append(typedef)
+                includes.update(d['includes'])
+
+            if 'render_typedef' in type_data:
+                defs.append(type_data['render_typedef'](self._types, type_name))
+        else:
+            for tt in type_name:
+                d = self._process_type(tt)
+                for typedef in d['defs']:
+                    if typedef not in defs:
+                        defs.append(typedef)
+                includes.update(d['includes'])
+
+        return {
+            'defs': defs,
+            'includes': includes
+        }
+
     def update_component(self, component_name):
         self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
-        # self._call_plugin_event('before_generating_component', context)
 
-        funcs = self.functions.values()
+        context = {
+            'functions': self.functions
+        }
 
+        self._call_plugin_event('before_generating_component', context)
+
+        funcs = context['functions'].values()
         function_headers = [fn.get_header() for fn in funcs]
         functions = [fn.get_function() for fn in funcs]
 
+        ty = self._process_type(self._components[component_name].get('types', []))
+
+        for f in funcs:
+            t = self._process_type(f.referenced_types())
+            for typedef in t['defs']:
+                if typedef not in ty['defs']:
+                    ty['defs'].append(typedef)
+            ty['includes'].update(t['includes'])
+
         template_ctx = {
+            'includes':         [{'header': '"{}.h"'.format(component_name)}],
             'component_name':   component_name,
             'guard_def':        to_underscore(component_name).upper(),
+            'types':            list(ty['defs']),
+            'type_includes':    list_to_chevron_list(sorted(ty['includes']), 'header'),
             'functions':        functions,
             'function_headers': function_headers
         }
@@ -464,15 +513,27 @@ class Runtime:
 
         self._call_plugin_event('before_generating_runtime', context)
 
+        types = []
+        includes = set()
+
+        for f in context['functions'].values():
+            if f:
+                t = self._process_type(f.referenced_types())
+                for typedef in t['defs']:
+                    if typedef not in types:
+                        types.append(typedef)
+                includes.update(t['includes'])
+
         template_data = {
             'includes':              [
                 {'header': '"{}.h"'.format(filename[filename.rfind('/') + 1:])},
                 {'header': '"utils.h"'}
             ],
             'output_filename':       filename[filename.rfind('/') + 1:],
-            'components':            {},
-            'types':                 [],
-            'type_includes':         [],
+            'components':            [{'name': name, 'guard_def': to_underscore(name).upper()} for name in
+                                      self._components],
+            'types':                 types,
+            'type_includes':         list_to_chevron_list(sorted(includes), 'header'),
             'function_declarations': [context['functions'][func].get_header() for func in
                                       context['exported_function_declarations']],
             'functions':             [func.get_function() for func in context['functions'].values() if

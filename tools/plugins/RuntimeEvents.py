@@ -209,6 +209,10 @@ def add_exported_declarations(owner: Runtime, context):
     runtime_funcs = [short_name for short_name in context['functions'].keys() if short_name.startswith('Runtime/')]
     context['exported_function_declarations'] += runtime_funcs
 
+    sort_functions(owner, context)
+
+
+def sort_functions(owner: Runtime, context):
     def sort_by_port_type(fn):
         if fn.startswith('Runtime/'):
             weight = 0
@@ -229,9 +233,10 @@ def add_exported_declarations(owner: Runtime, context):
 def runtime_events():
     """Plugin that provides support for simple runtime event creation and configuration"""
     return RuntimePlugin("RuntimeEvents", {
-        'init':                      init,
-        'load_component_config':     create_runnable_ports,
-        'project_config_loaded':     expand_runtime_events,
-        'create_component_ports':    create_component_runnables,
-        'before_generating_runtime': add_exported_declarations
+        'init':                        init,
+        'load_component_config':       create_runnable_ports,
+        'project_config_loaded':       expand_runtime_events,
+        'create_component_ports':      create_component_runnables,
+        'before_generating_component': sort_functions,
+        'before_generating_runtime':   add_exported_declarations
     }, requires=['BuiltinDataTypes'])

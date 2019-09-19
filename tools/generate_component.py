@@ -2,12 +2,9 @@ import argparse
 import json
 import sys
 import os
-import datetime
 import shutil
-import chevron
 
-from tools.generator_common import compact_project_config, to_underscore, render_typedefs, TypeCollection, \
-    change_file, create_empty_component_data
+from tools.generator_common import compact_project_config, TypeCollection, change_file, create_empty_component_data
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ProjectConfigCompactor import project_config_compactor

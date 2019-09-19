@@ -666,9 +666,10 @@ def sort_functions(owner: Runtime, context):
 
 def builtin_data_types():
     return RuntimePlugin("BuiltinDataTypes", {
-        'init':                      init,
-        'load_project_config':       process_project_types,
-        'load_component_config':     process_component_ports_and_types,
-        'create_component_ports':    create_component_ports,
-        'before_generating_runtime': sort_functions
+        'init':                        init,
+        'load_project_config':         process_project_types,
+        'load_component_config':       process_component_ports_and_types,
+        'create_component_ports':      create_component_ports,
+        'before_generating_component': sort_functions,
+        'before_generating_runtime':   sort_functions
     })
