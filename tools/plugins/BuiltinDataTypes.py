@@ -335,7 +335,8 @@ def render_alias_typedef(type_collection: TypeCollection, type_name):
 
 def render_enum_typedef(type_collection: TypeCollection, type_name):
     context = {
-        'template': "typedef enum {\n"
+        'template': "\n"
+                    "typedef enum {\n"
                     "    {{# values }}\n"
                     "    {{ value }}{{^ last }},{{/ last }}\n"
                     "    {{/ values }}\n"
@@ -352,7 +353,8 @@ def render_enum_typedef(type_collection: TypeCollection, type_name):
 
 def render_struct_typedef(type_collection: TypeCollection, type_name):
     context = {
-        'template': "typedef struct {\n"
+        'template': "\n"
+                    "typedef struct {\n"
                     "    {{# fields }}\n"
                     "    {{ type }} {{ name }};\n"
                     "    {{/ fields }}\n"

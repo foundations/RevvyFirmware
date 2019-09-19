@@ -8,42 +8,50 @@
 
 typedef float Voltage_t;
 typedef float Current_t;
+
 typedef struct {
     Voltage_t detectionVoltage;
     Voltage_t minVoltage;
     Voltage_t maxVoltage;
 } BatteryConfiguration_t;
+
 typedef enum {
     ChargerState_NotPluggedIn,
     ChargerState_Charging,
     ChargerState_Charged,
     ChargerState_Fault
 } ChargerState_t;
+
 typedef enum {
     BluetoothStatus_Inactive,
     BluetoothStatus_NotConnected,
     BluetoothStatus_Connected
 } BluetoothStatus_t;
+
 typedef enum {
     SystemState_Startup,
     SystemState_Operational,
     SystemState_Error
 } SystemState_t;
+
 typedef struct {
     float x;
     float y;
     float z;
 } Vector3D_t;
+
 typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
 } IMU_RawSample_t;
+
 typedef enum {
     MasterStatus_Unknown,
     MasterStatus_Operational,
     MasterStatus_Controlled
 } MasterStatus_t;
+
 typedef enum {
     RingLedScenario_Off,
     RingLedScenario_UserFrame,
@@ -52,6 +60,7 @@ typedef enum {
     RingLedScenario_BusyIndicator,
     RingLedScenario_BreathingGreen
 } RingLedScenario_t;
+
 typedef enum {
     QueueStatus_Empty,
     QueueStatus_Ok,
