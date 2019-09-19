@@ -50,38 +50,6 @@ source_template = """#include "{{ output_filename }}.h"
 """
 
 
-def validate_runnables(project_config, component_data):
-    """Check runnables in the runtime configuration.
-
-    Validate runnables against their definitions in their respective component configurations"""
-
-    runnables_valid = True
-    runtime_config = project_config['runtime']
-    for event_name, runnables in runtime_config['runnables'].items():
-        for runnable in runnables:
-            provider_component_name = runnable['component']
-            runnable_name = runnable['runnable']
-            try:
-                component_config = component_data[provider_component_name]
-                try:
-                    if component_config['runnables'][runnable_name]['arguments']:
-                        print('{}_Run_{} must not have arguments'.format(provider_component_name, runnable_name))
-                        runnables_valid = False
-                except KeyError:
-                    print('Component {} does not have a runnable called {}'
-                          .format(provider_component_name, runnable_name))
-                    runnables_valid = False
-            except KeyError:
-                print('Component {} does not exist'.format(provider_component_name))
-                runnables_valid = False
-
-    return runnables_valid
-
-
-def create_runnable_groups(config):
-    return list(config.keys())
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
@@ -134,13 +102,7 @@ if __name__ == "__main__":
     component_data = rt._components
     valid = True
 
-    log('')
-    log('Validate runnables')
-    valid = valid and validate_runnables(project_config, component_data)
-
     type_data = rt._types
-
-    rt.generate_runtime('generated_runtime_')
 
     if not valid:
         print("Configuration invalid, exiting")
@@ -149,18 +111,6 @@ if __name__ == "__main__":
         print("Runtime configuration is valid, exiting")
         sys.exit(0)
 
-    ctx = rt.generate_runtime('generated_runtime')
-
-    template_ctx = {
-        'output_filename': args.output[args.output.rfind('/') + 1:],
-        'includes':        ['components/{0}/{0}'.format(component) for component in project_config['components']],
-        'components':      [{
-            'name':      component,
-            'guard_def': to_underscore(component).upper()
-        } for component in project_config['components']],
-        'types':           render_typedefs(type_data, type_data),
-        'runnable_groups': create_runnable_groups(project_config['runtime']['runnables'])
-    }
-
-    change_file(args.output + '.h', chevron.render(template=header_template, data=template_ctx))
-    change_file(args.output + '.c', chevron.render(source_template, template_ctx))
+    files = rt.generate_runtime(args.output)
+    for file_name, contents in files.items():
+        change_file(file_name, contents)

@@ -224,7 +224,7 @@ class QueueSignal(SignalType):
                 "if ({{ signal_name }}_data_valid)\n" \
                 "{\n" \
                 "    {{ signal_name }}_overflow = false;\n" \
-                "    *{{ out_name }} = {{ signal_name }};\n" \
+                "    {{ out_name }} = {{ signal_name }};\n" \
                 "    {{ signal_name }}_data_valid = false;\n" \
                 "    if (was_overflow)\n" \
                 "    {\n" \
@@ -242,7 +242,7 @@ class QueueSignal(SignalType):
                 "{\n" \
                 "    size_t idx = ({{ signal_name }}_write_index - {{ signal_name }}_count) % {{ queue_length }}u;\n" \
                 "    --{{ signal_name }}_count;\n" \
-                "    *{{ out_name }} = {{ signal_name }}[idx];\n" \
+                "    {{ out_name }} = {{ signal_name }}[idx];\n" \
                 "    \n" \
                 "    if ({{ signal_name }}_overflow)\n" \
                 "    {\n" \
@@ -430,6 +430,7 @@ def process_type_def(type_name, type_def):
 
 port_type_data = {
     'ReadValue':        {
+        'order':          3,
         'consumes':       {
             'variable': 'single',
             'constant': 'single'
@@ -457,6 +458,7 @@ port_type_data = {
         }
     },
     'ReadQueuedValue':  {
+        'order':          3,
         'consumes':       {'queue': 'single'},
         'def_attributes': {
             'required': ['data_type'],
@@ -479,6 +481,7 @@ port_type_data = {
         }
     },
     'ReadIndexedValue': {
+        'order':          3,
         'consumes':       {
             'array': 'multiple'
         },
@@ -509,6 +512,7 @@ port_type_data = {
         }
     },
     'WriteData':        {
+        'order':          2,
         'provides':       {'variable', 'queue'},
         'def_attributes': {
             'required': ['data_type'],
@@ -531,6 +535,7 @@ port_type_data = {
         }
     },
     'WriteIndexedData': {
+        'order':          2,
         'provides':       {'array'},
         'def_attributes': {
             'required': ['data_type', 'count'],
@@ -557,6 +562,7 @@ port_type_data = {
         }
     },
     'Constant':         {
+        'order':          1,
         'provides':       {'constant'},
         'def_attributes': {
             'required': ['data_type', 'value'],
@@ -638,10 +644,31 @@ def create_component_ports(owner: Runtime, component_name, component_data):
             owner.add_function(port_data['short_name'], function)
 
 
+def sort_functions(owner: Runtime, context):
+    def sort_by_name(fn):
+        port = owner.get_port(fn)
+        if port['port_type'] in port_type_data:
+            return port['short_name']
+        else:
+            return '0'
+
+    def sort_by_port_type(fn):
+        port = owner.get_port(fn)
+        try:
+            return port_type_data[port['port_type']]['order']
+        except KeyError:
+            return 0
+
+    by_name = sorted(context['functions'], key=sort_by_name)
+    by_port_type = sorted(by_name, key=sort_by_port_type)
+    context['functions'] = {fn: context['functions'][fn] for fn in by_port_type}
+
+
 def builtin_data_types():
     return RuntimePlugin("BuiltinDataTypes", {
-        'init':                   init,
-        'load_project_config':    process_project_types,
-        'load_component_config':  process_component_ports_and_types,
-        'create_component_ports': create_component_ports
+        'init':                      init,
+        'load_project_config':       process_project_types,
+        'load_component_config':     process_component_ports_and_types,
+        'create_component_ports':    create_component_ports,
+        'before_generating_runtime': sort_functions
     })

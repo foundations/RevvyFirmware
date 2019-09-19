@@ -5,6 +5,45 @@ import chevron
 from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list
 
 
+header_template = """#ifndef GENERATED_RUNTIME_H_
+#define GENERATED_RUNTIME_H_
+
+{{# type_includes }}
+#include {{{ header }}}
+{{/ type_includes }}
+
+{{# types }}
+{{{ . }}}
+{{/ types }}
+
+{{# components }}
+#define COMPONENT_TYPES_{{ guard_def }}_H_
+{{/ components }}
+
+{{# components }}
+#include "components/{{ name }}/{{ name }}.h"
+{{/ components }}
+
+{{# function_declarations }}
+{{{ . }}};
+{{/ function_declarations }}
+
+#endif /* GENERATED_RUNTIME_H */
+"""
+
+source_template = """#include "{{ output_filename }}.h"
+#include "utils.h"
+
+{{# variables }}
+{{{ . }}}
+{{/ variables }}
+
+{{# functions }}
+{{{ . }}}
+{{/ functions }}
+"""
+
+
 class RuntimePlugin:
     def __init__(self, name, handlers: dict, requires: list = None):
         self.name = name
@@ -66,9 +105,9 @@ class FunctionDescriptor:
 
     def add_body(self, body):
         if type(body) is str:
-            self._body.append(body)
+            self._body.append(body.replace('\n', '\n    '))
         else:
-            self._body += list(body)
+            self._body += [line.replace('\n', '\n    ') for line in body]
 
     def set_return_statement(self, statement):
         if self._return_statement:
@@ -382,9 +421,23 @@ class Runtime:
                     else:
                         signals[provider_short_name][signal_type_name] = new_signal
 
-        # change_file(filename + '.h', pystache.render(header_template, generator_context))
-        # change_file(filename + '.c', pystache.render(source_template, generator_context))
-        pass
+        self._call_plugin_event('before_generating_runtime', context)
+
+        template_data = {
+            'output_filename': filename[filename.rfind('/')+1:],
+            'components': {},
+            'types': [],
+            'type_includes': [],
+            'function_declarations': [context['functions'][func].get_header() for func in context['exported_function_declarations']],
+            'functions': [func.get_function() for func in context['functions'].values() if func is not None],
+            'variables': context['declarations']
+        }
+
+        source = chevron.render(source_template, template_data)
+        return {
+            filename + '.c': source,
+            filename + '.h': chevron.render(header_template, template_data)
+        }
 
     def _call_plugin_event(self, event_name, *args):
         for plugin in self._plugins:

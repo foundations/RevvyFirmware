@@ -87,6 +87,7 @@ signal_types = {
 
 port_type_data = {
     'Runnable':   {
+        'order':          0,
         'consumes':       {
             'call':  'multiple',
             'event': 'multiple'
@@ -103,6 +104,7 @@ port_type_data = {
         }
     },
     'Event':      {
+        'order':          1,
         'provides':       {'event'},
         'def_attributes': {
             'required': [],
@@ -117,6 +119,7 @@ port_type_data = {
         }
     },
     'ServerCall': {
+        'order':          2,
         'provides':       {'call'},
         'def_attributes': {
             'required': [],
@@ -202,11 +205,33 @@ def create_component_runnables(owner: Runtime, component_name, component_data):
             owner.add_function(port_data['short_name'], function)
 
 
+def add_exported_declarations(owner: Runtime, context):
+    runtime_funcs = [short_name for short_name in context['functions'].keys() if short_name.startswith('Runtime/')]
+    context['exported_function_declarations'] += runtime_funcs
+
+    def sort_by_port_type(fn):
+        if fn.startswith('Runtime/'):
+            weight = 0
+        else:
+
+            port = owner.get_port(fn)
+            try:
+                weight = port_type_data[port['port_type']]['order']
+            except KeyError:
+                weight = 3
+
+        return weight
+
+    by_port_type = sorted(context['functions'], key=sort_by_port_type)
+    context['functions'] = {fn: context['functions'][fn] for fn in by_port_type}
+
+
 def runtime_events():
     """Plugin that provides support for simple runtime event creation and configuration"""
     return RuntimePlugin("RuntimeEvents", {
-        'init':                   init,
-        'load_component_config':  create_runnable_ports,
-        'project_config_loaded':  expand_runtime_events,
-        'create_component_ports': create_component_runnables
+        'init':                      init,
+        'load_component_config':     create_runnable_ports,
+        'project_config_loaded':     expand_runtime_events,
+        'create_component_ports':    create_component_runnables,
+        'before_generating_runtime': add_exported_declarations
     }, requires=['BuiltinDataTypes'])
