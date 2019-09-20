@@ -219,7 +219,7 @@ class QueueSignal(SignalType):
 
         if connection.attributes['queue_length'] == 1:
             template = \
-                "QueueStatus_t return_value = QueueStatus_Empty;" \
+                "QueueStatus_t return_value = QueueStatus_Empty;\n" \
                 "bool was_overflow = {{ signal_name }}_overflow;\n" \
                 "if ({{ signal_name }}_data_valid)\n" \
                 "{\n" \
@@ -237,7 +237,7 @@ class QueueSignal(SignalType):
                 "}"
         else:
             template = \
-                "QueueStatus_t return_value = QueueStatus_Empty;" \
+                "QueueStatus_t return_value = QueueStatus_Empty;\n" \
                 "if ({{ signal_name }}_count > 0u)\n" \
                 "{\n" \
                 "    size_t idx = ({{ signal_name }}_write_index - {{ signal_name }}_count) % {{ queue_length }}u;\n" \

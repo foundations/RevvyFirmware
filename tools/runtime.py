@@ -126,9 +126,9 @@ class FunctionDescriptor:
 
     def add_body(self, body):
         if type(body) is str:
-            self._body.append(body.replace('\n', '\n    '))
+            self._body.append(body)
         else:
-            self._body += [line.replace('\n', '\n    ') for line in body]
+            self._body += body
 
     def set_return_statement(self, statement):
         if self._return_statement:
@@ -153,7 +153,7 @@ class FunctionDescriptor:
 
     def get_function(self):
         body = list(self._asserts)
-        body += [chunk.replace('\n', '    \n') for chunk in self._body]
+        body += [chunk.replace('\n', '\n    ') for chunk in self._body]
         if self._return_statement:
             body.append('return {};'.format(self._return_statement))
         ctx = {

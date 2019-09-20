@@ -287,8 +287,8 @@ void CommunicationObserver_Write_Enabled(const bool value)
 void IMU_Write_GyroscopeSample(const Vector3D_t* value)
 {
     ASSERT(value != NULL);
-    IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid;    
-    IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue = *value;    
+    IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid;
+    IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue = *value;
     IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = true;
 }
 
@@ -356,20 +356,21 @@ BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
 QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
 {
     ASSERT(value != NULL);
-    QueueStatus_t return_value = QueueStatus_Empty;bool was_overflow = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow;    
-    if (IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid)    
-    {    
-        IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = false;    
-        *value = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue;    
-        IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = false;    
-        if (was_overflow)    
-        {    
-            return_value = QueueStatus_Overflow;    
-        }    
-        else    
-        {    
-            return_value = QueueStatus_Ok;    
-        }    
+    QueueStatus_t return_value = QueueStatus_Empty;
+    bool was_overflow = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow;
+    if (IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid)
+    {
+        IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = false;
+        *value = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue;
+        IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = false;
+        if (was_overflow)
+        {
+            return_value = QueueStatus_Overflow;
+        }
+        else
+        {
+            return_value = QueueStatus_Ok;
+        }
     }
     return return_value;
 }
