@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from tools.runtime import RuntimePlugin
+from tools.runtime import RuntimePlugin, Runtime
 
 
 def read_cproject(path):
@@ -48,7 +48,11 @@ def add_component_to_cproject(cproject, new_files, new_folders):
         .replace('      <AcmeProjectConfig>', '      <AcmeProjectConfig xmlns="">')
 
 
+def add_to_cproject(owner: Runtime, component_name, context):
+    pass
+
+
 def atmel_studio_support():
     return RuntimePlugin("AtmelStudioSupport", {
-
+        'before_generating_component': add_to_cproject
     })

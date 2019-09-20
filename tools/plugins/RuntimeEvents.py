@@ -254,6 +254,7 @@ def sort_functions(owner: Runtime, context):
 
 
 def remove_runtime_component(owner, config):
+    del owner._components['Runtime']
     port_connections = []
     for connection in config['runtime']['port_connections']:
         provider = connection['provider']
@@ -274,7 +275,7 @@ def runtime_events():
         'load_component_config':       create_runnable_ports,
         'project_config_loaded':       expand_runtime_events,
         'create_component_ports':      create_component_runnables,
-        'before_generating_component': sort_functions,
+        'before_generating_component': lambda owner, component_name, ctx: sort_functions(owner, ctx),
         'before_generating_runtime':   add_exported_declarations,
         'save_project_config':         remove_runtime_component
     }, requires=['BuiltinDataTypes'])

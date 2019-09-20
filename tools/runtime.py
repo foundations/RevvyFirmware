@@ -339,7 +339,7 @@ class Runtime:
             'functions': self.functions
         }
 
-        self._call_plugin_event('before_generating_component', context)
+        self._call_plugin_event('before_generating_component', component_name, context)
 
         funcs = context['functions'].values()
         function_headers = [fn.get_header() for fn in funcs]
