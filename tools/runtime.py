@@ -247,6 +247,8 @@ class Runtime:
 
         self._ports = {}
 
+        self._print_warnings = ['unconnected_signals']
+
     def add_plugin(self, plugin: RuntimePlugin):
         self._plugins[plugin.name] = plugin
         plugin.bind(self)
@@ -509,6 +511,11 @@ class Runtime:
                         provider_signals[signal_type_name] = [new_signal]
                     else:
                         provider_signals[signal_type_name] = new_signal
+
+        if 'unconnected_signals' in self._print_warnings:
+            all_unconnected = set(self._ports.keys()).difference(context['functions'])
+            for unconnected in all_unconnected:
+                print('Warning: {} port is not connected'.format(unconnected))
 
         self._call_plugin_event('before_generating_runtime', context)
 
