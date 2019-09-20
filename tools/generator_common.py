@@ -1,92 +1,6 @@
 import re
 
 
-def create_empty_component_data(name: str):
-    return {
-        'name':         name,
-        'source_files': [],
-        'runnables':    {},
-        'ports':        {},
-        'types':        {}
-    }
-
-
-def create_port_ref(port):
-    if type(port) is str:
-        parts = port.split('/')
-        return {
-            'short_name': port,
-            'component':  parts[0],
-            'port':       parts[1]
-        }
-    elif type(port) is dict:
-        return {
-            'short_name': port['short_name'],
-            'component':  port['component'],
-            'port':       port.get('runnable', port.get('port'))
-        }
-    else:
-        raise TypeError("port must either be a dict or a str")
-
-
-def empty_component(name):
-    return {
-        'component_name': name,
-        'runnables':      {},
-        'ports':          {},
-        'types':          {}
-    }
-
-
-def compact_project_config(config):
-    """Simplify parts that don't need to remain in their expanded forms"""
-    compacted = {
-        'sources':    config['sources'],
-        'includes':   config['includes'],
-        'components': config['components'],
-        'types':      config['types'],
-        'runtime':    {
-            'runnables':        {},
-            'port_connections': []
-        }
-    }
-
-    def compact_port_ref(port):
-        if type(port) is str:
-            return port
-        else:
-            return "{}/{}".format(port['component'], port['port'])
-
-    def compact_runnable_ref(runnable_ref):
-        if type(runnable_ref) is str:
-            return runnable_ref
-        else:
-            return "{}/{}".format(runnable_ref['component'], runnable_ref['runnable'])
-
-    for group in config['runtime']['runnables']:
-        compacted['runtime']['runnables'][group] = []
-
-        for runnable in config['runtime']['runnables'][group]:
-            compacted_runnable = compact_runnable_ref(runnable)
-            compacted['runtime']['runnables'][group].append(compacted_runnable)
-
-    for port_connection in config['runtime']['port_connections']:
-        compacted_port_connection = {'provider': port_connection['provider']}
-
-        consumers = []
-        for consumer in port_connection['consumers']:
-            consumers.append(compact_port_ref(consumer))
-
-        if len(consumers) == 1:
-            compacted_port_connection['consumer'] = consumers[0]
-        else:
-            compacted_port_connection['consumers'] = consumers
-
-        compacted['runtime']['port_connections'].append(compacted_port_connection)
-
-    return compacted
-
-
 class TypeCollection:
     BUILTIN = 'builtin'
     ALIAS = 'type_alias'
@@ -111,8 +25,12 @@ class TypeCollection:
             }
         }
         self._resolved_names = {'void': 'void'}
+        self._renderers = {
+            'void': None,
+            'void*': None
+        }
 
-    def add(self, type_name, info):
+    def add(self, type_name, info, renderer):
         if type_name in self._type_data:
             # type already exists, check if they are the same
             resolved_known = self.resolve(type_name)
@@ -139,6 +57,7 @@ class TypeCollection:
 
         else:
             self._type_data[type_name] = info
+            self._renderers[type_name] = renderer
 
     def _resolve(self, type_name, past):
         if type_name not in self._type_data:
@@ -198,18 +117,19 @@ class TypeCollection:
     def __iter__(self):
         return iter(self._type_data.keys())
 
+    def export(self):
+        def stripped(type_name):
+            data = self._type_data[type_name].copy()
+            if data['type'] not in [TypeCollection.ENUM, TypeCollection.STRUCT]:
+                del data['type']
 
-def render_typedefs(types, type_data: TypeCollection):
-    typedefs = []
-    for type_name in types:
-        try:
-            renderer = type_data.get(type_name)['render_typedef']
-            # noinspection PyCallingNonCallable
-            typedefs.append(renderer(type_data, type_name))
-        except KeyError:
-            pass
+            return data
 
-    return typedefs
+        return {name: stripped(name) for name in self._type_data if name not in ['void', 'void*']}
+
+    def generate_typedef(self, type_name):
+        renderer = self._renderers[type_name]
+        return renderer(self, type_name) if renderer else None
 
 
 def to_underscore(name):

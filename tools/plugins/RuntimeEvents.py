@@ -1,7 +1,6 @@
 import chevron
 
-from tools.generator_common import create_port_ref, create_empty_component_data
-from tools.runtime import RuntimePlugin, Runtime, FunctionDescriptor, SignalType, SignalConnection
+from tools.runtime import RuntimePlugin, Runtime, SignalType, SignalConnection
 
 
 class EventSignal(SignalType):
@@ -140,11 +139,35 @@ port_type_data = {
 }
 
 
+def create_port_ref(port):
+    if type(port) is str:
+        parts = port.split('/')
+        return {
+            'short_name': port,
+            'component':  parts[0],
+            'port':       parts[1]
+        }
+    elif type(port) is dict:
+        return {
+            'short_name': port['short_name'],
+            'component':  port['component'],
+            'port':       port.get('runnable', port.get('port'))
+        }
+    else:
+        raise TypeError("port must either be a dict or a str")
+
+
 def expand_runtime_events(owner: Runtime, project_config):
     runtime_config = project_config['runtime']
     events_key = 'runnables'
 
-    runtime_component = create_empty_component_data('Runtime')
+    runtime_component = {
+        'name':         'Runtime',
+        'source_files': [],
+        'runnables':    {},
+        'ports':        {},
+        'types':        {}
+    }
 
     event_connections = []
     for event, handlers in runtime_config.get(events_key, {}).items():
@@ -230,6 +253,20 @@ def sort_functions(owner: Runtime, context):
     context['functions'] = {fn: context['functions'][fn] for fn in by_port_type}
 
 
+def remove_runtime_component(owner, config):
+    port_connections = []
+    for connection in config['runtime']['port_connections']:
+        provider = connection['provider']
+        if type(provider) is str:
+            if not provider.startswith('Runtime/'):
+                port_connections.append(connection)
+        else:
+            if provider['component'] != 'Runtime':
+                port_connections.append(connection)
+
+    config['runtime']['port_connections'] = port_connections
+
+
 def runtime_events():
     """Plugin that provides support for simple runtime event creation and configuration"""
     return RuntimePlugin("RuntimeEvents", {
@@ -238,5 +275,6 @@ def runtime_events():
         'project_config_loaded':       expand_runtime_events,
         'create_component_ports':      create_component_runnables,
         'before_generating_component': sort_functions,
-        'before_generating_runtime':   add_exported_declarations
+        'before_generating_runtime':   add_exported_declarations,
+        'save_project_config':         remove_runtime_component
     }, requires=['BuiltinDataTypes'])

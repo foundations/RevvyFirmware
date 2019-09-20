@@ -2,7 +2,11 @@
     "settings": {
         "name": "RevvyFirmware",
         "components_folder": "rrrc/components",
-        "required_plugins": ["ProjectConfigCompactor", "BuiltinDataTypes", "RuntimeEvents"]
+        "required_plugins": [
+            "ProjectConfigCompactor",
+            "BuiltinDataTypes",
+            "RuntimeEvents"
+        ]
     },
     "sources": [
         "driver_init.c",
@@ -136,61 +140,53 @@
     ],
     "types": {
         "uint8_t": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdint.h>",
-            "default_value": "0u",
-            "pass_semantic": "value"
+            "default_value": "0u"
         },
         "uint16_t": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdint.h>",
-            "default_value": "0u",
-            "pass_semantic": "value"
+            "default_value": "0u"
         },
         "uint32_t": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdint.h>",
-            "default_value": "0u",
-            "pass_semantic": "value"
+            "default_value": "0u"
         },
         "int8_t": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdint.h>",
-            "default_value": "0",
-            "pass_semantic": "value"
+            "default_value": "0"
         },
         "int16_t": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdint.h>",
-            "default_value": "0",
-            "pass_semantic": "value"
+            "default_value": "0"
         },
         "int32_t": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdint.h>",
-            "default_value": "0",
-            "pass_semantic": "value"
+            "default_value": "0"
         },
         "size_t": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdio.h>",
-            "default_value": "0u",
-            "pass_semantic": "value"
+            "default_value": "0u"
         },
         "bool": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<stdbool.h>",
-            "default_value": "false",
-            "pass_semantic": "value"
+            "default_value": "false"
         },
         "float": {
-            "type": "external_type_def",
+            "pass_semantic": "value",
             "defined_in": "<float.h>",
-            "default_value": "0.0f",
-            "pass_semantic": "value"
+            "default_value": "0.0f"
         },
         "QueueStatus_t": {
             "type": "enum",
+            "pass_semantic": "value",
             "values": [
                 "QueueStatus_Empty",
                 "QueueStatus_Ok",
@@ -237,10 +233,8 @@
                 "WatchdogFeeder/Feed",
                 "DriveTrain/Update"
             ],
-            "10ms_offset1": [
-            ],
-            "10ms_offset2": [
-            ],
+            "10ms_offset1": [],
+            "10ms_offset2": [],
             "10ms_offset3": [],
             "10ms_offset4": [],
             "10ms_offset5": [],
@@ -326,9 +320,9 @@
                 "consumer": "BluetoothIndicator/ConnectionStatus"
             },
             {
+                "queue_length": 1,
                 "provider": "IMU/GyroscopeSample",
-                "consumer": "GyroscopeOffsetCompensator/AngularSpeeds",
-                "queue_length": 1
+                "consumer": "GyroscopeOffsetCompensator/AngularSpeeds"
             },
             {
                 "provider": "ADC0/RawChannelData",

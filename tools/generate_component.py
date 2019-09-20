@@ -1,28 +1,14 @@
 import argparse
-import json
 import sys
 import os
 import shutil
 
-from tools.generator_common import compact_project_config, change_file, create_empty_component_data
+from tools.generator_common import change_file
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
-
-default_runnables = {
-    'OnInit': {}
-}
-
-
-def create_component_config(name, sources, runnables):
-    contents = create_empty_component_data(name)
-    contents['source_files'] = sources
-    contents['runnables'] = {}
-
-    return json.dumps(contents, indent=4)
-
 
 if __name__ == "__main__":
     # inquire name of new component
@@ -58,36 +44,38 @@ if __name__ == "__main__":
     new_files = {}
     modified_files = {}
 
-    type_data = rt.types
-
     config_json_path = component_file('config.json')
     if args.create:
+
         # stop if component exists
         if component_name in project_config['components']:
             print('Component already exists')
             sys.exit(1)
 
+        component_config = {
+            'name':         component_name,
+            'source_files': [component_name + '.c'],
+            'runnables':    {},
+            'ports':        {},
+            'types':        {}
+        }
+
+        rt.add_component(component_name, component_config)
+
         project_config['components'].append(component_name)
         project_config['components'] = sorted(project_config['components'])
 
         # Create component skeleton
-        component_dir = "{}/{}".format(project_config['settings']['components_folder'], component_name)
-        new_folders.append(component_dir)
+        new_folders.append(os.path.join(project_config['settings']['components_folder'], component_name))
 
         # create component configuration json
-        runnables = {}
-        ports = {}
-        component_types = {}
-        new_files[config_json_path] = create_component_config(component_name, [component_name + '.c'], runnables)
+        new_files[config_json_path] = rt.dump_component_config(component_name)
 
         # replace sources list with new one and set for file modification
-        modified_files['project.json'] = json.dumps(compact_project_config(project_config), indent=4)
+        modified_files['project.json'] = rt.dump_project_config()
     else:
         try:
             rt.load_component_config(component_name)
-            component_config = rt._components[component_name]
-            ports = component_config['ports']
-            component_types = component_config['types']
         except FileNotFoundError:
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)

@@ -418,6 +418,50 @@ def render_struct_typedef(type_collection: TypeCollection, type_name):
     return chevron.render(**context)
 
 
+type_info = {
+    TypeCollection.ALIAS:        {
+        'typedef_renderer': render_alias_typedef,
+        'attributes':     {
+            'required': ['aliases'],
+            'optional': {'default_value': None, 'pass_semantic': None},
+            'static':   {
+                'type': TypeCollection.ALIAS
+            }
+        }
+    },
+
+    TypeCollection.EXTERNAL_DEF: {
+        'typedef_renderer': None,
+        'attributes':     {
+            'required': ['defined_in', 'default_value'],
+            'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
+            'static':   {'type': TypeCollection.EXTERNAL_DEF}
+        }
+    },
+
+    TypeCollection.ENUM:         {
+        'typedef_renderer': render_enum_typedef,
+        'attributes':     {
+            'required': ['values', 'default_value'],
+            'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
+            'static':   {
+                'type': TypeCollection.ENUM
+            }}
+    },
+
+    TypeCollection.STRUCT:       {
+        'typedef_renderer': render_struct_typedef,
+        'attributes':     {
+            'required': ['fields', 'default_value'],
+            'optional': {'pass_semantic': TypeCollection.PASS_BY_POINTER},
+            'static':   {
+                'type': TypeCollection.STRUCT
+            }
+        }
+    }
+}
+
+
 def process_type_def(type_name, type_def):
     # determine type of definition
     if 'type' in type_def:
@@ -431,43 +475,8 @@ def process_type_def(type_name, type_def):
         else:
             raise Exception('Invalid type definition for {}'.format(type_name))
 
-    attributes = {
-        TypeCollection.ALIAS:        {
-            'required': ['aliases'],
-            'optional': {'default_value': None, 'pass_semantic': None},
-            'static':   {
-                'type':           TypeCollection.ALIAS,
-                'render_typedef': render_alias_typedef
-            }
-        },
-
-        TypeCollection.EXTERNAL_DEF: {
-            'required': ['defined_in', 'default_value'],
-            'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
-            'static':   {'type': TypeCollection.EXTERNAL_DEF}
-        },
-
-        TypeCollection.ENUM:         {
-            'required': ['values', 'default_value'],
-            'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
-            'static':   {
-                'type':           TypeCollection.ENUM,
-                'render_typedef': render_enum_typedef
-            }
-        },
-
-        TypeCollection.STRUCT:       {
-            'required': ['fields', 'default_value'],
-            'optional': {'pass_semantic': TypeCollection.PASS_BY_POINTER},
-            'static':   {
-                'type':           TypeCollection.STRUCT,
-                'render_typedef': render_struct_typedef
-            }
-        }
-    }
-
     try:
-        attrs = attributes[type_type]
+        attrs = type_info[type_type]['attributes']
         return {
             **attrs['static'],
             **copy(type_def, required=attrs['required'], optional=attrs['optional'])
@@ -719,9 +728,9 @@ def init(owner):
 
 
 def process_project_types(owner, project_config):
-    defs = project_config.get('types', {})
-    project_config['types'] = {type_name: process_type_def(type_name, type_def)
-                               for type_name, type_def in defs.items()}
+    for type_name, type_data in project_config.get('types', {}).items():
+        type_type_data = process_type_def(type_name, type_data)
+        owner.types.add(type_name, type_type_data, type_info[type_type_data['type']]['typedef_renderer'])
 
 
 def process_component_ports_and_types(owner, component_name, component_config):
@@ -729,10 +738,9 @@ def process_component_ports_and_types(owner, component_name, component_config):
         component_config['ports'] = {}
         print('Warning: {} has no ports'.format(component_name))
 
-    defs = component_config.get('types', {})
-
-    component_config['types'] = {type_name: process_type_def(type_name, type_def)
-                                 for type_name, type_def in defs.items()}
+    for type_name, type_data in component_config.get('types', {}).items():
+        type_type_data = process_type_def(type_name, type_data)
+        owner.types.add(type_name, type_type_data, type_info[type_type_data['type']]['typedef_renderer'])
 
 
 def create_component_ports(owner: Runtime, component_name, component_data):

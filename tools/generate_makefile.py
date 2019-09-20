@@ -1,15 +1,10 @@
 import argparse
-import fnmatch
 import json
 import os
-import shutil
-from json import JSONDecodeError
-from os import listdir
 
 import chevron
 
-from tools.generate_component import create_component_config, default_runnables
-from tools.generator_common import change_file
+from tools.generator_common import change_file, list_to_chevron_list
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
@@ -105,7 +100,7 @@ clean:
 
 def list_files_recursive(root):
     files = []
-    for entry in listdir(root):
+    for entry in os.listdir(root):
         path = "{}/{}".format(root, entry)
         if os.path.isdir(path):
             files += list_files_recursive(path)
@@ -118,9 +113,6 @@ def list_files_recursive(root):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Name of project config json file', default="project.json")
-    parser.add_argument('--update-components', help='Generate component config files', action='store_true')
-    parser.add_argument('--update-existing', help='Generate component config file even if it exists',
-                        action='store_true')
 
     args = parser.parse_args()
 
@@ -132,37 +124,7 @@ if __name__ == "__main__":
     rt.load(True)
     config = rt._project_config
 
-    source_files = list(config['sources'])
-
-    if args.update_components:
-        config['components'] = []
-        for component in listdir('rrrc/components'):
-            config['components'].append(component)
-            component_config_path = 'rrrc/components/{}/config.json'.format(component)
-
-            config_file_exists = os.path.isfile(component_config_path)
-            if not config_file_exists or args.update_existing:
-                print('Updating {}'.format(component))
-                component_sources = []
-                component_dir = 'rrrc/components/{}'.format(component)
-                for file in list_files_recursive(component_dir):
-                    if fnmatch.fnmatch(file, "*.c"):
-                        component_sources.append(file[len(component_dir)+1:])
-
-                try:
-                    shutil.copy(component_config_path, component_config_path + ".bak")
-                    with open(component_config_path, "r") as f:
-                        old_config = json.load(f)
-                        old_config['source_files'] = component_sources
-                        component_config = json.dumps(old_config, indent=4)
-                except (IOError, JSONDecodeError):
-                    component_config = create_component_config(component, component_sources, default_runnables)
-
-                with open(component_config_path, "w+") as f:
-                    f.write(component_config)
-
-        with open(args.config, "w") as f:
-            json.dump(config, f, indent=4)
+    source_files = config['sources']
 
     for component in config['components']:
         component_file = 'rrrc/components/{}/{{}}'.format(component)
@@ -173,13 +135,9 @@ if __name__ == "__main__":
         source_files += [component_file.format(source) for source in component_config['source_files']]
 
     template_context = {
-        'sources':  [{'source': src} for src in source_files],
-        'includes': [{'path': path} for path in config['includes']]
+        'sources':  list_to_chevron_list(source_files, 'source', 'last'),
+        'includes': list_to_chevron_list(config['includes'], 'path', 'last')
     }
-
-    template_context['sources'][-1]['last'] = True
-    template_context['includes'][-1]['last'] = True
-
     makefile_contents = chevron.render(makefile_template, template_context)
 
     if change_file('Makefile', makefile_contents):

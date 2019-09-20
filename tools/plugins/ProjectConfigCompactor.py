@@ -31,22 +31,6 @@ def process_port_ref_shorthand(port):
     return port
 
 
-def expand_project_config(owner, project_config):
-    """Expand shorthand forms in project configuration"""
-    processed_runnables = {}
-    for runnable_group in project_config['runtime'].get('runnables', {}):
-        processed_runnables[runnable_group] = []
-        for runnable in project_config['runtime']['runnables'][runnable_group]:
-            processed_runnables[runnable_group].append(process_runnable_ref_shorthand(runnable))
-
-    processed_port_connections = []
-    for port_connection in project_config['runtime'].get('port_connections', []):
-        processed_port_connections.append(expand_port_connection(port_connection))
-
-    project_config['runtime']['runnables'] = processed_runnables
-    project_config['runtime']['port_connections'] = processed_port_connections
-
-
 def expand_port_connection(port_connection):
     def move_single(dictionary, single, multiple):
         if multiple not in dictionary:
@@ -64,9 +48,63 @@ def expand_port_connection(port_connection):
     return connection
 
 
+def expand_project_config(owner, project_config):
+    """Expand shorthand forms in project configuration"""
+    processed_runnables = {}
+    for runnable_group in project_config['runtime'].get('runnables', {}):
+        processed_runnables[runnable_group] = []
+        for runnable in project_config['runtime']['runnables'][runnable_group]:
+            processed_runnables[runnable_group].append(process_runnable_ref_shorthand(runnable))
+
+    processed_port_connections = []
+    for port_connection in project_config['runtime'].get('port_connections', []):
+        processed_port_connections.append(expand_port_connection(port_connection))
+
+    project_config['runtime']['runnables'] = processed_runnables
+    project_config['runtime']['port_connections'] = processed_port_connections
+
+
+def compact_project_config(owner, config):
+    """Simplify parts that don't need to remain in their expanded forms"""
+    expanded_runtime = config['runtime'].copy()
+
+    compacted_runtime = {
+        'runnables':        {},
+        'port_connections': []
+    }
+
+    def compact_ref(ref):
+        if type(ref) is str:
+            return ref
+        else:
+            if not set(ref.keys()).difference(['short_name', 'component', 'port', 'runnable']):
+                return ref['short_name']
+            else:
+                return {key: ref[key] for key in ref if key != 'short_name'}
+
+    for group, runnables in expanded_runtime['runnables'].items():
+        compacted_runtime['runnables'][group] = [compact_ref(runnable) for runnable in runnables]
+
+    for connection in expanded_runtime['port_connections']:
+        compacted_connection = {key: connection[key] for key in connection if key not in ['provider', 'consumers']}
+        compacted_connection['provider'] = compact_ref(connection['provider'])
+
+        consumers = [compact_ref(port) for port in connection['consumers']]
+        if len(consumers) == 1:
+            compacted_connection['consumer'] = consumers[0]
+        else:
+            compacted_connection['consumers'] = consumers
+
+        compacted_runtime['port_connections'].append(compacted_connection)
+
+    config['runtime'] = compacted_runtime
+    config['types'] = owner.types.export()
+
+
 def project_config_compactor():
     """Plugin that expands project configuration on load and compacts it on save"""
     handlers = {
-        'load_project_config': expand_project_config
+        'load_project_config': expand_project_config,
+        'save_project_config': compact_project_config
     }
     return RuntimePlugin("ProjectConfigCompactor", handlers)

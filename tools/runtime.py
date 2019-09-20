@@ -2,8 +2,7 @@ import json
 
 import chevron
 
-from tools.generator_common import TypeCollection, change_file, copy, dict_to_chevron_list, to_underscore, \
-    list_to_chevron_list, unique
+from tools.generator_common import TypeCollection, copy, dict_to_chevron_list, to_underscore, list_to_chevron_list, unique
 
 runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
@@ -244,6 +243,8 @@ class Runtime:
         self._signal_types = {}
         self._functions = {}
 
+        self._ports = {}
+
     def add_plugin(self, plugin: RuntimePlugin):
         self._plugins[plugin.name] = plugin
         plugin.bind(self)
@@ -271,10 +272,6 @@ class Runtime:
 
         self._project_config = project_config
 
-        # add defined types
-        for type_name, type_info in project_config['types'].items():
-            self._types.add(type_name, type_info)
-
         if load_components:
             for component_name in project_config['components']:
                 self.load_component_config(component_name)
@@ -295,11 +292,12 @@ class Runtime:
     def add_component(self, component_name, component_config):
         self._call_plugin_event('load_component_config', component_name, component_config)
         self._components[component_name] = component_config
-        # add defined types
-        for data_type, type_info in component_config['types'].items():
-            self._types.add(data_type, type_info)
+
         for port_name, port_data in component_config['ports'].items():
-            component_config['ports'][port_name] = self.process_port_def(component_name, port_name, port_data)
+            short_name = '{}/{}'.format(component_name, port_name)
+            processed_port = self.process_port_def(short_name, port_data)
+            component_config['ports'][port_name] = processed_port
+            self._ports[short_name] = processed_port
 
     def create_component(self, component):
         pass
@@ -314,30 +312,25 @@ class Runtime:
                 type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
                 type_data = self._types.get(type_name)
 
-            if self._types[type_name]['type'] == TypeCollection.EXTERNAL_DEF:
-                includes.add(self._types[type_name]['defined_in'])
+            resolved_type_data = self._types[type_name]
+            if resolved_type_data['type'] == TypeCollection.EXTERNAL_DEF:
+                includes.add(resolved_type_data['defined_in'])
 
-            if self._types[type_name]['type'] == TypeCollection.STRUCT:
-                d = self._process_type(self._types[type_name]['fields'].values())
-                for typedef in d['defs']:
-                    if typedef not in defs:
-                        defs.append(typedef)
-                includes.update(d['includes'])
+            if resolved_type_data['type'] == TypeCollection.STRUCT:
+                d, i = self._process_type(resolved_type_data['fields'].values())
+                defs += d
+                includes.update(i)
 
-            if 'render_typedef' in type_data:
-                defs.append(type_data['render_typedef'](self._types, type_name))
+            typedef = self._types.generate_typedef(type_name)
+            if typedef:
+                defs.append(typedef)
         else:
             for tt in type_name:
-                d = self._process_type(tt)
-                for typedef in d['defs']:
-                    if typedef not in defs:
-                        defs.append(typedef)
-                includes.update(d['includes'])
+                d, i = self._process_type(tt)
+                defs += d
+                includes.update(i)
 
-        return {
-            'defs':     defs,
-            'includes': includes
-        }
+        return defs, includes
 
     def update_component(self, component_name):
         self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
@@ -361,19 +354,18 @@ class Runtime:
                 includes.append({'header': '"utils_assert.h"'})
                 break
 
-        ty = self._process_type(self._components[component_name].get('types', []))
-        types = ty['defs']
+        types, type_includes = self._process_type(self._components[component_name].get('types', []))
         for f in funcs:
-            t = self._process_type(f.referenced_types())
-            types += t['defs']
-            ty['includes'].update(t['includes'])
+            t, i = self._process_type(f.referenced_types())
+            types += t
+            type_includes.update(i)
 
         template_ctx = {
             'includes':         includes,
             'component_name':   component_name,
             'guard_def':        to_underscore(component_name).upper(),
             'types':            unique(types),
-            'type_includes':    list_to_chevron_list(sorted(ty['includes']), 'header'),
+            'type_includes':    list_to_chevron_list(sorted(type_includes), 'header'),
             'functions':        functions,
             'function_headers': function_headers
         }
@@ -388,7 +380,8 @@ class Runtime:
 
     def create_function_for_port(self, component_name, port_name, function_data=None):
         if not function_data:
-            function_data = self._get_function_data(component_name, port_name)
+            short_name = "{}/{}".format(component_name, port_name)
+            function_data = self._get_function_data(short_name)
 
         fn_name = function_data['func_name_pattern'].format(component_name, port_name)
         function = FunctionDescriptor.create(fn_name, function_data)
@@ -396,18 +389,20 @@ class Runtime:
 
         return function
 
-    def _get_function_data(self, component_name, port_name):
-        port_data = self.get_port_data(component_name, port_name)
-        port_type = port_data['port_type']
-        function_data = self._port_impl_lookup[port_type](self._types, port_data)
-        return function_data
-
     def get_port(self, short_name):
-        parts = short_name.split('/')
-        return self._components[parts[0]]['ports'][parts[1]]
+        return self._ports[short_name]
 
-    def get_port_data(self, component_name, port_name):
-        return self._components[component_name]['ports'][port_name]
+    def _get_function_data(self, short_name):
+        port_data = self.get_port(short_name)
+        port_type = port_data['port_type']
+
+        return self._port_impl_lookup[port_type](self._types, port_data)
+
+    def get_port_type_data(self, short_name):
+        port_data = self.get_port(short_name)
+        port_type = port_data['port_type']
+
+        return self._port_types[port_type]
 
     def generate_runtime(self, filename):
         context = {
@@ -417,46 +412,44 @@ class Runtime:
             'exported_function_declarations': []
         }
 
-        consumers = {}
-        providers = {}
-
         signals = {}
 
         for connection in self._project_config['runtime']['port_connections']:
-            component_name = connection['provider']['component']
-            provider_port_name = connection['provider']['port']
-            provider_port_config = self.get_port_data(component_name, provider_port_name)
-            provider_port_data = self._port_types[provider_port_config['port_type']]
+            provider_ref = connection['provider']
 
-            provider_short_name = "{}/{}".format(component_name, provider_port_name)
-            provided_signal_types = provider_port_data['provides']
+            provider_short_name = provider_ref['short_name']
 
-            if provider_short_name not in providers:
-                function_data = self._get_function_data(component_name, provider_port_name)
+            provider_port_type_data = self.get_port_type_data(provider_short_name)
+            provided_signal_types = provider_port_type_data['provides']
+
+            def create_if_weak(port_ref):
+                """Generate function for the given port - but only if the default implementation is weak"""
+                function_data = self._get_function_data(port_ref['short_name'])
                 if 'weak' in function_data.get('attributes', []):
-                    providers[provider_short_name] = self.create_function_for_port(component_name, provider_port_name,
-                                                                                   function_data)
+                    return self.create_function_for_port(port_ref['component'], port_ref['port'], function_data)
                 else:
-                    providers[provider_short_name] = None
+                    return None
 
-            provider_func = providers[provider_short_name]
-            context['functions'][provider_short_name] = provider_func
+            def create_signal_connection(attributes, signal_name, signal_type):
+                signal = signal_type.create_connection(context, signal_name, provider_short_name, attributes)
+                signal.add_consumer(consumer_short_name)
+                return signal
+
+            if provider_short_name not in context['functions']:
+                context['functions'][provider_short_name] = create_if_weak(provider_ref)
 
             attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumers']}
 
+            # create a dict to store providers signals
             if provider_short_name not in signals:
                 signals[provider_short_name] = {}
+            provider_signals = signals[provider_short_name]
 
             for consumer_ref in connection['consumers']:
-                consumer_component = consumer_ref['component']
-                consumer_port = consumer_ref['port']
-                consumer_short_name = "{}/{}".format(consumer_component, consumer_port)
+                consumer_short_name = consumer_ref['short_name']
 
-                consumer_port_config = self.get_port_data(consumer_component, consumer_port)
-                consumer_port_type = consumer_port_config['port_type']
-
-                consumed_signal_types = self._port_types[consumer_port_type]['consumes'].keys()
-
+                consumer_port_type_data = self.get_port_type_data(consumer_short_name)
+                consumed_signal_types = consumer_port_type_data['consumes']
                 inferred_signal_type = provided_signal_types.intersection(consumed_signal_types)
 
                 if len(inferred_signal_type) == 0:
@@ -468,35 +461,21 @@ class Runtime:
                 signal_type_name = inferred_signal_type.pop()
                 signal_type = self._signal_types[signal_type_name]
 
-                if consumer_short_name in consumers:
+                if consumer_short_name not in context['functions']:
+                    context['functions'][consumer_short_name] = create_if_weak(consumer_ref)
+                else:
                     # this port already is the consumer of some signal
                     # some ports can consume multiple signals, this is set in the port data
                     # (e.g. a runnable can be called by multiple events or calls)
-                    if self._port_types[consumer_port_type]['consumes'][signal_type_name] == 'single':
+                    if consumer_port_type_data['consumes'][signal_type_name] == 'single':
                         raise Exception('{} cannot consume multiple signals'.format(consumer_short_name))
-
-                    consumer_func = consumers[consumer_short_name]
-                else:
-                    function_data = self._get_function_data(consumer_component, consumer_port)
-                    # only weak functions need implementation generated
-                    if 'weak' in function_data.get('attributes', []):
-                        func = self.create_function_for_port(consumer_component, consumer_port, function_data)
-                        consumers[consumer_short_name] = func
-                        context['functions'][consumer_short_name] = func
-                    else:
-                        context['functions'][consumer_short_name] = None
 
                 signal_name = '{}_{}_{}' \
                     .format(provider_short_name, consumer_short_name, signal_type_name) \
                     .replace('/', '_')
 
-                def create_signal_connection(attributes, signal_name, signal_type):
-                    signal = signal_type.create_connection(context, signal_name, provider_short_name, attributes)
-                    signal.add_consumer(consumer_short_name)
-                    return signal
-
                 try:
-                    signals_of_current_type = signals[provider_short_name][signal_type_name]
+                    signals_of_current_type = provider_signals[signal_type_name]
                     if type(signals_of_current_type) is list:
                         if signal_type.consumers == 'multiple_signals':
                             # create new signal in all cases
@@ -516,47 +495,50 @@ class Runtime:
                     new_signal = create_signal_connection(attributes, signal_name, signal_type)
 
                     if signal_type.consumers == 'multiple_signals':
-                        signals[provider_short_name][signal_type_name] = [new_signal]
+                        provider_signals[signal_type_name] = [new_signal]
                     else:
-                        signals[provider_short_name][signal_type_name] = new_signal
+                        provider_signals[signal_type_name] = new_signal
 
         self._call_plugin_event('before_generating_runtime', context)
+
+        type_names = []
+        for c in self._components.values():
+            type_names += c.get('types', {}).keys()
+
+        for f in context['functions'].values():
+            if f:
+                type_names += f.referenced_types()
 
         types = []
         includes = set()
 
-        for c in self._components.values():
-            for t in c.get('types', {}).keys():
-                t = self._process_type(t)
-                types += t['defs']
-                includes.update(t['includes'])
+        for t in type_names:
+            ty, i = self._process_type(t)
+            types += ty
+            includes.update(i)
 
-        for f in context['functions'].values():
-            if f:
-                t = self._process_type(f.referenced_types())
-                types += t['defs']
-                includes.update(t['includes'])
-
+        output_filename = filename[filename.rfind('/') + 1:]
         template_data = {
+            'output_filename':       output_filename,
             'includes':              [
-                {'header': '"{}.h"'.format(filename[filename.rfind('/') + 1:])},
+                {'header': '"{}.h"'.format(output_filename)},
                 {'header': '"utils.h"'}
             ],
-            'output_filename':       filename[filename.rfind('/') + 1:],
-            'components':            [{'name': name, 'guard_def': to_underscore(name).upper()} for name in
-                                      self._components if name != 'Runtime'],
+            'components':            [
+                {
+                    'name':      name,
+                    'guard_def': to_underscore(name).upper()
+                } for name in self._components if name != 'Runtime'],  # TODO
             'types':                 unique(types),
             'type_includes':         list_to_chevron_list(sorted(includes), 'header'),
-            'function_declarations': [context['functions'][func].get_header() for func in
+            'function_declarations': [context['functions'][func_name].get_header() for func_name in
                                       context['exported_function_declarations']],
-            'functions':             [func.get_function() for func in context['functions'].values() if
-                                      func is not None],
+            'functions':             [func.get_function() for func in context['functions'].values() if func],
             'variables':             context['declarations']
         }
 
-        source = chevron.render(source_template, template_data)
         return {
-            filename + '.c': source,
+            filename + '.c': chevron.render(source_template, template_data),
             filename + '.h': chevron.render(runtime_header_template, template_data)
         }
 
@@ -572,8 +554,7 @@ class Runtime:
         self._port_types[port_type_name] = data
         self._port_impl_lookup[port_type_name] = lookup
 
-    def process_port_def(self, component_name, port_name, port):
-        short_name = '{}/{}'.format(component_name, port_name)
+    def process_port_def(self, short_name, port):
         port_type = port['port_type']
 
         try:
@@ -606,3 +587,13 @@ class Runtime:
     @property
     def port_types(self):
         return self._port_types
+
+    def dump_component_config(self, component_name):
+        config = self._components[component_name].copy()
+        self._call_plugin_event('save_component_config', config)
+        return json.dumps(config, indent=4)
+
+    def dump_project_config(self):
+        config = self._project_config.copy()
+        self._call_plugin_event('save_project_config', config)
+        return json.dumps(config, indent=4)
