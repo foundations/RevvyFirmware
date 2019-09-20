@@ -331,7 +331,7 @@ class Runtime:
 
         return defs, includes
 
-    def update_component(self, component_name):
+    def update_component(self, component_name, component_files=None):
         self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
 
         context = {

@@ -43,6 +43,7 @@ if __name__ == "__main__":
     ft = FileTransaction(os.path.realpath('.'))
 
     config_json_path = component_file('config.json')
+    component_files = None
     if args.create:
 
         # stop if component exists
@@ -70,14 +71,20 @@ if __name__ == "__main__":
 
         # add component to project json
         ft.update_file('project.json', rt.dump_project_config())
+
+        component_files = [
+            'config.json'
+        ]
     else:
         try:
             rt.load_component_config(component_name)
+            if args.update_files:
+                component_files = ['config.json']
         except FileNotFoundError:
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
 
-    files = rt.update_component(component_name)
+    files = rt.update_component(component_name, component_files)
 
     for filename, contents in files.items():
         ft.update_file(filename, contents)
