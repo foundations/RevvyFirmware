@@ -268,7 +268,7 @@ class Runtime:
 
         print('Loaded configuration for {}'.format(project_config['settings']['name']))
 
-        for plugin_name in project_config['settings']['required_plugins']:
+        for plugin_name in self.settings['required_plugins']:
             if plugin_name not in self._plugins:
                 raise Exception('Project requires {} plugin, which is not loaded'.format(plugin_name))
 
@@ -284,9 +284,7 @@ class Runtime:
         if not self._project_config:
             self.load(False)
 
-        project_settings = self._project_config['settings']
-
-        component_config_file = '{}/{}/config.json'.format(project_settings['components_folder'], component_name)
+        component_config_file = '{}/{}/config.json'.format(self.settings['components_folder'], component_name)
         with open(component_config_file, "r") as file:
             component_config = json.load(file)
             self.add_component(component_name, component_config)
@@ -372,7 +370,7 @@ class Runtime:
             'function_headers': function_headers
         }
 
-        component_folder = os.path.join(self._project_config['settings']['components_folder'], component_name)
+        component_folder = os.path.join(self.settings['components_folder'], component_name)
 
         return {
             **context['files'],
@@ -592,6 +590,10 @@ class Runtime:
     @property
     def port_types(self):
         return self._port_types
+
+    @property
+    def settings(self):
+        return self._project_config['settings']
 
     def dump_component_config(self, component_name):
         config = self._components[component_name].copy()

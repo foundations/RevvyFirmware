@@ -10,15 +10,12 @@ from tools.plugins.RuntimeEvents import runtime_events
 from tools.runtime import Runtime
 
 if __name__ == "__main__":
-    # inquire name of new component
+
     parser = argparse.ArgumentParser()
     parser.add_argument('name', help='Component name')
     parser.add_argument('--create', help='Create component', action='store_true')
-    parser.add_argument('--update-header', help='Generate header file', action='store_true')
-    parser.add_argument('--update-source', help='Generate source file', action='store_true')
+    parser.add_argument('--update-files', help='Update component file list in configuration', action='store_true')
     parser.add_argument('--cleanup', help='Remove backups', action='store_true')
-
-    """Create generates json and empty c/h pair, adds include, adds to project json, cproject"""
 
     args = parser.parse_args()
 
@@ -36,7 +33,7 @@ if __name__ == "__main__":
 
 
     def component_file(filename):
-        return "{}/{}/{}".format(project_config['settings']['components_folder'], component_name, filename)
+        return "{}/{}/{}".format(rt.settings['components_folder'], component_name, filename)
 
 
     new_folders = []
@@ -66,7 +63,7 @@ if __name__ == "__main__":
         project_config['components'].append(component_name)
         project_config['components'] = sorted(project_config['components'])
 
-        ft.create_folder(os.path.join(project_config['settings']['components_folder'], component_name))
+        ft.create_folder(os.path.join(rt.settings['components_folder'], component_name))
 
         # create component configuration json
         ft.update_file(config_json_path, rt.dump_component_config(component_name))
@@ -85,4 +82,4 @@ if __name__ == "__main__":
     for filename, contents in files.items():
         ft.update_file(filename, contents)
 
-    ft.apply()
+    ft.apply(delete_backups=args.cleanup)
