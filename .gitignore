@@ -5,5 +5,5 @@ Release/*
 /.idea/
 Makefile
 /**/*.pyc
-/**/*.bak
+/**/*.bak*
 /output/
