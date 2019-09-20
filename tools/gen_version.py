@@ -24,7 +24,7 @@ if __name__ == '__main__':
     else:
         version = args.version
 
-    if change_file(file, template.replace("{{FW_VERSION}}", version)):
+    if change_file(file, template.replace("{{FW_VERSION}}", version), delete_backup=True):
         print('Version file updated to {}'.format(version))
     else:
         print('Version file up to date, version {}'.format(version))

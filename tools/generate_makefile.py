@@ -1,6 +1,5 @@
 import argparse
 import json
-import os
 
 import chevron
 
@@ -96,18 +95,6 @@ clean:
 \t-rm -rf Debug
 \t-rm -rf Release
 """
-
-
-def list_files_recursive(root):
-    files = []
-    for entry in os.listdir(root):
-        path = "{}/{}".format(root, entry)
-        if os.path.isdir(path):
-            files += list_files_recursive(path)
-        else:
-            files.append(path)
-
-    return files
 
 
 if __name__ == "__main__":

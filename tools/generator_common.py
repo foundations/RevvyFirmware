@@ -226,11 +226,12 @@ def copy_file(src, dst):
     print('Copied: {} -> {}'.format(src, dst))
 
 
-def change_file(filename, contents):
+def change_file(filename, contents, delete_backup=False):
     """
     Update filename with contents
 
     If the file already exists, copies it to a unique backup file
+    :param delete_backup: Delete backup file on success
     :param filename: the filename to write to
     :param contents: new file contents
     :return: True if the file is created, False if up to date, string if a backup was created before write
@@ -257,6 +258,10 @@ def change_file(filename, contents):
 
         with open(filename, "w+") as f:
             f.write(contents)
+
+        if delete_backup:
+            delete(backup)
+            backup = True
 
         return backup
     else:
@@ -319,3 +324,19 @@ class FileTransaction:
                 shutil.rmtree(folder)
 
             raise
+
+
+def list_files_recursive(root):
+    files = []
+
+    try:
+        for entry in os.listdir(root):
+            path = os.path.join(root, entry)
+            if os.path.isdir(path):
+                files += list_files_recursive(path)
+            else:
+                files.append(path.replace(os.path.sep, '/'))
+    except FileNotFoundError:
+        pass
+
+    return files

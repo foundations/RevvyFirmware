@@ -14,7 +14,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('name', help='Component name')
     parser.add_argument('--create', help='Create component', action='store_true')
-    parser.add_argument('--update-files', help='Update component file list in configuration', action='store_true')
     parser.add_argument('--cleanup', help='Remove backups', action='store_true')
 
     args = parser.parse_args()
@@ -26,7 +25,7 @@ if __name__ == "__main__":
     rt.add_plugin(project_config_compactor())
     rt.add_plugin(builtin_data_types())
     rt.add_plugin(runtime_events())
-    rt.add_plugin(atmel_studio_support())
+    rt.add_plugin(atmel_studio_support('rrrc_samd51.cproj'))
 
     rt.load(False)
     project_config = rt._project_config
@@ -66,25 +65,16 @@ if __name__ == "__main__":
 
         ft.create_folder(os.path.join(rt.settings['components_folder'], component_name))
 
-        # create component configuration json
-        ft.update_file(config_json_path, rt.dump_component_config(component_name))
-
         # add component to project json
         ft.update_file('project.json', rt.dump_project_config())
-
-        component_files = [
-            'config.json'
-        ]
     else:
         try:
             rt.load_component_config(component_name)
-            if args.update_files:
-                component_files = ['config.json']
         except FileNotFoundError:
             print("Component {} does not exists. Did you mean to --create?".format(component_name))
             sys.exit(2)
 
-    files = rt.update_component(component_name, component_files)
+    files = rt.update_component(component_name)
 
     for filename, contents in files.items():
         ft.update_file(filename, contents)

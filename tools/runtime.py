@@ -268,11 +268,11 @@ class Runtime:
 
         print('Loaded configuration for {}'.format(project_config['settings']['name']))
 
+        self._project_config = project_config
+
         for plugin_name in self.settings['required_plugins']:
             if plugin_name not in self._plugins:
                 raise Exception('Project requires {} plugin, which is not loaded'.format(plugin_name))
-
-        self._project_config = project_config
 
         if load_components:
             for component_name in project_config['components']:
@@ -331,12 +331,20 @@ class Runtime:
 
         return defs, includes
 
-    def update_component(self, component_name, component_files=None):
+    def update_component(self, component_name):
         self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
 
+        component_folder = os.path.join(self.settings['components_folder'], component_name)
+        source_file = os.path.join(component_folder, component_name + '.c')
+        header_file = os.path.join(component_folder, component_name + '.h')
+        config_file = os.path.join(component_folder, 'config.json')
+
         context = {
-            'functions': self.functions,
-            'files':     {}
+            'runtime':          self,
+            'component_folder': component_folder,
+            'functions':        self.functions,
+            'files':            {config_file: ''},
+            'folders':          [component_name]
         }
 
         self._call_plugin_event('before_generating_component', component_name, context)
@@ -370,13 +378,13 @@ class Runtime:
             'function_headers': function_headers
         }
 
-        component_folder = os.path.join(self.settings['components_folder'], component_name)
+        context['files'][config_file] = self.dump_component_config(component_name)
+        context['files'][source_file] = chevron.render(source_template, ctx)
+        context['files'][header_file] = chevron.render(component_header_template, ctx)
 
-        return {
-            **context['files'],
-            os.path.join(component_folder, component_name + '.c'): chevron.render(source_template, ctx),
-            os.path.join(component_folder, component_name + '.h'): chevron.render(component_header_template, ctx)
-        }
+        self._call_plugin_event('generating_component', component_name, context)
+
+        return context['files']
 
     def add_signal_type(self, name, signal_type: SignalType):
         self._signal_types[name] = signal_type
