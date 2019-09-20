@@ -1,9 +1,8 @@
 import argparse
 import sys
 import os
-import shutil
 
-from tools.generator_common import change_file
+from tools.generator_common import FileTransaction
 from tools.plugins.AtmelStudioSupport import atmel_studio_support
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
@@ -44,6 +43,8 @@ if __name__ == "__main__":
     new_files = {}
     modified_files = {}
 
+    ft = FileTransaction(os.path.realpath('.'))
+
     config_json_path = component_file('config.json')
     if args.create:
 
@@ -65,14 +66,13 @@ if __name__ == "__main__":
         project_config['components'].append(component_name)
         project_config['components'] = sorted(project_config['components'])
 
-        # Create component skeleton
-        new_folders.append(os.path.join(project_config['settings']['components_folder'], component_name))
+        ft.create_folder(os.path.join(project_config['settings']['components_folder'], component_name))
 
         # create component configuration json
-        new_files[config_json_path] = rt.dump_component_config(component_name)
+        ft.update_file(config_json_path, rt.dump_component_config(component_name))
 
-        # replace sources list with new one and set for file modification
-        modified_files['project.json'] = rt.dump_project_config()
+        # add component to project json
+        ft.update_file('project.json', rt.dump_project_config())
     else:
         try:
             rt.load_component_config(component_name)
@@ -82,59 +82,7 @@ if __name__ == "__main__":
 
     files = rt.update_component(component_name)
 
+    for filename, contents in files.items():
+        ft.update_file(filename, contents)
 
-    def update_file(file_path, contents):
-        if not os.path.isfile(file_path):
-            new_files[file_path] = contents
-        else:
-            modified_files[file_path] = contents
-
-
-    if args.update_header:
-        update_file(component_file(component_name + '.h'), files[component_name + '.h'])
-
-    if args.update_source:
-        update_file(component_file(component_name + '.c'), files[component_name + '.c'])
-
-    try:
-        for folder in new_folders:
-            print('NF: {}'.format(folder))
-            os.makedirs(folder, exist_ok=True)
-
-        for file_name, contents in new_files.items():
-            print('N: {}'.format(file_name))
-            with open(file_name, 'w+') as file:
-                file.write(contents)
-
-
-        def modify_file(fn, modified_contents):
-            shutil.copy(fn, fn + ".bak")
-            change_file(fn, modified_contents)
-
-            if args.cleanup:
-                os.remove(fn + ".bak")
-
-
-        for file_name, contents in modified_files.items():
-            print('C: {}'.format(file_name))
-            modify_file(file_name, contents)
-
-    except Exception:
-        def delete(path):
-            try:
-                os.remove(path)
-            except FileNotFoundError:
-                pass
-
-
-        for file_name in new_files:
-            delete(file_name)
-
-        for file_name in modified_files:
-            delete(file_name)
-            shutil.move(file_name + ".bak", file_name)
-
-        for folder in new_folders:
-            shutil.rmtree(folder)
-
-        raise
+    ft.apply()

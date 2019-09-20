@@ -1,6 +1,7 @@
 import argparse
+import os
 
-from tools.generator_common import change_file
+from tools.generator_common import FileTransaction
 from tools.plugins.BuiltinDataTypes import builtin_data_types
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
@@ -22,5 +23,9 @@ if __name__ == "__main__":
     rt.load(True)
 
     files = rt.generate_runtime(args.output)
+
+    ft = FileTransaction(os.path.realpath('.'))
     for file_name, contents in files.items():
-        change_file(file_name, contents)
+        ft.update_file(file_name, contents)
+
+    ft.apply(delete_backups=True)

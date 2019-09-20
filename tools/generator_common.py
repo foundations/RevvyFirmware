@@ -1,4 +1,6 @@
+import os
 import re
+import shutil
 
 
 class TypeCollection:
@@ -13,20 +15,20 @@ class TypeCollection:
 
     def __init__(self):
         self._type_data = {
-            'void': {
-                'type': TypeCollection.BUILTIN,
+            'void':  {
+                'type':          TypeCollection.BUILTIN,
                 'pass_semantic': TypeCollection.PASS_BY_VALUE,
                 'default_value': None
             },
             'void*': {
-                'type': TypeCollection.BUILTIN,
+                'type':          TypeCollection.BUILTIN,
                 'pass_semantic': TypeCollection.PASS_BY_VALUE,
                 'default_value': 'NULL'
             }
         }
         self._resolved_names = {'void': 'void'}
         self._renderers = {
-            'void': None,
+            'void':  None,
             'void*': None
         }
 
@@ -129,7 +131,7 @@ class TypeCollection:
 
     def generate_typedef(self, type_name):
         renderer = self._renderers[type_name]
-        return renderer(self, type_name) if renderer else None
+        return renderer(self, type_name) if callable(renderer) else None
 
 
 def to_underscore(name):
@@ -141,20 +143,6 @@ def to_underscore(name):
     """
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
-
-def change_file(filename, contents):
-    try:
-        with open(filename, "r") as f:
-            file_changed = contents != f.read()
-    except FileNotFoundError:
-        file_changed = True
-
-    if file_changed:
-        with open(filename, "w+") as f:
-            f.write(contents)
-
-    return file_changed
 
 
 def chevron_list_mark_last(data, last_key='last'):
@@ -224,3 +212,110 @@ def unique(values: list):
         if value not in unique_values:
             unique_values.append(value)
     return unique_values
+
+
+def delete(path):
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
+
+
+def copy_file(src, dst):
+    shutil.copy(src, dst)
+    print('Copied: {} -> {}'.format(src, dst))
+
+
+def change_file(filename, contents):
+    """
+    Update filename with contents
+
+    If the file already exists, copies it to a unique backup file
+    :param filename: the filename to write to
+    :param contents: new file contents
+    :return: True if the file is created, False if up to date, string if a backup was created before write
+    """
+    try:
+        with open(filename, "r") as f:
+            file_changed = contents != f.read()
+        file_exists = True
+    except FileNotFoundError:
+        file_changed = True
+        file_exists = False
+
+    if file_exists:
+        if not file_changed:
+            return False
+
+        i = 0
+        backup = filename + ".bak"
+        while os.path.isfile(backup):
+            i += 1
+            backup = "{}.bak{}".format(filename, i)
+
+        copy_file(filename, backup)
+
+        with open(filename, "w+") as f:
+            f.write(contents)
+
+        return backup
+    else:
+        with open(filename, "w+") as f:
+            f.write(contents)
+
+        return True
+
+
+class FileTransaction:
+    def __init__(self, root):
+        self._root = root
+        self._new_folders = []
+        self._files = {}
+
+    def create_folder(self, folder):
+        self._new_folders.append(folder.replace('/', os.path.sep))
+
+    def update_file(self, file_name, contents):
+        self._files[file_name.replace('/', os.path.sep)] = contents
+
+    def apply(self, delete_backups=False):
+        backups = {}
+        new_files = []
+        try:
+            for folder in self._new_folders:
+                try:
+                    os.makedirs(os.path.join(self._root, folder))
+                    print('New folder: {}'.format(folder))
+                except OSError:
+                    print('Skipped folder: {}'.format(folder))
+
+            for file_name, contents in self._files.items():
+                file_path = os.path.join(self._root, file_name)
+
+                result = change_file(file_path, contents)
+                if type(result) is str:
+                    print('Modified: {}'.format(file_path))
+                    backups[file_path] = result
+                elif result:
+                    print('Created: {}'.format(file_path))
+                    new_files.append(file_path)
+                else:
+                    print('Up to date: {}'.format(file_path))
+
+            if delete_backups:
+                for file_name, backup in backups.items():
+                    print('Deleted: {}'.format(backup))
+                    delete(backup)
+
+        except Exception:
+            for file_name in new_files:
+                delete(file_name)
+
+            for file_name, backup in backups.items():
+                delete(file_name)
+                shutil.move(backup, file_name)
+
+            for folder in self._new_folders:
+                shutil.rmtree(folder)
+
+            raise

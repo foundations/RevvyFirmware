@@ -1,8 +1,10 @@
 import json
+import os
 
 import chevron
 
-from tools.generator_common import TypeCollection, copy, dict_to_chevron_list, to_underscore, list_to_chevron_list, unique
+from tools.generator_common import TypeCollection, copy, dict_to_chevron_list, to_underscore, list_to_chevron_list, \
+    unique
 
 runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
@@ -307,10 +309,9 @@ class Runtime:
         includes = set()
         if type(type_name) is str:
             try:
-                type_data = self._types.get(type_name)
+                self._types.get(type_name)
             except KeyError:
                 type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
-                type_data = self._types.get(type_name)
 
             resolved_type_data = self._types[type_name]
             if resolved_type_data['type'] == TypeCollection.EXTERNAL_DEF:
@@ -336,7 +337,8 @@ class Runtime:
         self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
 
         context = {
-            'functions': self.functions
+            'functions': self.functions,
+            'files':     {}
         }
 
         self._call_plugin_event('before_generating_component', component_name, context)
@@ -346,12 +348,12 @@ class Runtime:
         functions = [fn.get_function() for fn in funcs]
 
         includes = [
-            {'header': '"{}.h"'.format(component_name)},
-            {'header': '"utils.h"'}
+            '"{}.h"'.format(component_name),
+            '"utils.h"'
         ]
         for f in funcs:
             if f._asserts:
-                includes.append({'header': '"utils_assert.h"'})
+                includes.append('"utils_assert.h"')
                 break
 
         types, type_includes = self._process_type(self._components[component_name].get('types', []))
@@ -360,8 +362,8 @@ class Runtime:
             types += t
             type_includes.update(i)
 
-        template_ctx = {
-            'includes':         includes,
+        ctx = {
+            'includes':         list_to_chevron_list(includes, 'header'),
             'component_name':   component_name,
             'guard_def':        to_underscore(component_name).upper(),
             'types':            unique(types),
@@ -370,9 +372,12 @@ class Runtime:
             'function_headers': function_headers
         }
 
+        component_folder = os.path.join(self._project_config['settings']['components_folder'], component_name)
+
         return {
-            component_name + '.c': chevron.render(source_template, template_ctx),
-            component_name + '.h': chevron.render(component_header_template, template_ctx)
+            **context['files'],
+            os.path.join(component_folder, component_name + '.c'): chevron.render(source_template, ctx),
+            os.path.join(component_folder, component_name + '.h'): chevron.render(component_header_template, ctx)
         }
 
     def add_signal_type(self, name, signal_type: SignalType):
