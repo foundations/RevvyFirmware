@@ -54,6 +54,11 @@ typedef enum {
 typedef float Temperature_t;
 
 typedef struct {
+    Temperature_t MaxSafeTemperature;
+    Temperature_t MaxAllowedTemperature;
+} MotorDeratingParameters_t;
+
+typedef struct {
     float resistance;
     float coeff_cooling;
     float coeff_heating;

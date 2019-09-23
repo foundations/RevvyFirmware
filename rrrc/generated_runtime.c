@@ -16,6 +16,7 @@ static Voltage_t ADCDispatcher_MainBatteryVoltage_BatteryCalculator_MainBatteryV
 static Voltage_t ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatteryVoltage_variable = 0.0f;
 static uint8_t ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[4] = { 0u, 0u, 0u, 0u };
 static Current_t MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+static Temperature_t MotorThermalModel_Temperature_MotorDerating_MotorTemperature_array[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 void Runtime_Call_OnInit(void)
 {
@@ -58,6 +59,7 @@ void Runtime_Call_10ms_offset0(void)
 {
     BatteryCharger_Run_Update();
     WatchdogFeeder_Run_Feed();
+    MotorDerating_Run_OnUpdate();
     DriveTrain_Run_Update();
 }
 
@@ -301,9 +303,15 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
     MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[index] = value;
 }
 
+void MotorDerating_Write_DeratedControlValue(uint32_t index, const int8_t value)
+{
+    ASSERT(index < 6);
+}
+
 void MotorThermalModel_Write_Temperature(uint32_t index, const Temperature_t value)
 {
     ASSERT(index < 6);
+    MotorThermalModel_Temperature_MotorDerating_MotorTemperature_array[index] = value;
 }
 
 Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
@@ -388,6 +396,12 @@ Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
 {
     ASSERT(index < 6);
     return ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[index];
+}
+
+Temperature_t MotorDerating_Read_MotorTemperature(uint32_t index)
+{
+    ASSERT(index < 6);
+    return MotorThermalModel_Temperature_MotorDerating_MotorTemperature_array[index];
 }
 
 Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)

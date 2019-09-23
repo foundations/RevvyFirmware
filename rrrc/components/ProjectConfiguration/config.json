@@ -7,6 +7,9 @@
         "Voltage_t": {
             "aliases": "float"
         },
+        "Temperature_t": {
+            "aliases": "float"
+        },
         "BatteryConfiguration_t": {
             "type": "struct",
             "fields": {
@@ -21,6 +24,13 @@
                 "resistance": "float",
                 "coeff_cooling": "float",
                 "coeff_heating": "float"
+            }
+        },
+        "MotorDeratingParameters_t": {
+            "type": "struct",
+            "fields": {
+                "MaxSafeTemperature": "Temperature_t",
+                "MaxAllowedTemperature": "Temperature_t"
             }
         }
     },
@@ -40,6 +50,11 @@
             "port_type": "Constant",
             "value": "(MotorThermalParameters_t) { .resistance = 3.5f, .coeff_cooling = 0.02f, .coeff_heating = 0.2f }",
             "data_type": "MotorThermalParameters_t"
+        },
+        "MotorDeratingParameters": {
+            "port_type": "Constant",
+            "value": "(MotorDeratingParameters_t) { .MaxSafeTemperature = 70.0f, .MaxAllowedTemperature = 130.0f }",
+            "data_type": "MotorDeratingParameters_t"
         }
     }
 }

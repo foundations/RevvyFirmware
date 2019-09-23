@@ -15,6 +15,12 @@ void ProjectConfiguration_Constant_MotorBatteryParameters(BatteryConfiguration_t
     *value = (BatteryConfiguration_t) {.detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f};
 }
 
+void ProjectConfiguration_Constant_MotorDeratingParameters(MotorDeratingParameters_t* value)
+{
+    ASSERT(value != NULL);
+    *value = (MotorDeratingParameters_t) { .MaxSafeTemperature = 70.0f, .MaxAllowedTemperature = 130.0f };
+}
+
 void ProjectConfiguration_Constant_MotorThermalParameters(MotorThermalParameters_t* value)
 {
     ASSERT(value != NULL);

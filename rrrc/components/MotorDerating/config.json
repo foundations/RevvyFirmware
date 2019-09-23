@@ -3,5 +3,42 @@
     "source_files": [
         "MotorDerating.c"
     ],
-    "runnables": {}
+    "types": {
+        "Temperature_t": {
+            "aliases": "float"
+        },
+        "MotorDeratingParameters_t": {
+            "type": "struct",
+            "fields": {
+                "MaxSafeTemperature": "Temperature_t",
+                "MaxAllowedTemperature": "Temperature_t"
+            }
+        }
+    },
+    "runnables": {
+        "OnUpdate": {}
+    },
+    "ports": {
+        "MotorTemperature": {
+            "port_type": "ReadIndexedValue",
+            "default_value": "(Temperature_t) 20.0f",
+            "data_type": "Temperature_t",
+            "count": 6
+        },
+        "ControlValue": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "int8_t",
+            "count": 6
+        },
+        "DeratedControlValue": {
+            "port_type": "WriteIndexedData",
+            "data_type": "int8_t",
+            "count": 6
+        },
+        "Parameters": {
+            "port_type": "ReadValue",
+            "data_type": "MotorDeratingParameters_t"
+        }
+    }
 }

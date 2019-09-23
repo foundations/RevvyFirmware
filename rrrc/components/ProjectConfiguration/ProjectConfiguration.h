@@ -7,6 +7,7 @@
 #include <float.h>
 
 typedef float Voltage_t;
+typedef float Temperature_t;
 
 typedef struct {
     Voltage_t detectionVoltage;
@@ -20,10 +21,16 @@ typedef struct {
     float coeff_heating;
 } MotorThermalParameters_t;
 
+typedef struct {
+    Temperature_t MaxSafeTemperature;
+    Temperature_t MaxAllowedTemperature;
+} MotorDeratingParameters_t;
+
 #endif /* COMPONENT_TYPES_PROJECT_CONFIGURATION_H_ */
 
 void ProjectConfiguration_Constant_MainBatteryParameters(BatteryConfiguration_t* value);
 void ProjectConfiguration_Constant_MotorBatteryParameters(BatteryConfiguration_t* value);
+void ProjectConfiguration_Constant_MotorDeratingParameters(MotorDeratingParameters_t* value);
 void ProjectConfiguration_Constant_MotorThermalParameters(MotorThermalParameters_t* value);
 
 #endif /* COMPONENT_PROJECT_CONFIGURATION_H_ */

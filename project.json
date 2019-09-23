@@ -233,6 +233,7 @@
             "10ms_offset0": [
                 "BatteryCharger/Update",
                 "WatchdogFeeder/Feed",
+                "MotorDerating/OnUpdate",
                 "DriveTrain/Update"
             ],
             "10ms_offset1": [],
@@ -364,6 +365,10 @@
             },
             {
                 "provider": "MotorThermalModel/Temperature",
+                "consumer": "MotorDerating/MotorTemperature"
+            },
+            {
+                "provider": "MotorDerating/DeratedControlValue",
                 "consumers": []
             },
             {
