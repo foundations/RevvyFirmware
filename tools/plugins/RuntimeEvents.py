@@ -98,7 +98,7 @@ port_type_data = {
         },
         'default_impl':   lambda types, runnable_data: {
             'func_name_pattern': '{}_Run_{}',
-            'return_type':       'void',
+            'return_type':       runnable_data['return_type'],
             'arguments':         runnable_data['arguments']
         }
     },
