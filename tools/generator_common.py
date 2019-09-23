@@ -31,8 +31,9 @@ class TypeCollection:
             'void':  None,
             'void*': None
         }
+        self._value_formatters = {}
 
-    def add(self, type_name, info, renderer):
+    def add(self, type_name, info, renderer, value_formatter):
         if type_name in self._type_data:
             # type already exists, check if they are the same
             resolved_known = self.resolve(type_name)
@@ -60,6 +61,7 @@ class TypeCollection:
         else:
             self._type_data[type_name] = info
             self._renderers[type_name] = renderer
+            self._value_formatters[type_name] = value_formatter
 
     def _resolve(self, type_name, past):
         if type_name not in self._type_data:
@@ -96,6 +98,11 @@ class TypeCollection:
 
         else:
             return resolved['default_value']
+
+    def render_value(self, type_name, value):
+        resolved = self.resolve(type_name)
+
+        return self._value_formatters[resolved](self, type_name, self[resolved], value)
 
     def passed_by(self, type_name):
         resolved = self.get(type_name)

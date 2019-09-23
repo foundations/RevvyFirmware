@@ -39,22 +39,37 @@
         "MainBatteryParameters": {
             "port_type": "Constant",
             "data_type": "BatteryConfiguration_t",
-            "value": "(BatteryConfiguration_t) {.detectionVoltage = 2000.0f, .minVoltage = 3400.0f, .maxVoltage = 4100.0f}"
+            "value": {
+                "detectionVoltage": "2000.0f",
+                "minVoltage": "3400.0f",
+                "maxVoltage": "4100.0f"
+            }
         },
         "MotorBatteryParameters": {
             "port_type": "Constant",
             "data_type": "BatteryConfiguration_t",
-            "value": "(BatteryConfiguration_t) {.detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f}"
+            "value": {
+                "detectionVoltage": "4000.0f",
+                "minVoltage": "5400.0f",
+                "maxVoltage": "7000.0f"
+            }
         },
         "MotorThermalParameters": {
             "port_type": "Constant",
-            "value": "(MotorThermalParameters_t) { .resistance = 3.5f, .coeff_cooling = 0.02f, .coeff_heating = 0.2f }",
-            "data_type": "MotorThermalParameters_t"
+            "data_type": "MotorThermalParameters_t",
+            "value": {
+                "resistance": "3.5f",
+                "coeff_cooling": "0.02f",
+                "coeff_heating": "0.2f"
+            }
         },
         "MotorDeratingParameters": {
             "port_type": "Constant",
-            "value": "(MotorDeratingParameters_t) { .MaxSafeTemperature = 70.0f, .MaxAllowedTemperature = 130.0f }",
-            "data_type": "MotorDeratingParameters_t"
+            "data_type": "MotorDeratingParameters_t",
+            "value": {
+                "MaxSafeTemperature": "70.0f",
+                "MaxAllowedTemperature": "130.0f"
+            }
         }
     }
 }

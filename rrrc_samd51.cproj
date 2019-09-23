@@ -1410,7 +1410,16 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\MotorThermalModel\config.json">
       <SubType>compile</SubType>
     </Compile>
-  <Compile Include="rrrc\components\ProjectConfiguration\ProjectConfiguration.h"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\ProjectConfiguration\ProjectConfiguration.c"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MotorDerating\config.json"><SubType>compile</SubType></Compile></ItemGroup>
+    <Compile Include="rrrc\components\ProjectConfiguration\ProjectConfiguration.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\ProjectConfiguration\ProjectConfiguration.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorDerating\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
     <Folder Include="Atmel\hal\" />

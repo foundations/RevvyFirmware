@@ -418,6 +418,14 @@ def render_struct_typedef(type_collection: TypeCollection, type_name):
     return chevron.render(**context)
 
 
+def struct_formatter(types, type_name, type_data, struct_value):
+    if type(struct_value) is str:
+        return struct_value
+
+    values = ['.{} = {}'.format(name, types.render_value(type_data['fields'][name], value)) for name, value in struct_value.items()]
+    return '({}) {{ {} }}'.format(type_name, ', '.join(values))
+
+
 type_info = {
     TypeCollection.ALIAS:        {
         'typedef_renderer': render_alias_typedef,
@@ -451,6 +459,7 @@ type_info = {
 
     TypeCollection.STRUCT:       {
         'typedef_renderer': render_struct_typedef,
+        'value_formatter': struct_formatter,
         'attributes':     {
             'required': ['fields', 'default_value'],
             'optional': {'pass_semantic': TypeCollection.PASS_BY_POINTER},
@@ -674,7 +683,7 @@ port_type_data = {
             'pointer': lambda types, port_data: {
                 'return_type': 'void',
                 'arguments':   {'value': '{}*'.format(port_data['data_type'])},
-                'body':        '*value = {};'.format(port_data['value']),
+                'body':        '*value = {};'.format(types.render_value(port_data['data_type'], port_data['value'])),
                 'asserts':     'value != NULL'
             }
         }
@@ -741,10 +750,16 @@ def init(owner):
         owner.add_signal_type(signal_name, signal)
 
 
+def add_type_def(owner, type_name, type_data):
+    type_type_data = process_type_def(type_name, type_data)
+    type_type_info = type_info[type_type_data['type']]
+    value_formatter = type_type_info.get('value_formatter', lambda types, type_name, type_data, x: str(x))
+    owner.types.add(type_name, type_type_data, type_type_info['typedef_renderer'], value_formatter)
+
+
 def process_project_types(owner, project_config):
     for type_name, type_data in project_config.get('types', {}).items():
-        type_type_data = process_type_def(type_name, type_data)
-        owner.types.add(type_name, type_type_data, type_info[type_type_data['type']]['typedef_renderer'])
+        add_type_def(owner, type_name, type_data)
 
 
 def process_component_ports_and_types(owner, component_name, component_config):
@@ -753,8 +768,7 @@ def process_component_ports_and_types(owner, component_name, component_config):
         print('Warning: {} has no ports'.format(component_name))
 
     for type_name, type_data in component_config.get('types', {}).items():
-        type_type_data = process_type_def(type_name, type_data)
-        owner.types.add(type_name, type_type_data, type_info[type_type_data['type']]['typedef_renderer'])
+        add_type_def(owner, type_name, type_data)
 
 
 def create_component_ports(owner: Runtime, component_name, component_data):
@@ -768,7 +782,10 @@ def create_component_ports(owner: Runtime, component_name, component_data):
                 function.add_attribute(attribute)
 
             function.add_body(function_data.get('body', []))
-            function.set_return_statement(function_data.get('return_value'))
+            return_value = function_data.get('return_value')
+            if return_value is not None:
+                return_value = owner.types.render_value(port_data['data_type'], return_value)
+            function.set_return_statement(return_value)
 
             owner.add_function(port_data['short_name'], function)
 
