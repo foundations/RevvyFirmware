@@ -160,6 +160,10 @@ class FunctionDescriptor:
         body += [chunk.replace('\n', '\n    ') for chunk in self._body]
         if self._return_statement:
             body.append('return {};'.format(self._return_statement))
+
+        def remove_trailing_spaces(l):
+            return '\n'.join([line.rstrip(' ') for line in l.split('\n')])
+
         ctx = {
             'template': "{{# attributes }}__attribute__(({{ . }}))\n{{/ attributes }}"
                         "{{ header }}\n"
@@ -172,7 +176,7 @@ class FunctionDescriptor:
             'data':     {
                 'header':     self.get_header(),
                 'attributes': list(self._attributes),
-                'body':       body
+                'body':       [remove_trailing_spaces(line) for line in body]
             }
         }
         return chevron.render(**ctx)

@@ -12,7 +12,7 @@ def parse_file(file_path):
 
         # parse contents
         matches = re.findall(
-            '/\\* Begin User Code Section: (?P<secname>.*?) \\*/(?P<usercode>.*?)/\\* End User Code Section: (?P=secname) \\*/',
+            '/\\* Begin User Code Section: (?P<secname>.*?) \\*/\n(?P<usercode>.*?)/\\* End User Code Section: (?P=secname) \\*/',
             contents, re.DOTALL)
 
         for secname, usercode in matches:
@@ -25,7 +25,13 @@ def parse_file(file_path):
 
 def format_section(section_name, contents):
     template = '/* Begin User Code Section: {0} */\n{1}\n/* End User Code Section: {0} */'
-    return template.format(section_name, contents.replace('\n    ', '\n').strip('\n'))
+    indent_level = len(contents) - len(contents.lstrip(' '))
+    # remove indentation
+    if indent_level > 0:
+        pattern = '^( {{{}}})'.format(indent_level)
+        contents = re.sub(pattern, '', contents, flags=re.MULTILINE)
+
+    return template.format(section_name, contents.strip('\n'))
 
 
 def add_sections_to_component(owner: Runtime, component_name, context: dict):
@@ -37,7 +43,7 @@ def add_sections_to_component(owner: Runtime, component_name, context: dict):
         context['declarations'].insert(0, format_section('Declarations', sections.get('Declarations', '')))
 
         for name, function in context['functions'].items():
-            name = name[name.rfind('/')+1:]  # don't need to have the component name
+            name = name[name.rfind('/') + 1:]  # don't need to have the component name
             secname = name + ' Start'
             function.prepend_body(format_section(secname, sections.get(secname, '')))
 
@@ -65,5 +71,5 @@ def add_sections_to_runtime(owner: Runtime, context: dict):
 def user_code_plugin():
     return RuntimePlugin("UserCodePlugin", handlers={
         'before_generating_component': add_sections_to_component,
-        'before_generating_runtime': add_sections_to_runtime
+        'before_generating_runtime':   add_sections_to_runtime
     })
