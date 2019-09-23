@@ -463,15 +463,18 @@ type_info = {
 
 
 def process_type_def(type_name, type_def):
+    type_data = type_def.copy()
     # determine type of definition
-    if 'type' in type_def:
-        type_type = type_def['type']
-        del type_def['type']
+    if 'type' in type_data:
+        type_type = type_data['type']
+        del type_data['type']
     else:
-        if 'defined_in' in type_def:
+        if 'defined_in' in type_data:
             type_type = TypeCollection.EXTERNAL_DEF
-        elif 'aliases' in type_def:
+        elif 'aliases' in type_data:
             type_type = TypeCollection.ALIAS
+        elif 'fields' in type_data:
+            type_type = TypeCollection.STRUCT
         else:
             raise Exception('Invalid type definition for {}'.format(type_name))
 
@@ -479,7 +482,7 @@ def process_type_def(type_name, type_def):
         attrs = type_info[type_type]['attributes']
         return {
             **attrs['static'],
-            **copy(type_def, required=attrs['required'], optional=attrs['optional'])
+            **copy(type_data, required=attrs['required'], optional=attrs['optional'])
         }
     except KeyError:
         print('Unknown type {} set for {}'.format(type_type, type_name))
@@ -495,6 +498,17 @@ def init_constant_array(types, port_data):
     return {
         'func_name_pattern': '{}_Constant_{}'
     }
+
+
+def get_default_value(types, port_data):
+    """Return the default value for a particular port
+
+    If a return value is not specified (or is None), return the default value for the data type"""
+    specified_return_value = port_data['default_value']
+    if specified_return_value is None:
+        return types.default_value(port_data['data_type'])
+    else:
+        return specified_return_value
 
 
 port_type_data = {
@@ -517,7 +531,7 @@ port_type_data = {
             'value':   lambda types, port_data: {
                 'return_type':  port_data['data_type'],
                 'arguments':    {},
-                'return_value': port_data.get('default_value', types.default_value(port_data['data_type']))
+                'return_value': get_default_value(types, port_data)
             },
             'pointer': lambda types, port_data: {
                 'return_type': 'void',
@@ -568,7 +582,7 @@ port_type_data = {
             'value':   lambda types, port_data: {
                 'return_type':  port_data['data_type'],
                 'arguments':    {'index': 'uint32_t'},
-                'return_value': port_data.get('default_value', types.default_value(port_data['data_type'])),
+                'return_value': get_default_value(types, port_data),
                 'asserts':      'index < {}'.format(port_data['count'])
             },
             'pointer': lambda types, port_data: {
@@ -779,12 +793,23 @@ def sort_functions(owner: Runtime, context):
     context['functions'] = {fn: context['functions'][fn] for fn in by_port_type}
 
 
+def cleanup_component(owner, component_name, ctx):
+    sort_functions(owner, ctx)
+
+    component_ports = owner._components[component_name]['ports']
+    for port in component_ports.values():
+        try:
+            del port['short_name']
+        except KeyError:
+            pass
+
+
 def builtin_data_types():
     return RuntimePlugin("BuiltinDataTypes", {
         'init':                        init,
         'load_project_config':         process_project_types,
         'load_component_config':       process_component_ports_and_types,
         'create_component_ports':      create_component_ports,
-        'before_generating_component': lambda owner, component_name, ctx: sort_functions(owner, ctx),
+        'before_generating_component': cleanup_component,
         'before_generating_runtime':   sort_functions
     })

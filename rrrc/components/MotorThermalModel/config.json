@@ -26,11 +26,13 @@
     "ports": {
         "MotorCurrent": {
             "port_type": "ReadIndexedValue",
+            "default_value": null,
             "data_type": "Current_t",
             "count": 6
         },
         "ThermalParameters": {
             "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "MotorThermalParameters_t"
         },
         "Temperature": {
@@ -40,8 +42,8 @@
         },
         "AmbientTemperature": {
             "port_type": "ReadValue",
-            "data_type": "Temperature_t",
-            "default_value": "(Temperature_t) 20.0f"
+            "default_value": "(Temperature_t) 20.0f",
+            "data_type": "Temperature_t"
         }
     }
 }

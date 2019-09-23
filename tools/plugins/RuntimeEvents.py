@@ -268,6 +268,14 @@ def remove_runtime_component(owner, config):
     config['runtime']['port_connections'] = port_connections
 
 
+def cleanup_component(owner, component_name, ctx):
+    # remove automatically generated runnable ports
+    component_data = owner._components[component_name]
+    component_data['ports'] = {name: port for name, port in component_data['ports'].items() if name not in component_data['runnables']}
+
+    sort_functions(owner, ctx)
+
+
 def runtime_events():
     """Plugin that provides support for simple runtime event creation and configuration"""
     return RuntimePlugin("RuntimeEvents", {
@@ -275,7 +283,7 @@ def runtime_events():
         'load_component_config':       create_runnable_ports,
         'project_config_loaded':       expand_runtime_events,
         'create_component_ports':      create_component_runnables,
-        'before_generating_component': lambda owner, component_name, ctx: sort_functions(owner, ctx),
+        'before_generating_component': cleanup_component,
         'before_generating_runtime':   add_exported_declarations,
         'save_project_config':         remove_runtime_component
     }, requires=['BuiltinDataTypes'])
