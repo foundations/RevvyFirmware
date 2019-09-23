@@ -422,14 +422,15 @@ def struct_formatter(types, type_name, type_data, struct_value):
     if type(struct_value) is str:
         return struct_value
 
-    values = ['.{} = {}'.format(name, types.render_value(type_data['fields'][name], value)) for name, value in struct_value.items()]
+    values = ['.{} = {}'.format(name, types.render_value(type_data['fields'][name], value)) for name, value in
+              struct_value.items()]
     return '({}) {{ {} }}'.format(type_name, ', '.join(values))
 
 
 type_info = {
     TypeCollection.ALIAS:        {
         'typedef_renderer': render_alias_typedef,
-        'attributes':     {
+        'attributes':       {
             'required': ['aliases'],
             'optional': {'default_value': None, 'pass_semantic': None},
             'static':   {
@@ -440,7 +441,7 @@ type_info = {
 
     TypeCollection.EXTERNAL_DEF: {
         'typedef_renderer': None,
-        'attributes':     {
+        'attributes':       {
             'required': ['defined_in', 'default_value'],
             'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
             'static':   {'type': TypeCollection.EXTERNAL_DEF}
@@ -449,7 +450,7 @@ type_info = {
 
     TypeCollection.ENUM:         {
         'typedef_renderer': render_enum_typedef,
-        'attributes':     {
+        'attributes':       {
             'required': ['values', 'default_value'],
             'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
             'static':   {
@@ -459,8 +460,8 @@ type_info = {
 
     TypeCollection.STRUCT:       {
         'typedef_renderer': render_struct_typedef,
-        'value_formatter': struct_formatter,
-        'attributes':     {
+        'value_formatter':  struct_formatter,
+        'attributes':       {
             'required': ['fields', 'default_value'],
             'optional': {'pass_semantic': TypeCollection.PASS_BY_POINTER},
             'static':   {
@@ -520,6 +521,11 @@ def get_default_value(types, port_data):
         return specified_return_value
 
 
+def get_default_value_formatted(types, port_data):
+    default_value = types.default_value(port_data['data_type'])
+    return types.render_value(port_data['data_type'], default_value)
+
+
 port_type_data = {
     'ReadValue':        {
         'order':          3,
@@ -545,7 +551,8 @@ port_type_data = {
             'pointer': lambda types, port_data: {
                 'return_type': 'void',
                 'arguments':   {'value': '{}*'.format(port_data['data_type'])},
-                'asserts':     'value != NULL'
+                'asserts':     'value != NULL',
+                'body':        '*value = {};'.format(get_default_value_formatted(types, port_data))
             }
         }
     },
@@ -603,7 +610,8 @@ port_type_data = {
                 'asserts':     [
                     'index < {}'.format(port_data['count']),
                     'value != NULL'
-                ]
+                ],
+                'body':        '*value = {};'.format(get_default_value_formatted(types, port_data))
             }
         }
     },

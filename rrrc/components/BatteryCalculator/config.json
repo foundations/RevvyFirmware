@@ -23,28 +23,32 @@
     "ports": {
         "MainBatteryParameters": {
             "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "BatteryConfiguration_t"
         },
         "MotorBatteryParameters": {
             "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "BatteryConfiguration_t"
         },
         "MainBatteryParametersChanged": {
             "port_type": "ReadValue",
-            "data_type": "bool",
-            "default_value": "false"
+            "default_value": "false",
+            "data_type": "bool"
         },
         "MotorBatteryParametersChanged": {
             "port_type": "ReadValue",
-            "data_type": "bool",
-            "default_value": "false"
+            "default_value": "false",
+            "data_type": "bool"
         },
         "MainBatteryVoltage": {
             "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "Voltage_t"
         },
         "MotorBatteryVoltage": {
             "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "Voltage_t"
         },
         "MainBatteryLevel": {

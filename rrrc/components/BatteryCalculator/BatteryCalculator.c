@@ -1,5 +1,8 @@
 #include "BatteryCalculator.h"
+#include "utils.h"
+#include "utils_assert.h"
 
+/* Begin User Code Section: Declarations */
 #include <math.h>
 #include "utils/functions.h"
 
@@ -80,9 +83,11 @@ static void _update_motor_battery(void)
         BatteryCalculator_Write_MotorBatteryLevel(0u);
     }
 }
+/* End User Code Section: Declarations */
 
 void BatteryCalculator_Run_OnInit(void)
 {
+    /* Begin User Code Section: OnInit Start */
     mainBatteryPrevious = 0.0f;
     mainBatteryBiasCorrection = 1.0f;
 
@@ -91,73 +96,140 @@ void BatteryCalculator_Run_OnInit(void)
 
     BatteryCalculator_Read_MainBatteryParameters(&mainBatteryParameters);
     BatteryCalculator_Read_MotorBatteryParameters(&motorBatteryParameters);
-    
+
     mainBatteryLow = true;
     BatteryCalculator_Write_MainBatteryLow(true);
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
+
+    /* End User Code Section: OnInit End */
 }
 
 void BatteryCalculator_Run_Update(void)
 {
+    /* Begin User Code Section: Update Start */
     _update_main_battery();
     _update_motor_battery();
+    /* End User Code Section: Update Start */
+    /* Begin User Code Section: Update End */
+
+    /* End User Code Section: Update End */
+}
+
+__attribute__((weak))
+void BatteryCalculator_Write_MainBatteryLevel(const uint8_t value)
+{
+    /* Begin User Code Section: MainBatteryLevel Start */
+
+    /* End User Code Section: MainBatteryLevel Start */
+    /* Begin User Code Section: MainBatteryLevel End */
+
+    /* End User Code Section: MainBatteryLevel End */
+}
+
+__attribute__((weak))
+void BatteryCalculator_Write_MainBatteryLow(const bool value)
+{
+    /* Begin User Code Section: MainBatteryLow Start */
+
+    /* End User Code Section: MainBatteryLow Start */
+    /* Begin User Code Section: MainBatteryLow End */
+
+    /* End User Code Section: MainBatteryLow End */
+}
+
+__attribute__((weak))
+void BatteryCalculator_Write_MotorBatteryLevel(const uint8_t value)
+{
+    /* Begin User Code Section: MotorBatteryLevel Start */
+
+    /* End User Code Section: MotorBatteryLevel Start */
+    /* Begin User Code Section: MotorBatteryLevel End */
+
+    /* End User Code Section: MotorBatteryLevel End */
+}
+
+__attribute__((weak))
+void BatteryCalculator_Write_MotorBatteryPresent(const bool value)
+{
+    /* Begin User Code Section: MotorBatteryPresent Start */
+
+    /* End User Code Section: MotorBatteryPresent Start */
+    /* Begin User Code Section: MotorBatteryPresent End */
+
+    /* End User Code Section: MotorBatteryPresent End */
 }
 
 __attribute__((weak))
 void BatteryCalculator_Read_MainBatteryParameters(BatteryConfiguration_t* value)
 {
-    *value = (BatteryConfiguration_t) { .detectionVoltage = 0.0f, .minVoltage = 0.0f, .maxVoltage = 0.0f };
-}
+    ASSERT(value != NULL);
+    /* Begin User Code Section: MainBatteryParameters Start */
 
-__attribute__((weak))
-void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value)
-{
+    /* End User Code Section: MainBatteryParameters Start */
     *value = (BatteryConfiguration_t) { .detectionVoltage = 0.0f, .minVoltage = 0.0f, .maxVoltage = 0.0f };
+    /* Begin User Code Section: MainBatteryParameters End */
+
+    /* End User Code Section: MainBatteryParameters End */
 }
 
 __attribute__((weak))
 bool BatteryCalculator_Read_MainBatteryParametersChanged(void)
 {
-    return false;
-}
+    /* Begin User Code Section: MainBatteryParametersChanged Start */
 
-__attribute__((weak))
-bool BatteryCalculator_Read_MotorBatteryParametersChanged(void)
-{
+    /* End User Code Section: MainBatteryParametersChanged Start */
+    /* Begin User Code Section: MainBatteryParametersChanged End */
+
+    /* End User Code Section: MainBatteryParametersChanged End */
     return false;
 }
 
 __attribute__((weak))
 Voltage_t BatteryCalculator_Read_MainBatteryVoltage(void)
 {
+    /* Begin User Code Section: MainBatteryVoltage Start */
+
+    /* End User Code Section: MainBatteryVoltage Start */
+    /* Begin User Code Section: MainBatteryVoltage End */
+
+    /* End User Code Section: MainBatteryVoltage End */
     return 0.0f;
+}
+
+__attribute__((weak))
+void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: MotorBatteryParameters Start */
+
+    /* End User Code Section: MotorBatteryParameters Start */
+    *value = (BatteryConfiguration_t) { .detectionVoltage = 0.0f, .minVoltage = 0.0f, .maxVoltage = 0.0f };
+    /* Begin User Code Section: MotorBatteryParameters End */
+
+    /* End User Code Section: MotorBatteryParameters End */
+}
+
+__attribute__((weak))
+bool BatteryCalculator_Read_MotorBatteryParametersChanged(void)
+{
+    /* Begin User Code Section: MotorBatteryParametersChanged Start */
+
+    /* End User Code Section: MotorBatteryParametersChanged Start */
+    /* Begin User Code Section: MotorBatteryParametersChanged End */
+
+    /* End User Code Section: MotorBatteryParametersChanged End */
+    return false;
 }
 
 __attribute__((weak))
 Voltage_t BatteryCalculator_Read_MotorBatteryVoltage(void)
 {
+    /* Begin User Code Section: MotorBatteryVoltage Start */
+
+    /* End User Code Section: MotorBatteryVoltage Start */
+    /* Begin User Code Section: MotorBatteryVoltage End */
+
+    /* End User Code Section: MotorBatteryVoltage End */
     return 0.0f;
-}
-
-__attribute__((weak))
-void BatteryCalculator_Write_MainBatteryLevel(uint8_t value)
-{
-    (void) value;
-}
-
-__attribute__((weak))
-void BatteryCalculator_Write_MotorBatteryLevel(uint8_t value)
-{
-    (void) value;
-}
-
-__attribute__((weak))
-void BatteryCalculator_Write_MotorBatteryPresent(bool value)
-{
-    (void) value;
-}
-
-__attribute__((weak))
-void BatteryCalculator_Write_MainBatteryLow(bool value)
-{
-    (void) value;
 }
