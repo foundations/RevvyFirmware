@@ -24,7 +24,7 @@ class EventSignal(SignalType):
         if len([arg for arg in consumer_port_data['arguments'] if arg not in argument_names]) != 0:
             raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
 
-        component_name, port_name = consumer_port_data['short_name'].split('/')
+        component_name, port_name = consumer_name.split('/')
 
         ctx = {
             'template': "{{ component }}_Run_{{ runnable }}({{ arguments }});",
@@ -58,7 +58,7 @@ class ServerCallSignal(SignalType):
         if len([arg for arg in consumer_port_data['arguments'] if arg not in argument_names]) != 0:
             raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
 
-        component_name, port_name = consumer_port_data['short_name'].split('/')
+        component_name, port_name = consumer_name.split('/')
 
         data = {
             'component': component_name,
@@ -214,7 +214,7 @@ def create_runnable_ports(owner: Runtime, component_name, component_data):
         }
 
 
-def create_component_runnables(owner: Runtime, component_name, component_data):
+def create_component_runnables(owner: Runtime, component_name, component_data, context):
     for port_name, port_data in component_data['ports'].items():
         port_type = port_data['port_type']
         if port_type in port_type_data:
@@ -229,7 +229,7 @@ def create_component_runnables(owner: Runtime, component_name, component_data):
             function.add_body(function_data.get('body', []))
             function.set_return_statement(function_data.get('return_value'))
 
-            owner.add_function(port_data['short_name'], function)
+            context['functions']['{}/{}'.format(component_name, port_name)] = function
 
 
 def add_exported_declarations(owner: Runtime, context):

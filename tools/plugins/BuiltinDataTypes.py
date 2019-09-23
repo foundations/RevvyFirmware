@@ -290,7 +290,7 @@ class ConstantSignal(SignalType):
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
 
-        component_name, port_name = provider_port_data['short_name'].split('/')
+        component_name, port_name = connection.provider.split('/')
         constant_provider_name = '{}_Constant_{}'.format(component_name, port_name)
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
@@ -781,7 +781,7 @@ def process_component_ports_and_types(owner: Runtime, component_name, component_
         add_type_def(owner, type_name, type_data)
 
 
-def create_component_ports(owner: Runtime, component_name, component_data):
+def create_component_ports(owner: Runtime, component_name, component_data, context):
     for port_name, port_data in component_data['ports'].items():
         port_type = port_data['port_type']
         if port_type in port_type_data:
@@ -797,14 +797,15 @@ def create_component_ports(owner: Runtime, component_name, component_data):
                 return_value = owner.types.render_value(port_data['data_type'], return_value)
                 function.set_return_statement(return_value)
 
-            owner.add_function(port_data['short_name'], function)
+            context['functions']['{}/{}'.format(component_name, port_name)] = function
 
 
 def sort_functions(owner: Runtime, context):
     def sort_by_name(fn):
+        # only sort functions of known port types
         port = owner.get_port(fn)
         if port['port_type'] in port_type_data:
-            return port['short_name']
+            return fn
         else:
             return '0'
 
