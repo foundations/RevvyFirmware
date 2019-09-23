@@ -131,6 +131,9 @@ class FunctionDescriptor:
         else:
             self._body += body
 
+    def prepend_body(self, body):
+        self._body.insert(0, body)
+
     def set_return_statement(self, statement):
         if self._return_statement:
             raise Exception('Return statement already set for {}'.format(self._name))
@@ -345,7 +348,12 @@ class Runtime:
             'runtime':          self,
             'component_folder': component_folder,
             'functions':        self.functions,
-            'files':            {config_file: ''},
+            'declarations':     [],
+            'files':            {
+                config_file: '',
+                source_file: '',
+                header_file: ''
+            },
             'folders':          [component_name]
         }
 
@@ -374,6 +382,7 @@ class Runtime:
             'includes':         list_to_chevron_list(includes, 'header'),
             'component_name':   component_name,
             'guard_def':        to_underscore(component_name).upper(),
+            'variables':        context['declarations'],
             'types':            unique(types),
             'type_includes':    list_to_chevron_list(sorted(type_includes), 'header'),
             'functions':        functions,
@@ -418,8 +427,12 @@ class Runtime:
         return self._port_types[port_type]
 
     def generate_runtime(self, filename):
+        source_file_name = filename + '.c'
+        header_file_name = filename + '.h'
+
         context = {
             'runtime':                        self,
+            'files':                          {source_file_name: '', header_file_name: ''},
             'functions':                      {},
             'declarations':                   [],
             'exported_function_declarations': []
@@ -555,10 +568,10 @@ class Runtime:
             'variables':             context['declarations']
         }
 
-        return {
-            filename + '.c': chevron.render(source_template, template_data),
-            filename + '.h': chevron.render(runtime_header_template, template_data)
-        }
+        context['files'][source_file_name] = chevron.render(source_template, template_data)
+        context['files'][header_file_name] = chevron.render(runtime_header_template, template_data)
+
+        return context['files']
 
     def _call_plugin_event(self, event_name, *args):
         for plugin in self._plugins:
