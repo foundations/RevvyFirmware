@@ -4,6 +4,9 @@
         "BrainStatusIndicator.c"
     ],
     "types": {
+        "rgb_t": {
+            "defined_in": "\"utils/color.h\""
+        },
         "SystemState_t": {
             "type": "enum",
             "values": [
@@ -15,19 +18,22 @@
         }
     },
     "runnables": {
-        "OnInit": {},
         "Update": {}
     },
     "ports": {
         "SystemState": {
-            "data_type": "SystemState_t",
             "port_type": "ReadValue",
-            "default_value": "SystemState_Operational"
+            "default_value": "SystemState_Operational",
+            "data_type": "SystemState_t"
         },
         "BluetoothControllerPresent": {
-            "data_type": "bool",
             "port_type": "ReadValue",
-            "default_value": "false"
+            "default_value": "false",
+            "data_type": "bool"
+        },
+        "LedColor": {
+            "port_type": "WriteData",
+            "data_type": "rgb_t"
         }
     }
 }

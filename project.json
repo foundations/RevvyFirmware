@@ -207,7 +207,7 @@
                 "LEDController/OnInit",
                 "BatteryCalculator/OnInit",
                 "BluetoothIndicator/OnInit",
-                "BrainStatusIndicator/OnInit",
+                "BrainStatusIndicator/Update",
                 "IMU/OnInit",
                 "HighResolutionTimer/OnInit",
                 "MasterStatusObserver/OnInit",

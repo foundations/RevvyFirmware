@@ -1,12 +1,13 @@
 #include "BrainStatusIndicator.h"
-#include "rrrc_indication.h"
+#include "utils.h"
 
-void BrainStatusIndicator_Run_OnInit(void)
-{
-}
+/* Begin User Code Section: Declarations */
+#include "rrrc_indication.h"
+/* End User Code Section: Declarations */
 
 void BrainStatusIndicator_Run_Update(void)
 {
+    /* Begin User Code Section: Update Start */
     switch (BrainStatusIndicator_Read_SystemState())
     {
         case SystemState_Startup:
@@ -29,23 +30,43 @@ void BrainStatusIndicator_Run_Update(void)
             BrainStatusIndicator_Write_LedColor((rgb_t) LED_RED);
             break;
     }
+    /* End User Code Section: Update Start */
+    /* Begin User Code Section: Update End */
+
+    /* End User Code Section: Update End */
 }
 
 __attribute__((weak))
-SystemState_t BrainStatusIndicator_Read_SystemState(void)
+void BrainStatusIndicator_Write_LedColor(const rgb_t value)
 {
-    return SystemState_Operational;
+    /* Begin User Code Section: LedColor Start */
+
+    /* End User Code Section: LedColor Start */
+    /* Begin User Code Section: LedColor End */
+
+    /* End User Code Section: LedColor End */
 }
 
 __attribute__((weak))
 bool BrainStatusIndicator_Read_BluetoothControllerPresent(void)
 {
+    /* Begin User Code Section: BluetoothControllerPresent Start */
+
+    /* End User Code Section: BluetoothControllerPresent Start */
+    /* Begin User Code Section: BluetoothControllerPresent End */
+
+    /* End User Code Section: BluetoothControllerPresent End */
     return false;
 }
 
 __attribute__((weak))
-void BrainStatusIndicator_Write_LedColor(rgb_t color)
+SystemState_t BrainStatusIndicator_Read_SystemState(void)
 {
-    (void) color;
-    /* nothing to do */
+    /* Begin User Code Section: SystemState Start */
+
+    /* End User Code Section: SystemState Start */
+    /* Begin User Code Section: SystemState End */
+
+    /* End User Code Section: SystemState End */
+    return SystemState_Operational;
 }

@@ -1419,7 +1419,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\MotorDerating\config.json">
       <SubType>compile</SubType>
     </Compile>
-  <Compile Include="rrrc\components\RestartManager\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MotorCurrentFilter\MotorCurrentFilter.h"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MotorCurrentFilter\MotorCurrentFilter.c"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MemoryAllocator\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MasterStatusObserver\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\HighResolutionTimer\config.json"><SubType>compile</SubType></Compile></ItemGroup>
+  <Compile Include="rrrc\components\RestartManager\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MotorCurrentFilter\MotorCurrentFilter.h"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MotorCurrentFilter\MotorCurrentFilter.c"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MemoryAllocator\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\MasterStatusObserver\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\HighResolutionTimer\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\GyroscopeOffsetCompensator\config.json"><SubType>compile</SubType></Compile><Compile Include="rrrc\components\BrainStatusIndicator\config.json"><SubType>compile</SubType></Compile></ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
     <Folder Include="Atmel\hal\" />
