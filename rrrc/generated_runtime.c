@@ -29,13 +29,12 @@ void Runtime_Call_OnInit(void)
     ErrorStorage_Run_OnInit();
     ADC0_Run_OnInit();
     ADC1_Run_OnInit();
-    ADCDispatcher_Run_OnInit();
     MotorCurrentFilter_Run_OnInit();
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
     BatteryCalculator_Run_OnInit();
     BluetoothIndicator_Run_OnInit();
-    BrainStatusIndicator_Run_OnInit();
+    BrainStatusIndicator_Run_Update();
     IMU_Run_OnInit();
     HighResolutionTimer_Run_OnInit();
     MasterStatusObserver_Run_OnInit();

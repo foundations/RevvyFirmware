@@ -1,6 +1,7 @@
 #ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
 
+#include "utils/color.h"
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>

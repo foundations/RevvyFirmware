@@ -201,7 +201,6 @@
                 "ErrorStorage/OnInit",
                 "ADC0/OnInit",
                 "ADC1/OnInit",
-                "ADCDispatcher/OnInit",
                 "MotorCurrentFilter/OnInit",
                 "BatteryCharger/OnInit",
                 "LEDController/OnInit",

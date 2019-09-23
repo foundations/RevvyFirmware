@@ -12,33 +12,30 @@
         }
     },
     "runnables": {
-        "OnInit": {
-            "arguments": {},
-            "return_type": "void"
-        },
-        "Update": {
-            "arguments": {},
-            "return_type": "void"
-        }
+        "Update": {}
     },
     "ports": {
         "ADC0_RawChannelData": {
             "port_type": "ReadIndexedValue",
+            "default_value": null,
             "data_type": "uint16_t",
             "count": 4
         },
         "ADC0_ChannelVoltage": {
             "port_type": "ReadIndexedValue",
+            "default_value": null,
             "data_type": "Voltage_t",
             "count": 4
         },
         "ADC1_RawChannelData": {
             "port_type": "ReadIndexedValue",
+            "default_value": null,
             "data_type": "uint16_t",
             "count": 8
         },
         "ADC1_ChannelVoltage": {
             "port_type": "ReadIndexedValue",
+            "default_value": null,
             "data_type": "Voltage_t",
             "count": 8
         },
