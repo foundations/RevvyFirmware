@@ -3,5 +3,45 @@
     "source_files": [
         "MotorThermalModel.c"
     ],
-    "runnables": {}
+    "types": {
+        "Current_t": {
+            "aliases": "float"
+        },
+        "Temperature_t": {
+            "aliases": "float"
+        },
+        "MotorThermalParameters_t": {
+            "type": "struct",
+            "fields": {
+                "resistance": "float",
+                "coeff_cooling": "float",
+                "coeff_heating": "float"
+            }
+        }
+    },
+    "runnables": {
+        "OnInit": {},
+        "OnUpdate": {}
+    },
+    "ports": {
+        "MotorCurrent": {
+            "port_type": "ReadIndexedValue",
+            "data_type": "Current_t",
+            "count": 6
+        },
+        "ThermalParameters": {
+            "port_type": "ReadValue",
+            "data_type": "MotorThermalParameters_t"
+        },
+        "Temperature": {
+            "port_type": "WriteIndexedData",
+            "data_type": "Temperature_t",
+            "count": 6
+        },
+        "AmbientTemperature": {
+            "port_type": "ReadValue",
+            "data_type": "Temperature_t",
+            "default_value": "(Temperature_t) 20.0f"
+        }
+    }
 }

@@ -51,6 +51,13 @@ typedef enum {
     MasterStatus_Operational,
     MasterStatus_Controlled
 } MasterStatus_t;
+typedef float Temperature_t;
+
+typedef struct {
+    float resistance;
+    float coeff_cooling;
+    float coeff_heating;
+} MotorThermalParameters_t;
 
 typedef enum {
     RingLedScenario_Off,

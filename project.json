@@ -211,6 +211,7 @@
                 "IMU/OnInit",
                 "HighResolutionTimer/OnInit",
                 "MasterStatusObserver/OnInit",
+                "MotorThermalModel/OnInit",
                 "BluetoothStatusObserver/OnInit",
                 "RingLedDisplay/OnInit",
                 "CommunicationObserver/OnInit",
@@ -226,7 +227,8 @@
                 "GyroscopeOffsetCompensator/Update",
                 "YawAngleTracker/Update",
                 "ADCDispatcher/Update",
-                "MotorCurrentFilter/Update"
+                "MotorCurrentFilter/Update",
+                "MotorThermalModel/OnUpdate"
             ],
             "10ms_offset0": [
                 "BatteryCharger/Update",

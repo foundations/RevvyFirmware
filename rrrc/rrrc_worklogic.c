@@ -13,15 +13,6 @@ static bool motorBatteryDetected;
 static uint8_t mainBatteryPercentage;
 static uint8_t motorBatteryPercentage;
 
-static MotorThermalModel_t motorThermalModels[6] = {
-    { .idx = 0u },
-    { .idx = 1u },
-    { .idx = 2u },
-    { .idx = 3u },
-    { .idx = 4u },
-    { .idx = 5u }
-};
-
 static MotorPort_t motorPorts[] = 
 {
     {
@@ -169,10 +160,6 @@ _Static_assert(sizeof(gyro_status) == sizeof(IMU_RawSample_t), "Gyroscope slot s
 
 static void ProcessTasks_1ms(void)
 {
-    for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
-    {
-        MotorThermalModel_Run_OnUpdate(&motorThermalModels[i]);
-    }
     Runtime_Call_1ms();
 }
 
@@ -366,11 +353,6 @@ void RRRC_ProcessLogic_Init(void)
 
     MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
     Runtime_Call_OnInit();
-
-    for (size_t i = 0u; i < ARRAY_SIZE(motorThermalModels); i++)
-    {
-        MotorThermalModel_Run_OnInit(&motorThermalModels[i]);
-    }
 
     BatteryIndicator_Run_OnInit(&mainBatteryIndicator);
     BatteryIndicator_Run_OnInit(&motorBatteryIndicator);

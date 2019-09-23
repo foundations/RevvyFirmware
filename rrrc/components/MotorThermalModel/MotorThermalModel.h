@@ -1,24 +1,28 @@
-/*
- * MotorThermalModel.h
- *
- * Created: 2019. 07. 26. 14:42:05
- *  Author: Dániel Buga
- */ 
-
 #ifndef COMPONENT_MOTOR_THERMAL_MODEL_H_
 #define COMPONENT_MOTOR_THERMAL_MODEL_H_
 
-#include <stdio.h>
+#ifndef COMPONENT_TYPES_MOTOR_THERMAL_MODEL_H_
+#define COMPONENT_TYPES_MOTOR_THERMAL_MODEL_H_
+
+#include <float.h>
+#include <stdint.h>
+
+typedef float Current_t;
+typedef float Temperature_t;
 
 typedef struct {
-    uint8_t idx;
-    float temperature;
-} MotorThermalModel_t;
+    float resistance;
+    float coeff_cooling;
+    float coeff_heating;
+} MotorThermalParameters_t;
 
-void MotorThermalModel_Run_OnInit(MotorThermalModel_t* model);
-void MotorThermalModel_Run_OnUpdate(MotorThermalModel_t* model);
+#endif /* COMPONENT_TYPES_MOTOR_THERMAL_MODEL_H_ */
 
-float MotorThermalModel_Read_MotorCurrent(MotorThermalModel_t* model);
-void MotorThermalModel_Write_Temperature(MotorThermalModel_t* model, float temp);
+void MotorThermalModel_Run_OnInit(void);
+void MotorThermalModel_Run_OnUpdate(void);
+void MotorThermalModel_Write_Temperature(uint32_t index, const Temperature_t value);
+Temperature_t MotorThermalModel_Read_AmbientTemperature(void);
+Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index);
+void MotorThermalModel_Read_ThermalParameters(MotorThermalParameters_t* value);
 
 #endif /* COMPONENT_MOTOR_THERMAL_MODEL_H_ */

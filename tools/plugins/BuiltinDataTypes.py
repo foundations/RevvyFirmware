@@ -517,7 +517,7 @@ port_type_data = {
             'value':   lambda types, port_data: {
                 'return_type':  port_data['data_type'],
                 'arguments':    {},
-                'return_value': port_data.get('value', types.default_value(port_data['data_type']))
+                'return_value': port_data.get('default_value', types.default_value(port_data['data_type']))
             },
             'pointer': lambda types, port_data: {
                 'return_type': 'void',
@@ -568,7 +568,7 @@ port_type_data = {
             'value':   lambda types, port_data: {
                 'return_type':  port_data['data_type'],
                 'arguments':    {'index': 'uint32_t'},
-                'return_value': port_data.get('value', types.default_value(port_data['data_type'])),
+                'return_value': port_data.get('default_value', types.default_value(port_data['data_type'])),
                 'asserts':      'index < {}'.format(port_data['count'])
             },
             'pointer': lambda types, port_data: {

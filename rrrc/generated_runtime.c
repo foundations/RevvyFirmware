@@ -31,6 +31,7 @@ void Runtime_Call_OnInit(void)
     IMU_Run_OnInit();
     HighResolutionTimer_Run_OnInit();
     MasterStatusObserver_Run_OnInit();
+    MotorThermalModel_Run_OnInit();
     BluetoothStatusObserver_Run_OnInit();
     RingLedDisplay_Run_OnInit();
     CommunicationObserver_Run_OnInit();
@@ -49,6 +50,7 @@ void Runtime_Call_1ms(void)
     YawAngleTracker_Run_Update();
     ADCDispatcher_Run_Update();
     MotorCurrentFilter_Run_Update();
+    MotorThermalModel_Run_OnUpdate();
 }
 
 void Runtime_Call_10ms_offset0(void)

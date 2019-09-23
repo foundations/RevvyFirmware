@@ -1,45 +1,62 @@
-/*
- * MotorThermalModel.c
- *
- * Created: 2019. 07. 26. 14:41:53
- *  Author: Dániel Buga
- */
-
 #include "MotorThermalModel.h"
+#include "utils.h"
+#include "utils_assert.h"
 
-#define T_AMBIENT           (20.0f)
-#define MOTOR_RESISTANCE    (3.5f)
-#define COEFF_OF_COOLING    (0.02f)
-#define COEFF_OF_HEATING    (0.2f)
+typedef struct {
+    float temperature;
+} MotorThermalModel_t;
 
-void MotorThermalModel_Run_OnInit(MotorThermalModel_t* model)
+static MotorThermalModel_t models[6] = {};
+
+void MotorThermalModel_Run_OnInit(void)
 {
-    model->temperature = T_AMBIENT;
+    for (uint32_t i = 0u; i < ARRAY_SIZE(models); i++)
+    {
+        models[i].temperature = MotorThermalModel_Read_AmbientTemperature();
+    }
 }
 
-void MotorThermalModel_Run_OnUpdate(MotorThermalModel_t* model)
+void MotorThermalModel_Run_OnUpdate(void)
 {
-    float current = MotorThermalModel_Read_MotorCurrent(model);
-    float power = current * current * MOTOR_RESISTANCE;
+    MotorThermalParameters_t params;
+    MotorThermalModel_Read_ThermalParameters(&params);
 
-    float cooling = COEFF_OF_COOLING * (model->temperature - T_AMBIENT);
-    float heating = COEFF_OF_HEATING * power;
+    Temperature_t ambient = MotorThermalModel_Read_AmbientTemperature();
 
-    model->temperature += heating - cooling;
+    for (uint32_t i = 0u; i < ARRAY_SIZE(models); i++)
+    {
+        float current = MotorThermalModel_Read_MotorCurrent(i);
+        float power = current * current * params.resistance;
 
-    MotorThermalModel_Write_Temperature(model, model->temperature);
+        float cooling = params.coeff_cooling * (models[i].temperature - ambient);
+        float heating = params.coeff_heating * power;
+
+        models[i].temperature += heating - cooling;
+
+        MotorThermalModel_Write_Temperature(i, models[i].temperature);
+    }
 }
 
 __attribute__((weak))
-float MotorThermalModel_Read_MotorCurrent(MotorThermalModel_t* model)
+void MotorThermalModel_Write_Temperature(uint32_t index, const Temperature_t value)
 {
-    (void) model;
-    return 0.0f;
+    ASSERT(index < 6);
 }
 
 __attribute__((weak))
-void MotorThermalModel_Write_Temperature(MotorThermalModel_t* model, float temp)
+Temperature_t MotorThermalModel_Read_AmbientTemperature(void)
 {
-    (void) model;
-    (void) temp;
+    return (Temperature_t) 20.0f;
+}
+
+__attribute__((weak))
+Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)
+{
+    ASSERT(index < 6);
+}
+
+__attribute__((weak))
+void MotorThermalModel_Read_ThermalParameters(MotorThermalParameters_t* value)
+{
+    ASSERT(value != NULL);
 }
