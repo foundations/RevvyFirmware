@@ -1,8 +1,10 @@
 #include "IMU.h"
-#include "imu_ll.h"
-
-#include "imu_defs.h"
 #include "utils.h"
+#include "utils_assert.h"
+
+/* Begin User Code Section: Declarations */
+#include "imu_ll.h"
+#include "imu_defs.h"
 
 #define IMU_AXL_LSB     ((float) 0.061f)
 #define IMU_GYRO_LSB    ((float) 0.035f)
@@ -11,13 +13,6 @@
 
 static bool imu_enabled;
 static uint32_t init_retry_count;
-
-void IMU_Run_OnInit(void)
-{
-    imu_enabled = false;
-    init_retry_count = 0u;
-    IMU_Call_LowLevelInit();
-}
 
 static void _send_configuration(void)
 {
@@ -28,9 +23,9 @@ static void _send_configuration(void)
 
     _imu_write_register(LSM6DS3_REG(CTRL1_XL), LSM6DS3_FIELD_NAMED(FS_XL, 2g) | LSM6DS3_FIELD_NAMED(ODR_XL, 416));
     _imu_write_register(LSM6DS3_REG(CTRL2_G),  LSM6DS3_FIELD_NAMED(FS_G, 1000) | LSM6DS3_FIELD_NAMED(ODR_G, 416));
-    
+
     _imu_write_register(LSM6DS3_REG(CTRL4_C),  LSM6DS3_FIELD_ENABLE(I2C_disable));
-    
+
     _imu_write_register(LSM6DS3_REG(CTRL5_C), 0);
 }
 
@@ -38,14 +33,28 @@ static void _read_data(uint8_t addr, IMU_RawSample_t* data)
 {
     uint8_t regs[6];
     _imu_read_registers(addr, regs, sizeof(regs));
-    
+
     data->x = regs[0] | (regs[1] << 8u);
     data->y = regs[2] | (regs[3] << 8u);
     data->z = regs[4] | (regs[5] << 8u);
 }
+/* End User Code Section: Declarations */
+
+void IMU_Run_OnInit(void)
+{
+    /* Begin User Code Section: OnInit Start */
+    imu_enabled = false;
+    init_retry_count = 0u;
+    IMU_Call_LowLevelInit();
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
+
+    /* End User Code Section: OnInit End */
+}
 
 void IMU_Run_OnUpdate(void)
 {
+    /* Begin User Code Section: OnUpdate Start */
     if (!imu_enabled)
     {
         if (init_retry_count < MAX_N_RETRIES)
@@ -57,7 +66,6 @@ void IMU_Run_OnUpdate(void)
             {
                 if (whoami == accepted_whoami[i])
                 {
-                    /* todo configure */
                     _send_configuration();
                     imu_enabled = true;
                     break;
@@ -89,11 +97,6 @@ void IMU_Run_OnUpdate(void)
             };
             IMU_Write_RawAccelerometerSample(&data);
             IMU_Write_AccelerometerSample(&converted);
-            IMU_Write_AccelerometerDataReady(true);
-        }
-        else
-        {
-            IMU_Write_AccelerometerDataReady(false);
         }
 
         if (imu_gyro_data_ready())
@@ -108,57 +111,80 @@ void IMU_Run_OnUpdate(void)
             };
             IMU_Write_RawGyroscopeSample(&data);
             IMU_Write_GyroscopeSample(&converted);
-            IMU_Write_GyroscopeDataReady(true);
-        }
-        else
-        {
-            IMU_Write_GyroscopeDataReady(false);
         }
     }
+    /* End User Code Section: OnUpdate Start */
+    /* Begin User Code Section: OnUpdate End */
+
+    /* End User Code Section: OnUpdate End */
 }
 
 __attribute__((weak))
 void IMU_Call_LogError(void)
 {
+    /* Begin User Code Section: LogError Start */
+
+    /* End User Code Section: LogError Start */
+    /* Begin User Code Section: LogError End */
+
+    /* End User Code Section: LogError End */
 }
 
 float IMU_Constant_SampleTime(void)
 {
+    /* Begin User Code Section: SampleTime Start */
+
+    /* End User Code Section: SampleTime Start */
+    /* Begin User Code Section: SampleTime End */
+
+    /* End User Code Section: SampleTime End */
     return 1.0f / 416.0f;
 }
 
 __attribute__((weak))
 void IMU_Write_AccelerometerSample(const Vector3D_t* value)
 {
-    (void) value;
+    ASSERT(value != NULL);
+    /* Begin User Code Section: AccelerometerSample Start */
+
+    /* End User Code Section: AccelerometerSample Start */
+    /* Begin User Code Section: AccelerometerSample End */
+
+    /* End User Code Section: AccelerometerSample End */
 }
 
 __attribute__((weak))
 void IMU_Write_GyroscopeSample(const Vector3D_t* value)
 {
-    (void) value;
+    ASSERT(value != NULL);
+    /* Begin User Code Section: GyroscopeSample Start */
+
+    /* End User Code Section: GyroscopeSample Start */
+    /* Begin User Code Section: GyroscopeSample End */
+
+    /* End User Code Section: GyroscopeSample End */
 }
 
 __attribute__((weak))
 void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* value)
 {
-    (void) value;
+    ASSERT(value != NULL);
+    /* Begin User Code Section: RawAccelerometerSample Start */
+
+    /* End User Code Section: RawAccelerometerSample Start */
+    /* Begin User Code Section: RawAccelerometerSample End */
+
+    /* End User Code Section: RawAccelerometerSample End */
 }
 
 __attribute__((weak))
 void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* value)
 {
-    (void) value;
-}
+    ASSERT(value != NULL);
+    /* Begin User Code Section: RawGyroscopeSample Start */
 
-__attribute__((weak))
-void IMU_Write_AccelerometerDataReady(bool value)
-{
-    (void) value;
-}
+    /* End User Code Section: RawGyroscopeSample Start */
+    /* Begin User Code Section: RawGyroscopeSample End */
 
-__attribute__((weak))
-void IMU_Write_GyroscopeDataReady(bool value)
-{
-    (void) value;
+    /* End User Code Section: RawGyroscopeSample End */
 }

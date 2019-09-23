@@ -221,6 +221,9 @@ def create_component_runnables(owner: Runtime, component_name, component_data):
 
             function = owner.create_function_for_port(component_name, port_name, function_data)
 
+            for attribute in function_data.get('attributes', []):
+                function.add_attribute(attribute)
+
             function.add_input_assert(function_data.get('asserts', []))
             function.add_body(function_data.get('body', []))
             function.set_return_statement(function_data.get('return_value'))
@@ -272,6 +275,16 @@ def cleanup_component(owner, component_name, ctx):
     # remove automatically generated runnable ports
     component_data = owner._components[component_name]
     component_data['ports'] = {name: port for name, port in component_data['ports'].items() if name not in component_data['runnables']}
+
+    for port in component_data['ports'].values():
+        if port['port_type'] == 'Event':
+            try:
+                del port['return_type']
+            except KeyError:
+                pass
+
+            if not port['arguments']:
+                del port['arguments']
 
     sort_functions(owner, ctx)
 
