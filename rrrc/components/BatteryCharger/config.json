@@ -27,8 +27,8 @@
     },
     "ports": {
         "ChargerState": {
-            "data_type": "ChargerState_t",
-            "port_type": "WriteData"
+            "port_type": "WriteData",
+            "data_type": "ChargerState_t"
         }
     }
 }

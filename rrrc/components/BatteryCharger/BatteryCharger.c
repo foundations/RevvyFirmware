@@ -1,5 +1,7 @@
 #include "BatteryCharger.h"
+#include "utils.h"
 
+/* Begin User Code Section: Declarations */
 #include "rrrc_hal.h"
 
 #include <stdbool.h>
@@ -15,7 +17,7 @@ static ChargerState_t get_charger_state( void )
 {
     bool isCharging = gpio_get_pin_level(CHARGER_STAT) == 0u;
     bool isCharged = gpio_get_pin_level(CHARGER_STBY) == 0u;
-    
+
     if (isCharging)
     {
         return ChargerState_Charging;
@@ -32,9 +34,11 @@ static ChargerState_t get_charger_state( void )
         }
     }
 }
+/* End User Code Section: Declarations */
 
-void BatteryCharger_Run_OnInit( void )
+void BatteryCharger_Run_OnInit(void)
 {
+    /* Begin User Code Section: OnInit Start */
     gpio_set_pin_direction(CHARGER_STBY, GPIO_DIRECTION_IN);
     gpio_set_pin_pull_mode(CHARGER_STBY, GPIO_PULL_UP);
     gpio_set_pin_function(CHARGER_STBY, GPIO_PIN_FUNCTION_OFF);
@@ -46,10 +50,15 @@ void BatteryCharger_Run_OnInit( void )
     errorScore = 0u;
 
     previousChargerState = get_charger_state();
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
+
+    /* End User Code Section: OnInit End */
 }
 
 void BatteryCharger_Run_Update(void)
 {
+    /* Begin User Code Section: Update Start */
     ChargerState_t state = get_charger_state();
 
     if (state != previousChargerState)
@@ -73,11 +82,19 @@ void BatteryCharger_Run_Update(void)
     {
         BatteryCharger_Write_ChargerState(state);
     }
+    /* End User Code Section: Update Start */
+    /* Begin User Code Section: Update End */
+
+    /* End User Code Section: Update End */
 }
 
 __attribute__((weak))
-void BatteryCharger_Write_ChargerState(ChargerState_t value)
+void BatteryCharger_Write_ChargerState(const ChargerState_t value)
 {
-    (void) value;
-}
+    /* Begin User Code Section: ChargerState Start */
 
+    /* End User Code Section: ChargerState Start */
+    /* Begin User Code Section: ChargerState End */
+
+    /* End User Code Section: ChargerState End */
+}
