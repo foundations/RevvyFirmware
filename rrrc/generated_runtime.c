@@ -15,6 +15,7 @@ static Current_t ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[
 static Voltage_t ADCDispatcher_MainBatteryVoltage_BatteryCalculator_MainBatteryVoltage_variable = 0.0f;
 static Voltage_t ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatteryVoltage_variable = 0.0f;
 static uint8_t ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[4] = { 0u, 0u, 0u, 0u };
+static Current_t MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 void Runtime_Call_OnInit(void)
 {
@@ -297,6 +298,12 @@ void IMU_Write_GyroscopeSample(const Vector3D_t* value)
 void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t value)
 {
     ASSERT(index < 6);
+    MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[index] = value;
+}
+
+void MotorThermalModel_Write_Temperature(uint32_t index, const Temperature_t value)
+{
+    ASSERT(index < 6);
 }
 
 Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
@@ -381,6 +388,18 @@ Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
 {
     ASSERT(index < 6);
     return ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[index];
+}
+
+Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)
+{
+    ASSERT(index < 6);
+    return MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[index];
+}
+
+void MotorThermalModel_Read_ThermalParameters(MotorThermalParameters_t* value)
+{
+    ASSERT(value != NULL);
+    ProjectConfiguration_Constant_MotorThermalParameters(value);
 }
 
 bool RingLedDisplay_Read_MasterReady(void)

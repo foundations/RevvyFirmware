@@ -3,14 +3,6 @@
 #include "utils_assert.h"
 
 
-void ProjectConfiguration_Constant_FooParameters(uint32_t index, BatteryConfiguration_t* value)
-{
-    ASSERT(index < 2);
-    ASSERT(value != NULL);
-    static const BatteryConfiguration_t data[2] = { {.detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f}, {.detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f} };
-    *value = data[index];
-}
-
 void ProjectConfiguration_Constant_MainBatteryParameters(BatteryConfiguration_t* value)
 {
     ASSERT(value != NULL);
@@ -21,4 +13,10 @@ void ProjectConfiguration_Constant_MotorBatteryParameters(BatteryConfiguration_t
 {
     ASSERT(value != NULL);
     *value = (BatteryConfiguration_t) {.detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f};
+}
+
+void ProjectConfiguration_Constant_MotorThermalParameters(MotorThermalParameters_t* value)
+{
+    ASSERT(value != NULL);
+    *value = (MotorThermalParameters_t) { .resistance = 3.5f, .coeff_cooling = 0.02f, .coeff_heating = 0.2f };
 }

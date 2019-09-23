@@ -14,6 +14,14 @@
                 "minVoltage": "Voltage_t",
                 "maxVoltage": "Voltage_t"
             }
+        },
+        "MotorThermalParameters_t": {
+            "type": "struct",
+            "fields": {
+                "resistance": "float",
+                "coeff_cooling": "float",
+                "coeff_heating": "float"
+            }
         }
     },
     "runnables": {},
@@ -27,6 +35,11 @@
             "port_type": "Constant",
             "data_type": "BatteryConfiguration_t",
             "value": "(BatteryConfiguration_t) {.detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f}"
+        },
+        "MotorThermalParameters": {
+            "port_type": "Constant",
+            "value": "(MotorThermalParameters_t) { .resistance = 3.5f, .coeff_cooling = 0.02f, .coeff_heating = 0.2f }",
+            "data_type": "MotorThermalParameters_t"
         }
     }
 }

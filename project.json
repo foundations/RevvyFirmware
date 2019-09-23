@@ -360,6 +360,10 @@
             },
             {
                 "provider": "MotorCurrentFilter/FilteredCurrent",
+                "consumer": "MotorThermalModel/MotorCurrent"
+            },
+            {
+                "provider": "MotorThermalModel/Temperature",
                 "consumers": []
             },
             {
@@ -369,6 +373,10 @@
             {
                 "provider": "ProjectConfiguration/MotorBatteryParameters",
                 "consumer": "BatteryCalculator/MotorBatteryParameters"
+            },
+            {
+                "provider": "ProjectConfiguration/MotorThermalParameters",
+                "consumer": "MotorThermalModel/ThermalParameters"
             }
         ]
     }
