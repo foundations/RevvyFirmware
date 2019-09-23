@@ -1,5 +1,6 @@
 import chevron
 
+from tools.generator_common import TypeCollection
 from tools.runtime import RuntimePlugin, Runtime, SignalType, SignalConnection
 
 
@@ -184,7 +185,7 @@ def expand_runtime_events(owner: Runtime, project_config):
     runtime_config['port_connections'] += event_connections
 
 
-def impl_data_lookup(types, port_data):
+def impl_data_lookup(types: TypeCollection, port_data):
     port_type = port_data['port_type']
     if port_type not in port_type_data:
         return None
@@ -192,7 +193,7 @@ def impl_data_lookup(types, port_data):
     return port_type_data[port_type]['default_impl'](types, port_data)
 
 
-def init(owner):
+def init(owner: Runtime):
     add_event_to = ['WriteData', 'WriteIndexedData']
     for port_type, known_port_type in owner.port_types.items():
         if port_type in add_event_to:
@@ -256,7 +257,7 @@ def sort_functions(owner: Runtime, context):
     context['functions'] = {fn: context['functions'][fn] for fn in by_port_type}
 
 
-def remove_runtime_component(owner, config):
+def remove_runtime_component(owner: Runtime, config):
     del owner._components['Runtime']
     port_connections = []
     for connection in config['runtime']['port_connections']:
@@ -271,7 +272,7 @@ def remove_runtime_component(owner, config):
     config['runtime']['port_connections'] = port_connections
 
 
-def cleanup_component(owner, component_name, ctx):
+def cleanup_component(owner: Runtime, component_name, ctx):
     # remove automatically generated runnable ports
     component_data = owner._components[component_name]
     component_data['ports'] = {name: port for name, port in component_data['ports'].items() if name not in component_data['runnables']}
