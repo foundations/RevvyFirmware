@@ -13,7 +13,7 @@ typedef float Current_t;
 
 void MotorCurrentFilter_Run_OnInit(void);
 void MotorCurrentFilter_Run_Update(void);
+void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t value);
 Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index);
-void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, Current_t value);
 
 #endif /* COMPONENT_MOTOR_CURRENT_FILTER_H_ */

@@ -22,8 +22,8 @@
     },
     "ports": {
         "MasterStatus": {
-            "data_type": "MasterStatus_t",
-            "port_type": "WriteData"
+            "port_type": "WriteData",
+            "data_type": "MasterStatus_t"
         }
     }
 }

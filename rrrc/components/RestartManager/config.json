@@ -4,13 +4,14 @@
         "RestartManager.c"
     ],
     "runnables": {
-        "Reset":  {
+        "Reset": {
             "return_type": "void",
             "arguments": {}
         },
-        "RebootToBootloader":  {
+        "RebootToBootloader": {
             "return_type": "void",
             "arguments": {}
         }
-    }
+    },
+    "ports": {}
 }

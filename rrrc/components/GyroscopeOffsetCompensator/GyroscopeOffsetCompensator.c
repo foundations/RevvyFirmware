@@ -1,5 +1,8 @@
 #include "GyroscopeOffsetCompensator.h"
+#include "utils.h"
+#include "utils_assert.h"
 
+/* Begin User Code Section: Declarations */
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
@@ -14,10 +17,11 @@ static uint32_t samplesInCurrentBand;
 #define IDLE_SENSITIVITY        ((float) 2.0f)
 #define AVERAGE_NUM_SAMPLES     ((uint32_t) 1000u)
 #define IDLE_NUM_SAMPLES        ((uint32_t) 200u)
+/* End User Code Section: Declarations */
 
-/* runnables */
 void GyroscopeOffsetCompensator_Run_OnInit(void)
 {
+    /* Begin User Code Section: OnInit Start */
     offset_calibrated = false;
 
     averageAngularSpeedSamples = 0u;
@@ -35,10 +39,15 @@ void GyroscopeOffsetCompensator_Run_OnInit(void)
     currentMidValue.z = 0.0f;
 
     samplesInCurrentBand = 0u;
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
+
+    /* End User Code Section: OnInit End */
 }
 
 void GyroscopeOffsetCompensator_Run_Update(void)
 {
+    /* Begin User Code Section: Update Start */
     Vector3D_t angularSpeed;
     if (GyroscopeOffsetCompensator_Read_AngularSpeeds(&angularSpeed) != QueueStatus_Empty)
     {
@@ -97,17 +106,33 @@ void GyroscopeOffsetCompensator_Run_Update(void)
             }
         }
     }
-}
+    /* End User Code Section: Update Start */
+    /* Begin User Code Section: Update End */
 
-__attribute__((weak))
-QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
-{
-    *value = (Vector3D_t) { .x = 0.0f, .y = 0.0f, .z = 0.0f };
-    return QueueStatus_Empty;
+    /* End User Code Section: Update End */
 }
 
 __attribute__((weak))
 void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* value)
 {
-    (void) value;
+    ASSERT(value != NULL);
+    /* Begin User Code Section: CompensatedAngularSpeeds Start */
+
+    /* End User Code Section: CompensatedAngularSpeeds Start */
+    /* Begin User Code Section: CompensatedAngularSpeeds End */
+
+    /* End User Code Section: CompensatedAngularSpeeds End */
+}
+
+__attribute__((weak))
+QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: AngularSpeeds Start */
+
+    /* End User Code Section: AngularSpeeds Start */
+    /* Begin User Code Section: AngularSpeeds End */
+
+    /* End User Code Section: AngularSpeeds End */
+    return QueueStatus_Empty;
 }

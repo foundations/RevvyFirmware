@@ -20,6 +20,7 @@
     "ports": {
         "AngularSpeeds": {
             "port_type": "ReadQueuedValue",
+            "default_value": null,
             "data_type": "Vector3D_t"
         },
         "CompensatedAngularSpeeds": {

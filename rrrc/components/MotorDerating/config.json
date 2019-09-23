@@ -38,6 +38,7 @@
         },
         "Parameters": {
             "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "MotorDeratingParameters_t"
         }
     }

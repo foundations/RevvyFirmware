@@ -782,10 +782,10 @@ def create_component_ports(owner: Runtime, component_name, component_data):
                 function.add_attribute(attribute)
 
             function.add_body(function_data.get('body', []))
-            return_value = function_data.get('return_value')
-            if return_value is not None:
+            if function.return_type != 'void':
+                return_value = function_data.get('return_value', owner.types.default_value(function.return_type))
                 return_value = owner.types.render_value(port_data['data_type'], return_value)
-            function.set_return_statement(return_value)
+                function.set_return_statement(return_value)
 
             owner.add_function(port_data['short_name'], function)
 

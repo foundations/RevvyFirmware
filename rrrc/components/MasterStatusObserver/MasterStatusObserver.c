@@ -1,10 +1,7 @@
 #include "MasterStatusObserver.h"
+#include "utils.h"
 
-void MasterStatusObserver_Run_OnInit(void)
-{
-    MasterStatusObserver_Write_MasterStatus(MasterStatus_Unknown);
-}
-
+/* Begin User Code Section: Declarations */
 Comm_Status_t MasterStatusObserver_SetMasterStatus_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
     (void) response;
@@ -40,9 +37,25 @@ Comm_Status_t MasterStatusObserver_SetMasterStatus_Start(const uint8_t* commandP
 
     return status;
 }
+/* End User Code Section: Declarations */
+
+void MasterStatusObserver_Run_OnInit(void)
+{
+    /* Begin User Code Section: OnInit Start */
+    MasterStatusObserver_Write_MasterStatus(MasterStatus_Unknown);
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
+
+    /* End User Code Section: OnInit End */
+}
 
 __attribute__((weak))
-void MasterStatusObserver_Write_MasterStatus(MasterStatus_t value)
+void MasterStatusObserver_Write_MasterStatus(const MasterStatus_t value)
 {
-    (void) value;
+    /* Begin User Code Section: MasterStatus Start */
+
+    /* End User Code Section: MasterStatus Start */
+    /* Begin User Code Section: MasterStatus End */
+
+    /* End User Code Section: MasterStatus End */
 }

@@ -21,6 +21,7 @@
     "ports": {
         "RawCurrent": {
             "port_type": "ReadIndexedValue",
+            "default_value": null,
             "data_type": "Current_t",
             "count": 6
         },
