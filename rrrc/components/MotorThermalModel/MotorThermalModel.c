@@ -53,6 +53,7 @@ __attribute__((weak))
 Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)
 {
     ASSERT(index < 6);
+    return 0.0f;
 }
 
 __attribute__((weak))
