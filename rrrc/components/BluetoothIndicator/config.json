@@ -4,6 +4,9 @@
         "BluetoothIndicator.c"
     ],
     "types": {
+        "rgb_t": {
+            "defined_in": "\"utils/color.h\""
+        },
         "BluetoothStatus_t": {
             "type": "enum",
             "values": [
@@ -15,19 +18,18 @@
         }
     },
     "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": {}
-        },
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
-        }
+        "OnInit": {},
+        "Update": {}
     },
     "ports": {
         "ConnectionStatus": {
             "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "BluetoothStatus_t"
+        },
+        "LedColor": {
+            "port_type": "WriteData",
+            "data_type": "rgb_t"
         }
     }
 }

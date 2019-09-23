@@ -1,10 +1,11 @@
 #ifndef COMPONENT_BLUETOOTH_INDICATOR_H_
 #define COMPONENT_BLUETOOTH_INDICATOR_H_
 
-#include "utils/color.h"
-
 #ifndef COMPONENT_TYPES_BLUETOOTH_INDICATOR_H_
 #define COMPONENT_TYPES_BLUETOOTH_INDICATOR_H_
+
+#include "utils/color.h"
+
 
 typedef enum {
     BluetoothStatus_Inactive,
@@ -16,7 +17,7 @@ typedef enum {
 
 void BluetoothIndicator_Run_OnInit(void);
 void BluetoothIndicator_Run_Update(void);
+void BluetoothIndicator_Write_LedColor(const rgb_t value);
 BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void);
-void BluetoothIndicator_Write_LedColor(rgb_t color);
 
 #endif /* COMPONENT_BLUETOOTH_INDICATOR_H_ */
