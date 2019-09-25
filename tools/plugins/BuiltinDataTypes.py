@@ -774,9 +774,6 @@ def process_component_ports_and_types(owner: Runtime, component_name, component_
     if 'ports' not in component_config:
         component_config['ports'] = {}
 
-    if not component_config['ports']:
-        print('Warning: {} has no ports'.format(component_name))
-
     for type_name, type_data in component_config.get('types', {}).items():
         add_type_def(owner, type_name, type_data)
 

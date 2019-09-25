@@ -325,6 +325,9 @@ class Runtime:
         self._call_plugin_event('load_component_config', component_name, component_config)
         self._components[component_name] = component_config
 
+        if not component_config['ports']:
+            print('Warning: {} has no ports'.format(component_name))
+
         for port_name, port_data in component_config['ports'].items():
             processed_port = self.process_port_def(component_name, port_name, port_data)
             component_config['ports'][port_name] = processed_port
