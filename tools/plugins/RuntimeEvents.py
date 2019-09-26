@@ -64,6 +64,9 @@ class ServerCallSignal(SignalType):
 
         component_name, port_name = consumer_name.split('/')
 
+        for arg_name in consumer_port_data['arguments']:
+            function.mark_argument_used(arg_name)
+
         data = {
             'component': component_name,
             'runnable':  port_name,
@@ -89,7 +92,7 @@ class ServerCallSignal(SignalType):
 
             return {
                 connection.provider: {
-                    'body': chevron.render(template, data),
+                    'body':             chevron.render(template, data),
                     'return_statement': 'return_value'
                 }
             }
@@ -237,6 +240,9 @@ def create_component_runnables(owner: Runtime, component_name, component_data, c
 
             function = owner.create_function_for_port(component_name, port_name, function_data)
 
+            for argument in function_data.get('used_arguments', []):
+                function.mark_argument_used(argument)
+
             for attribute in function_data.get('attributes', []):
                 function.add_attribute(attribute)
 
@@ -290,7 +296,8 @@ def remove_runtime_component(owner: Runtime, config):
 def cleanup_component(owner: Runtime, component_name, ctx):
     # remove automatically generated runnable ports
     component_data = owner._components[component_name]
-    component_data['ports'] = {name: port for name, port in component_data['ports'].items() if name not in component_data['runnables']}
+    component_data['ports'] = {name: port for name, port in component_data['ports'].items() if
+                               name not in component_data['runnables']}
 
     for port in component_data['ports'].values():
         if port['port_type'] == 'Event':

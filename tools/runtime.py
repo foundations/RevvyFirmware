@@ -107,10 +107,14 @@ class FunctionDescriptor:
         self._name = func_name
         self._return_type = return_type
         self._arguments = {}
+        self._used_arguments = set()
         self._asserts = set()
         self._return_statement = None
         self._body = []
         self._attributes = set()
+
+    def mark_argument_used(self, arg):
+        self._used_arguments.add(arg)
 
     def add_attribute(self, attribute):
         self._attributes.add(attribute)
@@ -163,6 +167,11 @@ class FunctionDescriptor:
 
         def remove_trailing_spaces(l):
             return '\n'.join([line.rstrip(' ') for line in l.split('\n')])
+
+        unused_arguments = self._arguments.keys() - self._used_arguments
+
+        for arg in unused_arguments:
+            body.insert(0, '(void) {};'.format(arg))
 
         ctx = {
             'template': "{{# attributes }}__attribute__(({{ . }}))\n{{/ attributes }}"
@@ -230,6 +239,10 @@ class SignalConnection:
 
                 if 'return_statement' in mods:
                     function.set_return_statement(mods['return_statement'])
+
+                if 'used_arguments' in mods:
+                    for argument in mods['used_arguments']:
+                        function.mark_argument_used(argument)
 
 
 class SignalType:

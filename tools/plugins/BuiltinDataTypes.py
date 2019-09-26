@@ -38,7 +38,8 @@ class VariableSignal(SignalType):
         argument_names = list(function.arguments.keys())
         return {
             provider_name: {
-                'body': chevron.render(template, {
+                'used_arguments': argument_names,
+                'body':           chevron.render(template, {
                     'signal_name': connection.name,
                     'value':       argument_names[0]
                 })
@@ -80,6 +81,7 @@ class VariableSignal(SignalType):
                 }
             }
 
+            mods[consumer_name]['used_arguments'] = [argument_names[0]]
             mods[consumer_name]['body'] = chevron.render(**ctx)
 
         return mods
@@ -121,7 +123,8 @@ class ArraySignal(SignalType):
         argument_names = list(function.arguments.keys())
         return {
             provider_name: {
-                'body': chevron.render(template, {
+                'used_arguments': [argument_names[0], argument_names[1]],
+                'body':           chevron.render(template, {
                     'signal_name': connection.name,
                     'index':       argument_names[0],
                     'value':       argument_names[1]
@@ -154,6 +157,7 @@ class ArraySignal(SignalType):
                     'index':       argument_names[0]
                 }
             }
+            mods[consumer_name]['used_arguments'] = [argument_names[0]]
             mods[consumer_name]['body'] = chevron.render(**ctx)
             mods[consumer_name]['return_statement'] = 'return_value'
         else:
@@ -165,6 +169,7 @@ class ArraySignal(SignalType):
                     'out_name':    argument_names[1]
                 }
             }
+            mods[consumer_name]['used_arguments'] = [argument_names[0], argument_names[1]]
             mods[consumer_name]['body'] = chevron.render(**ctx)
 
         return mods
@@ -227,6 +232,7 @@ class QueueSignal(SignalType):
         passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
         return {
             connection.provider: {
+                'used_arguments': [argument_names[0]],
                 'body': chevron.render(template, {
                     'queue_length': connection.attributes['queue_length'],
                     'signal_name':  connection.name,
@@ -289,6 +295,7 @@ class QueueSignal(SignalType):
 
         return {
             consumer_name: {
+                'used_arguments':   [argument_names[0]],
                 'body':             chevron.render(template, data),
                 'return_statement': 'return_value'
             }
@@ -341,6 +348,7 @@ class ConstantSignal(SignalType):
                 }
             }
 
+            mods[consumer_name]['used_arguments'] = [argument_names[0]]
             mods[consumer_name]['body'] = chevron.render(**ctx)
 
         return mods
@@ -372,6 +380,10 @@ class ConstantArraySignal(SignalType):
 
         component_name, port_name = provider_port_data['short_name'].split('/')
         constant_provider_name = '{}_Constant_{}'.format(component_name, port_name)
+        mods = {
+            consumer_name: {}
+        }
+
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
                 'template': '{{ constant_provider }}({{ index }})',
@@ -380,7 +392,7 @@ class ConstantArraySignal(SignalType):
                     'index':             argument_names[0]
                 }
             }
-            function.set_return_statement(chevron.render(**ctx))
+            mods[consumer_name]['return_statement'] = chevron.render(**ctx)
         else:
             ctx = {
                 'template': '{{ constant_provider }}({{ index }}, {{ out_name }});',
@@ -391,7 +403,10 @@ class ConstantArraySignal(SignalType):
                 }
             }
 
-            function.add_body(chevron.render(**ctx))
+            mods[consumer_name]['used_arguments'] = [argument_names[0], argument_names[1]]
+            mods[consumer_name]['body'] = chevron.render(**ctx)
+
+        return mods
 
 
 signal_types = {
@@ -585,10 +600,11 @@ port_type_data = {
                 'return_value': get_default_value(types, port_data)
             },
             'pointer': lambda types, port_data: {
-                'return_type': 'void',
-                'arguments':   {'value': '{}*'.format(port_data['data_type'])},
-                'asserts':     'value != NULL',
-                'body':        '*value = {};'.format(get_default_value_formatted(types, port_data))
+                'return_type':    'void',
+                'arguments':      {'value': '{}*'.format(port_data['data_type'])},
+                'used_arguments': ['value'],
+                'asserts':        'value != NULL',
+                'body':           '*value = {};'.format(get_default_value_formatted(types, port_data))
             }
         }
     },
@@ -610,8 +626,9 @@ port_type_data = {
                 'arguments': {'value': '{}*'.format(port_data['data_type'])},
             },
             'pointer': lambda types, port_data: {
-                'arguments': {'value': '{}*'.format(port_data['data_type'])},
-                'asserts':   'value != NULL'
+                'arguments':      {'value': '{}*'.format(port_data['data_type'])},
+                'asserts':        'value != NULL',
+                'used_arguments': ['value']
             }
         }
     },
@@ -632,22 +649,24 @@ port_type_data = {
                 'func_name_pattern': '{}_Read_{}'
             },
             'value':   lambda types, port_data: {
-                'return_type':  port_data['data_type'],
-                'arguments':    {'index': 'uint32_t'},
-                'return_value': get_default_value(types, port_data),
-                'asserts':      'index < {}'.format(port_data['count'])
+                'return_type':    port_data['data_type'],
+                'arguments':      {'index': 'uint32_t'},
+                'return_value':   get_default_value(types, port_data),
+                'asserts':        'index < {}'.format(port_data['count']),
+                'used_arguments': ['index'],
             },
             'pointer': lambda types, port_data: {
-                'return_type': 'void',
-                'arguments':   {
+                'return_type':    'void',
+                'arguments':      {
                     'index': 'uint32_t',
                     'value': '{}*'.format(port_data['data_type'])
                 },
-                'asserts':     [
+                'asserts':        [
                     'index < {}'.format(port_data['count']),
                     'value != NULL'
                 ],
-                'body':        '*value = {};'.format(get_default_value_formatted(types, port_data))
+                'used_arguments': ['value', 'index'],
+                'body':           '*value = {};'.format(get_default_value_formatted(types, port_data))
             }
         }
     },
@@ -669,8 +688,9 @@ port_type_data = {
                 'arguments': {'value': 'const {}'.format(port_data['data_type'])}
             },
             'pointer': lambda types, port_data: {
-                'arguments': {'value': 'const {}*'.format(port_data['data_type'])},
-                'asserts':   'value != NULL'
+                'arguments':      {'value': 'const {}*'.format(port_data['data_type'])},
+                'asserts':        'value != NULL',
+                'used_arguments': ['value']
             }
         }
     },
@@ -696,11 +716,12 @@ port_type_data = {
                 'asserts':   'index < {}'.format(port_data['count']),
             },
             'pointer': lambda types, port_data: {
-                'arguments': {
+                'arguments':      {
                     'index': 'uint32_t',
                     'value': 'const {}*'.format(port_data['data_type'])
                 },
-                'asserts':   [
+                'used_arguments': ['value'],
+                'asserts':        [
                     'index < {}'.format(port_data['count']),
                     'value != NULL'
                 ]
@@ -725,10 +746,11 @@ port_type_data = {
                 'return_value': port_data['value']
             },
             'pointer': lambda types, port_data: {
-                'return_type': 'void',
-                'arguments':   {'value': '{}*'.format(port_data['data_type'])},
-                'body':        '*value = {};'.format(types.render_value(port_data['data_type'], port_data['value'])),
-                'asserts':     'value != NULL'
+                'return_type':    'void',
+                'arguments':      {'value': '{}*'.format(port_data['data_type'])},
+                'body':           '*value = {};'.format(types.render_value(port_data['data_type'], port_data['value'])),
+                'asserts':        'value != NULL',
+                'used_arguments': ['value']
             }
         }
     },
@@ -753,16 +775,17 @@ port_type_data = {
                 'return_value': 'data[index]'
             },
             'pointer': lambda types, port_data: {
-                'return_type': 'void',
-                'arguments':   {
+                'return_type':    'void',
+                'arguments':      {
                     'index': 'uint32_t',
                     'value': '{}*'.format(port_data['data_type'])
                 },
-                'body':        'static const {} data[{}] = {{ {} }};\n'
-                               '*value = data[index];'.format(port_data['data_type'],
-                                                              port_data['count'],
-                                                              ', '.join(port_data['value'])),
-                'asserts':     [
+                'used_arguments': ['value', 'index'],
+                'body':           'static const {} data[{}] = {{ {} }};\n'
+                                  '*value = data[index];'.format(port_data['data_type'],
+                                                                 port_data['count'],
+                                                                 ', '.join(port_data['value'])),
+                'asserts':        [
                     'index < {}'.format(port_data['count']),
                     'value != NULL'
                 ]
@@ -820,6 +843,9 @@ def create_component_ports(owner: Runtime, component_name, component_data, conte
         if port_type in port_type_data:
             function_data = impl_data_lookup(owner.types, port_data)
             function = owner.create_function_for_port(component_name, port_name, function_data)
+
+            for argument in function_data.get('used_arguments', []):
+                function.mark_argument_used(argument)
 
             for attribute in function_data.get('attributes', []):
                 function.add_attribute(attribute)
