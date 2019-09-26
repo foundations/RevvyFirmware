@@ -289,6 +289,29 @@ class Runtime:
 
         self._call_plugin_event('project_config_loaded', project_config)
 
+    def add_port_type(self, port_type_name, data, lookup):
+        self._port_types[port_type_name] = data
+        self._port_impl_lookup[port_type_name] = lookup
+
+    def process_port_def(self, component_name, port_name, port):
+        port_type = port['port_type']
+
+        try:
+            attributes = self._port_types[port_type]['def_attributes']
+            del port['port_type']
+            return {
+                'port_type': port_type,
+                **attributes['static'],
+                **copy(port, attributes['required'], attributes['optional'])
+            }
+
+        except KeyError:
+            return port
+
+        except Exception as e:
+            raise Exception('Port {}/{} ({}) has unexpected attribute set: {}'
+                            .format(component_name, port_name, port_type, e))
+
     def load_component_config(self, component_name):
         if not self._project_config:
             self.load(False)
@@ -302,14 +325,15 @@ class Runtime:
         self._call_plugin_event('load_component_config', component_name, component_config)
         self._components[component_name] = component_config
 
-        for port_name, port_data in component_config['ports'].items():
-            short_name = '{}/{}'.format(component_name, port_name)
-            processed_port = self.process_port_def(short_name, port_data)
-            component_config['ports'][port_name] = processed_port
-            self._ports[short_name] = processed_port
+        if not component_config['ports']:
+            print('Warning: {} has no ports'.format(component_name))
 
-    def create_component(self, component):
-        pass
+        for port_name, port_data in component_config['ports'].items():
+            processed_port = self.process_port_def(component_name, port_name, port_data)
+            component_config['ports'][port_name] = processed_port
+
+            short_name = '{}/{}'.format(component_name, port_name)
+            self._ports[short_name] = processed_port
 
     def _process_type(self, type_name):
         defs = []
@@ -341,7 +365,6 @@ class Runtime:
         return defs, includes
 
     def update_component(self, component_name):
-        self._call_plugin_event('create_component_ports', component_name, self._components[component_name])
 
         component_folder = os.path.join(self.settings['components_folder'], component_name)
         source_file = os.path.join(component_folder, component_name + '.c')
@@ -351,7 +374,7 @@ class Runtime:
         context = {
             'runtime':          self,
             'component_folder': component_folder,
-            'functions':        self.functions,
+            'functions':        {},
             'declarations':     [],
             'files':            {
                 config_file: '',
@@ -360,6 +383,7 @@ class Runtime:
             },
             'folders':          [component_name]
         }
+        self._call_plugin_event('create_component_ports', component_name, self._components[component_name], context)
 
         self._call_plugin_event('before_generating_component', component_name, context)
 
@@ -575,6 +599,8 @@ class Runtime:
         context['files'][source_file_name] = chevron.render(source_template, template_data)
         context['files'][header_file_name] = chevron.render(runtime_header_template, template_data)
 
+        self._call_plugin_event('after_generating_runtime', context)
+
         return context['files']
 
     def _call_plugin_event(self, event_name, *args):
@@ -584,32 +610,6 @@ class Runtime:
             except Exception:
                 print('Error while processing {}/{}'.format(plugin, event_name))
                 raise
-
-    def add_port_type(self, port_type_name, data, lookup):
-        self._port_types[port_type_name] = data
-        self._port_impl_lookup[port_type_name] = lookup
-
-    def process_port_def(self, short_name, port):
-        port_type = port['port_type']
-
-        try:
-            attributes = self._port_types[port_type]['def_attributes']
-            del port['port_type']
-            return {
-                'short_name': short_name,
-                'port_type':  port_type,
-                **attributes['static'],
-                **copy(port, attributes['required'], attributes['optional'])
-            }
-
-        except KeyError:
-            return port
-
-        except Exception as e:
-            raise Exception('Port {} ({}) has unexpected attribute set: {}'.format(short_name, port_type, e))
-
-    def add_function(self, key, function: FunctionDescriptor):
-        self._functions[key] = function
 
     @property
     def functions(self):

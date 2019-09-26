@@ -1,6 +1,6 @@
 import re
 
-from tools.runtime import RuntimePlugin, Runtime
+from tools.runtime import RuntimePlugin, Runtime, FunctionDescriptor
 
 
 def parse_file(file_path):
@@ -12,10 +12,16 @@ def parse_file(file_path):
 
         # parse contents
         matches = re.findall(
-            '/\\* Begin User Code Section: (?P<secname>.*?) \\*/\n(?P<usercode>.*?)/\\* End User Code Section: (?P=secname) \\*/',
-            contents, re.DOTALL)
+            '(?P<indent>[ ]*)/\\* Begin User Code Section: (?P<secname>.*?) \\*/\n(?P<usercode>.*?)\n(?P=indent)/\\* End User Code Section: (?P=secname) \\*/',
+            contents, flags=re.DOTALL)
 
-        for secname, usercode in matches:
+        for indent, secname, usercode in matches:
+            indent_level = len(indent)
+            # remove indentation
+            if indent_level > 0:
+                if usercode.startswith(indent):
+                    usercode = usercode[len(indent):]
+
             file_sections[secname] = usercode
     except FileNotFoundError:
         pass
@@ -23,53 +29,68 @@ def parse_file(file_path):
     return file_sections
 
 
-def format_section(section_name, contents):
-    template = '/* Begin User Code Section: {0} */\n{1}\n/* End User Code Section: {0} */'
-    indent_level = len(contents) - len(contents.lstrip(' '))
-    # remove indentation
-    if indent_level > 0:
-        pattern = '^( {{{}}})'.format(indent_level)
-        contents = re.sub(pattern, '', contents, flags=re.MULTILINE)
+def create_section(name, contents):
+    return '/* Begin User Code Section: {0} */\n{1}/* End User Code Section: {0} */'.format(name, contents)
 
-    return template.format(section_name, contents.strip('\n'))
+
+def add_sections_to_function(function: FunctionDescriptor, name):
+    secname = name + ' Start'
+    function.prepend_body(create_section(secname, ''))
+
+    secname = name + ' End'
+    function.add_body(create_section(secname, ''))
+
+
+def fill_sections(source, sections):
+    def repl(matches):
+        indent = matches[1]
+        secname = matches[2]
+
+        lines = sections.get(secname, '').split("\n")
+        proclines = []
+        for line in lines:
+            if line != '':
+                proclines.append(indent + line)
+            else:
+                proclines.append(line)
+        proclines.append(indent)
+
+        return indent + create_section(secname, "\n".join(proclines))
+
+    return re.sub(
+        '(?P<indent>[ ]*)/\\* Begin User Code Section: (?P<secname>.*?) \\*/(?P<usercode>.*?)/\\* End User Code Section: (?P=secname) \\*/',
+        repl,
+        source,
+        flags=re.DOTALL)
 
 
 def add_sections_to_component(owner: Runtime, component_name, context: dict):
-    source_files = [file for file in context['files'].keys() if file.endswith('.c')]
+    context['declarations'].insert(0, create_section('Declarations', ''))
 
-    for source in source_files:
-        sections = parse_file(source)
-
-        context['declarations'].insert(0, format_section('Declarations', sections.get('Declarations', '')))
-
-        for name, function in context['functions'].items():
-            name = name[name.rfind('/') + 1:]  # don't need to have the component name
-            secname = name + ' Start'
-            function.prepend_body(format_section(secname, sections.get(secname, '')))
-
-            secname = name + ' End'
-            function.add_body(format_section(secname, sections.get(secname, '')))
+    for name, function in context['functions'].items():
+        name = name[name.rfind('/') + 1:]  # don't need to have the component name
+        add_sections_to_function(function, name)
 
 
 def add_sections_to_runtime(owner: Runtime, context: dict):
-    source_files = [file for file in context['files'].keys() if file.endswith('.c')]
+    context['declarations'].insert(0, create_section('Declarations', ''))
 
-    for source in source_files:
-        sections = parse_file(source)
+    for name, function in context['functions'].items():
+        if function:
+            add_sections_to_function(function, name)
 
-        context['declarations'].insert(0, format_section('Declarations', sections.get('Declarations', '')))
 
-        for name, function in context['functions'].items():
-            if function:
-                secname = name + ' Start'
-                function.prepend_body(format_section(secname, sections.get(secname, '')))
+def replace_sections_in_files(context: dict):
+    for file, source in context['files'].items():
+        sections = parse_file(file)
 
-                secname = name + ' End'
-                function.add_body(format_section(secname, sections.get(secname, '')))
+        context['files'][file] = fill_sections(source, sections)
 
 
 def user_code_plugin():
     return RuntimePlugin("UserCodePlugin", handlers={
         'before_generating_component': add_sections_to_component,
-        'before_generating_runtime':   add_sections_to_runtime
+        'generating_component':        lambda owner, component_name, context: replace_sections_in_files(context),
+        'before_generating_runtime':   add_sections_to_runtime,
+        'after_generating_runtime':    lambda owner, context: replace_sections_in_files(context)
     })

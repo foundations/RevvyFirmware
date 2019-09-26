@@ -290,7 +290,7 @@ class ConstantSignal(SignalType):
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
 
-        component_name, port_name = provider_port_data['short_name'].split('/')
+        component_name, port_name = connection.provider.split('/')
         constant_provider_name = '{}_Constant_{}'.format(component_name, port_name)
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
@@ -418,7 +418,7 @@ def render_struct_typedef(type_collection: TypeCollection, type_name):
     return chevron.render(**context)
 
 
-def struct_formatter(types, type_name, type_data, struct_value):
+def struct_formatter(types: TypeCollection, type_name, type_data, struct_value):
     if type(struct_value) is str:
         return struct_value
 
@@ -501,7 +501,7 @@ def process_type_def(type_name, type_def):
         raise Exception('Type {} ({}) has unexpected attribute set: {}'.format(type_name, type_type, e))
 
 
-def init_constant_array(types, port_data):
+def init_constant_array(types: TypeCollection, port_data):
     if port_data['count'] != len(port_data['value']):
         raise Exception('Not enough values provided for {}'.format(port_data['short_name']))
 
@@ -510,7 +510,7 @@ def init_constant_array(types, port_data):
     }
 
 
-def get_default_value(types, port_data):
+def get_default_value(types: TypeCollection, port_data):
     """Return the default value for a particular port
 
     If a return value is not specified (or is None), return the default value for the data type"""
@@ -521,7 +521,7 @@ def get_default_value(types, port_data):
         return specified_return_value
 
 
-def get_default_value_formatted(types, port_data):
+def get_default_value_formatted(types: TypeCollection, port_data):
     default_value = types.default_value(port_data['data_type'])
     return types.render_value(port_data['data_type'], default_value)
 
@@ -736,7 +736,7 @@ port_type_data = {
 }
 
 
-def impl_data_lookup(types, port_data):
+def impl_data_lookup(types: TypeCollection, port_data):
     port_type = port_data['port_type']
     if port_type not in port_type_data:
         return None
@@ -750,7 +750,7 @@ def impl_data_lookup(types, port_data):
     }
 
 
-def init(owner):
+def init(owner: Runtime):
     for port_type_name, data in port_type_data.items():
         owner.add_port_type(port_type_name, data, impl_data_lookup)
 
@@ -758,28 +758,27 @@ def init(owner):
         owner.add_signal_type(signal_name, signal)
 
 
-def add_type_def(owner, type_name, type_data):
+def add_type_def(owner: Runtime, type_name, type_data):
     type_type_data = process_type_def(type_name, type_data)
     type_type_info = type_info[type_type_data['type']]
     value_formatter = type_type_info.get('value_formatter', lambda types, type_name, type_data, x: str(x))
     owner.types.add(type_name, type_type_data, type_type_info['typedef_renderer'], value_formatter)
 
 
-def process_project_types(owner, project_config):
+def process_project_types(owner: Runtime, project_config):
     for type_name, type_data in project_config.get('types', {}).items():
         add_type_def(owner, type_name, type_data)
 
 
-def process_component_ports_and_types(owner, component_name, component_config):
+def process_component_ports_and_types(owner: Runtime, component_name, component_config):
     if 'ports' not in component_config:
         component_config['ports'] = {}
-        print('Warning: {} has no ports'.format(component_name))
 
     for type_name, type_data in component_config.get('types', {}).items():
         add_type_def(owner, type_name, type_data)
 
 
-def create_component_ports(owner: Runtime, component_name, component_data):
+def create_component_ports(owner: Runtime, component_name, component_data, context):
     for port_name, port_data in component_data['ports'].items():
         port_type = port_data['port_type']
         if port_type in port_type_data:
@@ -795,14 +794,15 @@ def create_component_ports(owner: Runtime, component_name, component_data):
                 return_value = owner.types.render_value(port_data['data_type'], return_value)
                 function.set_return_statement(return_value)
 
-            owner.add_function(port_data['short_name'], function)
+            context['functions']['{}/{}'.format(component_name, port_name)] = function
 
 
 def sort_functions(owner: Runtime, context):
     def sort_by_name(fn):
+        # only sort functions of known port types
         port = owner.get_port(fn)
         if port['port_type'] in port_type_data:
-            return port['short_name']
+            return fn
         else:
             return '0'
 
@@ -818,7 +818,7 @@ def sort_functions(owner: Runtime, context):
     context['functions'] = {fn: context['functions'][fn] for fn in by_port_type}
 
 
-def cleanup_component(owner, component_name, ctx):
+def cleanup_component(owner: Runtime, component_name, ctx):
     sort_functions(owner, ctx)
 
     component_ports = owner._components[component_name]['ports']
