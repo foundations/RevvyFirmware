@@ -28,6 +28,9 @@ class EventSignal(SignalType):
         if not are_argument_lists_compatible(consumer_port_data, function):
             raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
 
+        for arg_name in consumer_port_data['arguments']:
+            function.mark_argument_used(arg_name)
+
         component_name, port_name = consumer_name.split('/')
 
         ctx = {
