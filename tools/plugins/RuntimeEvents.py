@@ -4,6 +4,12 @@ from tools.generator_common import TypeCollection
 from tools.runtime import RuntimePlugin, Runtime, SignalType, SignalConnection
 
 
+def are_argument_lists_compatible(consumer_port_data, function):
+    argument_names = set(function.arguments)
+
+    return not consumer_port_data['arguments'].keys() - argument_names
+
+
 class EventSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple')
@@ -19,9 +25,7 @@ class EventSignal(SignalType):
 
         consumer_port_data = runtime.get_port(consumer_name)
         function = context['functions'][connection.provider]
-        argument_names = function.arguments.keys()
-
-        if len([arg for arg in consumer_port_data['arguments'] if arg not in argument_names]) != 0:
+        if not are_argument_lists_compatible(consumer_port_data, function):
             raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
 
         component_name, port_name = consumer_name.split('/')
@@ -57,9 +61,8 @@ class ServerCallSignal(SignalType):
 
         consumer_port_data = runtime.get_port(consumer_name)
         function = context['functions'][connection.provider]
-        argument_names = list(function.arguments.keys())
 
-        if len([arg for arg in consumer_port_data['arguments'] if arg not in argument_names]) != 0:
+        if not are_argument_lists_compatible(consumer_port_data, function):
             raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
 
         component_name, port_name = consumer_name.split('/')
