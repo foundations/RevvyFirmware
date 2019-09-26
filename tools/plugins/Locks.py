@@ -38,8 +38,8 @@ def is_signal_async(owner: Runtime, connection: SignalConnection):
 
 
 def surround_with_lock(signal_impl):
-    lock_impl = '/* TODO lock */'
-    unlock_impl = '/* TODO unlock */'
+    lock_impl = '__disable_irq();'
+    unlock_impl = '__enable_irq();'
 
     if type(signal_impl) is list:
         signal_impl.insert(0, lock_impl)
