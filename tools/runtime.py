@@ -112,6 +112,7 @@ class FunctionDescriptor:
         self._return_statement = None
         self._body = []
         self._attributes = set()
+        self.includes = set()
 
     def mark_argument_used(self, arg):
         self._used_arguments.add(arg)
@@ -123,6 +124,7 @@ class FunctionDescriptor:
         self._arguments[name] = data_type
 
     def add_input_assert(self, statements):
+        self.includes.add('"utils_assert.h"')
         if type(statements) is str:
             self._asserts.add('ASSERT({});'.format(statements))
         else:
@@ -426,14 +428,12 @@ class Runtime:
         function_headers = [fn.get_header() for fn in funcs]
         functions = [fn.get_function() for fn in funcs]
 
-        includes = [
+        includes = {
             '"{}.h"'.format(component_name),
             '"utils.h"'
-        ]
+        }
         for f in funcs:
-            if f._asserts:
-                includes.append('"utils_assert.h"')
-                break
+            includes.update(f.includes)
 
         types, type_includes = self._process_type(self._components[component_name].get('types', []))
         for f in funcs:
@@ -606,32 +606,35 @@ class Runtime:
         for c in self._components.values():
             type_names += c.get('types', {}).keys()
 
+        output_filename = filename[filename.rfind('/') + 1:]
+        includes = {
+            '"{}.h"'.format(output_filename),
+            '"utils.h"'
+        }
+
         for f in context['functions'].values():
             if f:
                 type_names += f.referenced_types()
+                includes.update(f.includes)
 
         types = []
-        includes = set()
+        type_includes = set()
 
         for t in type_names:
             ty, i = self._process_type(t)
             types += ty
-            includes.update(i)
+            type_includes.update(i)
 
-        output_filename = filename[filename.rfind('/') + 1:]
         template_data = {
             'output_filename':       output_filename,
-            'includes':              [
-                {'header': '"{}.h"'.format(output_filename)},
-                {'header': '"utils.h"'}
-            ],
+            'includes':              list_to_chevron_list(includes, 'header'),
             'components':            [
                 {
                     'name':      name,
                     'guard_def': to_underscore(name).upper()
                 } for name in self._components if name != 'Runtime'],  # TODO
             'types':                 unique(types),
-            'type_includes':         list_to_chevron_list(sorted(includes), 'header'),
+            'type_includes':         list_to_chevron_list(sorted(type_includes), 'header'),
             'function_declarations': [context['functions'][func_name].get_header() for func_name in
                                       context['exported_function_declarations']],
             'functions':             [func.get_function() for func in context['functions'].values() if func],
