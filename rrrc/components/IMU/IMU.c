@@ -11,13 +11,17 @@
 
 #define MAX_N_RETRIES   ((uint32_t) 100u)
 
-static bool imu_enabled;
+typedef enum {
+    imu_not_identified,
+    imu_identified,
+    imu_configured
+} imu_status_t;
+
+static imu_status_t imu_status;
 static uint32_t init_retry_count;
 
 static void _send_configuration(void)
 {
-    _imu_write_register(LSM6DS3_REG(CTRL3_C), LSM6DS3_FIELD_ENABLE(SW_RESET));
-
     _imu_write_register(LSM6DS3_REG(INT1_CTRL), LSM6DS3_FIELD_ENABLE(INT1_DRDY_XL));
     _imu_write_register(LSM6DS3_REG(INT2_CTRL), LSM6DS3_FIELD_ENABLE(INT2_DRDY_G));
 
@@ -43,7 +47,7 @@ static void _read_data(uint8_t addr, IMU_RawSample_t* data)
 void IMU_Run_OnInit(void)
 {
     /* Begin User Code Section: OnInit Start */
-    imu_enabled = false;
+    imu_status = imu_not_identified;
     init_retry_count = 0u;
     IMU_Call_LowLevelInit();
     /* End User Code Section: OnInit Start */
@@ -55,63 +59,74 @@ void IMU_Run_OnInit(void)
 void IMU_Run_OnUpdate(void)
 {
     /* Begin User Code Section: OnUpdate Start */
-    if (!imu_enabled)
+    switch (imu_status)
     {
-        if (init_retry_count < MAX_N_RETRIES)
-        {
-            const uint8_t accepted_whoami[] = { LSM6DS3_WHOAMI_VALUES };
-            uint8_t whoami = _imu_read_register(LSM6DS3_REG(WHOAMI));
-
-            for (size_t i = 0u; i < ARRAY_SIZE(accepted_whoami); i++)
+        case imu_not_identified:
+            if (init_retry_count < MAX_N_RETRIES)
             {
-                if (whoami == accepted_whoami[i])
+                const uint8_t accepted_whoami[] = { LSM6DS3_WHOAMI_VALUES };
+                uint8_t whoami = _imu_read_register(LSM6DS3_REG(WHOAMI));
+
+                for (size_t i = 0u; i < ARRAY_SIZE(accepted_whoami); i++)
                 {
-                    _send_configuration();
-                    imu_enabled = true;
-                    break;
+                    if (whoami == accepted_whoami[i])
+                    {
+                        _imu_write_register(LSM6DS3_REG(CTRL3_C), LSM6DS3_FIELD_ENABLE(SW_RESET));
+
+                        imu_status = imu_identified;
+                        break;
+                    }
+                }
+
+                if (imu_status != imu_identified)
+                {
+                    ++init_retry_count;
+
+                    if (init_retry_count == MAX_N_RETRIES)
+                    {
+                        IMU_Call_LogError();
+                    }
                 }
             }
+            break;
 
-            if (!imu_enabled)
+        case imu_identified:
+            if ((_imu_read_register(LSM6DS3_REG(CTRL3_C)) & LSM6DS3_FIELD_ENABLE(SW_RESET)) == 0u)
             {
-                ++init_retry_count;
-
-                if (init_retry_count == MAX_N_RETRIES)
-                {
-                    IMU_Call_LogError();
-                }
+                _send_configuration();
+                imu_status = imu_configured;
             }
-        }
-    }
-    else
-    {
-        if (imu_axl_data_ready())
-        {
-            IMU_RawSample_t data;
-            _read_data(LSM6DS3_ACCEL_REGISTERS, &data);
+            break;
 
-            Vector3D_t converted = {
-                .x = data.x * IMU_AXL_LSB,
-                .y = data.y * IMU_AXL_LSB,
-                .z = data.z * IMU_AXL_LSB
-            };
-            IMU_Write_RawAccelerometerSample(&data);
-            IMU_Write_AccelerometerSample(&converted);
-        }
+        case imu_configured:
+            if (imu_axl_data_ready())
+            {
+                IMU_RawSample_t data;
+                _read_data(LSM6DS3_ACCEL_REGISTERS, &data);
 
-        if (imu_gyro_data_ready())
-        {
-            IMU_RawSample_t data;
-            _read_data(LSM6DS3_GYRO_REGISTERS, &data);
+                Vector3D_t converted = {
+                    .x = data.x * IMU_AXL_LSB,
+                    .y = data.y * IMU_AXL_LSB,
+                    .z = data.z * IMU_AXL_LSB
+                };
+                IMU_Write_RawAccelerometerSample(&data);
+                IMU_Write_AccelerometerSample(&converted);
+            }
 
-            Vector3D_t converted = {
-                .x = data.x * IMU_GYRO_LSB,
-                .y = data.y * IMU_GYRO_LSB,
-                .z = data.z * IMU_GYRO_LSB
-            };
-            IMU_Write_RawGyroscopeSample(&data);
-            IMU_Write_GyroscopeSample(&converted);
-        }
+            if (imu_gyro_data_ready())
+            {
+                IMU_RawSample_t data;
+                _read_data(LSM6DS3_GYRO_REGISTERS, &data);
+
+                Vector3D_t converted = {
+                    .x = data.x * IMU_GYRO_LSB,
+                    .y = data.y * IMU_GYRO_LSB,
+                    .z = data.z * IMU_GYRO_LSB
+                };
+                IMU_Write_RawGyroscopeSample(&data);
+                IMU_Write_GyroscopeSample(&converted);
+            }
+            break;
     }
     /* End User Code Section: OnUpdate Start */
     /* Begin User Code Section: OnUpdate End */
