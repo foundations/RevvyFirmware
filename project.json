@@ -144,6 +144,11 @@
             "defined_in": "<stdint.h>",
             "default_value": "0u"
         },
+        "uint8_t*": {
+            "pass_semantic": "value",
+            "defined_in": "<stdint.h>",
+            "default_value": "NULL"
+        },
         "uint16_t": {
             "pass_semantic": "value",
             "defined_in": "<stdint.h>",

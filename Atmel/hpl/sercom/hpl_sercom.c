@@ -1836,6 +1836,12 @@ int32_t _i2c_s_sync_enable(struct _i2c_s_sync_device *const device)
  */
 int32_t _i2c_s_async_enable(struct _i2c_s_async_device *const device)
 {
+    ASSERT(device->cb.stop_cb);
+    ASSERT(device->cb.addrm_cb);
+    ASSERT(device->cb.tx_cb);
+    ASSERT(device->cb.rx_done_cb);
+    ASSERT(device->cb.error_cb);
+
 	hri_sercomi2cs_set_CTRLA_ENABLE_bit(device->hw);
 
 	return ERR_NONE;
@@ -2009,15 +2015,14 @@ int32_t _i2c_s_async_set_irq_state(struct _i2c_s_async_device *const device, con
 static void _sercom_i2c_s_irq_handler_0(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
-    device->cb.stop_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
+    device->cb.stop_cb(hri_sercomi2cs_get_STATUS_DIR_bit(hw));
     hri_sercomi2cs_clear_INTFLAG_PREC_bit(hw);
 }
 
 static void _sercom_i2c_s_irq_handler_1(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
-    ASSERT(device->cb.addrm_cb);
-    device->cb.addrm_cb(device, hri_sercomi2cs_get_STATUS_DIR_bit(hw));
+    device->cb.addrm_cb(hri_sercomi2cs_get_STATUS_DIR_bit(hw));
     hri_sercomi2cs_clear_INTFLAG_AMATCH_bit(hw);
 }
 
@@ -2025,20 +2030,17 @@ static void _sercom_i2c_s_irq_handler_2(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
     if (hri_sercomi2cs_get_STATUS_DIR_bit(hw)) {
-        ASSERT(device->cb.tx_cb);
-        device->cb.tx_cb(device);
+        device->cb.tx_cb();
     } else {
-        ASSERT(device->cb.rx_done_cb);
-        device->cb.rx_done_cb(device, hri_sercomi2cs_read_DATA_reg(hw));
+        device->cb.rx_done_cb((uint8_t) hri_sercomi2cs_read_DATA_reg(hw));
     }
 }
 
 static void _sercom_i2c_s_irq_handler_3(struct _i2c_s_async_device *device)
 {
     SercomI2cs* hw = device->hw;
-    ASSERT(device->cb.error_cb);
     hri_sercomi2cs_clear_INTFLAG_ERROR_bit(hw);
-    device->cb.error_cb(device);
+    device->cb.error_cb();
 }
 
 /**

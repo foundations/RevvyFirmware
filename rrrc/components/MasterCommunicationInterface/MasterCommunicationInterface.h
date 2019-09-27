@@ -1,32 +1,31 @@
-/*
- * MasterCommunicationInterface.h
- *
- * Created: 07/05/2019 10:30:22
- *  Author: Dániel Buga
- */ 
+#ifndef COMPONENT_MASTER_COMMUNICATION_INTERFACE_H_
+#define COMPONENT_MASTER_COMMUNICATION_INTERFACE_H_
 
-#ifndef MASTER_COMMUNICATION_INTERFACE_H_
-#define MASTER_COMMUNICATION_INTERFACE_H_
+#ifndef COMPONENT_TYPES_MASTER_COMMUNICATION_INTERFACE_H_
+#define COMPONENT_TYPES_MASTER_COMMUNICATION_INTERFACE_H_
 
+#include <stdint.h>
 #include <stdio.h>
 
-typedef struct 
-{
-    uint8_t* defaultResponseBuffer;
-    size_t defaultResponseLength;
 
-    uint8_t* longRxErrorResponseBuffer;
-    size_t longRxErrorResponseLength;
+typedef struct {
+    uint8_t* payload;
+    size_t size;
+} MasterMessage_t;
 
-    uint32_t rxTimeout;
+typedef struct {
+    MasterMessage_t default_response;
+    MasterMessage_t rx_overflow_response;
+    uint32_t rx_timeout;
 } MasterCommunicationInterface_Config_t;
 
+#endif /* COMPONENT_TYPES_MASTER_COMMUNICATION_INTERFACE_H_ */
+
 void MasterCommunicationInterface_Run_OnInit(void);
-void MasterCommunicationInterface_Run_SetResponse(const uint8_t* buffer, size_t bufferSize);
-
-void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst);
-
-void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize);
+void MasterCommunicationInterface_Run_SetResponse(MasterMessage_t response);
 void MasterCommunicationInterface_Call_RxTimeout(void);
+void MasterCommunicationInterface_Call_OnMessageReceived(MasterMessage_t message);
+void MasterCommunicationInterface_Call_LogError(void);
+void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* value);
 
-#endif /* MASTER_COMMUNICATION_INTERFACE_H_ */
+#endif /* COMPONENT_MASTER_COMMUNICATION_INTERFACE_H_ */

@@ -47,6 +47,17 @@ typedef struct {
     int16_t z;
 } IMU_RawSample_t;
 
+typedef struct {
+    uint8_t* payload;
+    size_t size;
+} MasterMessage_t;
+
+typedef struct {
+    MasterMessage_t default_response;
+    MasterMessage_t rx_overflow_response;
+    uint32_t rx_timeout;
+} MasterCommunicationInterface_Config_t;
+
 typedef enum {
     MasterStatus_Unknown,
     MasterStatus_Operational,
