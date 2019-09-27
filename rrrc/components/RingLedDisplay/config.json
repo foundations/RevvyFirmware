@@ -4,6 +4,10 @@
         "RingLedDisplay.c"
     ],
     "types": {
+        "rgb_t": {
+            "defined_in": "\"utils/color.h\"",
+            "default_value": "(rgb_t){0, 0, 0}"
+        },
         "RingLedScenario_t": {
             "type": "enum",
             "values": [
@@ -18,19 +22,18 @@
         }
     },
     "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": {}
-        },
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
-        }
+        "OnInit": {},
+        "Update": {}
     },
     "ports": {
         "MasterReady": {
             "port_type": "ReadValue",
             "data_type": "bool"
+        },
+        "LedColor": {
+            "port_type": "WriteIndexedData",
+            "data_type": "rgb_t",
+            "count": 12
         }
     }
 }

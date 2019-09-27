@@ -29,12 +29,6 @@ typedef enum {
     BluetoothStatus_Connected
 } BluetoothStatus_t;
 
-typedef enum {
-    SystemState_Startup,
-    SystemState_Operational,
-    SystemState_Error
-} SystemState_t;
-
 typedef struct {
     float x;
     float y;
@@ -47,6 +41,12 @@ typedef struct {
     int16_t z;
 } IMU_RawSample_t;
 
+typedef enum {
+    MasterStatus_Unknown,
+    MasterStatus_Operational,
+    MasterStatus_Controlled
+} MasterStatus_t;
+
 typedef struct {
     uint8_t* payload;
     size_t size;
@@ -57,12 +57,6 @@ typedef struct {
     MasterMessage_t rx_overflow_response;
     uint32_t rx_timeout;
 } MasterCommunicationInterface_Config_t;
-
-typedef enum {
-    MasterStatus_Unknown,
-    MasterStatus_Operational,
-    MasterStatus_Controlled
-} MasterStatus_t;
 typedef float Temperature_t;
 
 typedef struct {
@@ -96,11 +90,8 @@ typedef enum {
 #define COMPONENT_TYPES_ADC_DISPATCHER_H_
 #define COMPONENT_TYPES_BATTERY_CALCULATOR_H_
 #define COMPONENT_TYPES_BATTERY_CHARGER_H_
-#define COMPONENT_TYPES_BATTERY_INDICATOR_H_
 #define COMPONENT_TYPES_BATTERY_STATUS_PROVIDER_H_
-#define COMPONENT_TYPES_BLUETOOTH_INDICATOR_H_
 #define COMPONENT_TYPES_BLUETOOTH_STATUS_OBSERVER_H_
-#define COMPONENT_TYPES_BRAIN_STATUS_INDICATOR_H_
 #define COMPONENT_TYPES_COMMUNICATION_OBSERVER_H_
 #define COMPONENT_TYPES_DRIVE_TRAIN_H_
 #define COMPONENT_TYPES_ERROR_STORAGE_H_
@@ -110,6 +101,7 @@ typedef enum {
 #define COMPONENT_TYPES_IMU_H_
 #define COMPONENT_TYPES_INTERNAL_TEMPERATURE_SENSOR_H_
 #define COMPONENT_TYPES_LED_CONTROLLER_H_
+#define COMPONENT_TYPES_LED_DISPLAY_CONTROLLER_H_
 #define COMPONENT_TYPES_MASTER_COMMUNICATION_H_
 #define COMPONENT_TYPES_MASTER_COMMUNICATION_INTERFACE_H_
 #define COMPONENT_TYPES_MASTER_STATUS_OBSERVER_H_
@@ -134,11 +126,8 @@ typedef enum {
 #include "components/ADCDispatcher/ADCDispatcher.h"
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryCharger/BatteryCharger.h"
-#include "components/BatteryIndicator/BatteryIndicator.h"
 #include "components/BatteryStatusProvider/BatteryStatusProvider.h"
-#include "components/BluetoothIndicator/BluetoothIndicator.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
-#include "components/BrainStatusIndicator/BrainStatusIndicator.h"
 #include "components/CommunicationObserver/CommunicationObserver.h"
 #include "components/DriveTrain/DriveTrain.h"
 #include "components/ErrorStorage/ErrorStorage.h"
@@ -148,6 +137,7 @@ typedef enum {
 #include "components/IMU/IMU.h"
 #include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
 #include "components/LEDController/LEDController.h"
+#include "components/LedDisplayController/LedDisplayController.h"
 #include "components/MasterCommunication/MasterCommunication.h"
 #include "components/MasterCommunicationInterface/MasterCommunicationInterface.h"
 #include "components/MasterStatusObserver/MasterStatusObserver.h"

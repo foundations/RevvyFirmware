@@ -1,7 +1,0 @@
-{
-    "component_name": "BatteryIndicator",
-    "source_files": [
-        "BatteryIndicator.c"
-    ],
-    "runnables": {}
-}
