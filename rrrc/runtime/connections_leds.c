@@ -1,10 +1,3 @@
-/*
- * connections_leds.c
- *
- * Created: 2019. 07. 27. 16:27:03
- *  Author: Dániel Buga
- */ 
- 
 #include "../rrrc_hal.h"
 #include "../rrrc_worklogic.h"
 #include "../rrrc_indication.h"
@@ -12,79 +5,53 @@
 extern BatteryIndicator_Context_t mainBatteryIndicator;
 extern BatteryIndicator_Context_t motorBatteryIndicator;
 
-static bool statusLedsChanged;
-static bool ringLedsChanged = true;
-static rgb_t statusLeds[4] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF };
-static rgb_t ringLeds[RING_LEDS_AMOUNT] = { LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF, LED_OFF };
-
-static MasterStatus_t masterStatus;
-static bool battery_low = true;
-
-rgb_t LEDController_Read_StatusLED(uint32_t led_idx)
-{
-    if (led_idx >= ARRAY_SIZE(statusLeds))
-    {
-        return (rgb_t) LED_OFF;
-    }
-    else
-    {
-        if (battery_low && led_idx != 0u)
-        {
-            return (rgb_t) LED_OFF;
-        }
-        else
-        {
-            return statusLeds[led_idx];
-        }
-    }
-}
-
-rgb_t LEDController_Read_RingLED(uint32_t led_idx)
-{
-    if (led_idx >= ARRAY_SIZE(ringLeds) || battery_low)
-    {
-        return (rgb_t) LED_OFF;
-    }
-    else
-    {
-        return ringLeds[led_idx];
-    }
-}
-
 #define MAIN_BATTERY_INDICATOR_LED  0
 #define MOTOR_BATTERY_INDICATOR_LED 1
 #define BLUETOOTH_INDICATOR_LED     2
 #define STATUS_INDICATOR_LED        3
 
+static rgb_t leds[16] = {
+    LED_OFF, LED_OFF, LED_OFF, LED_OFF,
+    LED_OFF, LED_OFF, LED_OFF, LED_OFF,
+    LED_OFF, LED_OFF, LED_OFF, LED_OFF,
+    LED_OFF, LED_OFF, LED_OFF, LED_OFF
+};
+
+static MasterStatus_t masterStatus;
+static bool battery_low = true;
+
+rgb_t LEDController_Read_Colors(uint32_t led_idx)
+{
+    ASSERT(led_idx < 16u);
+    if (battery_low && led_idx != 0u)
+    {
+        return (rgb_t) LED_OFF;
+    }
+    else
+    {
+        return leds[led_idx];
+    }
+}
+
 void BluetoothIndicator_Write_LedColor(rgb_t color)
 {
-    statusLeds[BLUETOOTH_INDICATOR_LED] = color;
-    statusLedsChanged = true;
+    leds[BLUETOOTH_INDICATOR_LED] = color;
 }
 
 void BrainStatusIndicator_Write_LedColor(rgb_t color)
 {
-    statusLeds[STATUS_INDICATOR_LED] = color;
-    statusLedsChanged = true;
+    leds[STATUS_INDICATOR_LED] = color;
 }
 
 void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t color)
 {
     if (context == &mainBatteryIndicator)
     {
-        if (!rgb_equals(color, statusLeds[MAIN_BATTERY_INDICATOR_LED]))
-        {
-            statusLeds[MAIN_BATTERY_INDICATOR_LED] = color;
-            statusLedsChanged = true;
-        }
+        leds[MAIN_BATTERY_INDICATOR_LED] = color;
     }
     else if (context == &motorBatteryIndicator)
     {
-        if (!rgb_equals(color, statusLeds[MOTOR_BATTERY_INDICATOR_LED]))
-        {
-            statusLeds[MOTOR_BATTERY_INDICATOR_LED] = color;
-            statusLedsChanged = true;
-        }
+        leds[MOTOR_BATTERY_INDICATOR_LED] = color;
     }
     else
     {
@@ -92,28 +59,10 @@ void BatteryIndicator_Write_LedColor(BatteryIndicator_Context_t* context, rgb_t 
     }
 }
 
-bool LEDController_Read_StatusLEDs_Changed(void)
-{
-    bool changed = statusLedsChanged;
-    statusLedsChanged = false;
-    return changed;
-}
-
-bool LEDController_Read_RingLEDs_Changed(void)
-{
-    bool changed = ringLedsChanged;
-    ringLedsChanged = false;
-    return changed;
-}
-
 void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
 {
     ASSERT(led_idx < RING_LEDS_AMOUNT);
-    if (!rgb_equals(ringLeds[led_idx], color))
-    {
-        ringLeds[led_idx] = color;
-        ringLedsChanged = true;
-    }
+    leds[STATUS_LEDS_AMOUNT + led_idx] = color;
 }
 
 void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
@@ -121,7 +70,6 @@ void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
     if (masterStatus != status)
     {
         masterStatus = status;
-        statusLedsChanged = true;
 
         /* TODO this should be moved to a separate component, probably */
         switch (status)
@@ -129,19 +77,19 @@ void MasterStatusObserver_Write_MasterStatus(MasterStatus_t status)
             default:
             case MasterStatus_Unknown:
                 portENTER_CRITICAL();
-                statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_RED;
+                leds[STATUS_INDICATOR_LED] = (rgb_t) LED_RED;
                 portEXIT_CRITICAL();
                 break;
 
             case MasterStatus_Operational:
                 portENTER_CRITICAL();
-                statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_ORANGE;
+                leds[STATUS_INDICATOR_LED] = (rgb_t) LED_ORANGE;
                 portEXIT_CRITICAL();
                 break;
 
             case MasterStatus_Controlled:
                 portENTER_CRITICAL();
-                statusLeds[STATUS_INDICATOR_LED] = (rgb_t) LED_GREEN;
+                leds[STATUS_INDICATOR_LED] = (rgb_t) LED_GREEN;
                 portEXIT_CRITICAL();
                 break;
         }
