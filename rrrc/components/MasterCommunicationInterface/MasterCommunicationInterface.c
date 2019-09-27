@@ -1,17 +1,12 @@
-/*
- * MasterCommunicationInterface.c
- *
- * Created: 07/05/2019 10:34:21
- *  Author: Dániel Buga
- */
-
 #include "MasterCommunicationInterface.h"
+#include "utils.h"
+#include "utils_assert.h"
 
+/* Begin User Code Section: Declarations */
 #include "i2cHal.h"
 #include "rrrc_hal.h"
 
 #include "driver_init.h"
-#include "utils_assert.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include <peripheral_clk_config.h>
@@ -23,7 +18,6 @@ static uint8_t rxBuffer[255 + 6];
 
 static MasterCommunicationInterface_Config_t config;
 
-//*********************************************************************************************
 static int32_t I2C_4_init(void)
 {
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM2_GCLK_ID_CORE, CONF_GCLK_SERCOM2_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
@@ -41,12 +35,12 @@ static int32_t I2C_4_init(void)
 static void CommunicationTask(void* user_data)
 {
     (void) user_data;
-    
+
     i2c_hal_receive(&rxBuffer[0], sizeof(rxBuffer));
     for(;;)
     {
         uint32_t bytesReceived;
-        BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, config.rxTimeout);
+        BaseType_t notified = xTaskNotifyWait(ULONG_MAX, ULONG_MAX, &bytesReceived, config.rx_timeout);
 
         if (!notified)
         {
@@ -56,11 +50,12 @@ static void CommunicationTask(void* user_data)
         {
             if (bytesReceived <= sizeof(rxBuffer))
             {
-                MasterCommunicationInterface_Call_OnMessageReceived(&rxBuffer[0], bytesReceived);
+                MasterMessage_t message = { .payload = rxBuffer, .size = bytesReceived };
+                MasterCommunicationInterface_Call_OnMessageReceived(message);
             }
             else
             {
-                MasterCommunicationInterface_Run_SetResponse(config.longRxErrorResponseBuffer, config.longRxErrorResponseLength);
+                MasterCommunicationInterface_Run_SetResponse(config.rx_overflow_response);
             }
         }
     }
@@ -69,7 +64,7 @@ static void CommunicationTask(void* user_data)
 void i2c_hal_rx_started(void)
 {
     /* setup a default response in case processing is slow */
-    i2c_hal_set_tx_buffer(config.defaultResponseBuffer, config.defaultResponseLength);
+    MasterCommunicationInterface_Run_SetResponse(config.default_response);
 }
 
 void i2c_hal_rx_complete(const uint8_t* buffer, size_t bufferSize, size_t bytesReceived)
@@ -84,39 +79,80 @@ void i2c_hal_rx_complete(const uint8_t* buffer, size_t bufferSize, size_t bytesR
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+void i2c_hal_error_occurred(void)
+{
+    MasterCommunicationInterface_Call_LogError();
+}
+/* End User Code Section: Declarations */
+
 void MasterCommunicationInterface_Run_OnInit(void)
 {
+    /* Begin User Code Section: OnInit Start */
     MasterCommunicationInterface_Read_Configuration(&config);
-    
+
     int32_t result = I2C_4_init();
     ASSERT(result == ERR_NONE);
 
     BaseType_t success = xTaskCreate(&CommunicationTask, "RPiComm", 1024u, NULL, taskPriority_Communication, &communicationTaskHandle);
     ASSERT(success == pdPASS);
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
+
+    /* End User Code Section: OnInit End */
 }
 
-__attribute__((weak))
-void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst)
+void MasterCommunicationInterface_Run_SetResponse(MasterMessage_t response)
 {
-    (void) dst;
-    ASSERT(false);
-}
+    /* Begin User Code Section: SetResponse Start */
+    i2c_hal_set_tx_buffer(response.payload, response.size);
+    /* End User Code Section: SetResponse Start */
+    /* Begin User Code Section: SetResponse End */
 
-__attribute__((weak))
-void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
-{
-    (void) buffer;
-    (void) bufferSize;
-    /* nothing to do */
+    /* End User Code Section: SetResponse End */
 }
 
 __attribute__((weak))
 void MasterCommunicationInterface_Call_RxTimeout(void)
 {
-    /* nothing to do */
+    /* Begin User Code Section: RxTimeout Start */
+
+    /* End User Code Section: RxTimeout Start */
+    /* Begin User Code Section: RxTimeout End */
+
+    /* End User Code Section: RxTimeout End */
 }
 
-void MasterCommunicationInterface_Run_SetResponse(const uint8_t* buffer, size_t bufferSize)
+__attribute__((weak))
+void MasterCommunicationInterface_Call_OnMessageReceived(MasterMessage_t message)
 {
-    i2c_hal_set_tx_buffer(buffer, bufferSize);
+    /* Begin User Code Section: OnMessageReceived Start */
+
+    /* End User Code Section: OnMessageReceived Start */
+    /* Begin User Code Section: OnMessageReceived End */
+
+    /* End User Code Section: OnMessageReceived End */
+}
+
+__attribute__((weak))
+void MasterCommunicationInterface_Call_LogError(void)
+{
+    /* Begin User Code Section: LogError Start */
+
+    /* End User Code Section: LogError Start */
+    /* Begin User Code Section: LogError End */
+
+    /* End User Code Section: LogError End */
+}
+
+__attribute__((weak))
+void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: Configuration Start */
+
+    /* End User Code Section: Configuration Start */
+    *value = (MasterCommunicationInterface_Config_t) { .default_response = (MasterMessage_t) { .payload = NULL, .size = 0u }, .rx_overflow_response = (MasterMessage_t) { .payload = NULL, .size = 0u }, .rx_timeout = 0u };
+    /* Begin User Code Section: Configuration End */
+
+    /* End User Code Section: Configuration End */
 }

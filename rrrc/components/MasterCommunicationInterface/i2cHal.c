@@ -1,10 +1,3 @@
-/*
- * i2cHal.c
- *
- * Created: 07/05/2019 11:42:39
- *  Author: Dániel Buga
- */ 
-
 #include "i2cHal.h"
 #include "utils_assert.h"
 
@@ -113,6 +106,7 @@ static void i2c_hal_on_address_matched(const uint8_t dir)
 static void i2c_hal_on_error(void)
 {
     /* ignore for now */
+    i2c_hal_error_occurred();
 }
 
 static void i2c_hal_on_rx_done(const uint8_t data)
@@ -163,4 +157,9 @@ void i2c_hal_rx_complete(const uint8_t* buffer, size_t bufferSize, size_t bytesR
     (void) buffer;
     (void) bufferSize;
     (void) bytesReceived;
+}
+
+__attribute__((weak))
+void i2c_hal_error_occurred(void)
+{
 }

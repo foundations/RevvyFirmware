@@ -446,12 +446,12 @@ BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context
     return BatteryStatus_NotPresent;
 }
 
-void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, size_t bufferSize)
+void MasterCommunicationInterface_Call_OnMessageReceived(MasterMessage_t message)
 {
-    if (bufferSize >= 2u)
+    if (message.size >= 2u)
     {
         /* TODO: this is not the nicest solution */
-        switch (buffer[1])
+        switch (message.payload[1])
         {
             case 0x04u:
             case 0x05u:
@@ -475,12 +475,12 @@ void MasterCommunicationInterface_Call_OnMessageReceived(const uint8_t* buffer, 
     }
 
     CommunicationObserver_Run_OnMessageReceived();
-    MasterCommunication_Run_HandleCommand(buffer, bufferSize);
+    MasterCommunication_Run_HandleCommand(message.payload, message.size);
 }
 
 void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize)
 {
-    MasterCommunicationInterface_Run_SetResponse(responseBuffer, responseSize);
+    MasterCommunicationInterface_Run_SetResponse((MasterMessage_t) {responseBuffer, responseSize} );
 }
 
 uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
@@ -796,8 +796,8 @@ void UpdateMcuStatus_YawAngle(int32_t angle, int32_t relativeAngle)
 
 void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst)
 {
-    dst->rxTimeout = 100u;
+    dst->rx_timeout = 100u;
     
-    MasterCommunication_Run_GetDefaultResponse(&dst->defaultResponseBuffer, &dst->defaultResponseLength);
-    MasterCommunication_Run_GetLongRxErrorResponse(&dst->longRxErrorResponseBuffer, &dst->longRxErrorResponseLength);
+    MasterCommunication_Run_GetDefaultResponse(&dst->default_response.payload, &dst->default_response.size);
+    MasterCommunication_Run_GetLongRxErrorResponse(&dst->rx_overflow_response.payload, &dst->rx_overflow_response.size);
 }

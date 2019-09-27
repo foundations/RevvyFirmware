@@ -2,7 +2,7 @@
  * connections_error_storage.c
  *
  * Created: 2019. 07. 27. 16:24:31
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 #include "../rrrc_worklogic.h"
@@ -40,6 +40,17 @@ void IMU_Call_LogError(void)
     ErrorInfo_t errorInfo = {0};
 
     errorInfo.error_id = ERROR_ID_IMU_ERROR;
+
+    /* TODO add debug data here */
+
+    ErrorStorage_Run_Store(&errorInfo);
+}
+
+void MasterCommunicationInterface_Call_LogError(void)
+{
+    ErrorInfo_t errorInfo = {0};
+
+    errorInfo.error_id = ERROR_ID_MASTER_I2C_ERROR;
 
     /* TODO add debug data here */
 

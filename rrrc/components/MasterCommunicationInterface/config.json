@@ -4,11 +4,48 @@
         "i2cHal.c",
         "MasterCommunicationInterface.c"
     ],
+    "types": {
+        "MasterMessage_t": {
+            "type": "struct",
+            "fields": {
+                "payload": "uint8_t*",
+                "size": "size_t"
+            }
+        },
+        "MasterCommunicationInterface_Config_t": {
+            "type": "struct",
+            "fields": {
+                "default_response": "MasterMessage_t",
+                "rx_overflow_response": "MasterMessage_t",
+                "rx_timeout": "uint32_t"
+            }
+        }
+    },
     "runnables": {
-        "OnInit": {}
+        "OnInit": {},
+        "SetResponse": {
+            "return_type": "void",
+            "arguments": {
+                "response": "MasterMessage_t"
+            }
+        }
     },
     "ports": {
+        "Configuration": {
+            "port_type": "ReadValue",
+            "default_value": null,
+            "data_type": "MasterCommunicationInterface_Config_t"
+        },
         "RxTimeout": {
+            "port_type": "Event"
+        },
+        "OnMessageReceived": {
+            "port_type": "Event",
+            "arguments": {
+                "message": "MasterMessage_t"
+            }
+        },
+        "LogError": {
             "port_type": "Event"
         }
     }

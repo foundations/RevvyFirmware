@@ -20,6 +20,7 @@ extern "C" {
 #define ERROR_ID_ASSERTION_FAILURE (2u)
 #define ERROR_ID_TEST_ERROR        (3u)
 #define ERROR_ID_IMU_ERROR         (4u)
+#define ERROR_ID_MASTER_I2C_ERROR  (5u)
 
 #include "generated_runtime.h"
 
