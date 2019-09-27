@@ -60,8 +60,17 @@ def on_signal_generated(owner: Runtime, connection: SignalConnection, function_m
                 mod['body'] = surround_with_lock(mod['body'])
 
 
+def cleanup(owner: Runtime, component_name, context: dict):
+    # remove unnecessary default values
+    component_data = owner._components[component_name]
+    for port in component_data['ports'].values():
+        if 'async' in port and not port['async']:
+            del port['async']
+
+
 def locks():
     return RuntimePlugin("Locks", {
-        'init':             add_async_flag,
-        'signal_generated': on_signal_generated
+        'init':                        add_async_flag,
+        'signal_generated':            on_signal_generated,
+        'before_generating_component': cleanup
     })
