@@ -17,4 +17,7 @@ after_success:
   - if [ "$TRAVIS_BRANCH" = "master" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then ./tools/commit_firmware.sh; fi
   - if [ "$TRAVIS_BRANCH" = "maintenance-v1" ]; then ./tools/commit_firmware.sh; fi
 notifications:
-  slack: revolution-robotics:sXlaetqFuXuT3Vr4atwogEdK
+  slack:
+    on_success: change
+    rooms:
+      - revolution-robotics:sXlaetqFuXuT3Vr4atwogEdK
