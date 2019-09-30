@@ -245,7 +245,7 @@ static void breathing(void* data)
 {
     breathing_data_t* bdata = (breathing_data_t*) data;
     hsv_t color = rgb_to_hsv(bdata->color);
-    float c = sinf(M_2_PI * (xTaskGetTickCount() - bdata->start_time) / 1000.0f);
+    float c = sinf(2.0f * (float)M_PI * (xTaskGetTickCount() - bdata->start_time) / 10000.0f);
     color.v = map(c*c, 0, 1, 0, 100);
     
     rgb_t rgb = hsv_to_rgb(color);

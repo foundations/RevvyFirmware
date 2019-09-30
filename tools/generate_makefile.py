@@ -31,6 +31,7 @@ COMPILE_FLAGS += \\
 -Wall \\
 -Wextra \\
 -Wundef \\
+-Wdouble-promotion \\
 -mcpu=cortex-m4 \\
 -c \\
 -std=gnu99 \\
