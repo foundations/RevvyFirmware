@@ -35,7 +35,11 @@ class EventSignal(SignalType):
             }
         }
 
-        function.add_body(chevron.render(**ctx))
+        return {
+            connection.provider: {
+                'body': chevron.render(**ctx)
+            }
+        }
 
 
 class ServerCallSignal(SignalType):
@@ -69,15 +73,26 @@ class ServerCallSignal(SignalType):
 
         if function.return_type == 'void':
             template = "{{ component }}_Run_{{ runnable }}({{ arguments }});"
-            function.add_body(chevron.render(template, data))
+
+            return {
+                connection.provider: {
+                    'body': chevron.render(template, data)
+                }
+            }
+
         else:
             if function.return_type != consumer_port_data['return_type']:
                 raise Exception('Callee return type is incompatible ({} instead of {})'
                                 .format(consumer_port_data['return_type'], function.return_type))
 
             template = "{{ data_type }} return_value = {{ component }}_Run_{{ runnable }}({{ arguments }});"
-            function.add_body(chevron.render(template, data))
-            function.set_return_statement('return_value')
+
+            return {
+                connection.provider: {
+                    'body': chevron.render(template, data),
+                    'return_statement': 'return_value'
+                }
+            }
 
 
 signal_types = {

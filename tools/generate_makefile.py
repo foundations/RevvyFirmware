@@ -31,6 +31,7 @@ COMPILE_FLAGS += \\
 -Wall \\
 -Wextra \\
 -Wundef \\
+-Wdouble-promotion \\
 -mcpu=cortex-m4 \\
 -c \\
 -std=gnu99 \\
@@ -58,7 +59,7 @@ OUTPUT_DIR :=Debug
 COMPILE_FLAGS += -DDEBUG -O0 -g3
 else
 OUTPUT_DIR :=Release
-COMPILE_FLAGS += -O3
+COMPILE_FLAGS += -O3 -g3
 endif
 
 OUTPUT_FILE :=$(OUTPUT_DIR)/rrrc_samd51

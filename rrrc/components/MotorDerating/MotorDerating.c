@@ -3,7 +3,8 @@
 #include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
-
+#include <math.h>
+#include "utils/functions.h"
 /* End User Code Section: Declarations */
 
 void MotorDerating_Run_OnUpdate(void)

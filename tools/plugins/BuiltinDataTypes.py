@@ -36,11 +36,14 @@ class VariableSignal(SignalType):
 
         function = context['functions'][provider_name]
         argument_names = list(function.arguments.keys())
-        data = {
-            'signal_name': connection.name,
-            'value':       argument_names[0]
+        return {
+            provider_name: {
+                'body': chevron.render(template, {
+                    'signal_name': connection.name,
+                    'value':       argument_names[0]
+                })
+            }
         }
-        function.add_body(chevron.render(template, data))
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         runtime = context['runtime']
@@ -55,14 +58,19 @@ class VariableSignal(SignalType):
 
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
+        mods = {
+            consumer_name: {}
+        }
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
-                'template': '{{ signal_name }}',
+                'template': '{{ data_type}} return_value = {{ signal_name }};',
                 'data':     {
+                    'data_type':   data_type,
                     'signal_name': connection.name
                 }
             }
-            function.set_return_statement(chevron.render(**ctx))
+            mods[consumer_name]['body'] = chevron.render(**ctx)
+            mods[consumer_name]['return_statement'] = 'return_value'
         else:
             ctx = {
                 'template': '*{{ out_name} = {{ signal_name }};',
@@ -72,7 +80,9 @@ class VariableSignal(SignalType):
                 }
             }
 
-            function.add_body(chevron.render(**ctx))
+            mods[consumer_name]['body'] = chevron.render(**ctx)
+
+        return mods
 
 
 class ArraySignal(SignalType):
@@ -109,12 +119,15 @@ class ArraySignal(SignalType):
 
         function = context['functions'][provider_name]
         argument_names = list(function.arguments.keys())
-        data = {
-            'signal_name': connection.name,
-            'index':       argument_names[0],
-            'value':       argument_names[1]
+        return {
+            provider_name: {
+                'body': chevron.render(template, {
+                    'signal_name': connection.name,
+                    'index':       argument_names[0],
+                    'value':       argument_names[1]
+                })
+            }
         }
-        function.add_body(chevron.render(template, data))
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         runtime = context['runtime']
@@ -129,15 +142,20 @@ class ArraySignal(SignalType):
 
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
+        mods = {
+            consumer_name: {}
+        }
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
-                'template': '{{ signal_name }}[{{ index }}]',
+                'template': '{{ data_type}} return_value = {{ signal_name }}[{{ index }}];',
                 'data':     {
+                    'data_type':   data_type,
                     'signal_name': connection.name,
                     'index':       argument_names[0]
                 }
             }
-            function.set_return_statement(chevron.render(**ctx))
+            mods[consumer_name]['body'] = chevron.render(**ctx)
+            mods[consumer_name]['return_statement'] = 'return_value'
         else:
             ctx = {
                 'template': '*{{ out_name} = {{ signal_name }}[{{ index }};',
@@ -147,8 +165,9 @@ class ArraySignal(SignalType):
                     'out_name':    argument_names[1]
                 }
             }
+            mods[consumer_name]['body'] = chevron.render(**ctx)
 
-            function.add_body(chevron.render(**ctx))
+        return mods
 
 
 class QueueSignal(SignalType):
@@ -206,11 +225,14 @@ class QueueSignal(SignalType):
         function = context['functions'][provider_name]
         argument_names = list(function.arguments.keys())
         passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
-        data = {
-            'signal_name': connection.name,
-            'value':       argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
+        return {
+            connection.provider: {
+                'body': chevron.render(template, {
+                    'signal_name': connection.name,
+                    'value':       argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
+                })
+            }
         }
-        function.add_body(chevron.render(template, data))
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name):
         runtime = context['runtime']
@@ -262,8 +284,13 @@ class QueueSignal(SignalType):
             'signal_name': connection.name,
             'out_name':    argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
         }
-        function.add_body(chevron.render(template, data))
-        function.set_return_statement('return_value')
+
+        return {
+            consumer_name: {
+                'body':             chevron.render(template, data),
+                'return_statement': 'return_value'
+            }
+        }
 
 
 class ConstantSignal(SignalType):
@@ -292,6 +319,9 @@ class ConstantSignal(SignalType):
 
         component_name, port_name = connection.provider.split('/')
         constant_provider_name = '{}_Constant_{}'.format(component_name, port_name)
+        mods = {
+            consumer_name: {}
+        }
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
                 'template': '{{ constant_provider }}()',
@@ -299,7 +329,7 @@ class ConstantSignal(SignalType):
                     'constant_provider': constant_provider_name
                 }
             }
-            function.set_return_statement(chevron.render(**ctx))
+            mods[consumer_name]['return_statement'] = chevron.render(**ctx)
         else:
             ctx = {
                 'template': '{{ constant_provider }}({{ out_name}});',
@@ -309,7 +339,9 @@ class ConstantSignal(SignalType):
                 }
             }
 
-            function.add_body(chevron.render(**ctx))
+            mods[consumer_name]['body'] = chevron.render(**ctx)
+
+        return mods
 
 
 class ConstantArraySignal(SignalType):

@@ -203,11 +203,33 @@ class SignalConnection:
         self.context = context
 
         signal.create(context, self)
-        signal.generate_provider(context, self, provider_name)
 
     def add_consumer(self, consumer_name):
         self.consumers.append(consumer_name)
-        self.signal.generate_consumer(self.context, self, consumer_name)
+
+    def generate(self):
+        # collect implementations in a list
+        function_mods_list = []
+        function_mods = self.signal.generate_provider(self.context, self, self.provider)
+        if function_mods:
+            function_mods_list.append(function_mods)
+
+        for consumer in self.consumers:
+            function_mods = self.signal.generate_consumer(self.context, self, consumer)
+            if function_mods:
+                function_mods_list.append(function_mods)
+
+        self.context['runtime'].raise_event('signal_generated', self, function_mods_list)
+
+        # apply modifications
+        for function_mods in function_mods_list:
+            for function_name, mods in function_mods.items():
+                function = self.context['functions'][function_name]
+                if 'body' in mods:
+                    function.add_body(mods['body'])
+
+                if 'return_statement' in mods:
+                    function.set_return_statement(mods['return_statement'])
 
 
 class SignalType:
@@ -261,12 +283,12 @@ class Runtime:
         plugin.bind(self)
 
     def load(self, load_components=True):
-        self._call_plugin_event('init')
+        self.raise_event('init')
 
         with open(self._project_config_file, "r") as file:
             project_config = json.load(file)
 
-        self._call_plugin_event('load_project_config', project_config)
+        self.raise_event('load_project_config', project_config)
 
         if 'settings' not in project_config:
             project_config['settings'] = {
@@ -287,7 +309,7 @@ class Runtime:
             for component_name in project_config['components']:
                 self.load_component_config(component_name)
 
-        self._call_plugin_event('project_config_loaded', project_config)
+        self.raise_event('project_config_loaded', project_config)
 
     def add_port_type(self, port_type_name, data, lookup):
         self._port_types[port_type_name] = data
@@ -322,7 +344,7 @@ class Runtime:
             self.add_component(component_name, component_config)
 
     def add_component(self, component_name, component_config):
-        self._call_plugin_event('load_component_config', component_name, component_config)
+        self.raise_event('load_component_config', component_name, component_config)
         self._components[component_name] = component_config
 
         if not component_config['ports']:
@@ -383,9 +405,9 @@ class Runtime:
             },
             'folders':          [component_name]
         }
-        self._call_plugin_event('create_component_ports', component_name, self._components[component_name], context)
+        self.raise_event('create_component_ports', component_name, self._components[component_name], context)
 
-        self._call_plugin_event('before_generating_component', component_name, context)
+        self.raise_event('before_generating_component', component_name, context)
 
         funcs = context['functions'].values()
         function_headers = [fn.get_header() for fn in funcs]
@@ -421,7 +443,7 @@ class Runtime:
         context['files'][source_file] = chevron.render(source_template, ctx)
         context['files'][header_file] = chevron.render(component_header_template, ctx)
 
-        self._call_plugin_event('generating_component', component_name, context)
+        self.raise_event('generating_component', component_name, context)
 
         return context['files']
 
@@ -463,10 +485,9 @@ class Runtime:
             'files':                          {source_file_name: '', header_file_name: ''},
             'functions':                      {},
             'declarations':                   [],
-            'exported_function_declarations': []
+            'exported_function_declarations': [],
+            'signals':                        {}
         }
-
-        signals = {}
 
         for connection in self._project_config['runtime']['port_connections']:
             provider_ref = connection['provider']
@@ -495,9 +516,9 @@ class Runtime:
             attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumers']}
 
             # create a dict to store providers signals
-            if provider_short_name not in signals:
-                signals[provider_short_name] = {}
-            provider_signals = signals[provider_short_name]
+            if provider_short_name not in context['signals']:
+                context['signals'][provider_short_name] = {}
+            provider_signals = context['signals'][provider_short_name]
 
             for consumer_ref in connection['consumers']:
                 consumer_short_name = consumer_ref['short_name']
@@ -558,7 +579,15 @@ class Runtime:
             for unconnected in all_unconnected:
                 print('Warning: {} port is not connected'.format(unconnected))
 
-        self._call_plugin_event('before_generating_runtime', context)
+        for signals in context['signals'].values():
+            for signal in signals.values():
+                if type(signal) is list:
+                    for s in signal:
+                        s.generate()
+                else:
+                    signal.generate()
+
+        self.raise_event('before_generating_runtime', context)
 
         type_names = []
         for c in self._components.values():
@@ -603,7 +632,7 @@ class Runtime:
 
         return context['files']
 
-    def _call_plugin_event(self, event_name, *args):
+    def raise_event(self, event_name, *args):
         for plugin in self._plugins:
             try:
                 self._plugins[plugin].handle(event_name, args)
@@ -629,10 +658,10 @@ class Runtime:
 
     def dump_component_config(self, component_name):
         config = self._components[component_name].copy()
-        self._call_plugin_event('save_component_config', config)
+        self.raise_event('save_component_config', config)
         return json.dumps(config, indent=4)
 
     def dump_project_config(self):
         config = self._project_config.copy()
-        self._call_plugin_event('save_project_config', config)
+        self.raise_event('save_project_config', config)
         return json.dumps(config, indent=4)

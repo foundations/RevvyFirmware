@@ -19,8 +19,13 @@ def parse_file(file_path):
             indent_level = len(indent)
             # remove indentation
             if indent_level > 0:
-                if usercode.startswith(indent):
-                    usercode = usercode[len(indent):]
+                lines = usercode.split("\n")
+                proclines = []
+                for line in lines:
+                    if line.startswith(indent):
+                        line = line[len(indent):]
+                    proclines.append(line)
+                usercode = "\n".join(proclines)
 
             file_sections[secname] = usercode
     except FileNotFoundError:

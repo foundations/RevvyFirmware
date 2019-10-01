@@ -652,10 +652,11 @@ Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
     /* Begin User Code Section: ADCDispatcher/ADC0_ChannelVoltage Start */
 
     /* End User Code Section: ADCDispatcher/ADC0_ChannelVoltage Start */
+    Voltage_t return_value = ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[index];
     /* Begin User Code Section: ADCDispatcher/ADC0_ChannelVoltage End */
 
     /* End User Code Section: ADCDispatcher/ADC0_ChannelVoltage End */
-    return ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[index];
+    return return_value;
 }
 
 uint16_t ADCDispatcher_Read_ADC0_RawChannelData(uint32_t index)
@@ -664,10 +665,11 @@ uint16_t ADCDispatcher_Read_ADC0_RawChannelData(uint32_t index)
     /* Begin User Code Section: ADCDispatcher/ADC0_RawChannelData Start */
 
     /* End User Code Section: ADCDispatcher/ADC0_RawChannelData Start */
+    uint16_t return_value = ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[index];
     /* Begin User Code Section: ADCDispatcher/ADC0_RawChannelData End */
 
     /* End User Code Section: ADCDispatcher/ADC0_RawChannelData End */
-    return ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[index];
+    return return_value;
 }
 
 Voltage_t ADCDispatcher_Read_ADC1_ChannelVoltage(uint32_t index)
@@ -676,10 +678,11 @@ Voltage_t ADCDispatcher_Read_ADC1_ChannelVoltage(uint32_t index)
     /* Begin User Code Section: ADCDispatcher/ADC1_ChannelVoltage Start */
 
     /* End User Code Section: ADCDispatcher/ADC1_ChannelVoltage Start */
+    Voltage_t return_value = ADC1_ChannelVoltage_ADCDispatcher_ADC1_ChannelVoltage_array[index];
     /* Begin User Code Section: ADCDispatcher/ADC1_ChannelVoltage End */
 
     /* End User Code Section: ADCDispatcher/ADC1_ChannelVoltage End */
-    return ADC1_ChannelVoltage_ADCDispatcher_ADC1_ChannelVoltage_array[index];
+    return return_value;
 }
 
 uint16_t ADCDispatcher_Read_ADC1_RawChannelData(uint32_t index)
@@ -688,10 +691,11 @@ uint16_t ADCDispatcher_Read_ADC1_RawChannelData(uint32_t index)
     /* Begin User Code Section: ADCDispatcher/ADC1_RawChannelData Start */
 
     /* End User Code Section: ADCDispatcher/ADC1_RawChannelData Start */
+    uint16_t return_value = ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[index];
     /* Begin User Code Section: ADCDispatcher/ADC1_RawChannelData End */
 
     /* End User Code Section: ADCDispatcher/ADC1_RawChannelData End */
-    return ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[index];
+    return return_value;
 }
 
 void BatteryCalculator_Read_MainBatteryParameters(BatteryConfiguration_t* value)
@@ -711,10 +715,11 @@ Voltage_t BatteryCalculator_Read_MainBatteryVoltage(void)
     /* Begin User Code Section: BatteryCalculator/MainBatteryVoltage Start */
 
     /* End User Code Section: BatteryCalculator/MainBatteryVoltage Start */
+    Voltage_t return_value = ADCDispatcher_MainBatteryVoltage_BatteryCalculator_MainBatteryVoltage_variable;
     /* Begin User Code Section: BatteryCalculator/MainBatteryVoltage End */
 
     /* End User Code Section: BatteryCalculator/MainBatteryVoltage End */
-    return ADCDispatcher_MainBatteryVoltage_BatteryCalculator_MainBatteryVoltage_variable;
+    return return_value;
 }
 
 void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value)
@@ -734,10 +739,11 @@ Voltage_t BatteryCalculator_Read_MotorBatteryVoltage(void)
     /* Begin User Code Section: BatteryCalculator/MotorBatteryVoltage Start */
 
     /* End User Code Section: BatteryCalculator/MotorBatteryVoltage Start */
+    Voltage_t return_value = ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatteryVoltage_variable;
     /* Begin User Code Section: BatteryCalculator/MotorBatteryVoltage End */
 
     /* End User Code Section: BatteryCalculator/MotorBatteryVoltage End */
-    return ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatteryVoltage_variable;
+    return return_value;
 }
 
 ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
@@ -745,10 +751,11 @@ ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
     /* Begin User Code Section: BatteryStatusProvider/IsMainBatteryCharging Start */
 
     /* End User Code Section: BatteryStatusProvider/IsMainBatteryCharging Start */
+    ChargerState_t return_value = BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
     /* Begin User Code Section: BatteryStatusProvider/IsMainBatteryCharging End */
 
     /* End User Code Section: BatteryStatusProvider/IsMainBatteryCharging End */
-    return BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
+    return return_value;
 }
 
 BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
@@ -756,10 +763,11 @@ BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
     /* Begin User Code Section: BluetoothIndicator/ConnectionStatus Start */
 
     /* End User Code Section: BluetoothIndicator/ConnectionStatus Start */
+    BluetoothStatus_t return_value = BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable;
     /* Begin User Code Section: BluetoothIndicator/ConnectionStatus End */
 
     /* End User Code Section: BluetoothIndicator/ConnectionStatus End */
-    return BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable;
+    return return_value;
 }
 
 QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
@@ -796,10 +804,11 @@ Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
     /* Begin User Code Section: MotorCurrentFilter/RawCurrent Start */
 
     /* End User Code Section: MotorCurrentFilter/RawCurrent Start */
+    Current_t return_value = ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[index];
     /* Begin User Code Section: MotorCurrentFilter/RawCurrent End */
 
     /* End User Code Section: MotorCurrentFilter/RawCurrent End */
-    return ADCDispatcher_MotorCurrent_MotorCurrentFilter_RawCurrent_array[index];
+    return return_value;
 }
 
 Temperature_t MotorDerating_Read_MotorTemperature(uint32_t index)
@@ -808,10 +817,11 @@ Temperature_t MotorDerating_Read_MotorTemperature(uint32_t index)
     /* Begin User Code Section: MotorDerating/MotorTemperature Start */
 
     /* End User Code Section: MotorDerating/MotorTemperature Start */
+    Temperature_t return_value = MotorThermalModel_Temperature_MotorDerating_MotorTemperature_array[index];
     /* Begin User Code Section: MotorDerating/MotorTemperature End */
 
     /* End User Code Section: MotorDerating/MotorTemperature End */
-    return MotorThermalModel_Temperature_MotorDerating_MotorTemperature_array[index];
+    return return_value;
 }
 
 Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)
@@ -820,10 +830,11 @@ Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)
     /* Begin User Code Section: MotorThermalModel/MotorCurrent Start */
 
     /* End User Code Section: MotorThermalModel/MotorCurrent Start */
+    Current_t return_value = MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[index];
     /* Begin User Code Section: MotorThermalModel/MotorCurrent End */
 
     /* End User Code Section: MotorThermalModel/MotorCurrent End */
-    return MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[index];
+    return return_value;
 }
 
 void MotorThermalModel_Read_ThermalParameters(MotorThermalParameters_t* value)
@@ -843,10 +854,11 @@ bool RingLedDisplay_Read_MasterReady(void)
     /* Begin User Code Section: RingLedDisplay/MasterReady Start */
 
     /* End User Code Section: RingLedDisplay/MasterReady Start */
+    bool return_value = CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable;
     /* Begin User Code Section: RingLedDisplay/MasterReady End */
 
     /* End User Code Section: RingLedDisplay/MasterReady End */
-    return CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable;
+    return return_value;
 }
 
 uint8_t SensorPortHandler_Read_AdcData(uint32_t index)
@@ -855,10 +867,11 @@ uint8_t SensorPortHandler_Read_AdcData(uint32_t index)
     /* Begin User Code Section: SensorPortHandler/AdcData Start */
 
     /* End User Code Section: SensorPortHandler/AdcData Start */
+    uint8_t return_value = ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[index];
     /* Begin User Code Section: SensorPortHandler/AdcData End */
 
     /* End User Code Section: SensorPortHandler/AdcData End */
-    return ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[index];
+    return return_value;
 }
 
 float YawAngleTracker_Read_SampleTime(void)
