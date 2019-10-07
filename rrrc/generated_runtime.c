@@ -54,6 +54,7 @@ void Runtime_Call_OnInit(void)
     YawAngleTracker_Run_OnInit();
     MasterCommunicationInterface_Run_OnInit();
     LedDisplayController_Run_OnInit();
+    IMUOrientationEstimator_Run_OnInit();
     /* Begin User Code Section: Runtime/OnInit End */
 
     /* End User Code Section: Runtime/OnInit End */
@@ -86,6 +87,7 @@ void Runtime_Call_10ms_offset0(void)
     WatchdogFeeder_Run_Feed();
     MotorDerating_Run_OnUpdate();
     DriveTrain_Run_Update();
+    IMUOrientationEstimator_Run_OnUpdate();
     /* Begin User Code Section: Runtime/10ms_offset0 End */
 
     /* End User Code Section: Runtime/10ms_offset0 End */

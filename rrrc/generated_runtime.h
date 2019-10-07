@@ -48,6 +48,19 @@ typedef enum {
 } MasterStatus_t;
 
 typedef struct {
+    float pitch;
+    float roll;
+    float yaw;
+} Orientation3D_t;
+
+typedef struct {
+    float q1;
+    float q2;
+    float q3;
+    float q4;
+} Quaternion_t;
+
+typedef struct {
     uint8_t* payload;
     size_t size;
 } MasterMessage_t;
@@ -99,6 +112,7 @@ typedef enum {
 #define COMPONENT_TYPES_GYROSCOPE_OFFSET_COMPENSATOR_H_
 #define COMPONENT_TYPES_HIGH_RESOLUTION_TIMER_H_
 #define COMPONENT_TYPES_IMU_H_
+#define COMPONENT_TYPES_IMU_ORIENTATION_ESTIMATOR_H_
 #define COMPONENT_TYPES_INTERNAL_TEMPERATURE_SENSOR_H_
 #define COMPONENT_TYPES_LED_CONTROLLER_H_
 #define COMPONENT_TYPES_LED_DISPLAY_CONTROLLER_H_
@@ -135,6 +149,7 @@ typedef enum {
 #include "components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.h"
 #include "components/HighResolutionTimer/HighResolutionTimer.h"
 #include "components/IMU/IMU.h"
+#include "components/IMUOrientationEstimator/IMUOrientationEstimator.h"
 #include "components/InternalTemperatureSensor/InternalTemperatureSensor.h"
 #include "components/LEDController/LEDController.h"
 #include "components/LedDisplayController/LedDisplayController.h"

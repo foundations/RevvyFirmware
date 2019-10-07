@@ -113,6 +113,7 @@
         "GyroscopeOffsetCompensator",
         "HighResolutionTimer",
         "IMU",
+        "IMUOrientationEstimator",
         "InternalTemperatureSensor",
         "LEDController",
         "LedDisplayController",
@@ -218,7 +219,8 @@
                 "GyroscopeOffsetCompensator/OnInit",
                 "YawAngleTracker/OnInit",
                 "MasterCommunicationInterface/OnInit",
-                "LedDisplayController/OnInit"
+                "LedDisplayController/OnInit",
+                "IMUOrientationEstimator/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",
@@ -234,7 +236,8 @@
                 "BatteryCharger/Update",
                 "WatchdogFeeder/Feed",
                 "MotorDerating/OnUpdate",
-                "DriveTrain/Update"
+                "DriveTrain/Update",
+                "IMUOrientationEstimator/OnUpdate"
             ],
             "10ms_offset1": [],
             "10ms_offset2": [],

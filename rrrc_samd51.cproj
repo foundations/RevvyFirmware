@@ -1449,6 +1449,15 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\MotorPortHandler\config.json">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\IMUOrientationEstimator\IMUOrientationEstimator.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMUOrientationEstimator\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMUOrientationEstimator\IMUOrientationEstimator.c">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
@@ -1541,6 +1550,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\ADCDispatcher" />
     <Folder Include="rrrc\components\MotorCurrentFilter" />
     <Folder Include="rrrc\components\LedDisplayController" />
+    <Folder Include="rrrc\components\IMUOrientationEstimator" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">
