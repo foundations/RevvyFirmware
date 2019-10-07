@@ -193,8 +193,9 @@ Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_
     {
         turnCommandActive = true;
         turnStartAngleRead = false;
-
-        turnAngle = -1 * get_int32(&commandPayload[0]);
+        
+        /* +ve number is CCW angle */
+        turnAngle = get_int32(&commandPayload[0]);
         float wheelSpeed = get_float(&commandPayload[4]);
         turnPowerLimit = (float) commandPayload[8];
         
@@ -224,6 +225,7 @@ void DriveTrain_Run_Update(void)
 {
     if (turnCommandActive)
     {
+        /* +ve number is CCW angle */
         float currentAngle = DriveTrain_Read_YawAngle();
         if (!isnan(currentAngle))
         {
@@ -259,8 +261,9 @@ void DriveTrain_Run_Update(void)
                 leftDriveRequest.type = DriveTrain_Request_Speed;
                 rightDriveRequest.type = DriveTrain_Request_Speed;
 
-                leftDriveRequest.v.speed = u;
-                rightDriveRequest.v.speed = -u;
+                /* +ve u means CCW turning */
+                leftDriveRequest.v.speed = -u;
+                rightDriveRequest.v.speed = u;
 
                 leftDriveRequest.power_limit  = turnPowerLimit;
                 rightDriveRequest.power_limit = turnPowerLimit;
