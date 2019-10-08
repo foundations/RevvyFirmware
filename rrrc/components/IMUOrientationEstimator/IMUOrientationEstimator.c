@@ -132,6 +132,39 @@ void IMUOrientationEstimator_Run_OnUpdate(void)
     /* End User Code Section: OnUpdate End */
 }
 
+Orientation3D_t IMUOrientationEstimator_Run_ConvertOrientation(Quaternion_t orientation)
+{
+    /* Begin User Code Section: ConvertOrientation Start */
+    Orientation3D_t angles;
+
+    // roll (x-axis rotation)
+    float sinr_cosp = 2.0f * (orientation.q0 * orientation.q1 + orientation.q2 * orientation.q3);
+    float cosr_cosp = 1.0f - 2.0f * (orientation.q1 * orientation.q1 + orientation.q2 * orientation.q2);
+    angles.roll = atan2(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    float sinp = 2.0f * (orientation.q0 * orientation.q2 - orientation.q3 * orientation.q1);
+    if (fabs(sinp) >= 1.0f)
+    {
+        angles.pitch = copysign((float)M_PI / 2.0f, sinp); // use 90 degrees if out of range
+    }
+    else
+    {
+        angles.pitch = asin(sinp);
+    }
+
+    // yaw (z-axis rotation)
+    float siny_cosp = 2.0f * (orientation.q0 * orientation.q3 + orientation.q1 * orientation.q2);
+    float cosy_cosp = 1.0f - 2.0f * (orientation.q2 * orientation.q2 + orientation.q3 * orientation.q3);
+    angles.yaw = atan2(siny_cosp, cosy_cosp);
+
+    return angles;
+    /* End User Code Section: ConvertOrientation Start */
+    /* Begin User Code Section: ConvertOrientation End */
+
+    /* End User Code Section: ConvertOrientation End */
+}
+
 __attribute__((weak))
 void IMUOrientationEstimator_Write_Orientation(const Quaternion_t* value)
 {

@@ -670,7 +670,7 @@ void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t*
     /* Begin User Code Section: GyroscopeOffsetCompensator/CompensatedAngularSpeeds Start */
 
     /* End User Code Section: GyroscopeOffsetCompensator/CompensatedAngularSpeeds Start */
-    if (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count < u)
+    if (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count < 10u)
     {
         ++GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count;
     }
@@ -679,7 +679,7 @@ void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t*
         GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_overflow = true;
     }
     size_t idx = GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index;
-    GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index = (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index + 1u) % u;
+    GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index = (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index + 1u) % 10u;
     GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue[idx] = *value;
     /* Begin User Code Section: GyroscopeOffsetCompensator/CompensatedAngularSpeeds End */
 
@@ -692,7 +692,7 @@ void IMU_Write_AccelerometerSample(const Vector3D_t* value)
     /* Begin User Code Section: IMU/AccelerometerSample Start */
 
     /* End User Code Section: IMU/AccelerometerSample Start */
-    if (IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count < u)
+    if (IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count < 10u)
     {
         ++IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count;
     }
@@ -701,7 +701,7 @@ void IMU_Write_AccelerometerSample(const Vector3D_t* value)
         IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_overflow = true;
     }
     size_t idx = IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index;
-    IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index = (IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index + 1u) % u;
+    IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index = (IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index + 1u) % 10u;
     IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue[idx] = *value;
     /* Begin User Code Section: IMU/AccelerometerSample End */
 

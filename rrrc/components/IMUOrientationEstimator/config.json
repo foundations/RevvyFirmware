@@ -32,7 +32,13 @@
     },
     "runnables": {
         "OnInit": {},
-        "OnUpdate": {}
+        "OnUpdate": {},
+        "ConvertOrientation": {
+            "arguments": {
+                "orientation": "Quaternion_t"
+            },
+            "return_type": "Orientation3D_t"
+        }
     },
     "ports": {
         "Acceleration": {
