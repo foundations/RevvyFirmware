@@ -113,6 +113,7 @@
         "GyroscopeOffsetCompensator",
         "HighResolutionTimer",
         "IMU",
+        "IMUMovementDetector",
         "IMUOrientationEstimator",
         "InternalTemperatureSensor",
         "LEDController",
@@ -220,12 +221,13 @@
                 "YawAngleTracker/OnInit",
                 "MasterCommunicationInterface/OnInit",
                 "LedDisplayController/OnInit",
-                "IMUOrientationEstimator/OnInit"
+                "IMUMovementDetector/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",
                 "ADC1/Update",
                 "IMU/OnUpdate",
+                "IMUMovementDetector/OnUpdate",
                 "GyroscopeOffsetCompensator/Update",
                 "YawAngleTracker/Update",
                 "ADCDispatcher/Update",
@@ -324,6 +326,26 @@
                 "queue_length": 1,
                 "provider": "IMU/GyroscopeSample",
                 "consumer": "GyroscopeOffsetCompensator/AngularSpeeds"
+            },
+            {
+                "queue_length": 1,
+                "provider": "IMU/GyroscopeSample",
+                "consumer": "IMUMovementDetector/AngularSpeeds"
+            },
+            {
+                "queue_length": 10,
+                "provider": "GyroscopeOffsetCompensator/CompensatedAngularSpeeds",
+                "consumer": "IMUOrientationEstimator/AngularSpeeds"
+            },
+            {
+                "provider": "IMUMovementDetector/IsMoving",
+                "consumer": "GyroscopeOffsetCompensator/IsMoving",
+                "init_value": "true"
+            },
+            {
+                "queue_length": 10,
+                "provider": "IMU/AccelerometerSample",
+                "consumer": "IMUOrientationEstimator/Acceleration"
             },
             {
                 "provider": "ADC0/RawChannelData",

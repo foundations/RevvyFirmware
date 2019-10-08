@@ -10,6 +10,18 @@ static bool CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable = 
 static Vector3D_t IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue;
 static bool IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = false;
 static bool IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = false;
+static Vector3D_t IMU_GyroscopeSample_IMUMovementDetector_AngularSpeeds_queue1;
+static bool IMU_GyroscopeSample_IMUMovementDetector_AngularSpeeds_queue1_overflow = false;
+static bool IMU_GyroscopeSample_IMUMovementDetector_AngularSpeeds_queue1_data_valid = false;
+static Vector3D_t GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue[10u];
+static size_t GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count = 0u;
+static size_t GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index = 0u;
+static bool GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_overflow = false;
+static bool IMUMovementDetector_IsMoving_GyroscopeOffsetCompensator_IsMoving_variable = true;
+static Vector3D_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue[10u];
+static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count = 0u;
+static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index = 0u;
+static bool IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_overflow = false;
 static uint16_t ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[4] = { 0u, 0u, 0u, 0u };
 static uint16_t ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
 static Voltage_t ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -55,6 +67,7 @@ void Runtime_Call_OnInit(void)
     MasterCommunicationInterface_Run_OnInit();
     LedDisplayController_Run_OnInit();
     IMUOrientationEstimator_Run_OnInit();
+    IMUMovementDetector_Run_OnInit();
     /* Begin User Code Section: Runtime/OnInit End */
 
     /* End User Code Section: Runtime/OnInit End */
@@ -68,6 +81,7 @@ void Runtime_Call_1ms(void)
     ADC0_Run_Update();
     ADC1_Run_Update();
     IMU_Run_OnUpdate();
+    IMUMovementDetector_Run_OnUpdate();
     GyroscopeOffsetCompensator_Run_Update();
     YawAngleTracker_Run_Update();
     ADCDispatcher_Run_Update();
@@ -650,6 +664,50 @@ void CommunicationObserver_Write_Enabled(const bool value)
     /* End User Code Section: CommunicationObserver/Enabled End */
 }
 
+void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: GyroscopeOffsetCompensator/CompensatedAngularSpeeds Start */
+
+    /* End User Code Section: GyroscopeOffsetCompensator/CompensatedAngularSpeeds Start */
+    if (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count < u)
+    {
+        ++GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count;
+    }
+    else
+    {
+        GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_overflow = true;
+    }
+    size_t idx = GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index;
+    GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index = (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index + 1u) % u;
+    GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue[idx] = *value;
+    /* Begin User Code Section: GyroscopeOffsetCompensator/CompensatedAngularSpeeds End */
+
+    /* End User Code Section: GyroscopeOffsetCompensator/CompensatedAngularSpeeds End */
+}
+
+void IMU_Write_AccelerometerSample(const Vector3D_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: IMU/AccelerometerSample Start */
+
+    /* End User Code Section: IMU/AccelerometerSample Start */
+    if (IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count < u)
+    {
+        ++IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count;
+    }
+    else
+    {
+        IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_overflow = true;
+    }
+    size_t idx = IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index;
+    IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index = (IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index + 1u) % u;
+    IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue[idx] = *value;
+    /* Begin User Code Section: IMU/AccelerometerSample End */
+
+    /* End User Code Section: IMU/AccelerometerSample End */
+}
+
 void IMU_Write_GyroscopeSample(const Vector3D_t* value)
 {
     ASSERT(value != NULL);
@@ -659,6 +717,9 @@ void IMU_Write_GyroscopeSample(const Vector3D_t* value)
     IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid;
     IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue = *value;
     IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = true;
+    IMU_GyroscopeSample_IMUMovementDetector_AngularSpeeds_queue1_overflow = IMU_GyroscopeSample_IMUMovementDetector_AngularSpeeds_queue1_data_valid;
+    IMU_GyroscopeSample_IMUMovementDetector_AngularSpeeds_queue1 = *value;
+    IMU_GyroscopeSample_IMUMovementDetector_AngularSpeeds_queue1_data_valid = true;
     /* Begin User Code Section: IMU/GyroscopeSample End */
 
     /* End User Code Section: IMU/GyroscopeSample End */
