@@ -83,7 +83,6 @@ void Runtime_Call_1ms(void)
     IMU_Run_OnUpdate();
     IMUMovementDetector_Run_OnUpdate();
     GyroscopeOffsetCompensator_Run_Update();
-    YawAngleTracker_Run_Update();
     ADCDispatcher_Run_Update();
     MotorCurrentFilter_Run_Update();
     MotorThermalModel_Run_OnUpdate();
@@ -102,6 +101,7 @@ void Runtime_Call_10ms_offset0(void)
     MotorDerating_Run_OnUpdate();
     DriveTrain_Run_Update();
     IMUOrientationEstimator_Run_OnUpdate();
+    YawAngleTracker_Run_Update();
     /* Begin User Code Section: Runtime/10ms_offset0 End */
 
     /* End User Code Section: Runtime/10ms_offset0 End */

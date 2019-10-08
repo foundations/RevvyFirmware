@@ -229,7 +229,6 @@
                 "IMU/OnUpdate",
                 "IMUMovementDetector/OnUpdate",
                 "GyroscopeOffsetCompensator/Update",
-                "YawAngleTracker/Update",
                 "ADCDispatcher/Update",
                 "MotorCurrentFilter/Update",
                 "MotorThermalModel/OnUpdate"
@@ -239,7 +238,8 @@
                 "WatchdogFeeder/Feed",
                 "MotorDerating/OnUpdate",
                 "DriveTrain/Update",
-                "IMUOrientationEstimator/OnUpdate"
+                "IMUOrientationEstimator/OnUpdate",
+                "YawAngleTracker/Update"
             ],
             "10ms_offset1": [],
             "10ms_offset2": [],
