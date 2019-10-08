@@ -628,7 +628,7 @@ class Runtime:
         context['files'][source_file_name] = chevron.render(source_template, template_data)
         context['files'][header_file_name] = chevron.render(runtime_header_template, template_data)
 
-        self._call_plugin_event('after_generating_runtime', context)
+        self.raise_event('after_generating_runtime', context)
 
         return context['files']
 
