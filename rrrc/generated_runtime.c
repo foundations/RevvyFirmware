@@ -625,6 +625,8 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
 
 void MotorDerating_Write_DeratedControlValue(uint32_t index, const int8_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 6);
     /* Begin User Code Section: MotorDerating/DeratedControlValue Start */
 
