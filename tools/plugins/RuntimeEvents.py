@@ -149,7 +149,7 @@ port_type_data = {
             'attributes':        ['weak'],
             'return_type':       port_data['return_type'],
             'arguments':         port_data['arguments'],
-            'return_value':      port_data.get('value', types.default_value(port_data['return_type']))
+            'return_value':      port_data.get('value', types.render_value(port_data['return_type'], types.default_value(port_data['return_type'])))
         }
     }
 }

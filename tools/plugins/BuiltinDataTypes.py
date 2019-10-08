@@ -17,7 +17,7 @@ class VariableSignal(SignalType):
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }} = {{ init_value }};',
             'data':     {
-                'init_value':  init_value,
+                'init_value':  types.render_value(data_type, init_value),
                 'data_type':   data_type,
                 'signal_name': connection.name
             }
@@ -73,7 +73,7 @@ class VariableSignal(SignalType):
             mods[consumer_name]['return_statement'] = 'return_value'
         else:
             ctx = {
-                'template': '*{{ out_name} = {{ signal_name }};',
+                'template': '*{{ out_name }} = {{ signal_name }};',
                 'data':     {
                     'signal_name': connection.name,
                     'out_name':    argument_names[0]
@@ -228,8 +228,9 @@ class QueueSignal(SignalType):
         return {
             connection.provider: {
                 'body': chevron.render(template, {
-                    'signal_name': connection.name,
-                    'value':       argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
+                    'queue_length': connection.attributes['queue_length'],
+                    'signal_name':  connection.name,
+                    'value':        argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
                 })
             }
         }
@@ -281,6 +282,7 @@ class QueueSignal(SignalType):
         argument_names = list(function.arguments.keys())
         passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
         data = {
+            'queue_length': connection.attributes['queue_length'],
             'signal_name': connection.name,
             'out_name':    argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
         }
@@ -476,7 +478,9 @@ type_info = {
         'attributes':       {
             'required': ['defined_in', 'default_value'],
             'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
-            'static':   {'type': TypeCollection.EXTERNAL_DEF}
+            'static':   {
+                'type': TypeCollection.EXTERNAL_DEF
+            }
         }
     },
 
@@ -548,7 +552,7 @@ def get_default_value(types: TypeCollection, port_data):
     If a return value is not specified (or is None), return the default value for the data type"""
     specified_return_value = port_data['default_value']
     if specified_return_value is None:
-        return types.default_value(port_data['data_type'])
+        return types.render_value(port_data['data_type'], types.default_value(port_data['data_type']))
     else:
         return specified_return_value
 
