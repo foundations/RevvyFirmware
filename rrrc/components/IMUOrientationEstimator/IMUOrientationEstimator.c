@@ -146,7 +146,7 @@ Orientation3D_t IMUOrientationEstimator_Run_ConvertOrientation(Quaternion_t orie
 
     // pitch (y-axis rotation)
     float sinp = 2.0f * (orientation.q0 * orientation.q2 - orientation.q3 * orientation.q1);
-    if (fabs(sinp) >= 1.0f)
+    if (fabsf(sinp) >= 1.0f)
     {
         angles.pitch = copysign((float)M_PI / 2.0f, sinp); // use 90 degrees if out of range
     }
