@@ -3,6 +3,8 @@
 #include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
+#include <math.h>
+
 static Quaternion_t orientation;
 static float beta = 0.1f; // < TODO: tune if necessary
 
