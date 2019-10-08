@@ -8,6 +8,8 @@
 #include "../rrrc_worklogic.h"
 static float current_yaw_angle;
 
+#include <math.h>
+
 void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* sample)
 {
     UpdateMcuStatus_Gyroscope(sample);
