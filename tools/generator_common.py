@@ -31,7 +31,10 @@ class TypeCollection:
             'void':  None,
             'void*': None
         }
-        self._value_formatters = {}
+        self._value_formatters = {
+            'void': lambda x, y, z, w: str(x),
+            'void*': lambda x, y, z, w: str(x)
+        }
 
     def add(self, type_name, info, renderer, value_formatter):
         if type_name in self._type_data:
