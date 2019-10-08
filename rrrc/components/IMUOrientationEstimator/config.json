@@ -55,10 +55,6 @@
             "port_type": "WriteData",
             "data_type": "Quaternion_t"
         },
-        "OrientationAngles": {
-            "port_type": "WriteData",
-            "data_type": "Orientation3D_t"
-        },
         "SampleTime": {
             "port_type": "ReadValue",
             "default_value": null,

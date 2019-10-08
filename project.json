@@ -283,10 +283,6 @@
         },
         "port_connections": [
             {
-                "provider": "IMU/SampleTime",
-                "consumer": "YawAngleTracker/SampleTime"
-            },
-            {
                 "provider": "CommunicationObserver/ErrorLimitReached",
                 "consumer": "RestartManager/Reset"
             },
@@ -346,6 +342,10 @@
                 "queue_length": 10,
                 "provider": "IMU/AccelerometerSample",
                 "consumer": "IMUOrientationEstimator/Acceleration"
+            },
+            {
+                "provider": "IMUOrientationEstimator/Orientation",
+                "consumer": "YawAngleTracker/Orientation"
             },
             {
                 "provider": "ADC0/RawChannelData",

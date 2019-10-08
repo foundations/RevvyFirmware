@@ -1,24 +1,31 @@
-/*
- * YawAngleTracker.h
- *
- * Created: 2019. 08. 15. 10:12:57
- *  Author: Dániel Buga
- */ 
-
 #ifndef COMPONENT_YAW_ANGLE_TRACKER_H_
 #define COMPONENT_YAW_ANGLE_TRACKER_H_
 
-#include <stdint.h>
-#include <stdbool.h>
+#ifndef COMPONENT_TYPES_YAW_ANGLE_TRACKER_H_
+#define COMPONENT_TYPES_YAW_ANGLE_TRACKER_H_
 
-/* runnables */
+#include <float.h>
+
+
+typedef struct {
+    float q0;
+    float q1;
+    float q2;
+    float q3;
+} Quaternion_t;
+
+typedef struct {
+    float pitch;
+    float roll;
+    float yaw;
+} Orientation3D_t;
+
+#endif /* COMPONENT_TYPES_YAW_ANGLE_TRACKER_H_ */
+
 void YawAngleTracker_Run_OnInit(void);
-void YawAngleTracker_Run_PinCurrentAngle(void);
 void YawAngleTracker_Run_Update(void);
+Orientation3D_t YawAngleTracker_Call_ToEulerAngles(Quaternion_t orientation);
+void YawAngleTracker_Write_YawAngle(const float value);
+void YawAngleTracker_Read_Orientation(Quaternion_t* value);
 
-/* ports */
-bool YawAngleTracker_Read_AngularSpeedZ(float* angularSpeed);
-float YawAngleTracker_Read_SampleTime(void);
-void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle);
-
-#endif /* YAWANGLETRACKER_H_ */
+#endif /* COMPONENT_YAW_ANGLE_TRACKER_H_ */

@@ -1,60 +1,68 @@
-/*
- * YawAngleTracker.c
- *
- * Created: 2019. 08. 15. 10:24:22
- *  Author: Dániel Buga
- */ 
-
 #include "YawAngleTracker.h"
+#include "utils.h"
+#include "utils_assert.h"
 
-static float _pinned_angle;
-static float _current_angle;
+/* Begin User Code Section: Declarations */
+static float pinned_angle;
+/* End User Code Section: Declarations */
 
-/* runnables */
 void YawAngleTracker_Run_OnInit(void)
 {
-    _pinned_angle = 0.0f;
-    _current_angle = 0.0f;
-}
+    /* Begin User Code Section: OnInit Start */
+    pinned_angle = 0.0f;
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
 
-void YawAngleTracker_Run_PinCurrentAngle(void)
-{
-    _pinned_angle = _current_angle;
+    /* End User Code Section: OnInit End */
 }
 
 void YawAngleTracker_Run_Update(void)
 {
-    float angleSpeed;
-    if (YawAngleTracker_Read_AngularSpeedZ(&angleSpeed))
-    {
-        float ts = YawAngleTracker_Read_SampleTime();
-        do
-        {
-            _current_angle += angleSpeed * ts;
-        }
-        while (YawAngleTracker_Read_AngularSpeedZ(&angleSpeed));
-        
-        YawAngleTracker_Write_YawAngle(_current_angle ,_current_angle - _pinned_angle);
-    }
-}
+    /* Begin User Code Section: Update Start */
+    Quaternion_t orientation;
+    YawAngleTracker_Read_Orientation(&orientation);
 
-/* ports */
-__attribute__((weak))
-bool YawAngleTracker_Read_AngularSpeedZ(float* angularSpeed)
-{
-    *angularSpeed = 0.0f;
-    return false;
+    Orientation3D_t angles = YawAngleTracker_Call_ToEulerAngles(orientation);
+
+    YawAngleTracker_Write_YawAngle(angles.yaw);
+    /* End User Code Section: Update Start */
+    /* Begin User Code Section: Update End */
+
+    /* End User Code Section: Update End */
 }
 
 __attribute__((weak))
-float YawAngleTracker_Read_SampleTime(void)
+Orientation3D_t YawAngleTracker_Call_ToEulerAngles(Quaternion_t orientation)
 {
-    return 0.0f;
+    /* Begin User Code Section: ToEulerAngles Start */
+
+    /* End User Code Section: ToEulerAngles Start */
+    /* Begin User Code Section: ToEulerAngles End */
+
+    /* End User Code Section: ToEulerAngles End */
+    return (Orientation3D_t) { .pitch = 0.0f, .roll = 0.0f, .yaw = 0.0f };
 }
 
 __attribute__((weak))
-void YawAngleTracker_Write_YawAngle(float angle, float relativeAngle)
+void YawAngleTracker_Write_YawAngle(const float value)
 {
-    (void) angle;
-    (void) relativeAngle;
+    /* Begin User Code Section: YawAngle Start */
+
+    /* End User Code Section: YawAngle Start */
+    /* Begin User Code Section: YawAngle End */
+
+    /* End User Code Section: YawAngle End */
+}
+
+__attribute__((weak))
+void YawAngleTracker_Read_Orientation(Quaternion_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: Orientation Start */
+
+    /* End User Code Section: Orientation Start */
+    *value = (Quaternion_t) { .q0 = 0.0f, .q1 = 0.0f, .q2 = 0.0f, .q3 = 0.0f };
+    /* Begin User Code Section: Orientation End */
+
+    /* End User Code Section: Orientation End */
 }

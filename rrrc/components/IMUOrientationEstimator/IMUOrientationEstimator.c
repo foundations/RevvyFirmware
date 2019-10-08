@@ -180,18 +180,6 @@ void IMUOrientationEstimator_Write_Orientation(const Quaternion_t* value)
 }
 
 __attribute__((weak))
-void IMUOrientationEstimator_Write_OrientationAngles(const Orientation3D_t* value)
-{
-    ASSERT(value != NULL);
-    /* Begin User Code Section: OrientationAngles Start */
-
-    /* End User Code Section: OrientationAngles Start */
-    /* Begin User Code Section: OrientationAngles End */
-
-    /* End User Code Section: OrientationAngles End */
-}
-
-__attribute__((weak))
 QueueStatus_t IMUOrientationEstimator_Read_Acceleration(Vector3D_t* value)
 {
     ASSERT(value != NULL);
