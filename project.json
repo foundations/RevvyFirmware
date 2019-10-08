@@ -348,6 +348,14 @@
                 "consumer": "YawAngleTracker/Orientation"
             },
             {
+                "provider": "IMU/SampleTime",
+                "consumer": "IMUOrientationEstimator/SampleTime"
+            },
+            {
+                "provider": "YawAngleTracker/ToEulerAngles",
+                "consumer": "IMUOrientationEstimator/ConvertOrientation"
+            },
+            {
                 "provider": "ADC0/RawChannelData",
                 "consumer": "ADCDispatcher/ADC0_RawChannelData"
             },

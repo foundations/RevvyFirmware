@@ -23,6 +23,11 @@ static float invSqrt(float x)
     return y;
 }
 
+static inline float angle_to_radian(float angle)
+{
+    return angle * (float) M_PI / 180.0f;
+}
+
 static Quaternion_t madgwick_imu(const float sampleFreq, const Vector3D_t acceleration, const Vector3D_t angularSpeed, const Quaternion_t previous)
 {
     float recipNorm;
@@ -123,7 +128,12 @@ void IMUOrientationEstimator_Run_OnUpdate(void)
         Vector3D_t angularSpeed;
         if (IMUOrientationEstimator_Read_AngularSpeeds(&angularSpeed))
         {
-            orientation = madgwick_imu(sampleFreq, acceleration, angularSpeed, orientation);
+            Vector3D_t angularSpeedRad = {
+                .x = angle_to_radian(angularSpeed.x),
+                .y = angle_to_radian(angularSpeed.y),
+                .z = angle_to_radian(angularSpeed.z)
+            };
+            orientation = madgwick_imu(sampleFreq, acceleration, angularSpeedRad, orientation);
 
             IMUOrientationEstimator_Write_Orientation(&orientation);
         }

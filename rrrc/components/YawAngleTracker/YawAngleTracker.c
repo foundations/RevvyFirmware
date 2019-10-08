@@ -3,6 +3,8 @@
 #include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
+#include <math.h>
+
 static float pinned_angle;
 /* End User Code Section: Declarations */
 
@@ -24,7 +26,7 @@ void YawAngleTracker_Run_Update(void)
 
     Orientation3D_t angles = YawAngleTracker_Call_ToEulerAngles(orientation);
 
-    YawAngleTracker_Write_YawAngle(angles.yaw);
+    YawAngleTracker_Write_YawAngle(angles.yaw * 180.0f / (float) M_PI);
     /* End User Code Section: Update Start */
     /* Begin User Code Section: Update End */
 

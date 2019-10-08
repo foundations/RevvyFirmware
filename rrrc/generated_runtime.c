@@ -1,6 +1,6 @@
+#include "utils_assert.h"
 #include "utils.h"
 #include "generated_runtime.h"
-#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 
@@ -490,6 +490,18 @@ uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
     /* Begin User Code Section: SensorPortHandler/ReadCurrentTicks End */
 
     /* End User Code Section: SensorPortHandler/ReadCurrentTicks End */
+    return return_value;
+}
+
+Orientation3D_t YawAngleTracker_Call_ToEulerAngles(Quaternion_t orientation)
+{
+    /* Begin User Code Section: YawAngleTracker/ToEulerAngles Start */
+
+    /* End User Code Section: YawAngleTracker/ToEulerAngles Start */
+    Orientation3D_t return_value = IMUOrientationEstimator_Run_ConvertOrientation(orientation);
+    /* Begin User Code Section: YawAngleTracker/ToEulerAngles End */
+
+    /* End User Code Section: YawAngleTracker/ToEulerAngles End */
     return return_value;
 }
 
@@ -1067,6 +1079,17 @@ QueueStatus_t IMUOrientationEstimator_Read_AngularSpeeds(Vector3D_t* value)
 
     /* End User Code Section: IMUOrientationEstimator/AngularSpeeds End */
     return return_value;
+}
+
+float IMUOrientationEstimator_Read_SampleTime(void)
+{
+    /* Begin User Code Section: IMUOrientationEstimator/SampleTime Start */
+
+    /* End User Code Section: IMUOrientationEstimator/SampleTime Start */
+    /* Begin User Code Section: IMUOrientationEstimator/SampleTime End */
+
+    /* End User Code Section: IMUOrientationEstimator/SampleTime End */
+    return IMU_Constant_SampleTime();
 }
 
 rgb_t LEDController_Read_Colors(uint32_t index)
