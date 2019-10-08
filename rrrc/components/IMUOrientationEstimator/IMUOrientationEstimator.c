@@ -142,23 +142,23 @@ Orientation3D_t IMUOrientationEstimator_Run_ConvertOrientation(Quaternion_t orie
     // roll (x-axis rotation)
     float sinr_cosp = 2.0f * (orientation.q0 * orientation.q1 + orientation.q2 * orientation.q3);
     float cosr_cosp = 1.0f - 2.0f * (orientation.q1 * orientation.q1 + orientation.q2 * orientation.q2);
-    angles.roll = atan2(sinr_cosp, cosr_cosp);
+    angles.roll = atan2f(sinr_cosp, cosr_cosp);
 
     // pitch (y-axis rotation)
     float sinp = 2.0f * (orientation.q0 * orientation.q2 - orientation.q3 * orientation.q1);
     if (fabsf(sinp) >= 1.0f)
     {
-        angles.pitch = copysign((float)M_PI / 2.0f, sinp); // use 90 degrees if out of range
+        angles.pitch = copysignf((float)M_PI / 2.0f, sinp); // use 90 degrees if out of range
     }
     else
     {
-        angles.pitch = asin(sinp);
+        angles.pitch = asinf(sinp);
     }
 
     // yaw (z-axis rotation)
     float siny_cosp = 2.0f * (orientation.q0 * orientation.q3 + orientation.q1 * orientation.q2);
     float cosy_cosp = 1.0f - 2.0f * (orientation.q2 * orientation.q2 + orientation.q3 * orientation.q3);
-    angles.yaw = atan2(siny_cosp, cosy_cosp);
+    angles.yaw = atan2f(siny_cosp, cosy_cosp);
 
     return angles;
     /* End User Code Section: ConvertOrientation Start */
