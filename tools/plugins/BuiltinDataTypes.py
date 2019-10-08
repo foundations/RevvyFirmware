@@ -228,8 +228,9 @@ class QueueSignal(SignalType):
         return {
             connection.provider: {
                 'body': chevron.render(template, {
-                    'signal_name': connection.name,
-                    'value':       argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
+                    'queue_length': connection.attributes['queue_length'],
+                    'signal_name':  connection.name,
+                    'value':        argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
                 })
             }
         }
@@ -281,6 +282,7 @@ class QueueSignal(SignalType):
         argument_names = list(function.arguments.keys())
         passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
         data = {
+            'queue_length': connection.attributes['queue_length'],
             'signal_name': connection.name,
             'out_name':    argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
         }
