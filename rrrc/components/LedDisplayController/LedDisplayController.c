@@ -218,7 +218,7 @@ void LedDisplayController_Run_Update(void)
 
             case LedDisplayMode_Normal:
                 _clear_display();
-                _charging_blink_timer = 0u;
+                _charging_blink_timer = CHARGING_BLINK_PERIOD / 2u;
                 _blink_timer = 0u;
                 break;
         }
