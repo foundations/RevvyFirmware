@@ -43,6 +43,9 @@ static LedDisplayMode_t _previous_display_mode;
 static uint32_t _charging_blink_timer;
 static uint32_t _blink_timer;
 
+/**
+ * Returns whether any of the motors are active
+ */
 static bool _motors_active(void)
 {
     for (uint32_t i = 0u; i < 6u; i++)
@@ -55,6 +58,14 @@ static bool _motors_active(void)
     return false;
 }
 
+/**
+ * Based on a counter value and two timing parameters,
+ * return true if a blinking LED should be ON and false if it should be OFF.
+ *
+ * @param on_time uint32_t The amount of time the LED should be ON
+ * @param period uint32_t The amount of time between two blinks (from start to start)
+ * @return bool if the LED should be turned ON
+ */
 static bool _blink(uint32_t* timer, uint32_t on_time, uint32_t period)
 {
     if (*timer < on_time)
