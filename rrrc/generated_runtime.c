@@ -1,5 +1,6 @@
-#include "generated_runtime.h"
 #include "utils.h"
+#include "utils_assert.h"
+#include "generated_runtime.h"
 
 /* Begin User Code Section: Declarations */
 
@@ -709,8 +710,8 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
 
 void MotorDerating_Write_DeratedControlValue(uint32_t index, const int8_t value)
 {
-    (void) value;
     (void) index;
+    (void) value;
     ASSERT(index < 6);
     /* Begin User Code Section: MotorDerating/DeratedControlValue Start */
 

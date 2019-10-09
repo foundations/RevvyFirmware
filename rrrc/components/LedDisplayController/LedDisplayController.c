@@ -1,6 +1,6 @@
-#include "LedDisplayController.h"
-#include "utils.h"
 #include "utils_assert.h"
+#include "utils.h"
+#include "LedDisplayController.h"
 
 /* Begin User Code Section: Declarations */
 #include "rrrc_indication.h"
@@ -290,6 +290,8 @@ void LedDisplayController_Run_Update(void)
 __attribute__((weak))
 void LedDisplayController_Write_Leds(uint32_t index, const rgb_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 16);
     /* Begin User Code Section: Leds Start */
 
@@ -302,6 +304,7 @@ void LedDisplayController_Write_Leds(uint32_t index, const rgb_t value)
 __attribute__((weak))
 void LedDisplayController_Write_MaxBrightness(const uint8_t value)
 {
+    (void) value;
     /* Begin User Code Section: MaxBrightness Start */
 
     /* End User Code Section: MaxBrightness Start */

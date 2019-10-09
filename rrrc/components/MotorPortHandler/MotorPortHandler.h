@@ -2,7 +2,7 @@
  * MotorPortHandler.h
  *
  * Created: 09/05/2019 14:03:48
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 #ifndef MOTOR_PORT_HANDLER_H_
@@ -70,7 +70,7 @@ void MotorPortHandler_Run_PortUpdate(uint8_t port_idx);
 void* MotorPortHandler_Call_Allocate(size_t size);
 void MotorPortHandler_Call_Free(void** ptr);
 
-void MotorPortHandler_Write_MotorDriveValue(uint8_t motor_idx, int8_t value);
+void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value);
 bool MotorPortHandler_Read_DriverFault(uint8_t port_idx);
 void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize);
 
