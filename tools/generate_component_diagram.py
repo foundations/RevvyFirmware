@@ -100,6 +100,9 @@ if __name__ == "__main__":
             else:
                 provider_ports.append(port_name)
 
+        consumer_ports = sorted(consumer_ports)
+        provider_ports = sorted(provider_ports)
+
         # render HTML template and add node
         template_ctx = {
             'component_name': component_name,
