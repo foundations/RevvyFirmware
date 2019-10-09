@@ -397,10 +397,6 @@
                 "consumer": "MotorDerating/MotorTemperature"
             },
             {
-                "provider": "MotorDerating/DeratedControlValue",
-                "consumers": []
-            },
-            {
                 "provider": "ProjectConfiguration/MainBatteryParameters",
                 "consumer": "BatteryCalculator/MainBatteryParameters"
             },
@@ -451,6 +447,13 @@
             {
                 "provider": "MasterStatusObserver/MasterStatus",
                 "consumer": "LedDisplayController/MasterStatus"
+            },
+            {
+                "provider": "MotorPortHandler/DriveStrength",
+                "consumers": [
+                    "MotorDerating/ControlValue",
+                    "LedDisplayController/MotorDriveValues"
+                ]
             }
         ]
     }

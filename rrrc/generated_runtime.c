@@ -42,6 +42,7 @@ static rgb_t LedDisplayController_Leds_LEDController_Colors_array[16] = { (rgb_t
 static uint8_t LedDisplayController_MaxBrightness_LEDController_MaxBrightness_variable = 0u;
 static rgb_t RingLedDisplay_LedColor_LedDisplayController_RingLeds_array[12] = { (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0} };
 static MasterStatus_t MasterStatusObserver_MasterStatus_LedDisplayController_MasterStatus_variable = MasterStatus_Unknown;
+static int8_t MotorPortHandler_DriveStrength_MotorDerating_ControlValue_array[6] = { 0, 0, 0, 0, 0, 0 };
 
 void Runtime_Call_OnInit(void)
 {
@@ -807,17 +808,16 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
     /* End User Code Section: MotorCurrentFilter/FilteredCurrent End */
 }
 
-void MotorDerating_Write_DeratedControlValue(uint32_t index, const int8_t value)
+void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value)
 {
-    (void) value;
-    (void) index;
     ASSERT(index < 6);
-    /* Begin User Code Section: MotorDerating/DeratedControlValue Start */
+    /* Begin User Code Section: MotorPortHandler/DriveStrength Start */
 
-    /* End User Code Section: MotorDerating/DeratedControlValue Start */
-    /* Begin User Code Section: MotorDerating/DeratedControlValue End */
+    /* End User Code Section: MotorPortHandler/DriveStrength Start */
+    MotorPortHandler_DriveStrength_MotorDerating_ControlValue_array[index] = value;
+    /* Begin User Code Section: MotorPortHandler/DriveStrength End */
 
-    /* End User Code Section: MotorDerating/DeratedControlValue End */
+    /* End User Code Section: MotorPortHandler/DriveStrength End */
 }
 
 void MotorThermalModel_Write_Temperature(uint32_t index, const Temperature_t value)
@@ -1202,6 +1202,19 @@ bool LedDisplayController_Read_MotorBatteryPresent(void)
     return return_value;
 }
 
+int8_t LedDisplayController_Read_MotorDriveValues(uint32_t index)
+{
+    ASSERT(index < 6);
+    /* Begin User Code Section: LedDisplayController/MotorDriveValues Start */
+
+    /* End User Code Section: LedDisplayController/MotorDriveValues Start */
+    int8_t return_value = MotorPortHandler_DriveStrength_MotorDerating_ControlValue_array[index];
+    /* Begin User Code Section: LedDisplayController/MotorDriveValues End */
+
+    /* End User Code Section: LedDisplayController/MotorDriveValues End */
+    return return_value;
+}
+
 rgb_t LedDisplayController_Read_RingLeds(uint32_t index)
 {
     ASSERT(index < 12);
@@ -1225,6 +1238,19 @@ Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
     /* Begin User Code Section: MotorCurrentFilter/RawCurrent End */
 
     /* End User Code Section: MotorCurrentFilter/RawCurrent End */
+    return return_value;
+}
+
+int8_t MotorDerating_Read_ControlValue(uint32_t index)
+{
+    ASSERT(index < 6);
+    /* Begin User Code Section: MotorDerating/ControlValue Start */
+
+    /* End User Code Section: MotorDerating/ControlValue Start */
+    int8_t return_value = MotorPortHandler_DriveStrength_MotorDerating_ControlValue_array[index];
+    /* Begin User Code Section: MotorDerating/ControlValue End */
+
+    /* End User Code Section: MotorDerating/ControlValue End */
     return return_value;
 }
 

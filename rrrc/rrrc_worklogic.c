@@ -487,14 +487,9 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
     portEXIT_CRITICAL();
 }
 
-void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value)
+void MotorDerating_Write_DeratedControlValue(uint32_t index, const int8_t value)
 {
     driveValues[index] = value;
-}
-
-int8_t LedDisplayController_Read_MotorDriveValues(uint32_t index)
-{
-    return driveValues[index];
 }
 
 int8_t MotorDriver_8833_Read_DriveRequest_ChannelA(MotorDriver_8833_t* driver)
