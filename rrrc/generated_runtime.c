@@ -1,6 +1,6 @@
 #include "utils.h"
-#include "generated_runtime.h"
 #include "utils_assert.h"
+#include "generated_runtime.h"
 
 /* Begin User Code Section: Declarations */
 
@@ -1265,6 +1265,18 @@ Temperature_t MotorDerating_Read_MotorTemperature(uint32_t index)
 
     /* End User Code Section: MotorDerating/MotorTemperature End */
     return return_value;
+}
+
+void MotorDerating_Read_Parameters(MotorDeratingParameters_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: MotorDerating/Parameters Start */
+
+    /* End User Code Section: MotorDerating/Parameters Start */
+    ProjectConfiguration_Constant_MotorDeratingParameters(value);
+    /* Begin User Code Section: MotorDerating/Parameters End */
+
+    /* End User Code Section: MotorDerating/Parameters End */
 }
 
 Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)

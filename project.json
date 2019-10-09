@@ -409,6 +409,10 @@
                 "consumer": "MotorThermalModel/ThermalParameters"
             },
             {
+                "provider": "ProjectConfiguration/MotorDeratingParameters",
+                "consumer": "MotorDerating/Parameters"
+            },
+            {
                 "provider": "BluetoothStatusObserver/ConnectionStatus",
                 "consumer": "LedDisplayController/BluetoothStatus"
             },
