@@ -32,8 +32,6 @@ class TypeCollection:
             'void*': None
         }
         self._value_formatters = {
-            'void': lambda x, y, z, w: str(x),
-            'void*': lambda x, y, z, w: str(x)
         }
 
     def add(self, type_name, info, renderer, value_formatter):
@@ -105,7 +103,11 @@ class TypeCollection:
     def render_value(self, type_name, value):
         resolved = self.resolve(type_name)
 
-        return self._value_formatters[resolved](self, type_name, self[resolved], value)
+        try:
+            return self._value_formatters[resolved](self, type_name, self[resolved], value)
+        except KeyError:
+            # by default treat the value as string
+            return str(value)
 
     def passed_by(self, type_name):
         resolved = self.get(type_name)

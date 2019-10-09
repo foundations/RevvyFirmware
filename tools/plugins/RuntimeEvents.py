@@ -158,7 +158,7 @@ port_type_data = {
             'attributes':        ['weak'],
             'return_type':       port_data['return_type'],
             'arguments':         port_data['arguments'],
-            'return_value':      port_data.get('value', types.render_value(port_data['return_type'], types.default_value(port_data['return_type'])))
+            'return_value':      port_data.get('value', types.default_value(port_data['return_type']))
         }
     }
 }
@@ -254,7 +254,11 @@ def create_component_runnables(owner: Runtime, component_name, component_data, c
 
             function.add_input_assert(function_data.get('asserts', []))
             function.add_body(function_data.get('body', []))
-            function.set_return_statement(function_data.get('return_value'))
+
+            if function_data['return_type'] != 'void':
+                return_value = function_data.get('return_value', owner.types.default_value(function.return_type))
+                return_value = owner.types.render_value(port_data['return_type'], return_value)
+                function.set_return_statement(return_value)
 
             context['functions']['{}/{}'.format(component_name, port_name)] = function
 
