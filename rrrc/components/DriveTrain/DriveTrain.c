@@ -2,7 +2,7 @@
  * Drivetrain.c
  *
  * Created: 2019. 05. 30. 15:32:48
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 #include "DriveTrain.h"
@@ -281,17 +281,23 @@ float DriveTrain_Read_YawAngle(void)
 }
 
 __attribute__((weak))
-void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned)
+void DriveTrain_Write_MotorUsed(uint8_t port_idx, bool isAssigned)
 {
     (void) port_idx;
     (void) isAssigned;
-    /* nothing to do */
+    ASSERT(index < 6);
 }
 
 __attribute__((weak))
-void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command)
+void DriveTrain_Write_DriveRequest(uint32_t index, const DriveRequest_t* value)
 {
-    (void) port_idx;
-    (void) command;
-    /* nothing to do */
+    (void) index;
+    ASSERT(value != NULL);
+    ASSERT(index < 6);
+    /* Begin User Code Section: DriveRequest Start */
+
+    /* End User Code Section: DriveRequest Start */
+    /* Begin User Code Section: DriveRequest End */
+
+    /* End User Code Section: DriveRequest End */
 }

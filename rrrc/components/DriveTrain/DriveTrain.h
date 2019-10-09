@@ -1,35 +1,34 @@
-/*
- * Drivetrain.h
- *
- * Created: 2019. 05. 30. 14:41:19
- *  Author: bugad
- */ 
+#ifndef COMPONENT_DRIVE_TRAIN_H_
+#define COMPONENT_DRIVE_TRAIN_H_
 
+#ifndef COMPONENT_TYPES_DRIVE_TRAIN_H_
+#define COMPONENT_TYPES_DRIVE_TRAIN_H_
 
-#ifndef COMPONENTS_DRIVETRAIN_H_
-#define COMPONENTS_DRIVETRAIN_H_
-
-#include <stdint.h>
+#include <float.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../MasterCommunication/CommunicationManager.h"
 
 typedef enum {
-    DriveTrain_Request_Position,
-    DriveTrain_Request_Speed,
-    DriveTrain_Request_Power
-} DriveTrain_RequestType_t;
+    DriveRequest_RequestType_Speed,
+    DriveRequest_RequestType_Position,
+    DriveRequest_RequestType_Power
+} DriveRequest_RequestType_t;
+
+typedef union {
+    float speed;
+    int32_t position;
+    int8_t power;
+} DriveRequest_RequestValue_t;
 
 typedef struct {
-    DriveTrain_RequestType_t type;
-    union 
-    {
-        float speed;
-        int32_t position;
-        int8_t power;
-    } v;
     float power_limit;
     float speed_limit;
-} DriveTrain_DriveRequest_t;
+    DriveRequest_RequestType_t request_type;
+    DriveRequest_RequestValue_t request;
+} DriveRequest_t;
+
+#endif /* COMPONENT_TYPES_DRIVE_TRAIN_H_ */
 
 Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 Comm_Status_t DriveTrain_SetControlValue_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
@@ -37,9 +36,8 @@ Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_
 
 void DriveTrain_Run_OnInit(void);
 void DriveTrain_Run_Update(void);
-
+void DriveTrain_Write_DriveRequest(uint32_t index, const DriveRequest_t* value);
+void DriveTrain_Write_MotorUsed(uint32_t index, const bool value);
 float DriveTrain_Read_YawAngle(void);
-void DriveTrain_Write_MotorAssigned(uint8_t port_idx, bool isAssigned);
-void DriveTrain_Write_DriveRequest(uint8_t port_idx, const DriveTrain_DriveRequest_t* command);
 
-#endif /* COMPONENTS_DRIVETRAIN_H_ */
+#endif /* COMPONENT_DRIVE_TRAIN_H_ */
