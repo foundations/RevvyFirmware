@@ -26,6 +26,11 @@
             "arguments": {
                 "ptr": "void**"
             }
+        },
+        "DriveStrength": {
+            "port_type": "WriteIndexedData",
+            "data_type": "int8_t",
+            "count": 6
         }
     }
 }
