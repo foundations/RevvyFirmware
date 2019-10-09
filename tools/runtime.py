@@ -489,11 +489,11 @@ class Runtime:
 
         return self._port_types[port_type]
 
-    def generate_runtime(self, filename):
+    def generate_runtime(self, filename, context=None):
         source_file_name = filename + '.c'
         header_file_name = filename + '.h'
 
-        context = {
+        default_context = {
             'runtime':                        self,
             'files':                          {source_file_name: '', header_file_name: ''},
             'functions':                      {},
@@ -501,6 +501,13 @@ class Runtime:
             'exported_function_declarations': [],
             'signals':                        {}
         }
+
+        if context is None:
+            context = default_context
+        else:
+            for key in default_context:
+                if key not in context:
+                    context[key] = default_context[key]
 
         for connection in self._project_config['runtime']['port_connections']:
             provider_ref = connection['provider']
