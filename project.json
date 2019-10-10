@@ -221,7 +221,8 @@
                 "YawAngleTracker/OnInit",
                 "MasterCommunicationInterface/OnInit",
                 "LedDisplayController/OnInit",
-                "IMUMovementDetector/OnInit"
+                "IMUMovementDetector/OnInit",
+                "IMUOrientationEstimator/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",

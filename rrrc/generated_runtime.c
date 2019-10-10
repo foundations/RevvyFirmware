@@ -68,6 +68,7 @@ void Runtime_Call_OnInit(void)
     MasterCommunicationInterface_Run_OnInit();
     LedDisplayController_Run_OnInit();
     IMUMovementDetector_Run_OnInit();
+    IMUOrientationEstimator_Run_OnInit();
     /* Begin User Code Section: Runtime/OnInit End */
 
     /* End User Code Section: Runtime/OnInit End */
