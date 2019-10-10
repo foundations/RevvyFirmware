@@ -1,5 +1,5 @@
-#include "ADC1.h"
 #include "utils.h"
+#include "ADC1.h"
 #include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
@@ -119,6 +119,8 @@ void ADC1_Run_Update(void)
 __attribute__((weak))
 void ADC1_Write_ChannelVoltage(uint32_t index, const Voltage_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 8);
     /* Begin User Code Section: ChannelVoltage Start */
 
@@ -131,6 +133,8 @@ void ADC1_Write_ChannelVoltage(uint32_t index, const Voltage_t value)
 __attribute__((weak))
 void ADC1_Write_RawChannelData(uint32_t index, const uint16_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 8);
     /* Begin User Code Section: RawChannelData Start */
 
