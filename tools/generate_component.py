@@ -35,8 +35,9 @@ if __name__ == "__main__":
     project_config = rt._project_config
 
 
-    def component_file(filename):
-        return "{}/{}/{}".format(rt.settings['components_folder'], component_name, filename)
+    def component_file(fn):
+        """Get file path in the current component directory"""
+        return "/".join([rt.settings['components_folder'], component_name, fn])
 
 
     new_folders = []

@@ -24,9 +24,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--out', default='output', help='Directory where the output shall be placed')
     parser.add_argument('--build-dir', default='Debug', help='Directory where the output shall be placed')
-    
+
     args = parser.parse_args()
-    
+
     with open('Config/fw_version.h') as fw_version:
         contents = fw_version.readlines()
         version_patch = contents[4].replace('#define FW_VERSION_NUMBER ', '').strip()
