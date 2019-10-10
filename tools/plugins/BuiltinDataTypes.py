@@ -97,7 +97,11 @@ class ArraySignal(SignalType):
         data_type = provider_port_data['data_type']
         count = provider_port_data['count']
         init_values = [runtime.types.render_value(data_type, runtime.types.default_value(data_type))] * count
-        init_value = connection.attributes.get('init_value', ', '.join(init_values))
+        init_value = connection.attributes.get('init_value', init_values)
+
+        if type(init_value) is list:
+            init_value = ', '.join(init_value)
+
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }}[{{ size }}] = { {{ init_value }} };',
             'data':     {
