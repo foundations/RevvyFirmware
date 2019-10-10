@@ -44,9 +44,9 @@ static rgb_t RingLedDisplay_LedColor_LedDisplayController_RingLeds_array[12] = {
 static MasterStatus_t MasterStatusObserver_MasterStatus_LedDisplayController_MasterStatus_variable = MasterStatus_Unknown;
 static int8_t MotorPortHandler_DriveStrength_MotorDerating_ControlValue_array[6] = { 0, 0, 0, 0, 0, 0 };
 static bool DriveTrain_MotorUsed_DriveRequestMultiplexer_IsDrivetrainMotor_array[6] = { false, false, false, false, false, false };
-static DriveRequest_t DriveTrain_DriveRequest_DriveRequestMultiplexer_DrivetrainDriveRequest_array[6] = { (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } } };
-static DriveRequest_t MotorPortHandler_DriveRequest_DriveRequestMultiplexer_UserDriveRequest_array[6] = { (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } } };
-static DriveRequest_t DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[6] = { (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } } };
+static DriveRequest_t DriveTrain_DriveRequest_DriveRequestMultiplexer_DrivetrainDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
+static DriveRequest_t MotorPortHandler_DriveRequest_DriveRequestMultiplexer_UserDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
+static DriveRequest_t DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
 
 void Runtime_Call_OnInit(void)
 {
@@ -685,8 +685,8 @@ void CommunicationObserver_Write_Enabled(const bool value)
 
 void DriveRequestMultiplexer_Write_AppliedDriveRequest(uint32_t index, const DriveRequest_t* value)
 {
-    ASSERT(index < 6);
     ASSERT(value != NULL);
+    ASSERT(index < 6);
     /* Begin User Code Section: DriveRequestMultiplexer/AppliedDriveRequest Start */
 
     /* End User Code Section: DriveRequestMultiplexer/AppliedDriveRequest Start */
@@ -698,8 +698,8 @@ void DriveRequestMultiplexer_Write_AppliedDriveRequest(uint32_t index, const Dri
 
 void DriveTrain_Write_DriveRequest(uint32_t index, const DriveRequest_t* value)
 {
-    ASSERT(index < 6);
     ASSERT(value != NULL);
+    ASSERT(index < 6);
     /* Begin User Code Section: DriveTrain/DriveRequest Start */
 
     /* End User Code Section: DriveTrain/DriveRequest Start */
@@ -853,8 +853,8 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
 
 void MotorPortHandler_Write_DriveRequest(uint32_t index, const DriveRequest_t* value)
 {
-    ASSERT(index < 6);
     ASSERT(value != NULL);
+    ASSERT(index < 6);
     /* Begin User Code Section: MotorPortHandler/DriveRequest Start */
 
     /* End User Code Section: MotorPortHandler/DriveRequest Start */
@@ -1016,8 +1016,8 @@ ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
 
 void DriveRequestMultiplexer_Read_DrivetrainDriveRequest(uint32_t index, DriveRequest_t* value)
 {
-    ASSERT(index < 6);
     ASSERT(value != NULL);
+    ASSERT(index < 6);
     /* Begin User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest Start */
 
     /* End User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest Start */
@@ -1042,8 +1042,8 @@ bool DriveRequestMultiplexer_Read_IsDrivetrainMotor(uint32_t index)
 
 void DriveRequestMultiplexer_Read_UserDriveRequest(uint32_t index, DriveRequest_t* value)
 {
-    ASSERT(index < 6);
     ASSERT(value != NULL);
+    ASSERT(index < 6);
     /* Begin User Code Section: DriveRequestMultiplexer/UserDriveRequest Start */
 
     /* End User Code Section: DriveRequestMultiplexer/UserDriveRequest Start */
@@ -1380,8 +1380,8 @@ void MotorDerating_Read_Parameters(MotorDeratingParameters_t* value)
 
 void MotorPortHandler_Read_AppliedDriveRequest(uint32_t index, DriveRequest_t* value)
 {
-    ASSERT(index < 6);
     ASSERT(value != NULL);
+    ASSERT(index < 6);
     /* Begin User Code Section: MotorPortHandler/AppliedDriveRequest Start */
 
     /* End User Code Section: MotorPortHandler/AppliedDriveRequest Start */

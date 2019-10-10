@@ -467,15 +467,39 @@
             },
             {
                 "provider": "DriveTrain/DriveRequest",
-                "consumer": "DriveRequestMultiplexer/DrivetrainDriveRequest"
+                "consumer": "DriveRequestMultiplexer/DrivetrainDriveRequest",
+                "init_value": [
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }"
+                ]
             },
             {
                 "provider": "MotorPortHandler/DriveRequest",
-                "consumer": "DriveRequestMultiplexer/UserDriveRequest"
+                "consumer": "DriveRequestMultiplexer/UserDriveRequest",
+                "init_value": [
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }"
+                ]
             },
             {
                 "provider": "DriveRequestMultiplexer/AppliedDriveRequest",
-                "consumer": "MotorPortHandler/AppliedDriveRequest"
+                "consumer": "MotorPortHandler/AppliedDriveRequest",
+                "init_value": [
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
+                    "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }"
+                ]
             }
         ]
     }

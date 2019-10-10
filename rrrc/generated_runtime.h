@@ -32,6 +32,7 @@ typedef enum {
 typedef enum {
     DriveRequest_RequestType_Speed,
     DriveRequest_RequestType_Position,
+    DriveRequest_RequestType_RelativePosition,
     DriveRequest_RequestType_Power
 } DriveRequest_RequestType_t;
 

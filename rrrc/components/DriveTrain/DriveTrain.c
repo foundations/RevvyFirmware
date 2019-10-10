@@ -3,10 +3,11 @@
  *
  * Created: 2019. 05. 30. 15:32:48
  *  Author: D�niel Buga
- */ 
+ */
 
 #include "DriveTrain.h"
 #include "utils.h"
+#include "utils_assert.h"
 #include "utils/converter.h"
 #include "controller/pid.h"
 
@@ -43,11 +44,11 @@ static void assign_motor(uint8_t motor_idx, MotorAssingment_t assignment)
     {
         assignment = Motor_NotAssigned;
     }
-    DriveTrain_Write_MotorAssigned(motor_idx, assignment != Motor_NotAssigned);
+    DriveTrain_Write_MotorUsed(motor_idx, assignment != Motor_NotAssigned);
     motors[motor_idx] = assignment;
 }
 
-static void _apply(const DriveTrain_DriveRequest_t* left, const DriveTrain_DriveRequest_t* right)
+static void _apply(const DriveRequest_t* left, const DriveRequest_t* right)
 {
     for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
     {
@@ -69,8 +70,8 @@ static void _apply(const DriveTrain_DriveRequest_t* left, const DriveTrain_Drive
 
 static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8_t commandSize)
 {
-    DriveTrain_DriveRequest_t leftDriveRequest;
-    DriveTrain_DriveRequest_t rightDriveRequest;
+    DriveRequest_t leftDriveRequest;
+    DriveRequest_t rightDriveRequest;
 
     leftDriveRequest.speed_limit  = 0.0f;
     rightDriveRequest.speed_limit = 0.0f;
@@ -85,11 +86,11 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
             {
                 return Comm_Status_Error_PayloadLengthError;
             }
-            leftDriveRequest.type  = DriveTrain_Request_Position;
-            rightDriveRequest.type = DriveTrain_Request_Position;
-                
-            leftDriveRequest.v.position  = get_int32(&commandPayload[1]);
-            rightDriveRequest.v.position = get_int32(&commandPayload[5]);
+            leftDriveRequest.request_type  = DriveRequest_RequestType_Position;
+            rightDriveRequest.request_type = DriveRequest_RequestType_Position;
+
+            leftDriveRequest.request.position  = get_int32(&commandPayload[1]);
+            rightDriveRequest.request.position = get_int32(&commandPayload[5]);
 
             leftDriveRequest.speed_limit  = get_float(&commandPayload[9]);
             rightDriveRequest.speed_limit = get_float(&commandPayload[13]);
@@ -103,11 +104,11 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
             {
                 return Comm_Status_Error_PayloadLengthError;
             }
-            leftDriveRequest.type = DriveTrain_Request_Speed;
-            rightDriveRequest.type = DriveTrain_Request_Speed;
+            leftDriveRequest.request_type = DriveRequest_RequestType_Speed;
+            rightDriveRequest.request_type = DriveRequest_RequestType_Speed;
 
-            leftDriveRequest.v.speed  = get_float(&commandPayload[1]);
-            rightDriveRequest.v.speed = get_float(&commandPayload[5]);
+            leftDriveRequest.request.speed  = get_float(&commandPayload[1]);
+            rightDriveRequest.request.speed = get_float(&commandPayload[5]);
 
             leftDriveRequest.power_limit  = (float) commandPayload[9];
             rightDriveRequest.power_limit = (float) commandPayload[9];
@@ -118,11 +119,11 @@ static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8
             {
                 return Comm_Status_Error_PayloadLengthError;
             }
-            leftDriveRequest.type = DriveTrain_Request_Power;
-            rightDriveRequest.type = DriveTrain_Request_Power;
+            leftDriveRequest.request_type = DriveRequest_RequestType_Power;
+            rightDriveRequest.request_type = DriveRequest_RequestType_Power;
 
-            leftDriveRequest.v.power = 0;
-            rightDriveRequest.v.power = 0;
+            leftDriveRequest.request.power = 0;
+            rightDriveRequest.request.power = 0;
             break;
     }
 
@@ -184,7 +185,7 @@ Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_
     (void) response;
     (void) responseBufferSize;
     (void) responseCount;
-    
+
     if (commandSize != 9u)
     {
         return Comm_Status_Error_PayloadLengthError;
@@ -193,18 +194,18 @@ Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_
     {
         turnCommandActive = true;
         turnStartAngleRead = false;
-        
+
         /* +ve number is CCW angle */
         turnAngle = get_int32(&commandPayload[0]);
         float wheelSpeed = get_float(&commandPayload[4]);
         turnPowerLimit = (float) commandPayload[8];
-        
+
         yawAngleController.config.LowerLimit = -wheelSpeed;
         yawAngleController.config.UpperLimit = wheelSpeed;
 
         errorFilterValue = turnAngle;
     }
-    
+
     return Comm_Status_Ok;
 }
 
@@ -238,8 +239,8 @@ void DriveTrain_Run_Update(void)
             errorFilterValue = errorFilterValue * errorFilterAlpha + (turnTargetAngle - currentAngle) * (1.0f - errorFilterAlpha);
             float u = pid_update(&yawAngleController, turnTargetAngle, currentAngle);
 
-            DriveTrain_DriveRequest_t leftDriveRequest;
-            DriveTrain_DriveRequest_t rightDriveRequest;
+            DriveRequest_t leftDriveRequest;
+            DriveRequest_t rightDriveRequest;
 
             leftDriveRequest.speed_limit  = 0.0f;
             rightDriveRequest.speed_limit  = 0.0f;
@@ -250,20 +251,20 @@ void DriveTrain_Run_Update(void)
             if (fabsf(u) < 10.0f && fabsf(errorFilterValue) < 1.0f)
             {
                 turnCommandActive = false;
-                leftDriveRequest.type = DriveTrain_Request_Power;
-                rightDriveRequest.type = DriveTrain_Request_Power;
+                leftDriveRequest.request_type = DriveRequest_RequestType_Power;
+                rightDriveRequest.request_type = DriveRequest_RequestType_Power;
 
-                leftDriveRequest.v.power = 0;
-                rightDriveRequest.v.power = 0;
+                leftDriveRequest.request.power = 0;
+                rightDriveRequest.request.power = 0;
             }
             else
             {
-                leftDriveRequest.type = DriveTrain_Request_Speed;
-                rightDriveRequest.type = DriveTrain_Request_Speed;
+                leftDriveRequest.request_type = DriveRequest_RequestType_Speed;
+                rightDriveRequest.request_type = DriveRequest_RequestType_Speed;
 
                 /* +ve u means CCW turning */
-                leftDriveRequest.v.speed = -u;
-                rightDriveRequest.v.speed = u;
+                leftDriveRequest.request.speed = -u;
+                rightDriveRequest.request.speed = u;
 
                 leftDriveRequest.power_limit  = turnPowerLimit;
                 rightDriveRequest.power_limit = turnPowerLimit;
@@ -281,9 +282,9 @@ float DriveTrain_Read_YawAngle(void)
 }
 
 __attribute__((weak))
-void DriveTrain_Write_MotorUsed(uint8_t port_idx, bool isAssigned)
+void DriveTrain_Write_MotorUsed(uint32_t index, const bool isAssigned)
 {
-    (void) port_idx;
+    (void) index;
     (void) isAssigned;
     ASSERT(index < 6);
 }

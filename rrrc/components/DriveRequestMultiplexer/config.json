@@ -9,6 +9,7 @@
             "values": [
                 "DriveRequest_RequestType_Speed",
                 "DriveRequest_RequestType_Position",
+                "DriveRequest_RequestType_RelativePosition",
                 "DriveRequest_RequestType_Power"
             ],
             "default_value": "DriveRequest_RequestType_Power"
