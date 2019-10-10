@@ -1191,9 +1191,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\runtime\connections_error_storage.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\runtime\connections_imu.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\runtime\connections_timers.c">
       <SubType>compile</SubType>
     </Compile>
