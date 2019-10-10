@@ -96,8 +96,8 @@ class ArraySignal(SignalType):
         provider_port_data = runtime.get_port(connection.provider)
         data_type = provider_port_data['data_type']
         count = provider_port_data['count']
-        init_value = connection.attributes.get('init_value',
-                                               ', '.join([runtime.types.default_value(data_type)] * count))
+        init_values = [runtime.types.render_value(data_type, runtime.types.default_value(data_type))] * count
+        init_value = connection.attributes.get('init_value', ', '.join(init_values))
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }}[{{ size }}] = { {{ init_value }} };',
             'data':     {
@@ -162,7 +162,7 @@ class ArraySignal(SignalType):
             mods[consumer_name]['return_statement'] = 'return_value'
         else:
             ctx = {
-                'template': '*{{ out_name} = {{ signal_name }}[{{ index }};',
+                'template': '*{{ out_name }} = {{ signal_name }}[{{ index }}];',
                 'data':     {
                     'signal_name': connection.name,
                     'index':       argument_names[0],
