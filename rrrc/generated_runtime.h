@@ -143,6 +143,7 @@ typedef enum {
 #define COMPONENT_TYPES_MASTER_STATUS_OBSERVER_H_
 #define COMPONENT_TYPES_MCU_STATUS_COLLECTOR_H_
 #define COMPONENT_TYPES_MCU_STATUS_COLLECTOR_WRAPPER_H_
+#define COMPONENT_TYPES_MCU_STATUS_SLOTS_H_
 #define COMPONENT_TYPES_MEMORY_ALLOCATOR_H_
 #define COMPONENT_TYPES_MOTOR_CURRENT_FILTER_H_
 #define COMPONENT_TYPES_MOTOR_DERATING_H_
@@ -182,6 +183,7 @@ typedef enum {
 #include "components/MasterStatusObserver/MasterStatusObserver.h"
 #include "components/McuStatusCollector/McuStatusCollector.h"
 #include "components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.h"
+#include "components/McuStatusSlots/McuStatusSlots.h"
 #include "components/MemoryAllocator/MemoryAllocator.h"
 #include "components/MotorCurrentFilter/MotorCurrentFilter.h"
 #include "components/MotorDerating/MotorDerating.h"

@@ -1479,6 +1479,15 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\DriveRequestMultiplexer\DriveRequestMultiplexer.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\McuStatusSlots\McuStatusSlots.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\McuStatusSlots\McuStatusSlots.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\McuStatusSlots\config.json">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
@@ -1574,6 +1583,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\IMUOrientationEstimator" />
     <Folder Include="rrrc\components\IMUMovementDetector" />
     <Folder Include="rrrc\components\DriveRequestMultiplexer" />
+    <Folder Include="rrrc\components\McuStatusSlots" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">

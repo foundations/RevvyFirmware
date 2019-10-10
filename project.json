@@ -124,6 +124,7 @@
         "MasterStatusObserver",
         "McuStatusCollector",
         "McuStatusCollectorWrapper",
+        "McuStatusSlots",
         "MemoryAllocator",
         "MotorCurrentFilter",
         "MotorDerating",
@@ -189,6 +190,14 @@
             "defined_in": "<float.h>",
             "default_value": "0.0f"
         },
+        "ByteArray_t": {
+            "pass_semantic": "value",
+            "type": "struct",
+            "fields": {
+                "bytes": "uint8_t*",
+                "count": "size_t"
+            }
+        },
         "QueueStatus_t": {
             "type": "enum",
             "pass_semantic": "value",
@@ -223,7 +232,8 @@
                 "MasterCommunicationInterface/OnInit",
                 "LedDisplayController/OnInit",
                 "IMUMovementDetector/OnInit",
-                "IMUOrientationEstimator/OnInit"
+                "IMUOrientationEstimator/OnInit",
+                "McuStatusSlots/Reset"
             ],
             "1ms": [
                 "ADC0/Update",
@@ -234,7 +244,8 @@
                 "ADCDispatcher/Update",
                 "MotorCurrentFilter/Update",
                 "MotorThermalModel/OnUpdate",
-                "DriveRequestMultiplexer/OnUpdate"
+                "DriveRequestMultiplexer/OnUpdate",
+                "McuStatusSlots/Update"
             ],
             "10ms_offset0": [
                 "BatteryCharger/Update",
@@ -500,6 +511,26 @@
                     "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }",
                     "{ .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }"
                 ]
+            },
+            {
+                "provider": "IMU/RawAccelerometerSample",
+                "consumer": "McuStatusSlots/Acceleration"
+            },
+            {
+                "provider": "IMU/RawGyroscopeSample",
+                "consumer": "McuStatusSlots/AngularSpeeds"
+            },
+            {
+                "provider": "BatteryCalculator/MainBatteryLevel",
+                "consumer": "McuStatusSlots/MainBatteryLevel"
+            },
+            {
+                "provider": "BatteryCalculator/MotorBatteryLevel",
+                "consumer": "McuStatusSlots/MotorBatteryLevel"
+            },
+            {
+                "provider": "BatteryCharger/ChargerState",
+                "consumer": "McuStatusSlots/MainBatteryStatus"
             }
         ]
     }
