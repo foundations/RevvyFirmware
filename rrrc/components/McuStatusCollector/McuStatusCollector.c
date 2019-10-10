@@ -1,6 +1,6 @@
 #include "utils_assert.h"
-#include "McuStatusCollector.h"
 #include "utils.h"
+#include "McuStatusCollector.h"
 
 /* Begin User Code Section: Declarations */
 #include <string.h>
@@ -147,7 +147,7 @@ void McuStatusCollector_Run_DisableSlot(uint8_t slot)
 __attribute__((weak))
 SlotData_t McuStatusCollector_Read_SlotData(uint32_t index)
 {
-    ASSERT(index < 32);
+    ASSERT(index < 14);
     /* Begin User Code Section: SlotData Start */
 
     /* End User Code Section: SlotData Start */

@@ -1,6 +1,6 @@
 #include "utils.h"
-#include "McuStatusSlots.h"
 #include "utils_assert.h"
+#include "McuStatusSlots.h"
 
 /* Begin User Code Section: Declarations */
 #include <string.h>
@@ -93,7 +93,7 @@ void McuStatusSlots_Run_Reset(void)
 {
     /* Begin User Code Section: Reset Start */
     __disable_irq();
-    for (size_t i = 0u; i < 32u; i++)
+    for (size_t i = 0u; i < ARRAY_SIZE(slots); i++)
     {
         slots[i].array.count = 0u;
         slots[i].version = 0u;
@@ -175,7 +175,7 @@ void McuStatusSlots_Write_SlotData(uint32_t index, const SlotData_t value)
 {
     (void) value;
     (void) index;
-    ASSERT(index < 32);
+    ASSERT(index < 14);
     /* Begin User Code Section: SlotData Start */
 
     /* End User Code Section: SlotData Start */

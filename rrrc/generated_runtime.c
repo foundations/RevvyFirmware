@@ -49,7 +49,7 @@ static DriveRequest_t MotorPortHandler_DriveRequest_DriveRequestMultiplexer_User
 static DriveRequest_t DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
 static IMU_RawSample_t IMU_RawAccelerometerSample_McuStatusSlots_Acceleration_variable = (IMU_RawSample_t) { .x = 0, .y = 0, .z = 0 };
 static IMU_RawSample_t IMU_RawGyroscopeSample_McuStatusSlots_AngularSpeeds_variable = (IMU_RawSample_t) { .x = 0, .y = 0, .z = 0 };
-static SlotData_t McuStatusSlots_SlotData_McuStatusCollector_SlotData_array[32] = { { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u} };
+static SlotData_t McuStatusSlots_SlotData_McuStatusCollector_SlotData_array[14] = { { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u} };
 
 void Runtime_Call_OnInit(void)
 {
@@ -938,7 +938,7 @@ void MasterStatusObserver_Write_MasterStatus(const MasterStatus_t value)
 
 void McuStatusSlots_Write_SlotData(uint32_t index, const SlotData_t value)
 {
-    ASSERT(index < 32);
+    ASSERT(index < 14);
     /* Begin User Code Section: McuStatusSlots/SlotData Start */
 
     /* End User Code Section: McuStatusSlots/SlotData Start */
@@ -1438,7 +1438,7 @@ rgb_t LedDisplayController_Read_RingLeds(uint32_t index)
 
 SlotData_t McuStatusCollector_Read_SlotData(uint32_t index)
 {
-    ASSERT(index < 32);
+    ASSERT(index < 14);
     /* Begin User Code Section: McuStatusCollector/SlotData Start */
 
     /* End User Code Section: McuStatusCollector/SlotData Start */

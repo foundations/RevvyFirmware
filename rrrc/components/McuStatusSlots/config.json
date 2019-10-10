@@ -51,7 +51,7 @@
         "SlotData": {
             "port_type": "WriteIndexedData",
             "data_type": "SlotData_t",
-            "count": 32
+            "count": 14
         },
         "MainBatteryLevel": {
             "port_type": "ReadValue",
