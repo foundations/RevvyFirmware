@@ -162,7 +162,7 @@ class FunctionDescriptor:
         return chevron.render(**ctx)
 
     def get_function(self):
-        body = list(self._asserts)
+        body = list(sorted(self._asserts))
         body += [chunk.replace('\n', '\n    ') for chunk in self._body]
         if self._return_statement:
             body.append('return {};'.format(self._return_statement))
@@ -172,7 +172,7 @@ class FunctionDescriptor:
 
         unused_arguments = self._arguments.keys() - self._used_arguments
 
-        for arg in unused_arguments:
+        for arg in sorted(unused_arguments):
             body.insert(0, '(void) {};'.format(arg))
 
         ctx = {
