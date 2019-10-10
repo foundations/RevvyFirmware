@@ -65,7 +65,7 @@ static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)
 
 static void update_slot(uint8_t index, const uint8_t* data, uint8_t data_size)
 {
-    slot_t const* slot = &slots[index];
+    slot_t* const slot = &slots[index];
     ASSERT(data_size <= slot->size);
 
     bool slot_changed = true;
@@ -73,7 +73,7 @@ static void update_slot(uint8_t index, const uint8_t* data, uint8_t data_size)
     if (data_size != slot->array.count)
     {
         memcpy(slot->array.bytes, data, data_size);
-        slot->count = data_size;
+        slot->array.count = data_size;
     }
     else
     {
@@ -83,7 +83,7 @@ static void update_slot(uint8_t index, const uint8_t* data, uint8_t data_size)
     if (slot_changed)
     {
         slot->version++;
-        McuStatusSlots_Write_SlotData(index, (SlotData_t) {.data = slot->array, .version = slot->version});
+        McuStatusSlots_Write_SlotData(index, (const SlotData_t) {.data = slot->array, .version = slot->version});
     }
     __enable_irq();
 }
@@ -96,7 +96,7 @@ void McuStatusSlots_Run_Reset(void)
     for (size_t i = 0u; i < 32u; i++)
     {
         slots[i].array.count = 0u;
-        slots[i].array.version = 0u;
+        slots[i].version = 0u;
     }
     __enable_irq();
     /* End User Code Section: Reset Start */
@@ -153,7 +153,7 @@ void McuStatusSlots_Run_Update(void)
 void McuStatusSlots_Run_UpdateSensorPort(uint8_t port, ByteArray_t data)
 {
     /* Begin User Code Section: UpdateSensorPort Start */
-    update_slot(SENSOR_SLOT(port), data.buffer, data.count);
+    update_slot(SENSOR_SLOT(port), data.bytes, data.count);
     /* End User Code Section: UpdateSensorPort Start */
     /* Begin User Code Section: UpdateSensorPort End */
 
@@ -163,7 +163,7 @@ void McuStatusSlots_Run_UpdateSensorPort(uint8_t port, ByteArray_t data)
 void McuStatusSlots_Run_UpdateMotorPort(uint8_t port, ByteArray_t data)
 {
     /* Begin User Code Section: UpdateMotorPort Start */
-    update_slot(MOTOR_SLOT(port), data.buffer, data.count);
+    update_slot(MOTOR_SLOT(port), data.bytes, data.count);
     /* End User Code Section: UpdateMotorPort Start */
     /* Begin User Code Section: UpdateMotorPort End */
 
@@ -171,7 +171,7 @@ void McuStatusSlots_Run_UpdateMotorPort(uint8_t port, ByteArray_t data)
 }
 
 __attribute__((weak))
-void McuStatusSlots_Write_SlotData(uint32_t index, const ByteArray_t value)
+void McuStatusSlots_Write_SlotData(uint32_t index, const SlotData_t value)
 {
     (void) value;
     (void) index;

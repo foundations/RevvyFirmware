@@ -47,6 +47,9 @@ static bool DriveTrain_MotorUsed_DriveRequestMultiplexer_IsDrivetrainMotor_array
 static DriveRequest_t DriveTrain_DriveRequest_DriveRequestMultiplexer_DrivetrainDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
 static DriveRequest_t MotorPortHandler_DriveRequest_DriveRequestMultiplexer_UserDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
 static DriveRequest_t DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
+static IMU_RawSample_t IMU_RawAccelerometerSample_McuStatusSlots_Acceleration_variable = (IMU_RawSample_t) { .x = 0, .y = 0, .z = 0 };
+static IMU_RawSample_t IMU_RawGyroscopeSample_McuStatusSlots_AngularSpeeds_variable = (IMU_RawSample_t) { .x = 0, .y = 0, .z = 0 };
+static SlotData_t McuStatusSlots_SlotData_McuStatusCollector_SlotData_array[32] = { (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u } };
 
 void Runtime_Call_OnInit(void)
 {
@@ -74,6 +77,8 @@ void Runtime_Call_OnInit(void)
     LedDisplayController_Run_OnInit();
     IMUMovementDetector_Run_OnInit();
     IMUOrientationEstimator_Run_OnInit();
+    McuStatusSlots_Run_Reset();
+    McuStatusCollector_Run_Reset();
     /* Begin User Code Section: Runtime/OnInit End */
 
     /* End User Code Section: Runtime/OnInit End */
@@ -93,6 +98,7 @@ void Runtime_Call_1ms(void)
     MotorCurrentFilter_Run_Update();
     MotorThermalModel_Run_OnUpdate();
     DriveRequestMultiplexer_Run_OnUpdate();
+    McuStatusSlots_Run_Update();
     /* Begin User Code Section: Runtime/1ms End */
 
     /* End User Code Section: Runtime/1ms End */
@@ -685,8 +691,8 @@ void CommunicationObserver_Write_Enabled(const bool value)
 
 void DriveRequestMultiplexer_Write_AppliedDriveRequest(uint32_t index, const DriveRequest_t* value)
 {
-    ASSERT(value != NULL);
     ASSERT(index < 6);
+    ASSERT(value != NULL);
     /* Begin User Code Section: DriveRequestMultiplexer/AppliedDriveRequest Start */
 
     /* End User Code Section: DriveRequestMultiplexer/AppliedDriveRequest Start */
@@ -698,8 +704,8 @@ void DriveRequestMultiplexer_Write_AppliedDriveRequest(uint32_t index, const Dri
 
 void DriveTrain_Write_DriveRequest(uint32_t index, const DriveRequest_t* value)
 {
-    ASSERT(value != NULL);
     ASSERT(index < 6);
+    ASSERT(value != NULL);
     /* Begin User Code Section: DriveTrain/DriveRequest Start */
 
     /* End User Code Section: DriveTrain/DriveRequest Start */
@@ -782,6 +788,30 @@ void IMU_Write_GyroscopeSample(const Vector3D_t* value)
     /* End User Code Section: IMU/GyroscopeSample End */
 }
 
+void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: IMU/RawAccelerometerSample Start */
+
+    /* End User Code Section: IMU/RawAccelerometerSample Start */
+    IMU_RawAccelerometerSample_McuStatusSlots_Acceleration_variable = *value;
+    /* Begin User Code Section: IMU/RawAccelerometerSample End */
+
+    /* End User Code Section: IMU/RawAccelerometerSample End */
+}
+
+void IMU_Write_RawGyroscopeSample(const IMU_RawSample_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: IMU/RawGyroscopeSample Start */
+
+    /* End User Code Section: IMU/RawGyroscopeSample Start */
+    IMU_RawGyroscopeSample_McuStatusSlots_AngularSpeeds_variable = *value;
+    /* Begin User Code Section: IMU/RawGyroscopeSample End */
+
+    /* End User Code Section: IMU/RawGyroscopeSample End */
+}
+
 void IMUMovementDetector_Write_IsMoving(const bool value)
 {
     /* Begin User Code Section: IMUMovementDetector/IsMoving Start */
@@ -839,6 +869,18 @@ void MasterStatusObserver_Write_MasterStatus(const MasterStatus_t value)
     /* End User Code Section: MasterStatusObserver/MasterStatus End */
 }
 
+void McuStatusSlots_Write_SlotData(uint32_t index, const SlotData_t value)
+{
+    ASSERT(index < 32);
+    /* Begin User Code Section: McuStatusSlots/SlotData Start */
+
+    /* End User Code Section: McuStatusSlots/SlotData Start */
+    McuStatusSlots_SlotData_McuStatusCollector_SlotData_array[index] = value;
+    /* Begin User Code Section: McuStatusSlots/SlotData End */
+
+    /* End User Code Section: McuStatusSlots/SlotData End */
+}
+
 void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t value)
 {
     ASSERT(index < 6);
@@ -853,8 +895,8 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
 
 void MotorPortHandler_Write_DriveRequest(uint32_t index, const DriveRequest_t* value)
 {
-    ASSERT(value != NULL);
     ASSERT(index < 6);
+    ASSERT(value != NULL);
     /* Begin User Code Section: MotorPortHandler/DriveRequest Start */
 
     /* End User Code Section: MotorPortHandler/DriveRequest Start */
@@ -1016,8 +1058,8 @@ ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
 
 void DriveRequestMultiplexer_Read_DrivetrainDriveRequest(uint32_t index, DriveRequest_t* value)
 {
-    ASSERT(value != NULL);
     ASSERT(index < 6);
+    ASSERT(value != NULL);
     /* Begin User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest Start */
 
     /* End User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest Start */
@@ -1042,8 +1084,8 @@ bool DriveRequestMultiplexer_Read_IsDrivetrainMotor(uint32_t index)
 
 void DriveRequestMultiplexer_Read_UserDriveRequest(uint32_t index, DriveRequest_t* value)
 {
-    ASSERT(value != NULL);
     ASSERT(index < 6);
+    ASSERT(value != NULL);
     /* Begin User Code Section: DriveRequestMultiplexer/UserDriveRequest Start */
 
     /* End User Code Section: DriveRequestMultiplexer/UserDriveRequest Start */
@@ -1327,6 +1369,79 @@ rgb_t LedDisplayController_Read_RingLeds(uint32_t index)
     return return_value;
 }
 
+SlotData_t McuStatusCollector_Read_SlotData(uint32_t index)
+{
+    ASSERT(index < 32);
+    /* Begin User Code Section: McuStatusCollector/SlotData Start */
+
+    /* End User Code Section: McuStatusCollector/SlotData Start */
+    SlotData_t return_value = McuStatusSlots_SlotData_McuStatusCollector_SlotData_array[index];
+    /* Begin User Code Section: McuStatusCollector/SlotData End */
+
+    /* End User Code Section: McuStatusCollector/SlotData End */
+    return return_value;
+}
+
+void McuStatusSlots_Read_Acceleration(IMU_RawSample_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: McuStatusSlots/Acceleration Start */
+
+    /* End User Code Section: McuStatusSlots/Acceleration Start */
+    *value = IMU_RawAccelerometerSample_McuStatusSlots_Acceleration_variable;
+    /* Begin User Code Section: McuStatusSlots/Acceleration End */
+
+    /* End User Code Section: McuStatusSlots/Acceleration End */
+}
+
+void McuStatusSlots_Read_AngularSpeeds(IMU_RawSample_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: McuStatusSlots/AngularSpeeds Start */
+
+    /* End User Code Section: McuStatusSlots/AngularSpeeds Start */
+    *value = IMU_RawGyroscopeSample_McuStatusSlots_AngularSpeeds_variable;
+    /* Begin User Code Section: McuStatusSlots/AngularSpeeds End */
+
+    /* End User Code Section: McuStatusSlots/AngularSpeeds End */
+}
+
+uint8_t McuStatusSlots_Read_MainBatteryLevel(void)
+{
+    /* Begin User Code Section: McuStatusSlots/MainBatteryLevel Start */
+
+    /* End User Code Section: McuStatusSlots/MainBatteryLevel Start */
+    uint8_t return_value = BatteryCalculator_MainBatteryLevel_LedDisplayController_MainBatteryLevel_variable;
+    /* Begin User Code Section: McuStatusSlots/MainBatteryLevel End */
+
+    /* End User Code Section: McuStatusSlots/MainBatteryLevel End */
+    return return_value;
+}
+
+ChargerState_t McuStatusSlots_Read_MainBatteryStatus(void)
+{
+    /* Begin User Code Section: McuStatusSlots/MainBatteryStatus Start */
+
+    /* End User Code Section: McuStatusSlots/MainBatteryStatus Start */
+    ChargerState_t return_value = BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
+    /* Begin User Code Section: McuStatusSlots/MainBatteryStatus End */
+
+    /* End User Code Section: McuStatusSlots/MainBatteryStatus End */
+    return return_value;
+}
+
+uint8_t McuStatusSlots_Read_MotorBatteryLevel(void)
+{
+    /* Begin User Code Section: McuStatusSlots/MotorBatteryLevel Start */
+
+    /* End User Code Section: McuStatusSlots/MotorBatteryLevel Start */
+    uint8_t return_value = BatteryCalculator_MotorBatteryLevel_LedDisplayController_MotorBatteryLevel_variable;
+    /* Begin User Code Section: McuStatusSlots/MotorBatteryLevel End */
+
+    /* End User Code Section: McuStatusSlots/MotorBatteryLevel End */
+    return return_value;
+}
+
 Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
 {
     ASSERT(index < 6);
@@ -1380,8 +1495,8 @@ void MotorDerating_Read_Parameters(MotorDeratingParameters_t* value)
 
 void MotorPortHandler_Read_AppliedDriveRequest(uint32_t index, DriveRequest_t* value)
 {
-    ASSERT(value != NULL);
     ASSERT(index < 6);
+    ASSERT(value != NULL);
     /* Begin User Code Section: MotorPortHandler/AppliedDriveRequest Start */
 
     /* End User Code Section: MotorPortHandler/AppliedDriveRequest Start */

@@ -1488,6 +1488,9 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\McuStatusSlots\config.json">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\McuStatusCollector\config.json">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />

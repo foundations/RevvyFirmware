@@ -233,7 +233,8 @@
                 "LedDisplayController/OnInit",
                 "IMUMovementDetector/OnInit",
                 "IMUOrientationEstimator/OnInit",
-                "McuStatusSlots/Reset"
+                "McuStatusSlots/Reset",
+                "McuStatusCollector/Reset"
             ],
             "1ms": [
                 "ADC0/Update",
@@ -531,6 +532,10 @@
             {
                 "provider": "BatteryCharger/ChargerState",
                 "consumer": "McuStatusSlots/MainBatteryStatus"
+            },
+            {
+                "provider": "McuStatusSlots/SlotData",
+                "consumer": "McuStatusCollector/SlotData"
             }
         ]
     }

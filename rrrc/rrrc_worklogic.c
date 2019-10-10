@@ -447,132 +447,9 @@ int8_t MotorDriver_8833_Read_DriveRequest_ChannelB(MotorDriver_8833_t* driver)
     }
 }
 
-static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)
-{
-    bool equal = true;
-    for (uint8_t i = 0u; i < size; i++)
-    {
-        if (pSrc[i] != pDst[i])
-        {
-            pDst[i] = pSrc[i];
-            equal = false;
-        }
-    }
-
-    return equal;
-}
-
-static bool _update_port(uint8_t* pBuffer, uint8_t* pData, uint8_t dataSize)
-{
-    bool size_changed = pBuffer[0] != dataSize;
-    pBuffer[0] = dataSize;
-
-    bool data_changed = !compare_and_copy(&pBuffer[1u], pData, dataSize);
-
-    return data_changed || size_changed;
-}
-
-void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
-{
-    ASSERT(dataSize <= MAX_MOTOR_STATUS_SIZE);
-
-    portENTER_CRITICAL();
-    status_changed[port_idx] = _update_port(motor_status[port_idx], pData, dataSize);
-    portEXIT_CRITICAL();
-}
-
-void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
-{
-    ASSERT(dataSize <= MAX_SENSOR_STATUS_SIZE);
-
-    portENTER_CRITICAL();
-    status_changed[port_idx + 6u] = _update_port(sensor_status[port_idx], pData, dataSize);
-    portEXIT_CRITICAL();
-}
-
-void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotDataSize)
-{
-    ASSERT(slot < ARRAY_SIZE(status_changed));
- 
-    portENTER_CRITICAL();
-    *slotDataSize = 0u;
-
-    if (status_changed[slot])
-    {
-        if (slot < 6u)
-        {
-            uint8_t motor_idx = slot;
-            if (bufferSize >= motor_status[motor_idx][0])
-            {
-                *slotDataSize = motor_status[motor_idx][0];
-                memcpy(pData, &motor_status[motor_idx][1], motor_status[motor_idx][0]);
-            }
-        }
-        else if (slot < 10u)
-        {
-            uint8_t sensor_idx = slot - 6u;
-            if (bufferSize >= sensor_status[sensor_idx][0])
-            {
-                *slotDataSize = sensor_status[sensor_idx][0];
-                memcpy(pData, &sensor_status[sensor_idx][1], sensor_status[sensor_idx][0]);
-            }
-        }
-        else if (slot == STATUS_SLOT_BATTERY)
-        {
-            /* battery */
-            if (bufferSize >= 4u)
-            {
-                pData[0] = 0;
-                pData[1] = 0;
-                pData[2] = 0;
-                pData[3] = 0;
-                *slotDataSize = 4u;
-            }
-        }
-        else if (slot == STATUS_SLOT_AXL)
-        {
-            if (bufferSize >= sizeof(axl_status))
-            {
-                memcpy(pData, axl_status, sizeof(axl_status));
-                *slotDataSize = sizeof(axl_status);
-            }
-        }
-        else if (slot == STATUS_SLOT_GYRO)
-        {
-            if (bufferSize >= sizeof(gyro_status))
-            {
-                memcpy(pData, gyro_status, sizeof(gyro_status));
-                *slotDataSize = sizeof(gyro_status);
-            }
-        }
-        else if (slot == STATUS_SLOT_YAW)
-        {
-            if (bufferSize >= sizeof(yaw_status))
-            {
-                memcpy(pData, yaw_status, sizeof(yaw_status));
-                *slotDataSize = sizeof(yaw_status);
-            }
-        }
-        else
-        {
-            ASSERT(0);
-        }
-    }
-    portEXIT_CRITICAL();
-}
-
-void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
-{
-    portENTER_CRITICAL();
-    ASSERT(slot < ARRAY_SIZE(status_changed));
-
-    status_changed[slot] = false;
-    portEXIT_CRITICAL();
-}
-
 void McuStatusCollectorWrapper_Call_ResetSlots(void)
 {
-    McuStatusCollector_Run_ResetSlots();
+    McuStatusCollector_Run_Reset();
     
     memset(motor_status, 0u, sizeof(motor_status));
     memset(sensor_status, 0u, sizeof(sensor_status));
@@ -580,34 +457,6 @@ void McuStatusCollectorWrapper_Call_ResetSlots(void)
 
 void McuStatusCollectorWrapper_Call_EnableSlot(uint8_t slot)
 {
-    status_changed[slot] = false;
-    if (slot < 6u)
-    {
-        uint8_t motor_idx = slot;
-        motor_status[motor_idx][0] = 0u;
-    }
-    else if (slot < 10u)
-    {
-        uint8_t sensor_idx = slot - 6u;
-        sensor_status[sensor_idx][0] = 0u;
-    }
-    else if (slot == STATUS_SLOT_BATTERY)
-    {
-        /* nothing to do for battery slot */
-    }
-    else if (slot == STATUS_SLOT_AXL || slot == STATUS_SLOT_GYRO)
-    {
-        status_changed[slot] = false;
-    }
-    else if (slot == STATUS_SLOT_YAW)
-    {
-        /* yaw may or may not change often, make sure it's value is read */
-        status_changed[slot] = true;
-    }
-    else
-    {
-        ASSERT(0);
-    }
     McuStatusCollector_Run_EnableSlot(slot);
 }
 
@@ -618,26 +467,7 @@ void McuStatusCollectorWrapper_Call_DisableSlot(uint8_t slot)
 
 void McuStatusCollectorWrapper_Call_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
 {
-    McuStatusCollector_Run_ReadData(pData, bufferSize, dataSize);
-}
-
-void IMU_Write_RawAccelerometerSample(const IMU_RawSample_t* sample)
-{
-    status_changed[STATUS_SLOT_AXL] = !compare_and_copy(axl_status, (const uint8_t*) sample, sizeof(axl_status));
-}
-
-void UpdateMcuStatus_Gyroscope(const IMU_RawSample_t* sample)
-{
-    status_changed[STATUS_SLOT_GYRO] = !compare_and_copy(gyro_status, (const uint8_t*) sample, sizeof(gyro_status));
-}
-
-void UpdateMcuStatus_YawAngle(int32_t angle, int32_t relativeAngle)
-{
-    uint8_t buffer[8];
-    memcpy(buffer, &angle, sizeof(int32_t));
-    memcpy(&buffer[4], &relativeAngle, sizeof(int32_t));
-    
-    status_changed[STATUS_SLOT_YAW] = !compare_and_copy(yaw_status, (const uint8_t*) buffer, sizeof(buffer));
+    *dataSize = McuStatusCollector_Run_Read((ByteArray_t) {.bytes = pData, .count = bufferSize});
 }
 
 void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst)

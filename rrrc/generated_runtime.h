@@ -90,6 +90,16 @@ typedef struct {
     MasterMessage_t rx_overflow_response;
     uint32_t rx_timeout;
 } MasterCommunicationInterface_Config_t;
+
+typedef struct {
+    uint8_t* bytes;
+    size_t count;
+} ByteArray_t;
+
+typedef struct {
+    ByteArray_t data;
+    uint8_t version;
+} SlotData_t;
 typedef float Temperature_t;
 
 typedef struct {

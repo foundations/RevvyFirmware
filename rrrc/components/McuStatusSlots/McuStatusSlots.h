@@ -9,6 +9,16 @@
 
 
 typedef struct {
+    uint8_t* bytes;
+    size_t count;
+} ByteArray_t;
+
+typedef struct {
+    ByteArray_t data;
+    uint8_t version;
+} SlotData_t;
+
+typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
@@ -21,19 +31,13 @@ typedef enum {
     ChargerState_Fault
 } ChargerState_t;
 
-typedef struct {
-    uint8_t* bytes;
-    size_t count;
-} ByteArray_t;
-
 #endif /* COMPONENT_TYPES_MCU_STATUS_SLOTS_H_ */
 
 void McuStatusSlots_Run_Reset(void);
 void McuStatusSlots_Run_Update(void);
-void McuStatusSlots_Run_ClearSlot(uint8_t slot);
 void McuStatusSlots_Run_UpdateSensorPort(uint8_t port, ByteArray_t data);
 void McuStatusSlots_Run_UpdateMotorPort(uint8_t port, ByteArray_t data);
-void McuStatusSlots_Write_SlotData(uint32_t index, const ByteArray_t value);
+void McuStatusSlots_Write_SlotData(uint32_t index, const SlotData_t value);
 void McuStatusSlots_Read_Acceleration(IMU_RawSample_t* value);
 void McuStatusSlots_Read_AngularSpeeds(IMU_RawSample_t* value);
 uint8_t McuStatusSlots_Read_MainBatteryLevel(void);
