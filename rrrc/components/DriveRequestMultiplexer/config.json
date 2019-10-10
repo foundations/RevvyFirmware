@@ -1,10 +1,7 @@
 {
-    "component_name": "MotorPortHandler",
+    "name": "DriveRequestMultiplexer",
     "source_files": [
-        "MotorPortHandler.c",
-        "MotorPortHandlerInternal.c",
-        "MotorPortLibraries/DcMotor/DcMotor.c",
-        "MotorPortLibraries/Dummy/Dummy.c"
+        "DriveRequestMultiplexer.c"
     ],
     "types": {
         "DriveRequest_RequestType_t": {
@@ -38,40 +35,30 @@
         }
     },
     "runnables": {
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
-        }
+        "OnUpdate": {}
     },
     "ports": {
-        "Allocate": {
-            "port_type": "ServerCall",
-            "return_type": "void*",
-            "arguments": {
-                "size": "size_t"
-            }
-        },
-        "Free": {
-            "port_type": "ServerCall",
-            "return_type": "void",
-            "arguments": {
-                "ptr": "void**"
-            }
-        },
-        "DriveStrength": {
+        "AppliedDriveRequest": {
             "port_type": "WriteIndexedData",
-            "data_type": "int8_t",
+            "data_type": "DriveRequest_t",
             "count": 6
         },
-        "DriveRequest": {
-            "port_type": "WriteIndexedData",
-            "data_type": "DriveRequest_t",
-            "count": 6,
-            "async": true
-        },
-        "AppliedDriveRequest": {
+        "UserDriveRequest": {
             "port_type": "ReadIndexedValue",
+            "default_value": null,
             "data_type": "DriveRequest_t",
+            "count": 6
+        },
+        "DrivetrainDriveRequest": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "DriveRequest_t",
+            "count": 6
+        },
+        "IsDrivetrainMotor": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "bool",
             "count": 6
         }
     }

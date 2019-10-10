@@ -1,6 +1,6 @@
-#include "utils.h"
 #include "utils_assert.h"
 #include "generated_runtime.h"
+#include "utils.h"
 
 /* Begin User Code Section: Declarations */
 
@@ -43,6 +43,10 @@ static uint8_t LedDisplayController_MaxBrightness_LEDController_MaxBrightness_va
 static rgb_t RingLedDisplay_LedColor_LedDisplayController_RingLeds_array[12] = { (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0} };
 static MasterStatus_t MasterStatusObserver_MasterStatus_LedDisplayController_MasterStatus_variable = MasterStatus_Unknown;
 static int8_t MotorPortHandler_DriveStrength_MotorDerating_ControlValue_array[6] = { 0, 0, 0, 0, 0, 0 };
+static bool DriveTrain_MotorUsed_DriveRequestMultiplexer_IsDrivetrainMotor_array[6] = { false, false, false, false, false, false };
+static DriveRequest_t DriveTrain_DriveRequest_DriveRequestMultiplexer_DrivetrainDriveRequest_array[6] = { (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } } };
+static DriveRequest_t MotorPortHandler_DriveRequest_DriveRequestMultiplexer_UserDriveRequest_array[6] = { (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } } };
+static DriveRequest_t DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[6] = { (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } }, (DriveRequest_t) { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request = (DriveRequest_RequestValue_t) { .power = 0 } } };
 
 void Runtime_Call_OnInit(void)
 {
@@ -88,6 +92,7 @@ void Runtime_Call_1ms(void)
     ADCDispatcher_Run_Update();
     MotorCurrentFilter_Run_Update();
     MotorThermalModel_Run_OnUpdate();
+    DriveRequestMultiplexer_Run_OnUpdate();
     /* Begin User Code Section: Runtime/1ms End */
 
     /* End User Code Section: Runtime/1ms End */
@@ -678,6 +683,44 @@ void CommunicationObserver_Write_Enabled(const bool value)
     /* End User Code Section: CommunicationObserver/Enabled End */
 }
 
+void DriveRequestMultiplexer_Write_AppliedDriveRequest(uint32_t index, const DriveRequest_t* value)
+{
+    ASSERT(index < 6);
+    ASSERT(value != NULL);
+    /* Begin User Code Section: DriveRequestMultiplexer/AppliedDriveRequest Start */
+
+    /* End User Code Section: DriveRequestMultiplexer/AppliedDriveRequest Start */
+    DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[index] = *value;
+    /* Begin User Code Section: DriveRequestMultiplexer/AppliedDriveRequest End */
+
+    /* End User Code Section: DriveRequestMultiplexer/AppliedDriveRequest End */
+}
+
+void DriveTrain_Write_DriveRequest(uint32_t index, const DriveRequest_t* value)
+{
+    ASSERT(index < 6);
+    ASSERT(value != NULL);
+    /* Begin User Code Section: DriveTrain/DriveRequest Start */
+
+    /* End User Code Section: DriveTrain/DriveRequest Start */
+    DriveTrain_DriveRequest_DriveRequestMultiplexer_DrivetrainDriveRequest_array[index] = *value;
+    /* Begin User Code Section: DriveTrain/DriveRequest End */
+
+    /* End User Code Section: DriveTrain/DriveRequest End */
+}
+
+void DriveTrain_Write_MotorUsed(uint32_t index, const bool value)
+{
+    ASSERT(index < 6);
+    /* Begin User Code Section: DriveTrain/MotorUsed Start */
+
+    /* End User Code Section: DriveTrain/MotorUsed Start */
+    DriveTrain_MotorUsed_DriveRequestMultiplexer_IsDrivetrainMotor_array[index] = value;
+    /* Begin User Code Section: DriveTrain/MotorUsed End */
+
+    /* End User Code Section: DriveTrain/MotorUsed End */
+}
+
 void GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(const Vector3D_t* value)
 {
     ASSERT(value != NULL);
@@ -806,6 +849,21 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
     /* Begin User Code Section: MotorCurrentFilter/FilteredCurrent End */
 
     /* End User Code Section: MotorCurrentFilter/FilteredCurrent End */
+}
+
+void MotorPortHandler_Write_DriveRequest(uint32_t index, const DriveRequest_t* value)
+{
+    ASSERT(index < 6);
+    ASSERT(value != NULL);
+    /* Begin User Code Section: MotorPortHandler/DriveRequest Start */
+
+    /* End User Code Section: MotorPortHandler/DriveRequest Start */
+    __disable_irq();
+    MotorPortHandler_DriveRequest_DriveRequestMultiplexer_UserDriveRequest_array[index] = *value;
+    __enable_irq();
+    /* Begin User Code Section: MotorPortHandler/DriveRequest End */
+
+    /* End User Code Section: MotorPortHandler/DriveRequest End */
 }
 
 void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value)
@@ -954,6 +1012,47 @@ ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
 
     /* End User Code Section: BatteryStatusProvider/IsMainBatteryCharging End */
     return return_value;
+}
+
+void DriveRequestMultiplexer_Read_DrivetrainDriveRequest(uint32_t index, DriveRequest_t* value)
+{
+    ASSERT(index < 6);
+    ASSERT(value != NULL);
+    /* Begin User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest Start */
+
+    /* End User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest Start */
+    *value = DriveTrain_DriveRequest_DriveRequestMultiplexer_DrivetrainDriveRequest_array[index];
+    /* Begin User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest End */
+
+    /* End User Code Section: DriveRequestMultiplexer/DrivetrainDriveRequest End */
+}
+
+bool DriveRequestMultiplexer_Read_IsDrivetrainMotor(uint32_t index)
+{
+    ASSERT(index < 6);
+    /* Begin User Code Section: DriveRequestMultiplexer/IsDrivetrainMotor Start */
+
+    /* End User Code Section: DriveRequestMultiplexer/IsDrivetrainMotor Start */
+    bool return_value = DriveTrain_MotorUsed_DriveRequestMultiplexer_IsDrivetrainMotor_array[index];
+    /* Begin User Code Section: DriveRequestMultiplexer/IsDrivetrainMotor End */
+
+    /* End User Code Section: DriveRequestMultiplexer/IsDrivetrainMotor End */
+    return return_value;
+}
+
+void DriveRequestMultiplexer_Read_UserDriveRequest(uint32_t index, DriveRequest_t* value)
+{
+    ASSERT(index < 6);
+    ASSERT(value != NULL);
+    /* Begin User Code Section: DriveRequestMultiplexer/UserDriveRequest Start */
+
+    /* End User Code Section: DriveRequestMultiplexer/UserDriveRequest Start */
+    __disable_irq();
+    *value = MotorPortHandler_DriveRequest_DriveRequestMultiplexer_UserDriveRequest_array[index];
+    __enable_irq();
+    /* Begin User Code Section: DriveRequestMultiplexer/UserDriveRequest End */
+
+    /* End User Code Section: DriveRequestMultiplexer/UserDriveRequest End */
 }
 
 QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
@@ -1277,6 +1376,19 @@ void MotorDerating_Read_Parameters(MotorDeratingParameters_t* value)
     /* Begin User Code Section: MotorDerating/Parameters End */
 
     /* End User Code Section: MotorDerating/Parameters End */
+}
+
+void MotorPortHandler_Read_AppliedDriveRequest(uint32_t index, DriveRequest_t* value)
+{
+    ASSERT(index < 6);
+    ASSERT(value != NULL);
+    /* Begin User Code Section: MotorPortHandler/AppliedDriveRequest Start */
+
+    /* End User Code Section: MotorPortHandler/AppliedDriveRequest Start */
+    *value = DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[index];
+    /* Begin User Code Section: MotorPortHandler/AppliedDriveRequest End */
+
+    /* End User Code Section: MotorPortHandler/AppliedDriveRequest End */
 }
 
 Current_t MotorThermalModel_Read_MotorCurrent(uint32_t index)

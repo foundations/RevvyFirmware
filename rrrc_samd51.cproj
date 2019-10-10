@@ -1470,6 +1470,15 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\DriveTrain\config.json">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\DriveRequestMultiplexer\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\DriveRequestMultiplexer\DriveRequestMultiplexer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\DriveRequestMultiplexer\DriveRequestMultiplexer.c">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
@@ -1564,6 +1573,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\LedDisplayController" />
     <Folder Include="rrrc\components\IMUOrientationEstimator" />
     <Folder Include="rrrc\components\IMUMovementDetector" />
+    <Folder Include="rrrc\components\DriveRequestMultiplexer" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">

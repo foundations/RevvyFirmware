@@ -29,6 +29,25 @@ typedef enum {
     BluetoothStatus_Connected
 } BluetoothStatus_t;
 
+typedef enum {
+    DriveRequest_RequestType_Speed,
+    DriveRequest_RequestType_Position,
+    DriveRequest_RequestType_Power
+} DriveRequest_RequestType_t;
+
+typedef union {
+    float speed;
+    int32_t position;
+    int8_t power;
+} DriveRequest_RequestValue_t;
+
+typedef struct {
+    float power_limit;
+    float speed_limit;
+    DriveRequest_RequestType_t request_type;
+    DriveRequest_RequestValue_t request;
+} DriveRequest_t;
+
 typedef struct {
     float x;
     float y;
@@ -106,6 +125,7 @@ typedef enum {
 #define COMPONENT_TYPES_BATTERY_STATUS_PROVIDER_H_
 #define COMPONENT_TYPES_BLUETOOTH_STATUS_OBSERVER_H_
 #define COMPONENT_TYPES_COMMUNICATION_OBSERVER_H_
+#define COMPONENT_TYPES_DRIVE_REQUEST_MULTIPLEXER_H_
 #define COMPONENT_TYPES_DRIVE_TRAIN_H_
 #define COMPONENT_TYPES_ERROR_STORAGE_H_
 #define COMPONENT_TYPES_ERROR_STORAGE_WRAPPER_H_
@@ -144,6 +164,7 @@ typedef enum {
 #include "components/BatteryStatusProvider/BatteryStatusProvider.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
 #include "components/CommunicationObserver/CommunicationObserver.h"
+#include "components/DriveRequestMultiplexer/DriveRequestMultiplexer.h"
 #include "components/DriveTrain/DriveTrain.h"
 #include "components/ErrorStorage/ErrorStorage.h"
 #include "components/ErrorStorageWrapper/ErrorStorageWrapper.h"

@@ -107,6 +107,7 @@
         "BatteryStatusProvider",
         "BluetoothStatusObserver",
         "CommunicationObserver",
+        "DriveRequestMultiplexer",
         "DriveTrain",
         "ErrorStorage",
         "ErrorStorageWrapper",
@@ -232,7 +233,8 @@
                 "GyroscopeOffsetCompensator/Update",
                 "ADCDispatcher/Update",
                 "MotorCurrentFilter/Update",
-                "MotorThermalModel/OnUpdate"
+                "MotorThermalModel/OnUpdate",
+                "DriveRequestMultiplexer/OnUpdate"
             ],
             "10ms_offset0": [
                 "BatteryCharger/Update",
@@ -458,6 +460,22 @@
                     "MotorDerating/ControlValue",
                     "LedDisplayController/MotorDriveValues"
                 ]
+            },
+            {
+                "provider": "DriveTrain/MotorUsed",
+                "consumer": "DriveRequestMultiplexer/IsDrivetrainMotor"
+            },
+            {
+                "provider": "DriveTrain/DriveRequest",
+                "consumer": "DriveRequestMultiplexer/DrivetrainDriveRequest"
+            },
+            {
+                "provider": "MotorPortHandler/DriveRequest",
+                "consumer": "DriveRequestMultiplexer/UserDriveRequest"
+            },
+            {
+                "provider": "DriveRequestMultiplexer/AppliedDriveRequest",
+                "consumer": "MotorPortHandler/AppliedDriveRequest"
             }
         ]
     }
