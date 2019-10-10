@@ -133,24 +133,6 @@ static SensorPort_t sensorPorts[] =
     }
 };
 
-#define MAX_MOTOR_STATUS_SIZE 10
-#define MAX_SENSOR_STATUS_SIZE 4
-
-#define STATUS_SLOT_BATTERY ((uint8_t) 10u)
-#define STATUS_SLOT_AXL     ((uint8_t) 11u)
-#define STATUS_SLOT_GYRO    ((uint8_t) 12u)
-#define STATUS_SLOT_YAW     ((uint8_t) 13u)
-
-static uint8_t motor_status[6][MAX_MOTOR_STATUS_SIZE + 1] = {0};
-static uint8_t sensor_status[4][MAX_SENSOR_STATUS_SIZE + 1] = {0};
-static uint8_t gyro_status[6];
-static uint8_t axl_status[6];
-static uint8_t yaw_status[8];
-static bool status_changed[32] = {0};
-
-_Static_assert(sizeof(axl_status) == sizeof(IMU_RawSample_t), "Accelerometer slot size does not match data size");
-_Static_assert(sizeof(gyro_status) == sizeof(IMU_RawSample_t), "Gyroscope slot size does not match data size");
-
 static void ProcessTasks_1ms(void)
 {
     Runtime_Call_1ms();

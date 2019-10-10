@@ -563,6 +563,28 @@ uint8_t McuStatusCollectorWrapper_Call_Read(ByteArray_t destination)
     return return_value;
 }
 
+void MotorPortHandler_Call_UpdatePortStatus(uint8_t port, ByteArray_t data)
+{
+    /* Begin User Code Section: MotorPortHandler/UpdatePortStatus Start */
+
+    /* End User Code Section: MotorPortHandler/UpdatePortStatus Start */
+    McuStatusSlots_Run_UpdateMotorPort(port, data);
+    /* Begin User Code Section: MotorPortHandler/UpdatePortStatus End */
+
+    /* End User Code Section: MotorPortHandler/UpdatePortStatus End */
+}
+
+void SensorPortHandler_Call_UpdatePortStatus(uint8_t port, ByteArray_t data)
+{
+    /* Begin User Code Section: SensorPortHandler/UpdatePortStatus Start */
+
+    /* End User Code Section: SensorPortHandler/UpdatePortStatus Start */
+    McuStatusSlots_Run_UpdateSensorPort(port, data);
+    /* Begin User Code Section: SensorPortHandler/UpdatePortStatus End */
+
+    /* End User Code Section: SensorPortHandler/UpdatePortStatus End */
+}
+
 void ADC0_Write_ChannelVoltage(uint32_t index, const Voltage_t value)
 {
     ASSERT(index < 4);

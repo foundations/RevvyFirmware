@@ -586,6 +586,14 @@
             {
                 "provider": "McuStatusCollectorWrapper/Read",
                 "consumer": "McuStatusCollector/Read"
+            },
+            {
+                "provider": "MotorPortHandler/UpdatePortStatus",
+                "consumer": "McuStatusSlots/UpdateMotorPort"
+            },
+            {
+                "provider": "SensorPortHandler/UpdatePortStatus",
+                "consumer": "McuStatusSlots/UpdateSensorPort"
             }
         ]
     }

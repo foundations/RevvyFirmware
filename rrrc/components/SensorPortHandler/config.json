@@ -38,6 +38,13 @@
             "port_type": "ReadIndexedValue",
             "data_type": "uint8_t",
             "count": 4
+        },
+        "UpdatePortStatus": {
+            "port_type": "ServerCall",
+            "arguments": {
+                "port": "uint8_t",
+                "data": "ByteArray_t"
+            }
         }
     }
 }

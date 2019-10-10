@@ -326,9 +326,8 @@ void MotorPortHandler_Read_AppliedDriveRequest(uint32_t port_idx, DriveRequest_t
 }
 
 __attribute__((weak))
-void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
+void MotorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status)
 {
     (void) port_idx;
-    (void) dataSize;
-    ASSERT(pData);
+    (void) status;
 }

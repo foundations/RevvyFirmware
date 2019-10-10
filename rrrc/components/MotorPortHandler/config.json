@@ -74,6 +74,13 @@
             "port_type": "ReadIndexedValue",
             "data_type": "DriveRequest_t",
             "count": 6
+        },
+        "UpdatePortStatus": {
+            "port_type": "ServerCall",
+            "arguments": {
+                "port": "uint8_t",
+                "data": "ByteArray_t"
+            }
         }
     }
 }
