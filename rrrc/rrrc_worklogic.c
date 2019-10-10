@@ -570,7 +570,7 @@ void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
     portEXIT_CRITICAL();
 }
 
-void McuStatusCollectorWrapper_Run_ResetSlots(void)
+void McuStatusCollectorWrapper_Call_ResetSlots(void)
 {
     McuStatusCollector_Run_ResetSlots();
     
@@ -578,7 +578,7 @@ void McuStatusCollectorWrapper_Run_ResetSlots(void)
     memset(sensor_status, 0u, sizeof(sensor_status));
 }
 
-void McuStatusCollectorWrapper_Run_EnableSlot(uint8_t slot)
+void McuStatusCollectorWrapper_Call_EnableSlot(uint8_t slot)
 {
     status_changed[slot] = false;
     if (slot < 6u)
@@ -611,12 +611,12 @@ void McuStatusCollectorWrapper_Run_EnableSlot(uint8_t slot)
     McuStatusCollector_Run_EnableSlot(slot);
 }
 
-void McuStatusCollectorWrapper_Run_DisableSlot(uint8_t slot)
+void McuStatusCollectorWrapper_Call_DisableSlot(uint8_t slot)
 {
     McuStatusCollector_Run_DisableSlot(slot);
 }
 
-void McuStatusCollectorWrapper_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
+void McuStatusCollectorWrapper_Call_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
 {
     McuStatusCollector_Run_ReadData(pData, bufferSize, dataSize);
 }
