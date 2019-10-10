@@ -1,10 +1,3 @@
-/*
- * MotorPortHandler.c
- *
- * Created: 09/05/2019 14:03:32
- *  Author: Dániel Buga
- */ 
-
 #include "MotorPortHandlerInternal.h"
 #include "utils.h"
 #include "atmel_start_pins.h"
@@ -289,11 +282,11 @@ void MotorPortHandler_Run_PortUpdate(uint8_t port_idx)
 }
 
 __attribute__((weak))
-void MotorPortHandler_Write_MotorDriveValue(uint8_t motor, int8_t value)
+void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value)
 {
-    (void) motor;
+    (void) index;
     (void) value;
-    /* nothing to do */
+    ASSERT(index < 6);
 }
 
 __attribute__((weak))

@@ -1,9 +1,3 @@
-/*
- * MotorPortHandlerInternal.c
- *
- * Created: 10/05/2019 13:44:51
- *  Author: Dániel Buga
- */ 
 #include "MotorPortHandlerInternal.h"
 
 #include <hal_gpio.h>
@@ -16,7 +10,7 @@ void MotorPort_SetGreenLed(MotorPort_t* port, bool state)
 
 void MotorPort_SetDriveValue(struct _MotorPort_t* port, int8_t value)
 {
-    MotorPortHandler_Write_MotorDriveValue(port->port_idx, value);
+    MotorPortHandler_Write_DriveStrength(port->port_idx, value);
 }
 
 void MotorPort_DisableExti0(struct _MotorPort_t* motorPort)

@@ -924,34 +924,16 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\BatteryCharger\BatteryCharger.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\BatteryIndicator\BatteryIndicator.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\BatteryIndicator\BatteryIndicator.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\components\BatteryStatusProvider\BatteryStatusProvider.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\BatteryStatusProvider\BatteryStatusProvider.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\BluetoothIndicator\BluetoothIndicator.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\BluetoothIndicator\BluetoothIndicator.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\components\BluetoothStatusObserver\BluetoothStatusObserver.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\BluetoothStatusObserver\BluetoothStatusObserver.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\BrainStatusIndicator\BrainStatusIndicator.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\BrainStatusIndicator\BrainStatusIndicator.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\CommunicationObserver\CommunicationObserver.c">
@@ -1212,9 +1194,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\runtime\connections_imu.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\runtime\connections_leds.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\runtime\connections_timers.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1440,9 +1419,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\GyroscopeOffsetCompensator\config.json">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\BrainStatusIndicator\config.json">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\components\BatteryCalculator\config.json">
       <SubType>compile</SubType>
     </Compile>
@@ -1455,10 +1431,22 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\BatteryCharger\config.json">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\BluetoothIndicator\config.json">
+    <Compile Include="rrrc\components\IMU\config.json">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\IMU\config.json">
+    <Compile Include="rrrc\components\LEDController\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\LedDisplayController\LedDisplayController.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\LedDisplayController\LedDisplayController.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\LedDisplayController\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MotorPortHandler\config.json">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
@@ -1497,10 +1485,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\BatteryCharger" />
     <Folder Include="rrrc\components\InternalTemperatureSensor" />
     <Folder Include="rrrc\components\LEDController" />
-    <Folder Include="rrrc\components\BluetoothIndicator" />
-    <Folder Include="rrrc\components\BrainStatusIndicator" />
     <Folder Include="rrrc\components\BatteryCalculator" />
-    <Folder Include="rrrc\components\BatteryIndicator" />
     <Folder Include="rrrc\components\MasterCommunication" />
     <Folder Include="rrrc\components\MasterCommunicationInterface" />
     <Folder Include="rrrc\components\CommunicationObserver" />
@@ -1555,6 +1540,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\WatchdogFeeder" />
     <Folder Include="rrrc\components\ADCDispatcher" />
     <Folder Include="rrrc\components\MotorCurrentFilter" />
+    <Folder Include="rrrc\components\LedDisplayController" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">

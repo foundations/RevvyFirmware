@@ -17,7 +17,6 @@
         "rrrc/runtime/comm_handlers.c",
         "rrrc/runtime/connections_error_storage.c",
         "rrrc/runtime/connections_imu.c",
-        "rrrc/runtime/connections_leds.c",
         "rrrc/runtime/connections_timers.c",
         "rrrc/utils/color.c",
         "rrrc/utils/converter.c",
@@ -105,11 +104,8 @@
         "ADCDispatcher",
         "BatteryCalculator",
         "BatteryCharger",
-        "BatteryIndicator",
         "BatteryStatusProvider",
-        "BluetoothIndicator",
         "BluetoothStatusObserver",
-        "BrainStatusIndicator",
         "CommunicationObserver",
         "DriveTrain",
         "ErrorStorage",
@@ -119,6 +115,7 @@
         "IMU",
         "InternalTemperatureSensor",
         "LEDController",
+        "LedDisplayController",
         "MasterCommunication",
         "MasterCommunicationInterface",
         "MasterStatusObserver",
@@ -210,8 +207,6 @@
                 "BatteryCharger/OnInit",
                 "LEDController/OnInit",
                 "BatteryCalculator/OnInit",
-                "BluetoothIndicator/OnInit",
-                "BrainStatusIndicator/Update",
                 "IMU/OnInit",
                 "HighResolutionTimer/OnInit",
                 "MasterStatusObserver/OnInit",
@@ -222,7 +217,8 @@
                 "DriveTrain/OnInit",
                 "GyroscopeOffsetCompensator/OnInit",
                 "YawAngleTracker/OnInit",
-                "MasterCommunicationInterface/OnInit"
+                "MasterCommunicationInterface/OnInit",
+                "LedDisplayController/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",
@@ -253,6 +249,7 @@
                 "RingLedDisplay/Update"
             ],
             "20ms_offset1": [
+                "LedDisplayController/Update",
                 "LEDController/Update"
             ],
             "20ms_offset2": [],
@@ -276,9 +273,7 @@
             "100ms": [
                 "SensorPortHandler/Update",
                 "MotorPortHandler/Update",
-                "BatteryCalculator/Update",
-                "BluetoothIndicator/Update",
-                "BrainStatusIndicator/Update"
+                "BatteryCalculator/Update"
             ]
         },
         "port_connections": [
@@ -321,10 +316,6 @@
             {
                 "provider": "CommunicationObserver/Enabled",
                 "consumer": "RingLedDisplay/MasterReady"
-            },
-            {
-                "provider": "BluetoothStatusObserver/ConnectionStatus",
-                "consumer": "BluetoothIndicator/ConnectionStatus"
             },
             {
                 "queue_length": 1,
@@ -386,6 +377,46 @@
             {
                 "provider": "ProjectConfiguration/MotorThermalParameters",
                 "consumer": "MotorThermalModel/ThermalParameters"
+            },
+            {
+                "provider": "BluetoothStatusObserver/ConnectionStatus",
+                "consumer": "LedDisplayController/BluetoothStatus"
+            },
+            {
+                "provider": "BatteryCalculator/MainBatteryLevel",
+                "consumer": "LedDisplayController/MainBatteryLevel"
+            },
+            {
+                "provider": "BatteryCalculator/MainBatteryLow",
+                "consumer": "LedDisplayController/MainBatteryLow"
+            },
+            {
+                "provider": "BatteryCharger/ChargerState",
+                "consumer": "LedDisplayController/MainBatteryStatus"
+            },
+            {
+                "provider": "BatteryCalculator/MotorBatteryLevel",
+                "consumer": "LedDisplayController/MotorBatteryLevel"
+            },
+            {
+                "provider": "BatteryCalculator/MotorBatteryPresent",
+                "consumer": "LedDisplayController/MotorBatteryPresent"
+            },
+            {
+                "provider": "LedDisplayController/Leds",
+                "consumer": "LEDController/Colors"
+            },
+            {
+                "provider": "LedDisplayController/MaxBrightness",
+                "consumer": "LEDController/MaxBrightness"
+            },
+            {
+                "provider": "RingLedDisplay/LedColor",
+                "consumer": "LedDisplayController/RingLeds"
+            },
+            {
+                "provider": "MasterStatusObserver/MasterStatus",
+                "consumer": "LedDisplayController/MasterStatus"
             }
         ]
     }

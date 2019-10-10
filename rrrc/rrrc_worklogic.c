@@ -6,13 +6,6 @@
 #include <string.h>
 #include "utils/functions.h"
 
-BatteryIndicator_Context_t mainBatteryIndicator;
-BatteryIndicator_Context_t motorBatteryIndicator;
-
-static bool motorBatteryDetected;
-static uint8_t mainBatteryPercentage;
-static uint8_t motorBatteryPercentage;
-
 static MotorPort_t motorPorts[] = 
 {
     {
@@ -313,9 +306,6 @@ static void ProcessTasks_20ms(uint8_t offset)
 
 static void ProcessTasks_100ms(void)
 {
-    BatteryIndicator_Run_Update(&mainBatteryIndicator);
-    BatteryIndicator_Run_Update(&motorBatteryIndicator);
-
     MotorPortHandler_Run_Update();
     SensorPortHandler_Run_Update();
 
@@ -347,9 +337,6 @@ void RRRC_ProcessLogic_Init(void)
 
     MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
     Runtime_Call_OnInit();
-
-    BatteryIndicator_Run_OnInit(&mainBatteryIndicator);
-    BatteryIndicator_Run_OnInit(&motorBatteryIndicator);
 
     RingLedDisplay_Run_SelectScenario(RingLedScenario_ColorWheel);
 
@@ -388,64 +375,6 @@ void RRRC_ProcessLogic_xTask(void* user)
     }
 }
 
-void BatteryCalculator_Write_MainBatteryLevel(uint8_t value)
-{
-    mainBatteryPercentage = value;
-    status_changed[10u] = true;
-}
-
-void BatteryCalculator_Write_MotorBatteryLevel(uint8_t value)
-{
-    motorBatteryPercentage = value;
-    status_changed[10u] = true;
-}
-
-void BatteryCalculator_Write_MotorBatteryPresent(bool value)
-{
-    motorBatteryDetected = value;
-}
-
-uint8_t BatteryIndicator_Read_Percentage(BatteryIndicator_Context_t* context)
-{
-    if (context == &mainBatteryIndicator)
-    {
-        return mainBatteryPercentage;
-    }
-    else if (context == &motorBatteryIndicator)
-    {
-        return motorBatteryPercentage;
-    }
-    else
-    {
-        ASSERT(0);
-    }
-
-    return 0u;
-}
-
-BatteryStatus_t BatteryIndicator_Read_Status(BatteryIndicator_Context_t* context)
-{
-    if (context == &mainBatteryIndicator)
-    {
-        switch (BatteryStatusProvider_Read_IsMainBatteryCharging())
-        {
-            case ChargerState_Charging: return BatteryStatus_Charging;
-            case ChargerState_Fault:    return BatteryStatus_Charging_Fault;
-            default:                    return BatteryStatus_Present;
-        }
-    }
-    else if (context == &motorBatteryIndicator)
-    {
-        return motorBatteryDetected ? BatteryStatus_Present : BatteryStatus_NotPresent;
-    }
-    else
-    {
-        ASSERT(0);
-    }
-
-    return BatteryStatus_NotPresent;
-}
-
 void MasterCommunicationInterface_Call_OnMessageReceived(MasterMessage_t message)
 {
     if (message.size >= 2u)
@@ -481,16 +410,6 @@ void MasterCommunicationInterface_Call_OnMessageReceived(MasterMessage_t message
 void MasterCommunication_Call_SendResponse(const uint8_t* responseBuffer, size_t responseSize)
 {
     MasterCommunicationInterface_Run_SetResponse((MasterMessage_t) {responseBuffer, responseSize} );
-}
-
-uint8_t BatteryStatusProvider_Read_MainBatteryLevel(void)
-{
-    return mainBatteryPercentage;
-}
-
-uint8_t BatteryStatusProvider_Read_MotorBatteryLevel(void)
-{
-    return motorBatteryPercentage;
 }
 
 static MotorPort_DriveRequest_t motorDriveRequests[ARRAY_SIZE(motorPorts)];
@@ -568,9 +487,14 @@ void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest
     portEXIT_CRITICAL();
 }
 
-void MotorPortHandler_Write_MotorDriveValue(uint8_t motor_idx, int8_t value)
+void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value)
 {
-    driveValues[motor_idx] = value;
+    driveValues[index] = value;
+}
+
+int8_t LedDisplayController_Read_MotorDriveValues(uint32_t index)
+{
+    return driveValues[index];
 }
 
 int8_t MotorDriver_8833_Read_DriveRequest_ChannelA(MotorDriver_8833_t* driver)
@@ -676,10 +600,10 @@ void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t buff
             /* battery */
             if (bufferSize >= 4u)
             {
-                pData[0] = BatteryIndicator_Read_Status(&mainBatteryIndicator);
-                pData[1] = mainBatteryPercentage;
-                pData[2] = BatteryIndicator_Read_Status(&motorBatteryIndicator);
-                pData[3] = motorBatteryPercentage;
+                pData[0] = 0;
+                pData[1] = 0;
+                pData[2] = 0;
+                pData[3] = 0;
                 *slotDataSize = 4u;
             }
         }

@@ -3,14 +3,27 @@
     "source_files": [
         "LEDController.c"
     ],
+    "types": {
+        "rgb_t": {
+            "defined_in": "\"utils/color.h\"",
+            "default_value": "(rgb_t){0, 0, 0}"
+        }
+    },
     "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": {}
+        "OnInit": {},
+        "Update": {}
+    },
+    "ports": {
+        "Colors": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "rgb_t",
+            "count": 16
         },
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
+        "MaxBrightness": {
+            "port_type": "ReadValue",
+            "default_value": "24u",
+            "data_type": "uint8_t"
         }
     }
 }

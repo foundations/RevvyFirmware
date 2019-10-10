@@ -1,12 +1,12 @@
-#include "generated_runtime.h"
 #include "utils.h"
+#include "utils_assert.h"
+#include "generated_runtime.h"
 
 /* Begin User Code Section: Declarations */
 
 /* End User Code Section: Declarations */
 static ChargerState_t BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable = ChargerState_NotPluggedIn;
 static bool CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable = false;
-static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable = BluetoothStatus_Inactive;
 static Vector3D_t IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue;
 static bool IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = false;
 static bool IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_data_valid = false;
@@ -20,6 +20,15 @@ static Voltage_t ADCDispatcher_MotorBatteryVoltage_BatteryCalculator_MotorBatter
 static uint8_t ADCDispatcher_Sensor_ADC_SensorPortHandler_AdcData_array[4] = { 0u, 0u, 0u, 0u };
 static Current_t MotorCurrentFilter_FilteredCurrent_MotorThermalModel_MotorCurrent_array[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static Temperature_t MotorThermalModel_Temperature_MotorDerating_MotorTemperature_array[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_LedDisplayController_BluetoothStatus_variable = BluetoothStatus_Inactive;
+static uint8_t BatteryCalculator_MainBatteryLevel_LedDisplayController_MainBatteryLevel_variable = 0u;
+static bool BatteryCalculator_MainBatteryLow_LedDisplayController_MainBatteryLow_variable = false;
+static uint8_t BatteryCalculator_MotorBatteryLevel_LedDisplayController_MotorBatteryLevel_variable = 0u;
+static bool BatteryCalculator_MotorBatteryPresent_LedDisplayController_MotorBatteryPresent_variable = false;
+static rgb_t LedDisplayController_Leds_LEDController_Colors_array[16] = { (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0} };
+static uint8_t LedDisplayController_MaxBrightness_LEDController_MaxBrightness_variable = 0u;
+static rgb_t RingLedDisplay_LedColor_LedDisplayController_RingLeds_array[12] = { (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0} };
+static MasterStatus_t MasterStatusObserver_MasterStatus_LedDisplayController_MasterStatus_variable = MasterStatus_Unknown;
 
 void Runtime_Call_OnInit(void)
 {
@@ -33,8 +42,6 @@ void Runtime_Call_OnInit(void)
     BatteryCharger_Run_OnInit();
     LEDController_Run_OnInit();
     BatteryCalculator_Run_OnInit();
-    BluetoothIndicator_Run_OnInit();
-    BrainStatusIndicator_Run_Update();
     IMU_Run_OnInit();
     HighResolutionTimer_Run_OnInit();
     MasterStatusObserver_Run_OnInit();
@@ -46,6 +53,7 @@ void Runtime_Call_OnInit(void)
     GyroscopeOffsetCompensator_Run_OnInit();
     YawAngleTracker_Run_OnInit();
     MasterCommunicationInterface_Run_OnInit();
+    LedDisplayController_Run_OnInit();
     /* Begin User Code Section: Runtime/OnInit End */
 
     /* End User Code Section: Runtime/OnInit End */
@@ -189,6 +197,7 @@ void Runtime_Call_20ms_offset1(void)
     /* Begin User Code Section: Runtime/20ms_offset1 Start */
 
     /* End User Code Section: Runtime/20ms_offset1 Start */
+    LedDisplayController_Run_Update();
     LEDController_Run_Update();
     /* Begin User Code Section: Runtime/20ms_offset1 End */
 
@@ -383,8 +392,6 @@ void Runtime_Call_100ms(void)
     SensorPortHandler_Run_Update();
     MotorPortHandler_Run_Update();
     BatteryCalculator_Run_Update();
-    BluetoothIndicator_Run_Update();
-    BrainStatusIndicator_Run_Update();
     /* Begin User Code Section: Runtime/100ms End */
 
     /* End User Code Section: Runtime/100ms End */
@@ -564,6 +571,50 @@ void ADCDispatcher_Write_Sensor_ADC(uint32_t index, const uint8_t value)
     /* End User Code Section: ADCDispatcher/Sensor_ADC End */
 }
 
+void BatteryCalculator_Write_MainBatteryLevel(const uint8_t value)
+{
+    /* Begin User Code Section: BatteryCalculator/MainBatteryLevel Start */
+
+    /* End User Code Section: BatteryCalculator/MainBatteryLevel Start */
+    BatteryCalculator_MainBatteryLevel_LedDisplayController_MainBatteryLevel_variable = value;
+    /* Begin User Code Section: BatteryCalculator/MainBatteryLevel End */
+
+    /* End User Code Section: BatteryCalculator/MainBatteryLevel End */
+}
+
+void BatteryCalculator_Write_MainBatteryLow(const bool value)
+{
+    /* Begin User Code Section: BatteryCalculator/MainBatteryLow Start */
+
+    /* End User Code Section: BatteryCalculator/MainBatteryLow Start */
+    BatteryCalculator_MainBatteryLow_LedDisplayController_MainBatteryLow_variable = value;
+    /* Begin User Code Section: BatteryCalculator/MainBatteryLow End */
+
+    /* End User Code Section: BatteryCalculator/MainBatteryLow End */
+}
+
+void BatteryCalculator_Write_MotorBatteryLevel(const uint8_t value)
+{
+    /* Begin User Code Section: BatteryCalculator/MotorBatteryLevel Start */
+
+    /* End User Code Section: BatteryCalculator/MotorBatteryLevel Start */
+    BatteryCalculator_MotorBatteryLevel_LedDisplayController_MotorBatteryLevel_variable = value;
+    /* Begin User Code Section: BatteryCalculator/MotorBatteryLevel End */
+
+    /* End User Code Section: BatteryCalculator/MotorBatteryLevel End */
+}
+
+void BatteryCalculator_Write_MotorBatteryPresent(const bool value)
+{
+    /* Begin User Code Section: BatteryCalculator/MotorBatteryPresent Start */
+
+    /* End User Code Section: BatteryCalculator/MotorBatteryPresent Start */
+    BatteryCalculator_MotorBatteryPresent_LedDisplayController_MotorBatteryPresent_variable = value;
+    /* Begin User Code Section: BatteryCalculator/MotorBatteryPresent End */
+
+    /* End User Code Section: BatteryCalculator/MotorBatteryPresent End */
+}
+
 void BatteryCharger_Write_ChargerState(const ChargerState_t value)
 {
     /* Begin User Code Section: BatteryCharger/ChargerState Start */
@@ -580,7 +631,7 @@ void BluetoothStatusObserver_Write_ConnectionStatus(const BluetoothStatus_t valu
     /* Begin User Code Section: BluetoothStatusObserver/ConnectionStatus Start */
 
     /* End User Code Section: BluetoothStatusObserver/ConnectionStatus Start */
-    BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable = value;
+    BluetoothStatusObserver_ConnectionStatus_LedDisplayController_BluetoothStatus_variable = value;
     /* Begin User Code Section: BluetoothStatusObserver/ConnectionStatus End */
 
     /* End User Code Section: BluetoothStatusObserver/ConnectionStatus End */
@@ -611,6 +662,40 @@ void IMU_Write_GyroscopeSample(const Vector3D_t* value)
     /* End User Code Section: IMU/GyroscopeSample End */
 }
 
+void LedDisplayController_Write_Leds(uint32_t index, const rgb_t value)
+{
+    ASSERT(index < 16);
+    /* Begin User Code Section: LedDisplayController/Leds Start */
+
+    /* End User Code Section: LedDisplayController/Leds Start */
+    LedDisplayController_Leds_LEDController_Colors_array[index] = value;
+    /* Begin User Code Section: LedDisplayController/Leds End */
+
+    /* End User Code Section: LedDisplayController/Leds End */
+}
+
+void LedDisplayController_Write_MaxBrightness(const uint8_t value)
+{
+    /* Begin User Code Section: LedDisplayController/MaxBrightness Start */
+
+    /* End User Code Section: LedDisplayController/MaxBrightness Start */
+    LedDisplayController_MaxBrightness_LEDController_MaxBrightness_variable = value;
+    /* Begin User Code Section: LedDisplayController/MaxBrightness End */
+
+    /* End User Code Section: LedDisplayController/MaxBrightness End */
+}
+
+void MasterStatusObserver_Write_MasterStatus(const MasterStatus_t value)
+{
+    /* Begin User Code Section: MasterStatusObserver/MasterStatus Start */
+
+    /* End User Code Section: MasterStatusObserver/MasterStatus Start */
+    MasterStatusObserver_MasterStatus_LedDisplayController_MasterStatus_variable = value;
+    /* Begin User Code Section: MasterStatusObserver/MasterStatus End */
+
+    /* End User Code Section: MasterStatusObserver/MasterStatus End */
+}
+
 void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t value)
 {
     ASSERT(index < 6);
@@ -625,8 +710,8 @@ void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t va
 
 void MotorDerating_Write_DeratedControlValue(uint32_t index, const int8_t value)
 {
-    (void) value;
     (void) index;
+    (void) value;
     ASSERT(index < 6);
     /* Begin User Code Section: MotorDerating/DeratedControlValue Start */
 
@@ -646,6 +731,18 @@ void MotorThermalModel_Write_Temperature(uint32_t index, const Temperature_t val
     /* Begin User Code Section: MotorThermalModel/Temperature End */
 
     /* End User Code Section: MotorThermalModel/Temperature End */
+}
+
+void RingLedDisplay_Write_LedColor(uint32_t index, const rgb_t value)
+{
+    ASSERT(index < 12);
+    /* Begin User Code Section: RingLedDisplay/LedColor Start */
+
+    /* End User Code Section: RingLedDisplay/LedColor Start */
+    RingLedDisplay_LedColor_LedDisplayController_RingLeds_array[index] = value;
+    /* Begin User Code Section: RingLedDisplay/LedColor End */
+
+    /* End User Code Section: RingLedDisplay/LedColor End */
 }
 
 Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
@@ -760,18 +857,6 @@ ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
     return return_value;
 }
 
-BluetoothStatus_t BluetoothIndicator_Read_ConnectionStatus(void)
-{
-    /* Begin User Code Section: BluetoothIndicator/ConnectionStatus Start */
-
-    /* End User Code Section: BluetoothIndicator/ConnectionStatus Start */
-    BluetoothStatus_t return_value = BluetoothStatusObserver_ConnectionStatus_BluetoothIndicator_ConnectionStatus_variable;
-    /* Begin User Code Section: BluetoothIndicator/ConnectionStatus End */
-
-    /* End User Code Section: BluetoothIndicator/ConnectionStatus End */
-    return return_value;
-}
-
 QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
 {
     ASSERT(value != NULL);
@@ -797,6 +882,128 @@ QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
     /* Begin User Code Section: GyroscopeOffsetCompensator/AngularSpeeds End */
 
     /* End User Code Section: GyroscopeOffsetCompensator/AngularSpeeds End */
+    return return_value;
+}
+
+rgb_t LEDController_Read_Colors(uint32_t index)
+{
+    ASSERT(index < 16);
+    /* Begin User Code Section: LEDController/Colors Start */
+
+    /* End User Code Section: LEDController/Colors Start */
+    rgb_t return_value = LedDisplayController_Leds_LEDController_Colors_array[index];
+    /* Begin User Code Section: LEDController/Colors End */
+
+    /* End User Code Section: LEDController/Colors End */
+    return return_value;
+}
+
+uint8_t LEDController_Read_MaxBrightness(void)
+{
+    /* Begin User Code Section: LEDController/MaxBrightness Start */
+
+    /* End User Code Section: LEDController/MaxBrightness Start */
+    uint8_t return_value = LedDisplayController_MaxBrightness_LEDController_MaxBrightness_variable;
+    /* Begin User Code Section: LEDController/MaxBrightness End */
+
+    /* End User Code Section: LEDController/MaxBrightness End */
+    return return_value;
+}
+
+BluetoothStatus_t LedDisplayController_Read_BluetoothStatus(void)
+{
+    /* Begin User Code Section: LedDisplayController/BluetoothStatus Start */
+
+    /* End User Code Section: LedDisplayController/BluetoothStatus Start */
+    BluetoothStatus_t return_value = BluetoothStatusObserver_ConnectionStatus_LedDisplayController_BluetoothStatus_variable;
+    /* Begin User Code Section: LedDisplayController/BluetoothStatus End */
+
+    /* End User Code Section: LedDisplayController/BluetoothStatus End */
+    return return_value;
+}
+
+uint8_t LedDisplayController_Read_MainBatteryLevel(void)
+{
+    /* Begin User Code Section: LedDisplayController/MainBatteryLevel Start */
+
+    /* End User Code Section: LedDisplayController/MainBatteryLevel Start */
+    uint8_t return_value = BatteryCalculator_MainBatteryLevel_LedDisplayController_MainBatteryLevel_variable;
+    /* Begin User Code Section: LedDisplayController/MainBatteryLevel End */
+
+    /* End User Code Section: LedDisplayController/MainBatteryLevel End */
+    return return_value;
+}
+
+bool LedDisplayController_Read_MainBatteryLow(void)
+{
+    /* Begin User Code Section: LedDisplayController/MainBatteryLow Start */
+
+    /* End User Code Section: LedDisplayController/MainBatteryLow Start */
+    bool return_value = BatteryCalculator_MainBatteryLow_LedDisplayController_MainBatteryLow_variable;
+    /* Begin User Code Section: LedDisplayController/MainBatteryLow End */
+
+    /* End User Code Section: LedDisplayController/MainBatteryLow End */
+    return return_value;
+}
+
+ChargerState_t LedDisplayController_Read_MainBatteryStatus(void)
+{
+    /* Begin User Code Section: LedDisplayController/MainBatteryStatus Start */
+
+    /* End User Code Section: LedDisplayController/MainBatteryStatus Start */
+    ChargerState_t return_value = BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
+    /* Begin User Code Section: LedDisplayController/MainBatteryStatus End */
+
+    /* End User Code Section: LedDisplayController/MainBatteryStatus End */
+    return return_value;
+}
+
+MasterStatus_t LedDisplayController_Read_MasterStatus(void)
+{
+    /* Begin User Code Section: LedDisplayController/MasterStatus Start */
+
+    /* End User Code Section: LedDisplayController/MasterStatus Start */
+    MasterStatus_t return_value = MasterStatusObserver_MasterStatus_LedDisplayController_MasterStatus_variable;
+    /* Begin User Code Section: LedDisplayController/MasterStatus End */
+
+    /* End User Code Section: LedDisplayController/MasterStatus End */
+    return return_value;
+}
+
+uint8_t LedDisplayController_Read_MotorBatteryLevel(void)
+{
+    /* Begin User Code Section: LedDisplayController/MotorBatteryLevel Start */
+
+    /* End User Code Section: LedDisplayController/MotorBatteryLevel Start */
+    uint8_t return_value = BatteryCalculator_MotorBatteryLevel_LedDisplayController_MotorBatteryLevel_variable;
+    /* Begin User Code Section: LedDisplayController/MotorBatteryLevel End */
+
+    /* End User Code Section: LedDisplayController/MotorBatteryLevel End */
+    return return_value;
+}
+
+bool LedDisplayController_Read_MotorBatteryPresent(void)
+{
+    /* Begin User Code Section: LedDisplayController/MotorBatteryPresent Start */
+
+    /* End User Code Section: LedDisplayController/MotorBatteryPresent Start */
+    bool return_value = BatteryCalculator_MotorBatteryPresent_LedDisplayController_MotorBatteryPresent_variable;
+    /* Begin User Code Section: LedDisplayController/MotorBatteryPresent End */
+
+    /* End User Code Section: LedDisplayController/MotorBatteryPresent End */
+    return return_value;
+}
+
+rgb_t LedDisplayController_Read_RingLeds(uint32_t index)
+{
+    ASSERT(index < 12);
+    /* Begin User Code Section: LedDisplayController/RingLeds Start */
+
+    /* End User Code Section: LedDisplayController/RingLeds Start */
+    rgb_t return_value = RingLedDisplay_LedColor_LedDisplayController_RingLeds_array[index];
+    /* Begin User Code Section: LedDisplayController/RingLeds End */
+
+    /* End User Code Section: LedDisplayController/RingLeds End */
     return return_value;
 }
 
