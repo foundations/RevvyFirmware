@@ -49,7 +49,7 @@ static DriveRequest_t MotorPortHandler_DriveRequest_DriveRequestMultiplexer_User
 static DriveRequest_t DriveRequestMultiplexer_AppliedDriveRequest_MotorPortHandler_AppliedDriveRequest_array[6] = { { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 }, { .power_limit = 0.0f, .speed_limit = 0.0f, .request_type = DriveRequest_RequestType_Power, .request.power = 0 } };
 static IMU_RawSample_t IMU_RawAccelerometerSample_McuStatusSlots_Acceleration_variable = (IMU_RawSample_t) { .x = 0, .y = 0, .z = 0 };
 static IMU_RawSample_t IMU_RawGyroscopeSample_McuStatusSlots_AngularSpeeds_variable = (IMU_RawSample_t) { .x = 0, .y = 0, .z = 0 };
-static SlotData_t McuStatusSlots_SlotData_McuStatusCollector_SlotData_array[32] = { (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u }, (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u } };
+static SlotData_t McuStatusSlots_SlotData_McuStatusCollector_SlotData_array[32] = { { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u}, { .data = { .bytes = NULL, .count = 0u }, .version = 0u} };
 
 void Runtime_Call_OnInit(void)
 {
@@ -515,6 +515,51 @@ Orientation3D_t YawAngleTracker_Call_ToEulerAngles(Quaternion_t orientation)
     /* Begin User Code Section: YawAngleTracker/ToEulerAngles End */
 
     /* End User Code Section: YawAngleTracker/ToEulerAngles End */
+    return return_value;
+}
+
+void McuStatusCollectorWrapper_Call_ResetSlots(void)
+{
+    /* Begin User Code Section: McuStatusCollectorWrapper/ResetSlots Start */
+
+    /* End User Code Section: McuStatusCollectorWrapper/ResetSlots Start */
+    McuStatusCollector_Run_Reset();
+    /* Begin User Code Section: McuStatusCollectorWrapper/ResetSlots End */
+
+    /* End User Code Section: McuStatusCollectorWrapper/ResetSlots End */
+}
+
+void McuStatusCollectorWrapper_Call_EnableSlot(uint8_t slot)
+{
+    /* Begin User Code Section: McuStatusCollectorWrapper/EnableSlot Start */
+
+    /* End User Code Section: McuStatusCollectorWrapper/EnableSlot Start */
+    McuStatusCollector_Run_EnableSlot(slot);
+    /* Begin User Code Section: McuStatusCollectorWrapper/EnableSlot End */
+
+    /* End User Code Section: McuStatusCollectorWrapper/EnableSlot End */
+}
+
+void McuStatusCollectorWrapper_Call_DisableSlot(uint8_t slot)
+{
+    /* Begin User Code Section: McuStatusCollectorWrapper/DisableSlot Start */
+
+    /* End User Code Section: McuStatusCollectorWrapper/DisableSlot Start */
+    McuStatusCollector_Run_DisableSlot(slot);
+    /* Begin User Code Section: McuStatusCollectorWrapper/DisableSlot End */
+
+    /* End User Code Section: McuStatusCollectorWrapper/DisableSlot End */
+}
+
+uint8_t McuStatusCollectorWrapper_Call_Read(ByteArray_t destination)
+{
+    /* Begin User Code Section: McuStatusCollectorWrapper/Read Start */
+
+    /* End User Code Section: McuStatusCollectorWrapper/Read Start */
+    uint8_t return_value = McuStatusCollector_Run_Read(destination);
+    /* Begin User Code Section: McuStatusCollectorWrapper/Read End */
+
+    /* End User Code Section: McuStatusCollectorWrapper/Read End */
     return return_value;
 }
 

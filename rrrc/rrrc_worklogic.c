@@ -447,29 +447,6 @@ int8_t MotorDriver_8833_Read_DriveRequest_ChannelB(MotorDriver_8833_t* driver)
     }
 }
 
-void McuStatusCollectorWrapper_Call_ResetSlots(void)
-{
-    McuStatusCollector_Run_Reset();
-    
-    memset(motor_status, 0u, sizeof(motor_status));
-    memset(sensor_status, 0u, sizeof(sensor_status));
-}
-
-void McuStatusCollectorWrapper_Call_EnableSlot(uint8_t slot)
-{
-    McuStatusCollector_Run_EnableSlot(slot);
-}
-
-void McuStatusCollectorWrapper_Call_DisableSlot(uint8_t slot)
-{
-    McuStatusCollector_Run_DisableSlot(slot);
-}
-
-void McuStatusCollectorWrapper_Call_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
-{
-    *dataSize = McuStatusCollector_Run_Read((ByteArray_t) {.bytes = pData, .count = bufferSize});
-}
-
 void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterface_Config_t* dst)
 {
     dst->rx_timeout = 100u;
