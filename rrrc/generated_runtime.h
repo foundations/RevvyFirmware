@@ -41,12 +41,6 @@ typedef struct {
     int16_t z;
 } IMU_RawSample_t;
 
-typedef enum {
-    MasterStatus_Unknown,
-    MasterStatus_Operational,
-    MasterStatus_Controlled
-} MasterStatus_t;
-
 typedef struct {
     float pitch;
     float roll;
@@ -59,6 +53,12 @@ typedef struct {
     float q2;
     float q3;
 } Quaternion_t;
+
+typedef enum {
+    MasterStatus_Unknown,
+    MasterStatus_Operational,
+    MasterStatus_Controlled
+} MasterStatus_t;
 
 typedef struct {
     uint8_t* payload;

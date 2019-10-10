@@ -1,6 +1,6 @@
+#include "generated_runtime.h"
 #include "utils_assert.h"
 #include "utils.h"
-#include "generated_runtime.h"
 
 /* Begin User Code Section: Declarations */
 
@@ -1121,12 +1121,9 @@ BluetoothStatus_t LedDisplayController_Read_BluetoothStatus(void)
 {
     /* Begin User Code Section: LedDisplayController/BluetoothStatus Start */
 
-    <<<<<<<
     /* End User Code Section: LedDisplayController/BluetoothStatus Start */
     BluetoothStatus_t return_value = BluetoothStatusObserver_ConnectionStatus_LedDisplayController_BluetoothStatus_variable;
     /* Begin User Code Section: LedDisplayController/BluetoothStatus End */
-    =======
-    >>>>>>>
 
     /* End User Code Section: LedDisplayController/BluetoothStatus End */
     return return_value;
@@ -1148,19 +1145,9 @@ bool LedDisplayController_Read_MainBatteryLow(void)
 {
     /* Begin User Code Section: LedDisplayController/MainBatteryLow Start */
 
-    <<<<<<<
     /* End User Code Section: LedDisplayController/MainBatteryLow Start */
     bool return_value = BatteryCalculator_MainBatteryLow_LedDisplayController_MainBatteryLow_variable;
     /* Begin User Code Section: LedDisplayController/MainBatteryLow End */
-    =======
-    /* End User Code Section: IMUOrientationEstimator/AngularSpeeds Start */
-    QueueStatus_t return_value = QueueStatus_Empty;
-    if (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count > 0u)
-    {
-        size_t idx = (GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_write_index - GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count) % 10u;
-        --GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue_count;
-        *value = GyroscopeOffsetCompensator_CompensatedAngularSpeeds_IMUOrientationEstimator_AngularSpeeds_queue[idx];
-    >>>>>>>
 
     /* End User Code Section: LedDisplayController/MainBatteryLow End */
     return return_value;
