@@ -373,6 +373,9 @@ class Runtime:
             self._ports[short_name] = processed_port
 
     def _process_type(self, type_name):
+        """Collect header files and typedefs from type_name
+
+        Generate typedefs for modeled types and includes for referenced ones."""
         defs = []
         includes = set()
         if type(type_name) is str:
@@ -385,8 +388,13 @@ class Runtime:
             if resolved_type_data['type'] == TypeCollection.EXTERNAL_DEF:
                 includes.add(resolved_type_data['defined_in'])
 
-            if resolved_type_data['type'] == TypeCollection.STRUCT:
+            elif resolved_type_data['type'] == TypeCollection.STRUCT:
                 d, i = self._process_type(resolved_type_data['fields'].values())
+                defs += d
+                includes.update(i)
+
+            elif resolved_type_data['type'] == TypeCollection.UNION:
+                d, i = self._process_type(resolved_type_data['members'].values())
                 defs += d
                 includes.update(i)
 
@@ -435,7 +443,7 @@ class Runtime:
         for f in funcs:
             includes.update(f.includes)
 
-        types, type_includes = self._process_type(self._components[component_name].get('types', []))
+        types, type_includes = self._process_type(self._components[component_name].get('types', {}).keys())
         for f in funcs:
             t, i = self._process_type(f.referenced_types())
             types += t
