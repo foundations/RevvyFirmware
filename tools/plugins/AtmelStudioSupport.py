@@ -2,7 +2,7 @@ from xml.etree import ElementTree
 import os
 
 from tools.generator_common import list_files_recursive
-from tools.runtime import RuntimePlugin, Runtime
+from tools.runtime import RuntimePlugin
 
 bom = '\xef\xbb\xbf'
 

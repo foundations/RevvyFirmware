@@ -9,6 +9,7 @@ class TypeCollection:
     EXTERNAL_DEF = 'external_type_def'
     ENUM = 'enum'
     STRUCT = 'struct'
+    UNION = 'union'
 
     PASS_BY_VALUE = 'value'
     PASS_BY_POINTER = 'pointer'
@@ -32,14 +33,13 @@ class TypeCollection:
             'void*': None
         }
         self._value_formatters = {
-            'void': lambda x, y, z, w: str(x),
-            'void*': lambda x, y, z, w: str(x)
         }
 
     def add(self, type_name, info, renderer, value_formatter):
         if type_name in self._type_data:
             # type already exists, check if they are the same
             resolved_known = self.resolve(type_name)
+            resolved_type_data = self._type_data[resolved_known]
 
             if info['type'] == TypeCollection.ALIAS:
                 resolved_new = self.resolve(info['aliases'])
@@ -47,15 +47,19 @@ class TypeCollection:
                     raise Exception('Type {} is already defined'.format(type_name))
 
             elif info['type'] == TypeCollection.EXTERNAL_DEF:
-                if info['defined_in'] != self._type_data[resolved_known]['defined_in']:
+                if info['defined_in'] != resolved_type_data['defined_in']:
                     raise Exception('Type {} can\'t override a type from a different source'.format(type_name))
 
             elif info['type'] == TypeCollection.ENUM:
-                if info['values'] != self._type_data[resolved_known]['values']:
+                if info['values'] != resolved_type_data['values']:
                     raise Exception('Enum {} is incompatible with previous definition'.format(type_name))
 
             elif info['type'] == TypeCollection.STRUCT:
-                if info['fields'] != self._type_data[resolved_known]['fields']:
+                if info['fields'] != resolved_type_data['fields']:
+                    raise Exception('Structure {} is incompatible with previous definition'.format(type_name))
+
+            elif info['type'] == TypeCollection.UNION:
+                if info['members'] != resolved_type_data['members']:
                     raise Exception('Structure {} is incompatible with previous definition'.format(type_name))
 
             else:
@@ -105,7 +109,11 @@ class TypeCollection:
     def render_value(self, type_name, value):
         resolved = self.resolve(type_name)
 
-        return self._value_formatters[resolved](self, type_name, self[resolved], value)
+        try:
+            return self._value_formatters[resolved](self, type_name, self[resolved], value)
+        except KeyError:
+            # by default treat the value as string
+            return str(value)
 
     def passed_by(self, type_name):
         resolved = self.get(type_name)

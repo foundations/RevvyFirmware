@@ -162,7 +162,7 @@ class FunctionDescriptor:
         return chevron.render(**ctx)
 
     def get_function(self):
-        body = list(self._asserts)
+        body = list(sorted(self._asserts))
         body += [chunk.replace('\n', '\n    ') for chunk in self._body]
         if self._return_statement:
             body.append('return {};'.format(self._return_statement))
@@ -172,7 +172,7 @@ class FunctionDescriptor:
 
         unused_arguments = self._arguments.keys() - self._used_arguments
 
-        for arg in unused_arguments:
+        for arg in sorted(unused_arguments):
             body.insert(0, '(void) {};'.format(arg))
 
         ctx = {
@@ -373,6 +373,9 @@ class Runtime:
             self._ports[short_name] = processed_port
 
     def _process_type(self, type_name):
+        """Collect header files and typedefs from type_name
+
+        Generate typedefs for modeled types and includes for referenced ones."""
         defs = []
         includes = set()
         if type(type_name) is str:
@@ -385,8 +388,13 @@ class Runtime:
             if resolved_type_data['type'] == TypeCollection.EXTERNAL_DEF:
                 includes.add(resolved_type_data['defined_in'])
 
-            if resolved_type_data['type'] == TypeCollection.STRUCT:
+            elif resolved_type_data['type'] == TypeCollection.STRUCT:
                 d, i = self._process_type(resolved_type_data['fields'].values())
+                defs += d
+                includes.update(i)
+
+            elif resolved_type_data['type'] == TypeCollection.UNION:
+                d, i = self._process_type(resolved_type_data['members'].values())
                 defs += d
                 includes.update(i)
 
@@ -435,7 +443,7 @@ class Runtime:
         for f in funcs:
             includes.update(f.includes)
 
-        types, type_includes = self._process_type(self._components[component_name].get('types', []))
+        types, type_includes = self._process_type(self._components[component_name].get('types', {}).keys())
         for f in funcs:
             t, i = self._process_type(f.referenced_types())
             types += t
@@ -489,11 +497,11 @@ class Runtime:
 
         return self._port_types[port_type]
 
-    def generate_runtime(self, filename):
+    def generate_runtime(self, filename, context=None):
         source_file_name = filename + '.c'
         header_file_name = filename + '.h'
 
-        context = {
+        default_context = {
             'runtime':                        self,
             'files':                          {source_file_name: '', header_file_name: ''},
             'functions':                      {},
@@ -501,6 +509,13 @@ class Runtime:
             'exported_function_declarations': [],
             'signals':                        {}
         }
+
+        if context is None:
+            context = default_context
+        else:
+            for key in default_context:
+                if key not in context:
+                    context[key] = default_context[key]
 
         for connection in self._project_config['runtime']['port_connections']:
             provider_ref = connection['provider']

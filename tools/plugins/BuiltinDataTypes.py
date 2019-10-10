@@ -96,8 +96,12 @@ class ArraySignal(SignalType):
         provider_port_data = runtime.get_port(connection.provider)
         data_type = provider_port_data['data_type']
         count = provider_port_data['count']
-        init_value = connection.attributes.get('init_value',
-                                               ', '.join([runtime.types.default_value(data_type)] * count))
+        init_values = [runtime.types.render_value(data_type, runtime.types.default_value(data_type))] * count
+        init_value = connection.attributes.get('init_value', init_values)
+
+        if type(init_value) is list:
+            init_value = ', '.join(init_value)
+
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }}[{{ size }}] = { {{ init_value }} };',
             'data':     {
@@ -162,7 +166,7 @@ class ArraySignal(SignalType):
             mods[consumer_name]['return_statement'] = 'return_value'
         else:
             ctx = {
-                'template': '*{{ out_name} = {{ signal_name }}[{{ index }};',
+                'template': '*{{ out_name }} = {{ signal_name }}[{{ index }}];',
                 'data':     {
                     'signal_name': connection.name,
                     'index':       argument_names[0],
@@ -233,7 +237,7 @@ class QueueSignal(SignalType):
         return {
             connection.provider: {
                 'used_arguments': [argument_names[0]],
-                'body': chevron.render(template, {
+                'body':           chevron.render(template, {
                     'queue_length': connection.attributes['queue_length'],
                     'signal_name':  connection.name,
                     'value':        argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
@@ -289,8 +293,8 @@ class QueueSignal(SignalType):
         passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
         data = {
             'queue_length': connection.attributes['queue_length'],
-            'signal_name': connection.name,
-            'out_name':    argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
+            'signal_name':  connection.name,
+            'out_name':     argument_names[0] if passed_by_value else '*{}'.format(argument_names[0])
         }
 
         return {
@@ -467,12 +471,42 @@ def render_struct_typedef(type_collection: TypeCollection, type_name):
     return chevron.render(**context)
 
 
+def render_union_typedef(type_collection: TypeCollection, type_name):
+    context = {
+        'template': "\n"
+                    "typedef union {\n"
+                    "    {{# members }}\n"
+                    "    {{ type }} {{ name }};\n"
+                    "    {{/ members }}\n"
+                    "} {{ type_name }};",
+
+        'data':     {
+            'type_name': type_name,
+            'members':    dict_to_chevron_list(type_collection[type_name]['members'], key_name='name', value_name='type')
+        }
+    }
+
+    return chevron.render(**context)
+
+
 def struct_formatter(types: TypeCollection, type_name, type_data, struct_value):
     if type(struct_value) is str:
         return struct_value
 
     values = ['.{} = {}'.format(name, types.render_value(type_data['fields'][name], value)) for name, value in
               struct_value.items()]
+    return '({}) {{ {} }}'.format(type_name, ', '.join(values))
+
+
+def union_formatter(types: TypeCollection, type_name, type_data, union_value):
+    if type(union_value) is str:
+        return union_value
+
+    if len(union_value) != 1:
+        raise Exception('Only a single union member can be assigned')
+
+    values = ['.{} = {}'.format(name, types.render_value(type_data['members'][name], value)) for name, value in
+              union_value.items()]
     return '({}) {{ {} }}'.format(type_name, ', '.join(values))
 
 
@@ -519,6 +553,18 @@ type_info = {
                 'type': TypeCollection.STRUCT
             }
         }
+    },
+
+    TypeCollection.UNION:       {
+        'typedef_renderer': render_union_typedef,
+        'value_formatter':  union_formatter,
+        'attributes':       {
+            'required': ['members', 'default_value'],
+            'optional': {'pass_semantic': TypeCollection.PASS_BY_POINTER},
+            'static':   {
+                'type': TypeCollection.UNION
+            }
+        }
     }
 }
 
@@ -527,29 +573,31 @@ def process_type_def(type_name, type_def):
     type_data = type_def.copy()
     # determine type of definition
     if 'type' in type_data:
-        type_type = type_data['type']
+        type_category = type_data['type']
         del type_data['type']
     else:
         if 'defined_in' in type_data:
-            type_type = TypeCollection.EXTERNAL_DEF
+            type_category = TypeCollection.EXTERNAL_DEF
         elif 'aliases' in type_data:
-            type_type = TypeCollection.ALIAS
+            type_category = TypeCollection.ALIAS
         elif 'fields' in type_data:
-            type_type = TypeCollection.STRUCT
+            type_category = TypeCollection.STRUCT
+        elif 'members' in type_data:
+            type_category = TypeCollection.UNION
         else:
             raise Exception('Invalid type definition for {}'.format(type_name))
 
     try:
-        attrs = type_info[type_type]['attributes']
+        attrs = type_info[type_category]['attributes']
         return {
             **attrs['static'],
             **copy(type_data, required=attrs['required'], optional=attrs['optional'])
         }
     except KeyError:
-        print('Unknown type {} set for {}'.format(type_type, type_name))
+        print('Unknown type category {} set for {}'.format(type_category, type_name))
         raise
     except Exception as e:
-        raise Exception('Type {} ({}) has unexpected attribute set: {}'.format(type_name, type_type, e))
+        raise Exception('Type {} ({}) has unexpected attribute set: {}'.format(type_name, type_category, e))
 
 
 def init_constant_array(types: TypeCollection, port_data):
