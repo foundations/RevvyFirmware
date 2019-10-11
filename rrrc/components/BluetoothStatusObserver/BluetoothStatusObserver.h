@@ -1,10 +1,10 @@
 #ifndef COMPONENT_BLUETOOTH_STATUS_OBSERVER_H_
 #define COMPONENT_BLUETOOTH_STATUS_OBSERVER_H_
 
+#include "../MasterCommunication/CommunicationManager.h"
+
 #ifndef COMPONENT_TYPES_BLUETOOTH_STATUS_OBSERVER_H_
 #define COMPONENT_TYPES_BLUETOOTH_STATUS_OBSERVER_H_
-
-#include "../MasterCommunication/CommunicationManager.h"
 
 typedef enum {
     BluetoothStatus_Inactive,

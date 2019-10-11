@@ -1,11 +1,10 @@
-#include "generated_runtime.h"
 #include "utils.h"
 #include "utils_assert.h"
+#include "generated_runtime.h"
 
 /* Begin User Code Section: Declarations */
 
 /* End User Code Section: Declarations */
-static ChargerState_t BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable = ChargerState_NotPluggedIn;
 static bool CommunicationObserver_Enabled_RingLedDisplay_MasterReady_variable = false;
 static Vector3D_t IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue;
 static bool IMU_GyroscopeSample_GyroscopeOffsetCompensator_AngularSpeeds_queue_overflow = false;
@@ -37,6 +36,7 @@ static Temperature_t MotorThermalModel_Temperature_MotorDerating_MotorTemperatur
 static BluetoothStatus_t BluetoothStatusObserver_ConnectionStatus_LedDisplayController_BluetoothStatus_variable = BluetoothStatus_Inactive;
 static uint8_t BatteryCalculator_MainBatteryLevel_LedDisplayController_MainBatteryLevel_variable = 0u;
 static bool BatteryCalculator_MainBatteryLow_LedDisplayController_MainBatteryLow_variable = false;
+static ChargerState_t BatteryCharger_ChargerState_LedDisplayController_MainBatteryStatus_variable = ChargerState_NotPluggedIn;
 static uint8_t BatteryCalculator_MotorBatteryLevel_LedDisplayController_MotorBatteryLevel_variable = 0u;
 static bool BatteryCalculator_MotorBatteryPresent_LedDisplayController_MotorBatteryPresent_variable = false;
 static rgb_t LedDisplayController_Leds_LEDController_Colors_array[16] = { (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0} };
@@ -717,7 +717,7 @@ void BatteryCharger_Write_ChargerState(const ChargerState_t value)
     /* Begin User Code Section: BatteryCharger/ChargerState Start */
 
     /* End User Code Section: BatteryCharger/ChargerState Start */
-    BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable = value;
+    BatteryCharger_ChargerState_LedDisplayController_MainBatteryStatus_variable = value;
     /* Begin User Code Section: BatteryCharger/ChargerState End */
 
     /* End User Code Section: BatteryCharger/ChargerState End */
@@ -1111,18 +1111,6 @@ Voltage_t BatteryCalculator_Read_MotorBatteryVoltage(void)
     return return_value;
 }
 
-ChargerState_t BatteryStatusProvider_Read_IsMainBatteryCharging(void)
-{
-    /* Begin User Code Section: BatteryStatusProvider/IsMainBatteryCharging Start */
-
-    /* End User Code Section: BatteryStatusProvider/IsMainBatteryCharging Start */
-    ChargerState_t return_value = BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
-    /* Begin User Code Section: BatteryStatusProvider/IsMainBatteryCharging End */
-
-    /* End User Code Section: BatteryStatusProvider/IsMainBatteryCharging End */
-    return return_value;
-}
-
 void DriveRequestMultiplexer_Read_DrivetrainDriveRequest(uint32_t index, DriveRequest_t* value)
 {
     ASSERT(index < 6);
@@ -1379,7 +1367,7 @@ ChargerState_t LedDisplayController_Read_MainBatteryStatus(void)
     /* Begin User Code Section: LedDisplayController/MainBatteryStatus Start */
 
     /* End User Code Section: LedDisplayController/MainBatteryStatus Start */
-    ChargerState_t return_value = BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
+    ChargerState_t return_value = BatteryCharger_ChargerState_LedDisplayController_MainBatteryStatus_variable;
     /* Begin User Code Section: LedDisplayController/MainBatteryStatus End */
 
     /* End User Code Section: LedDisplayController/MainBatteryStatus End */
@@ -1502,7 +1490,7 @@ ChargerState_t McuStatusSlots_Read_MainBatteryStatus(void)
     /* Begin User Code Section: McuStatusSlots/MainBatteryStatus Start */
 
     /* End User Code Section: McuStatusSlots/MainBatteryStatus Start */
-    ChargerState_t return_value = BatteryCharger_ChargerState_BatteryStatusProvider_IsMainBatteryCharging_variable;
+    ChargerState_t return_value = BatteryCharger_ChargerState_LedDisplayController_MainBatteryStatus_variable;
     /* Begin User Code Section: McuStatusSlots/MainBatteryStatus End */
 
     /* End User Code Section: McuStatusSlots/MainBatteryStatus End */

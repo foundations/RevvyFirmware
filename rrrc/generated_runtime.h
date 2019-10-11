@@ -133,7 +133,6 @@ typedef enum {
 #define COMPONENT_TYPES_ADC_DISPATCHER_H_
 #define COMPONENT_TYPES_BATTERY_CALCULATOR_H_
 #define COMPONENT_TYPES_BATTERY_CHARGER_H_
-#define COMPONENT_TYPES_BATTERY_STATUS_PROVIDER_H_
 #define COMPONENT_TYPES_BLUETOOTH_STATUS_OBSERVER_H_
 #define COMPONENT_TYPES_COMMUNICATION_OBSERVER_H_
 #define COMPONENT_TYPES_DRIVE_REQUEST_MULTIPLEXER_H_
@@ -173,7 +172,6 @@ typedef enum {
 #include "components/ADCDispatcher/ADCDispatcher.h"
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryCharger/BatteryCharger.h"
-#include "components/BatteryStatusProvider/BatteryStatusProvider.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
 #include "components/CommunicationObserver/CommunicationObserver.h"
 #include "components/DriveRequestMultiplexer/DriveRequestMultiplexer.h"

@@ -103,7 +103,6 @@
         "ADCDispatcher",
         "BatteryCalculator",
         "BatteryCharger",
-        "BatteryStatusProvider",
         "BluetoothStatusObserver",
         "CommunicationObserver",
         "DriveRequestMultiplexer",
@@ -323,10 +322,6 @@
             {
                 "provider": "SensorPortHandler/ReadCurrentTicks",
                 "consumer": "HighResolutionTimer/GetTickCount"
-            },
-            {
-                "provider": "BatteryCharger/ChargerState",
-                "consumer": "BatteryStatusProvider/IsMainBatteryCharging"
             },
             {
                 "provider": "CommunicationObserver/Enabled",
