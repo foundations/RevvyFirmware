@@ -87,6 +87,9 @@ def compact_project_config(owner, config):
         if type(ref) is str:
             return ref
         else:
+            if 'attributes' in ref:
+                if not ref['attributes']:
+                    del ref['attributes']
             if not set(ref.keys()).difference(['short_name', 'component', 'port', 'runnable']):
                 return ref['short_name']
             else:
@@ -96,14 +99,17 @@ def compact_project_config(owner, config):
         compacted_runtime['runnables'][group] = [compact_ref(runnable) for runnable in runnables]
 
     for connection in expanded_runtime['port_connections']:
-        compacted_connection = {key: connection[key] for key in connection if key not in ['provider', 'consumers']}
-        compacted_connection['provider'] = compact_ref(connection['provider'])
+        compacted_connection = {
+            'provider': compact_ref(connection['provider'])
+        }
 
         consumers = [compact_ref(port) for port in connection['consumers']]
         if len(consumers) == 1:
             compacted_connection['consumer'] = consumers[0]
         else:
             compacted_connection['consumers'] = consumers
+
+        compacted_connection.update({key: connection[key] for key in connection if key not in ['provider', 'consumers']})
 
         compacted_runtime['port_connections'].append(compacted_connection)
 

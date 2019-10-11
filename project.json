@@ -189,8 +189,8 @@
             "default_value": "0.0f"
         },
         "ByteArray_t": {
-            "pass_semantic": "value",
             "type": "struct",
+            "pass_semantic": "value",
             "fields": {
                 "bytes": "uint8_t*",
                 "count": "size_t"
@@ -338,17 +338,17 @@
                 "consumer": "RingLedDisplay/MasterReady"
             },
             {
-                "queue_length": 1,
                 "provider": "IMU/GyroscopeSample",
                 "consumers": [
                     "GyroscopeOffsetCompensator/AngularSpeeds",
                     "IMUMovementDetector/AngularSpeeds"
-                ]
+                ],
+                "queue_length": 1
             },
             {
-                "queue_length": 10,
                 "provider": "GyroscopeOffsetCompensator/CompensatedAngularSpeeds",
-                "consumer": "IMUOrientationEstimator/AngularSpeeds"
+                "consumer": "IMUOrientationEstimator/AngularSpeeds",
+                "queue_length": 10
             },
             {
                 "provider": "IMUMovementDetector/IsMoving",
@@ -356,9 +356,9 @@
                 "init_value": "true"
             },
             {
-                "queue_length": 10,
                 "provider": "IMU/AccelerometerSample",
-                "consumer": "IMUOrientationEstimator/Acceleration"
+                "consumer": "IMUOrientationEstimator/Acceleration",
+                "queue_length": 10
             },
             {
                 "provider": "IMUOrientationEstimator/OrientationEuler",
