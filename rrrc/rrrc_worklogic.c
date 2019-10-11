@@ -325,10 +325,9 @@ void RRRC_ProcessLogic_Init(void)
     MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
     SensorPortHandler_Run_OnInit(&sensorPorts[0], ARRAY_SIZE(sensorPorts));
     
-    MotorDriver_8833_Run_OnGlobalInit();
-    MotorDriver_8833_Run_OnInit(&motorDrivers[0]);
-    MotorDriver_8833_Run_OnInit(&motorDrivers[1]);
-    MotorDriver_8833_Run_OnInit(&motorDrivers[2]);
+    MotorDriver_8833_Run_OnDriverInit(&motorDrivers[0]);
+    MotorDriver_8833_Run_OnDriverInit(&motorDrivers[1]);
+    MotorDriver_8833_Run_OnDriverInit(&motorDrivers[2]);
 }
 
 //*********************************************************************************************

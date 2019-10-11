@@ -34,9 +34,9 @@ typedef struct {
     bool has_fault;
 } MotorDriver_8833_t;
 
-void MotorDriver_8833_Run_OnGlobalInit(void);
+void MotorDriver_8833_Run_OnInit(void);
 
-void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver);
+void MotorDriver_8833_Run_OnDriverInit(MotorDriver_8833_t* driver);
 void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver);
 
 void MotorDriver_8833_Call_OnFault(MotorDriver_8833_t* driver);

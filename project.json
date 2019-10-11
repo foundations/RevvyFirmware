@@ -231,7 +231,8 @@
                 "IMUMovementDetector/OnInit",
                 "IMUOrientationEstimator/OnInit",
                 "McuStatusSlots/Reset",
-                "McuStatusCollector/Reset"
+                "McuStatusCollector/Reset",
+                "MotorDriver_8833/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",

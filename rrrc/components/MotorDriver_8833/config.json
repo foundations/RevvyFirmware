@@ -3,5 +3,7 @@
     "source_files": [
         "MotorDriver_8833.c"
     ],
-    "runnables": {}
+    "runnables": {
+        "OnInit": {}
+    }
 }

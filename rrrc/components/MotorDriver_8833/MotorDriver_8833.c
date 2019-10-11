@@ -25,7 +25,7 @@ static Tc* const timers[6] = {
     TC5
 };
 
-void MotorDriver_8833_Run_OnGlobalInit(void)
+void MotorDriver_8833_Run_OnInit(void)
 {
     hri_mclk_set_APBAMASK_TC0_bit(MCLK);
     hri_mclk_set_APBAMASK_TC1_bit(MCLK);
@@ -90,7 +90,7 @@ static void configure_wo_pin(const uint8_t pin)
     gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_E);
 }
 
-void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)
+void MotorDriver_8833_Run_OnDriverInit(MotorDriver_8833_t* driver)
 {
     configure_wo_pin(driver->pwm_a.pin1);
     configure_wo_pin(driver->pwm_a.pin2);

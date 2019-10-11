@@ -80,6 +80,7 @@ void Runtime_Call_OnInit(void)
     IMUOrientationEstimator_Run_OnInit();
     McuStatusSlots_Run_Reset();
     McuStatusCollector_Run_Reset();
+    MotorDriver_8833_Run_OnInit();
     /* Begin User Code Section: Runtime/OnInit End */
 
     /* End User Code Section: Runtime/OnInit End */
