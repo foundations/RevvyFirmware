@@ -158,6 +158,11 @@ class ArraySignal(SignalType):
         if data_type != expected_data_type:
             raise Exception('Port data types don\'t match')
 
+        if consumer_port_data['count'] > provider_port_data['count']:
+            raise Exception('{} signal count ({}) is incompatible with {} ({})'
+                            .format(consumer_name, consumer_port_data['count'],
+                                    connection.provider, provider_port_data['count']))
+
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
         mods = {
