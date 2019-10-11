@@ -1,8 +1,9 @@
+#include "McuStatusSlots.h"
 #include "utils.h"
 #include "utils_assert.h"
-#include "McuStatusSlots.h"
 
 /* Begin User Code Section: Declarations */
+#include <math.h>
 #include <string.h>
 
 #define MAX_MOTOR_STATUS_SIZE 10
@@ -137,7 +138,7 @@ void McuStatusSlots_Run_Update(void)
     /* yaw angle slot */
     {
         int32_t yaw[2] = {
-            McuStatusSlots_Read_YawAngle(),
+            (int32_t) lroundf(McuStatusSlots_Read_YawAngle()),
             0 // TODO Remove
         };
 
@@ -247,7 +248,7 @@ uint8_t McuStatusSlots_Read_MotorBatteryLevel(void)
 }
 
 __attribute__((weak))
-int32_t McuStatusSlots_Read_YawAngle(void)
+float McuStatusSlots_Read_YawAngle(void)
 {
     /* Begin User Code Section: YawAngle Start */
 
@@ -255,5 +256,5 @@ int32_t McuStatusSlots_Read_YawAngle(void)
     /* Begin User Code Section: YawAngle End */
 
     /* End User Code Section: YawAngle End */
-    return 0;
+    return 0.0f;
 }

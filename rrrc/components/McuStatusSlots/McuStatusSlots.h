@@ -4,6 +4,7 @@
 #ifndef COMPONENT_TYPES_MCU_STATUS_SLOTS_H_
 #define COMPONENT_TYPES_MCU_STATUS_SLOTS_H_
 
+#include <float.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -43,6 +44,6 @@ void McuStatusSlots_Read_AngularSpeeds(IMU_RawSample_t* value);
 uint8_t McuStatusSlots_Read_MainBatteryLevel(void);
 ChargerState_t McuStatusSlots_Read_MainBatteryStatus(void);
 uint8_t McuStatusSlots_Read_MotorBatteryLevel(void);
-int32_t McuStatusSlots_Read_YawAngle(void);
+float McuStatusSlots_Read_YawAngle(void);
 
 #endif /* COMPONENT_MCU_STATUS_SLOTS_H_ */

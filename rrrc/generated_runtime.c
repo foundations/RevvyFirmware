@@ -1509,6 +1509,18 @@ uint8_t McuStatusSlots_Read_MotorBatteryLevel(void)
     return return_value;
 }
 
+float McuStatusSlots_Read_YawAngle(void)
+{
+    /* Begin User Code Section: McuStatusSlots/YawAngle Start */
+
+    /* End User Code Section: McuStatusSlots/YawAngle Start */
+    float return_value = YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable;
+    /* Begin User Code Section: McuStatusSlots/YawAngle End */
+
+    /* End User Code Section: McuStatusSlots/YawAngle End */
+    return return_value;
+}
+
 Current_t MotorCurrentFilter_Read_RawCurrent(uint32_t index)
 {
     ASSERT(index < 6);

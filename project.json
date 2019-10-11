@@ -360,7 +360,10 @@
             },
             {
                 "provider": "YawAngleTracker/YawAngle",
-                "consumer": "DriveTrain/YawAngle"
+                "consumers": [
+                    "DriveTrain/YawAngle",
+                    "McuStatusSlots/YawAngle"
+                ]
             },
             {
                 "provider": "ADC0/RawChannelData",

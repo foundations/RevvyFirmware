@@ -81,7 +81,7 @@
         "YawAngle": {
             "port_type": "ReadValue",
             "default_value": null,
-            "data_type": "int32_t"
+            "data_type": "float"
         }
     }
 }

@@ -55,7 +55,7 @@ class VariableSignal(SignalType):
         data_type = consumer_port_data['data_type']
 
         if data_type != expected_data_type:
-            raise Exception('Port data types don\'t match')
+            raise Exception('Port data types don\'t match (Provider: {} Consumer: {})'.format(expected_data_type, data_type))
 
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
