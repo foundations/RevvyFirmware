@@ -32,8 +32,7 @@ class TypeCollection:
             'void':  None,
             'void*': None
         }
-        self._value_formatters = {
-        }
+        self._value_formatters = {}
 
     def add(self, type_name, info, renderer, value_formatter):
         if type_name in self._type_data:
@@ -106,12 +105,12 @@ class TypeCollection:
         else:
             return resolved['default_value']
 
-    def render_value(self, type_name, value):
+    def render_value(self, type_name, value, context='assignment'):
         resolved = self.resolve(type_name)
 
         try:
-            return self._value_formatters[resolved](self, type_name, self[resolved], value)
-        except KeyError:
+            return self._value_formatters[resolved](self, type_name, self[resolved], value, context)
+        except (KeyError, TypeError):
             # by default treat the value as string
             return str(value)
 

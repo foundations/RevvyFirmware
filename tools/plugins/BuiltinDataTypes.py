@@ -17,7 +17,7 @@ class VariableSignal(SignalType):
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }} = {{ init_value }};',
             'data':     {
-                'init_value':  types.render_value(data_type, init_value),
+                'init_value':  types.render_value(data_type, init_value, 'initialization'),
                 'data_type':   data_type,
                 'signal_name': connection.name
             }
@@ -96,8 +96,8 @@ class ArraySignal(SignalType):
         provider_port_data = runtime.get_port(connection.provider)
         data_type = provider_port_data['data_type']
         count = provider_port_data['count']
-        init_values = [runtime.types.render_value(data_type, runtime.types.default_value(data_type))] * count
-        init_value = connection.attributes.get('init_value', init_values)
+        init_values = [runtime.types.render_value(data_type, runtime.types.default_value(data_type), 'initialization')]
+        init_value = connection.attributes.get('init_value', init_values * count)
 
         if type(init_value) is list:
             init_value = ', '.join(init_value)
@@ -489,25 +489,33 @@ def render_union_typedef(type_collection: TypeCollection, type_name):
     return chevron.render(**context)
 
 
-def struct_formatter(types: TypeCollection, type_name, type_data, struct_value):
+def struct_formatter(types: TypeCollection, type_name, type_data, struct_value, context):
     if type(struct_value) is str:
         return struct_value
 
-    values = ['.{} = {}'.format(name, types.render_value(type_data['fields'][name], value)) for name, value in
-              struct_value.items()]
-    return '({}) {{ {} }}'.format(type_name, ', '.join(values))
+    values = ['.{} = {}'.format(name, types.render_value(type_data['fields'][name], value, 'initialization'))
+              for name, value in struct_value.items()]
+
+    if context == 'initialization':
+        return '{{ {} }}'.format(', '.join(values))
+    else:
+        return '({}) {{ {} }}'.format(type_name, ', '.join(values))
 
 
-def union_formatter(types: TypeCollection, type_name, type_data, union_value):
+def union_formatter(types: TypeCollection, type_name, type_data, union_value, context):
     if type(union_value) is str:
         return union_value
 
     if len(union_value) != 1:
         raise Exception('Only a single union member can be assigned')
 
-    values = ['.{} = {}'.format(name, types.render_value(type_data['members'][name], value)) for name, value in
-              union_value.items()]
-    return '({}) {{ {} }}'.format(type_name, ', '.join(values))
+    values = ['.{} = {}'.format(name, types.render_value(type_data['members'][name], value, 'initialization'))
+              for name, value in union_value.items()]
+
+    if context == 'initialization':
+        return '{{ {} }}'.format(', '.join(values))
+    else:
+        return '({}) {{ {} }}'.format(type_name, ', '.join(values))
 
 
 type_info = {
@@ -868,7 +876,7 @@ def init(owner: Runtime):
 def add_type_def(owner: Runtime, type_name, type_data):
     type_type_data = process_type_def(type_name, type_data)
     type_type_info = type_info[type_type_data['type']]
-    value_formatter = type_type_info.get('value_formatter', lambda types, type_name, type_data, x: str(x))
+    value_formatter = type_type_info.get('value_formatter')
     owner.types.add(type_name, type_type_data, type_type_info['typedef_renderer'], value_formatter)
 
 

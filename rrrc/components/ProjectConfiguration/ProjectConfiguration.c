@@ -10,11 +10,11 @@ void ProjectConfiguration_Constant_MainBatteryParameters(BatteryConfiguration_t*
 {
     ASSERT(value != NULL);
     /* Begin User Code Section: MainBatteryParameters Start */
-    
+
     /* End User Code Section: MainBatteryParameters Start */
     *value = (BatteryConfiguration_t) { .detectionVoltage = 2000.0f, .minVoltage = 3400.0f, .maxVoltage = 4100.0f };
     /* Begin User Code Section: MainBatteryParameters End */
-    
+
     /* End User Code Section: MainBatteryParameters End */
 }
 
@@ -22,11 +22,11 @@ void ProjectConfiguration_Constant_MotorBatteryParameters(BatteryConfiguration_t
 {
     ASSERT(value != NULL);
     /* Begin User Code Section: MotorBatteryParameters Start */
-    
+
     /* End User Code Section: MotorBatteryParameters Start */
     *value = (BatteryConfiguration_t) { .detectionVoltage = 4000.0f, .minVoltage = 5400.0f, .maxVoltage = 7000.0f };
     /* Begin User Code Section: MotorBatteryParameters End */
-    
+
     /* End User Code Section: MotorBatteryParameters End */
 }
 
@@ -34,11 +34,11 @@ void ProjectConfiguration_Constant_MotorDeratingParameters(MotorDeratingParamete
 {
     ASSERT(value != NULL);
     /* Begin User Code Section: MotorDeratingParameters Start */
-    
+
     /* End User Code Section: MotorDeratingParameters Start */
     *value = (MotorDeratingParameters_t) { .MaxSafeTemperature = 70.0f, .MaxAllowedTemperature = 130.0f };
     /* Begin User Code Section: MotorDeratingParameters End */
-    
+
     /* End User Code Section: MotorDeratingParameters End */
 }
 
@@ -46,10 +46,10 @@ void ProjectConfiguration_Constant_MotorThermalParameters(MotorThermalParameters
 {
     ASSERT(value != NULL);
     /* Begin User Code Section: MotorThermalParameters Start */
-    
+
     /* End User Code Section: MotorThermalParameters Start */
     *value = (MotorThermalParameters_t) { .resistance = 3.5f, .coeff_cooling = 0.02f, .coeff_heating = 0.2f };
     /* Begin User Code Section: MotorThermalParameters End */
-    
+
     /* End User Code Section: MotorThermalParameters End */
 }
