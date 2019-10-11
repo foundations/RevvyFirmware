@@ -330,12 +330,10 @@
             {
                 "queue_length": 1,
                 "provider": "IMU/GyroscopeSample",
-                "consumer": "GyroscopeOffsetCompensator/AngularSpeeds"
-            },
-            {
-                "queue_length": 1,
-                "provider": "IMU/GyroscopeSample",
-                "consumer": "IMUMovementDetector/AngularSpeeds"
+                "consumers": [
+                    "GyroscopeOffsetCompensator/AngularSpeeds",
+                    "IMUMovementDetector/AngularSpeeds"
+                ]
             },
             {
                 "queue_length": 10,
