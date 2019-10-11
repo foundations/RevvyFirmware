@@ -16,7 +16,6 @@
         "rrrc/rrrc_worklogic.c",
         "rrrc/runtime/comm_handlers.c",
         "rrrc/runtime/connections_error_storage.c",
-        "rrrc/runtime/connections_timers.c",
         "rrrc/utils/color.c",
         "rrrc/utils/converter.c",
         "rrrc/utils/crc.c",
@@ -322,6 +321,10 @@
             {
                 "provider": "SensorPortHandler/ReadCurrentTicks",
                 "consumer": "HighResolutionTimer/GetTickCount"
+            },
+            {
+                "provider": "SensorPortHandler/ConvertTicksToMs",
+                "consumer": "HighResolutionTimer/ToMs"
             },
             {
                 "provider": "CommunicationObserver/Enabled",

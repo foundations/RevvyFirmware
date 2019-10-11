@@ -7,6 +7,12 @@
         "OnInit": {},
         "GetTickCount": {
             "return_type": "uint16_t"
+        },
+        "ToMs": {
+            "return_type": "float",
+            "arguments": {
+                "ticks": "uint32_t"
+            }
         }
     },
     "ports": {

@@ -63,7 +63,7 @@ uint8_t SensorPortHandler_Read_AdcData(uint32_t port_idx);
 void SensorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status);
 uint16_t SensorPortHandler_Call_ReadCurrentTicks(void);
 
-float SensorPort_Call_GetMsFromTicks(uint16_t ticks);
+float SensorPort_Call_ConvertTicksToMs(uint32_t ticks);
 void* SensorPortHandler_Call_Allocate(size_t size);
 void SensorPortHandler_Call_Free(void** ptr);
 

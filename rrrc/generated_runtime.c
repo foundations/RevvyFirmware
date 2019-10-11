@@ -507,6 +507,18 @@ uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
     return return_value;
 }
 
+float SensorPortHandler_Call_ConvertTicksToMs(uint32_t ticks)
+{
+    /* Begin User Code Section: SensorPortHandler/ConvertTicksToMs Start */
+
+    /* End User Code Section: SensorPortHandler/ConvertTicksToMs Start */
+    float return_value = HighResolutionTimer_Run_ToMs(ticks);
+    /* Begin User Code Section: SensorPortHandler/ConvertTicksToMs End */
+
+    /* End User Code Section: SensorPortHandler/ConvertTicksToMs End */
+    return return_value;
+}
+
 void McuStatusCollectorWrapper_Call_ResetSlots(void)
 {
     /* Begin User Code Section: McuStatusCollectorWrapper/ResetSlots Start */
