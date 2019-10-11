@@ -320,8 +320,6 @@ void RRRC_ProcessLogic_Init(void)
     MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
     Runtime_Call_OnInit();
 
-    RingLedDisplay_Run_SelectScenario(RingLedScenario_ColorWheel);
-
     MotorPortHandler_Run_OnInit(&motorPorts[0], ARRAY_SIZE(motorPorts));
     SensorPortHandler_Run_OnInit(&sensorPorts[0], ARRAY_SIZE(sensorPorts));
     
