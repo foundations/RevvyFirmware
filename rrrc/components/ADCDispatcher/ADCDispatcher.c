@@ -34,12 +34,12 @@ void ADCDispatcher_Run_Update(void)
     ADCDispatcher_Write_MainBatteryVoltage((uint32_t) lroundf(ADCDispatcher_Read_ADC1_ChannelVoltage(ADC_CH_BAT_VOLTAGE) * (340.0f / 240.0f)));
 
     /* remap to 'brain index' */
-    ADCDispatcher_Write_MotorCurrent(3u, ADCDispatcher_Read_ADC1_ChannelVoltage(M0_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(4u, ADCDispatcher_Read_ADC0_ChannelVoltage(M1_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(5u, ADCDispatcher_Read_ADC1_ChannelVoltage(M2_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(2u, ADCDispatcher_Read_ADC0_ChannelVoltage(M3_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(1u, ADCDispatcher_Read_ADC0_ChannelVoltage(M4_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(0u, ADCDispatcher_Read_ADC1_ChannelVoltage(M5_ISEN_CH) / 0.120f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(3u, ADCDispatcher_Read_ADC1_ChannelVoltage(M0_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(4u, ADCDispatcher_Read_ADC0_ChannelVoltage(M1_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(5u, ADCDispatcher_Read_ADC1_ChannelVoltage(M2_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(2u, ADCDispatcher_Read_ADC0_ChannelVoltage(M3_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(1u, ADCDispatcher_Read_ADC0_ChannelVoltage(M4_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(0u, ADCDispatcher_Read_ADC1_ChannelVoltage(M5_ISEN_CH) / 120.0f); //mV / mOhm -> A
     /* End User Code Section: Update Start */
     /* Begin User Code Section: Update End */
 
