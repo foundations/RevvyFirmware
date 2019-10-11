@@ -36,8 +36,8 @@ typedef enum {
 
 void IMUOrientationEstimator_Run_OnInit(void);
 void IMUOrientationEstimator_Run_OnUpdate(void);
-Orientation3D_t IMUOrientationEstimator_Run_ConvertOrientation(Quaternion_t orientation);
 void IMUOrientationEstimator_Write_Orientation(const Quaternion_t* value);
+void IMUOrientationEstimator_Write_OrientationEuler(const Orientation3D_t* value);
 QueueStatus_t IMUOrientationEstimator_Read_Acceleration(Vector3D_t* value);
 QueueStatus_t IMUOrientationEstimator_Read_AngularSpeeds(Vector3D_t* value);
 float IMUOrientationEstimator_Read_SampleTime(void);

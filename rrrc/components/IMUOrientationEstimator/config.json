@@ -32,13 +32,7 @@
     },
     "runnables": {
         "OnInit": {},
-        "OnUpdate": {},
-        "ConvertOrientation": {
-            "arguments": {
-                "orientation": "Quaternion_t"
-            },
-            "return_type": "Orientation3D_t"
-        }
+        "OnUpdate": {}
     },
     "ports": {
         "Acceleration": {
@@ -54,6 +48,10 @@
         "Orientation": {
             "port_type": "WriteData",
             "data_type": "Quaternion_t"
+        },
+        "OrientationEuler": {
+            "port_type": "WriteData",
+            "data_type": "Orientation3D_t"
         },
         "SampleTime": {
             "port_type": "ReadValue",

@@ -4,15 +4,6 @@
         "YawAngleTracker.c"
     ],
     "types": {
-        "Quaternion_t": {
-            "type": "struct",
-            "fields": {
-                "q0": "float",
-                "q1": "float",
-                "q2": "float",
-                "q3": "float"
-            }
-        },
         "Orientation3D_t": {
             "type": "struct",
             "fields": {
@@ -30,18 +21,11 @@
         "Orientation": {
             "port_type": "ReadValue",
             "default_value": null,
-            "data_type": "Quaternion_t"
+            "data_type": "Orientation3D_t"
         },
         "YawAngle": {
             "port_type": "WriteData",
             "data_type": "float"
-        },
-        "ToEulerAngles": {
-            "port_type": "ServerCall",
-            "return_type": "Orientation3D_t",
-            "arguments": {
-                "orientation": "Quaternion_t"
-            }
         }
     }
 }

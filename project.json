@@ -358,16 +358,12 @@
                 "consumer": "IMUOrientationEstimator/Acceleration"
             },
             {
-                "provider": "IMUOrientationEstimator/Orientation",
+                "provider": "IMUOrientationEstimator/OrientationEuler",
                 "consumer": "YawAngleTracker/Orientation"
             },
             {
                 "provider": "IMU/SampleTime",
                 "consumer": "IMUOrientationEstimator/SampleTime"
-            },
-            {
-                "provider": "YawAngleTracker/ToEulerAngles",
-                "consumer": "IMUOrientationEstimator/ConvertOrientation"
             },
             {
                 "provider": "YawAngleTracker/YawAngle",
