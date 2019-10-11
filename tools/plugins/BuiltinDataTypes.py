@@ -96,16 +96,27 @@ class ArraySignal(SignalType):
         provider_port_data = runtime.get_port(connection.provider)
         data_type = provider_port_data['data_type']
         count = provider_port_data['count']
-        init_values = [runtime.types.render_value(data_type, runtime.types.default_value(data_type), 'initialization')]
-        init_value = connection.attributes.get('init_value', init_values * count)
 
-        if type(init_value) is list:
-            init_value = ', '.join(init_value)
+        try:
+            # either all init values are specified
+            init_values = connection.attributes['init_values']
+        except KeyError:
+            # ... or a single one is
+            default_value = runtime.types.default_value(data_type)
+            init_value = connection.attributes.get('init_value', default_value)
+            init_values = [runtime.types.render_value(data_type, init_value, 'initialization')] * count
+
+        if type(init_values) is list:
+            if len(init_values) != count:
+                raise Exception('Array initializer count ({}) does not match size ({}) - signal provided by {}'
+                                .format(len(init_values), count, connection.provider))
+
+            init_values = ', '.join(init_values)
 
         ctx = {
             'template': 'static {{ data_type }} {{ signal_name }}[{{ size }}] = { {{ init_value }} };',
             'data':     {
-                'init_value':  init_value,
+                'init_value':  init_values,
                 'data_type':   data_type,
                 'signal_name': connection.name,
                 'size':        count
@@ -482,7 +493,7 @@ def render_union_typedef(type_collection: TypeCollection, type_name):
 
         'data':     {
             'type_name': type_name,
-            'members':    dict_to_chevron_list(type_collection[type_name]['members'], key_name='name', value_name='type')
+            'members':   dict_to_chevron_list(type_collection[type_name]['members'], key_name='name', value_name='type')
         }
     }
 
@@ -563,7 +574,7 @@ type_info = {
         }
     },
 
-    TypeCollection.UNION:       {
+    TypeCollection.UNION:        {
         'typedef_renderer': render_union_typedef,
         'value_formatter':  union_formatter,
         'attributes':       {
