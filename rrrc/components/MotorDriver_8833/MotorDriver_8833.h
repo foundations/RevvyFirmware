@@ -2,7 +2,7 @@
  * MotorDriver_8833.h
  *
  * Created: 2019. 07. 22. 22:37:10
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 
@@ -13,28 +13,23 @@
 #include <stdbool.h>
 
 typedef struct {
-    uint8_t idx;
+    uint8_t timer;
+    uint32_t ch1;
+    uint32_t ch2;
+    uint8_t pin1;
+    uint8_t pin2;
 
-    uint8_t pwm_a1;
-    uint8_t pwm_a2;
-    uint8_t pwm_b1;
-    uint8_t pwm_b2;
+    int8_t prev_speed;
+} MotorDriver_8833_Channel_t;
+
+typedef struct {
+    uint8_t idx;
 
     uint8_t fault;
     uint8_t n_sleep;
 
-    uint8_t pwm_a1_timer;
-    uint8_t pwm_a2_timer;
-    uint8_t pwm_b1_timer;
-    uint8_t pwm_b2_timer;
-    
-    uint32_t pwm_a1_ch;
-    uint32_t pwm_a2_ch;
-    uint32_t pwm_b1_ch;
-    uint32_t pwm_b2_ch;
-    
-    int8_t speed_a;
-    int8_t speed_b;
+    MotorDriver_8833_Channel_t pwm_a;
+    MotorDriver_8833_Channel_t pwm_b;
 
     bool has_fault;
 } MotorDriver_8833_t;

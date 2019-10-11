@@ -71,20 +71,20 @@ static MotorPort_t motorPorts[] =
     .fault = MOTOR_DRIVER_## i ## _FAULT,                 \
     .n_sleep = MOTOR_DRIVER_## i ## _EN,                  \
                                                           \
-    .pwm_a1 = MOTOR_DRIVER_## i ##_CH_A_PWM0_PIN,         \
-    .pwm_a2 = MOTOR_DRIVER_## i ##_CH_A_PWM1_PIN,         \
-    .pwm_b1 = MOTOR_DRIVER_## i ##_CH_B_PWM0_PIN,         \
-    .pwm_b2 = MOTOR_DRIVER_## i ##_CH_B_PWM1_PIN,         \
-                                                          \
-    .pwm_a1_timer = MOTOR_DRIVER_## i ##_CH_A_PWM0_TIMER, \
-    .pwm_a2_timer = MOTOR_DRIVER_## i ##_CH_A_PWM1_TIMER, \
-    .pwm_b1_timer = MOTOR_DRIVER_## i ##_CH_B_PWM0_TIMER, \
-    .pwm_b2_timer = MOTOR_DRIVER_## i ##_CH_B_PWM1_TIMER, \
-                                                          \
-    .pwm_a1_ch = MOTOR_DRIVER_## i ##_CH_A_PWM0_CH,       \
-    .pwm_a2_ch = MOTOR_DRIVER_## i ##_CH_A_PWM1_CH,       \
-    .pwm_b1_ch = MOTOR_DRIVER_## i ##_CH_B_PWM0_CH,       \
-    .pwm_b2_ch = MOTOR_DRIVER_## i ##_CH_B_PWM1_CH,       \
+    .pwm_a = {                                            \
+        .timer = MOTOR_DRIVER_## i ##_CH_A_PWM_TIMER,     \
+        .ch1 = MOTOR_DRIVER_## i ##_CH_A_PWM0_CH,         \
+        .ch2 = MOTOR_DRIVER_## i ##_CH_A_PWM1_CH,         \
+        .pin1 = MOTOR_DRIVER_## i ##_CH_A_PWM0_PIN,       \
+        .pin2 = MOTOR_DRIVER_## i ##_CH_A_PWM1_PIN        \
+     },                                                   \
+    .pwm_b = {                                            \
+        .timer = MOTOR_DRIVER_## i ##_CH_B_PWM_TIMER,     \
+        .ch2 = MOTOR_DRIVER_## i ##_CH_B_PWM1_CH,         \
+        .ch1 = MOTOR_DRIVER_## i ##_CH_B_PWM0_CH,         \
+        .pin1 = MOTOR_DRIVER_## i ##_CH_B_PWM0_PIN,       \
+        .pin2 = MOTOR_DRIVER_## i ##_CH_B_PWM1_PIN        \
+    }                                                     \
 }
 
 static MotorDriver_8833_t motorDrivers[] = {

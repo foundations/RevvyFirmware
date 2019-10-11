@@ -261,54 +261,48 @@
 #define MOTOR_DRIVER_0_EN       PB20
 #define MOTOR_DRIVER_0_FAULT    PC13
 
+#define MOTOR_DRIVER_0_CH_A_PWM_TIMER        4
 #define MOTOR_DRIVER_0_CH_A_PWM0_PIN         PB08
-#define MOTOR_DRIVER_0_CH_A_PWM0_TIMER       4
 #define MOTOR_DRIVER_0_CH_A_PWM0_CH          0
 #define MOTOR_DRIVER_0_CH_A_PWM1_PIN         PB09
-#define MOTOR_DRIVER_0_CH_A_PWM1_TIMER       4
 #define MOTOR_DRIVER_0_CH_A_PWM1_CH          1
 
+#define MOTOR_DRIVER_0_CH_B_PWM_TIMER        2
 #define MOTOR_DRIVER_0_CH_B_PWM0_PIN         PA00
-#define MOTOR_DRIVER_0_CH_B_PWM0_TIMER       2
 #define MOTOR_DRIVER_0_CH_B_PWM0_CH          0
 #define MOTOR_DRIVER_0_CH_B_PWM1_PIN         PA01
-#define MOTOR_DRIVER_0_CH_B_PWM1_TIMER       2
 #define MOTOR_DRIVER_0_CH_B_PWM1_CH          1
 
 #define MOTOR_DRIVER_1_YELLOW   PB13
 #define MOTOR_DRIVER_1_EN       PD01
 #define MOTOR_DRIVER_1_FAULT    PB23
 
+#define MOTOR_DRIVER_1_CH_A_PWM_TIMER        0
 #define MOTOR_DRIVER_1_CH_A_PWM0_PIN         PA04
-#define MOTOR_DRIVER_1_CH_A_PWM0_TIMER       0
 #define MOTOR_DRIVER_1_CH_A_PWM0_CH          0
 #define MOTOR_DRIVER_1_CH_A_PWM1_PIN         PA05
-#define MOTOR_DRIVER_1_CH_A_PWM1_TIMER       0
 #define MOTOR_DRIVER_1_CH_A_PWM1_CH          1
                      
+#define MOTOR_DRIVER_1_CH_B_PWM_TIMER        3
 #define MOTOR_DRIVER_1_CH_B_PWM0_PIN         PA14
-#define MOTOR_DRIVER_1_CH_B_PWM0_TIMER       3
 #define MOTOR_DRIVER_1_CH_B_PWM0_CH          0
 #define MOTOR_DRIVER_1_CH_B_PWM1_PIN         PA15
-#define MOTOR_DRIVER_1_CH_B_PWM1_TIMER       3
 #define MOTOR_DRIVER_1_CH_B_PWM1_CH          1
 
 #define MOTOR_DRIVER_2_YELLOW   PC13
 #define MOTOR_DRIVER_2_EN       PA18
 #define MOTOR_DRIVER_2_FAULT    PB13
 
+#define MOTOR_DRIVER_2_CH_A_PWM_TIMER        1
 #define MOTOR_DRIVER_2_CH_A_PWM0_PIN         PA06
-#define MOTOR_DRIVER_2_CH_A_PWM0_TIMER       1
 #define MOTOR_DRIVER_2_CH_A_PWM0_CH          0
 #define MOTOR_DRIVER_2_CH_A_PWM1_PIN         PA07
-#define MOTOR_DRIVER_2_CH_A_PWM1_TIMER       1
 #define MOTOR_DRIVER_2_CH_A_PWM1_CH          1
                      
+#define MOTOR_DRIVER_2_CH_B_PWM_TIMER        5
 #define MOTOR_DRIVER_2_CH_B_PWM0_PIN         PB10
-#define MOTOR_DRIVER_2_CH_B_PWM0_TIMER       5
 #define MOTOR_DRIVER_2_CH_B_PWM0_CH          0
 #define MOTOR_DRIVER_2_CH_B_PWM1_PIN         PB11
-#define MOTOR_DRIVER_2_CH_B_PWM1_TIMER       5
 #define MOTOR_DRIVER_2_CH_B_PWM1_CH          1
 
 /* ========== Sensor ports ========== */
