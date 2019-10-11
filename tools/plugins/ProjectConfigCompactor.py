@@ -32,19 +32,29 @@ def process_port_ref_shorthand(port):
 
 
 def expand_port_connection(port_connection):
-    def move_single(dictionary, single, multiple):
-        if multiple not in dictionary:
-            try:
-                dictionary[multiple] = [dictionary[single]]
-                del dictionary[single]
-            except KeyError:
-                dictionary[multiple] = []
+    connection = {}
 
-    connection = dict(port_connection)
-    move_single(connection, 'consumer', 'consumers')
+    attrs = {k: v for k, v in port_connection.items() if k not in ['provider', 'consumer', 'consumers']}
 
-    connection['provider'] = process_port_ref_shorthand(connection['provider'])
-    connection['consumers'] = [process_port_ref_shorthand(consumer) for consumer in connection['consumers']]
+    if 'consumer' in port_connection:
+        connection['consumers'] = [{
+            **process_port_ref_shorthand(port_connection['consumer']),
+            "attributes": {}
+        }]
+    else:
+        if type(port_connection['consumers']) is list:
+            connection['consumers'] = [{
+                **process_port_ref_shorthand(consumer),
+                "attributes": {}
+            } for consumer in port_connection['consumers']]
+        else:
+            connection['consumers'] = [{
+                **process_port_ref_shorthand(consumer),
+                "attributes": c_attrs
+            } for consumer, c_attrs in port_connection['consumers'].items()]
+    connection.update(attrs)
+
+    connection['provider'] = process_port_ref_shorthand(port_connection['provider'])
     return connection
 
 

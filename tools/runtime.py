@@ -210,13 +210,13 @@ class SignalConnection:
         self.signal = signal
         self.provider = provider_name
         self.attributes = attributes
-        self.consumers = []
+        self.consumers = {}
         self.context = context
 
         signal.create(context, self)
 
-    def add_consumer(self, consumer_name):
-        self.consumers.append(consumer_name)
+    def add_consumer(self, consumer_name, consumer_attributes):
+        self.consumers[consumer_name] = consumer_attributes
 
     def generate(self):
         # collect implementations in a list
@@ -225,8 +225,8 @@ class SignalConnection:
         if function_mods:
             function_mods_list.append(function_mods)
 
-        for consumer in self.consumers:
-            function_mods = self.signal.generate_consumer(self.context, self, consumer)
+        for consumer, attributes in self.consumers.items():
+            function_mods = self.signal.generate_consumer(self.context, self, consumer, attributes)
             if function_mods:
                 function_mods_list.append(function_mods)
 
@@ -265,7 +265,7 @@ class SignalType:
     def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         pass
 
     def create_connection(self, context, name, provider, attributes):
@@ -533,15 +533,15 @@ class Runtime:
                 else:
                     return None
 
-            def create_signal_connection(attributes, signal_name, signal_type):
+            def create_signal_connection(attributes, signal_name, signal_type, consumer_attributes):
                 signal = signal_type.create_connection(context, signal_name, provider_short_name, attributes)
-                signal.add_consumer(consumer_short_name)
+                signal.add_consumer(consumer_short_name, consumer_attributes)
                 return signal
 
             if provider_short_name not in context['functions']:
                 context['functions'][provider_short_name] = create_if_weak(provider_ref)
 
-            attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumers']}
+            provider_attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumer', 'consumers']}
 
             # create a dict to store providers signals
             if provider_short_name not in context['signals']:
@@ -577,6 +577,8 @@ class Runtime:
                     .format(provider_short_name, consumer_short_name, signal_type_name) \
                     .replace('/', '_')
 
+                consumer_attributes = consumer_ref.get('attributes', {})
+
                 try:
                     signals_of_current_type = provider_signals[signal_type_name]
                     if type(signals_of_current_type) is list:
@@ -584,18 +586,18 @@ class Runtime:
                             # create new signal in all cases
                             signal_name += str(len(signals_of_current_type))
 
-                            new_signal = create_signal_connection(attributes, signal_name, signal_type)
+                            new_signal = create_signal_connection(provider_attributes, signal_name, signal_type, consumer_attributes)
 
                             signals_of_current_type.append(new_signal)
                         else:
-                            signals_of_current_type.add_consumer(consumer_short_name)
+                            signals_of_current_type.add_consumer(consumer_short_name, consumer_attributes)
                     elif signal_type.consumers == 'multiple':
-                        signals_of_current_type.add_consumer(consumer_short_name)
+                        signals_of_current_type.add_consumer(consumer_short_name, consumer_attributes)
                     else:
                         raise Exception('Multiple consumers not allowed for {} signal (provided by {})'
                                         .format(signal_type_name, provider_short_name))
                 except KeyError:
-                    new_signal = create_signal_connection(attributes, signal_name, signal_type)
+                    new_signal = create_signal_connection(provider_attributes, signal_name, signal_type, consumer_attributes)
 
                     if signal_type.consumers == 'multiple_signals':
                         provider_signals[signal_type_name] = [new_signal]

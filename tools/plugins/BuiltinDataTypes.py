@@ -46,7 +46,7 @@ class VariableSignal(SignalType):
             }
         }
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
         provider_port_data = runtime.get_port(connection.provider)
         expected_data_type = provider_port_data['data_type']
@@ -147,7 +147,7 @@ class ArraySignal(SignalType):
             }
         }
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
         provider_port_data = runtime.get_port(connection.provider)
         expected_data_type = provider_port_data['data_type']
@@ -158,38 +158,60 @@ class ArraySignal(SignalType):
         if data_type != expected_data_type:
             raise Exception('Port data types don\'t match')
 
-        if consumer_port_data['count'] > provider_port_data['count']:
-            raise Exception('{} signal count ({}) is incompatible with {} ({})'
-                            .format(consumer_name, consumer_port_data['count'],
-                                    connection.provider, provider_port_data['count']))
-
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
+
         mods = {
-            consumer_name: {}
+            consumer_name: {
+                'used_arguments': []
+            }
         }
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
+
+            if 'count' not in consumer_port_data:
+                # single read, index should be next to consumer name
+                index = attributes['index']
+            else:
+                if consumer_port_data['count'] > provider_port_data['count']:
+                    raise Exception('{} signal count ({}) is incompatible with {} ({})'
+                                    .format(consumer_name, consumer_port_data['count'],
+                                            connection.provider, provider_port_data['count']))
+                index = argument_names[0]
+                mods[consumer_name]['used_arguments'] = [argument_names[0]]
+
             ctx = {
                 'template': '{{ data_type}} return_value = {{ signal_name }}[{{ index }}];',
                 'data':     {
                     'data_type':   data_type,
                     'signal_name': connection.name,
-                    'index':       argument_names[0]
+                    'index':       index
                 }
             }
-            mods[consumer_name]['used_arguments'] = [argument_names[0]]
             mods[consumer_name]['body'] = chevron.render(**ctx)
             mods[consumer_name]['return_statement'] = 'return_value'
         else:
+
+            if 'count' not in consumer_port_data:
+                # single read, index should be next to consumer name
+                index = connection.attributes['index']
+                out_name = argument_names[0]
+            else:
+                if consumer_port_data['count'] > provider_port_data['count']:
+                    raise Exception('{} signal count ({}) is incompatible with {} ({})'
+                                    .format(consumer_name, consumer_port_data['count'],
+                                            connection.provider, provider_port_data['count']))
+                index = argument_names[0]
+                out_name = argument_names[1]
+                mods[consumer_name]['used_arguments'] = [argument_names[0], argument_names[1]]
+
             ctx = {
                 'template': '*{{ out_name }} = {{ signal_name }}[{{ index }}];',
                 'data':     {
                     'signal_name': connection.name,
-                    'index':       argument_names[0],
-                    'out_name':    argument_names[1]
+                    'index':       index,
+                    'out_name':    out_name
                 }
             }
-            mods[consumer_name]['used_arguments'] = [argument_names[0], argument_names[1]]
             mods[consumer_name]['body'] = chevron.render(**ctx)
 
         return mods
@@ -261,7 +283,7 @@ class QueueSignal(SignalType):
             }
         }
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
         provider_port_data = runtime.get_port(connection.provider)
         data_type = provider_port_data['data_type']
@@ -332,7 +354,7 @@ class ConstantSignal(SignalType):
     def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
         provider_port_data = runtime.get_port(connection.provider)
         expected_data_type = provider_port_data['data_type']
@@ -351,6 +373,7 @@ class ConstantSignal(SignalType):
         mods = {
             consumer_name: {}
         }
+
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
                 'template': '{{ constant_provider }}()',
@@ -384,7 +407,7 @@ class ConstantArraySignal(SignalType):
     def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
         provider_port_data = runtime.get_port(connection.provider)
         expected_data_type = provider_port_data['data_type']
@@ -405,25 +428,51 @@ class ConstantArraySignal(SignalType):
         }
 
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
+
+            if 'count' not in consumer_port_data:
+                # single read, index should be next to consumer name
+                index = attributes['index']
+            else:
+                if consumer_port_data['count'] > provider_port_data['count']:
+                    raise Exception('{} signal count ({}) is incompatible with {} ({})'
+                                    .format(consumer_name, consumer_port_data['count'],
+                                            connection.provider, provider_port_data['count']))
+                index = argument_names[0]
+                mods[consumer_name]['used_arguments'] = [argument_names[0]]
+
             ctx = {
-                'template': '{{ constant_provider }}({{ index }})',
+                'template': '{{ data_type}} return_value = {{ constant_provider }}({{ index }});',
                 'data':     {
+                    'data_type':         data_type,
                     'constant_provider': constant_provider_name,
-                    'index':             argument_names[0]
+                    'index':             index
                 }
             }
-            mods[consumer_name]['return_statement'] = chevron.render(**ctx)
+            mods[consumer_name]['body'] = chevron.render(**ctx)
+            mods[consumer_name]['return_statement'] = 'return_value'
         else:
+
+            if 'count' not in consumer_port_data:
+                # single read, index should be next to consumer name
+                index = connection.attributes['index']
+                out_name = argument_names[0]
+            else:
+                if consumer_port_data['count'] > provider_port_data['count']:
+                    raise Exception('{} signal count ({}) is incompatible with {} ({})'
+                                    .format(consumer_name, consumer_port_data['count'],
+                                            connection.provider, provider_port_data['count']))
+                index = argument_names[0]
+                out_name = argument_names[1]
+                mods[consumer_name]['used_arguments'] = [argument_names[0], argument_names[1]]
+
             ctx = {
                 'template': '{{ constant_provider }}({{ index }}, {{ out_name }});',
                 'data':     {
                     'constant_provider': constant_provider_name,
-                    'index':             argument_names[0],
-                    'out_name':          argument_names[1]
+                    'index':             index,
+                    'out_name':          out_name
                 }
             }
-
-            mods[consumer_name]['used_arguments'] = [argument_names[0], argument_names[1]]
             mods[consumer_name]['body'] = chevron.render(**ctx)
 
         return mods
@@ -653,6 +702,7 @@ port_type_data = {
     'ReadValue':        {
         'order':          3,
         'consumes':       {
+            'array':    'single',
             'variable': 'single',
             'constant': 'single'
         },

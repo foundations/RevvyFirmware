@@ -20,7 +20,7 @@ class EventSignal(SignalType):
     def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
 
         consumer_port_data = runtime.get_port(consumer_name)
@@ -59,7 +59,7 @@ class ServerCallSignal(SignalType):
     def generate_provider(self, context, connection: SignalConnection, provider_name):
         pass
 
-    def generate_consumer(self, context, connection: SignalConnection, consumer_name):
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
 
         consumer_port_data = runtime.get_port(consumer_name)
