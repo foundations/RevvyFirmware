@@ -1,6 +1,6 @@
-#include "utils_assert.h"
-#include "generated_runtime.h"
 #include "utils.h"
+#include "generated_runtime.h"
+#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 
@@ -23,6 +23,7 @@ static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue
 static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index = 0u;
 static bool IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_overflow = false;
 static Quaternion_t IMUOrientationEstimator_Orientation_YawAngleTracker_Orientation_variable = { .q0 = 0.0f, .q1 = 0.0f, .q2 = 0.0f, .q3 = 0.0f };
+static float YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable = 0.0f;
 static uint16_t ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[4] = { 0u, 0u, 0u, 0u };
 static uint16_t ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
 static Voltage_t ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -1011,6 +1012,17 @@ void RingLedDisplay_Write_LedColor(uint32_t index, const rgb_t value)
     /* End User Code Section: RingLedDisplay/LedColor End */
 }
 
+void YawAngleTracker_Write_YawAngle(const float value)
+{
+    /* Begin User Code Section: YawAngleTracker/YawAngle Start */
+
+    /* End User Code Section: YawAngleTracker/YawAngle Start */
+    YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable = value;
+    /* Begin User Code Section: YawAngleTracker/YawAngle End */
+
+    /* End User Code Section: YawAngleTracker/YawAngle End */
+}
+
 Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
 {
     ASSERT(index < 4);
@@ -1162,6 +1174,18 @@ void DriveRequestMultiplexer_Read_UserDriveRequest(uint32_t index, DriveRequest_
     /* Begin User Code Section: DriveRequestMultiplexer/UserDriveRequest End */
 
     /* End User Code Section: DriveRequestMultiplexer/UserDriveRequest End */
+}
+
+float DriveTrain_Read_YawAngle(void)
+{
+    /* Begin User Code Section: DriveTrain/YawAngle Start */
+
+    /* End User Code Section: DriveTrain/YawAngle Start */
+    float return_value = YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable;
+    /* Begin User Code Section: DriveTrain/YawAngle End */
+
+    /* End User Code Section: DriveTrain/YawAngle End */
+    return return_value;
 }
 
 QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)

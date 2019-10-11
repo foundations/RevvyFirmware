@@ -370,6 +370,10 @@
                 "consumer": "IMUOrientationEstimator/ConvertOrientation"
             },
             {
+                "provider": "YawAngleTracker/YawAngle",
+                "consumer": "DriveTrain/YawAngle"
+            },
+            {
                 "provider": "ADC0/RawChannelData",
                 "consumer": "ADCDispatcher/ADC0_RawChannelData"
             },
