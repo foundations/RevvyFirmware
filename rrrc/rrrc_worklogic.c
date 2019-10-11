@@ -298,25 +298,6 @@ void RRRC_ProcessLogic_Init(void)
 {
     system_init();
 
-    {
-        const uint32_t compatible_hw[] = { COMPATIBLE_HW_VERSIONS };
-        const uint32_t hw = FLASH_HEADER->hw_version;
-        bool on_compatible_hw = false;
-        for (size_t i = 0u; i < ARRAY_SIZE(compatible_hw); i++)
-        {
-            if (hw == compatible_hw[i])
-            {
-                on_compatible_hw = true;
-                break;
-            }
-        }
-
-        if (!on_compatible_hw)
-        {
-            RestartManager_Run_RebootToBootloader();
-        }
-    }
-
     MasterCommunication_Run_OnInit(&communicationHandlers[0], COMM_HANDLER_COUNT);
     Runtime_Call_OnInit();
 

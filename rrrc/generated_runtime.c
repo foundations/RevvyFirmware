@@ -57,6 +57,7 @@ void Runtime_Call_OnInit(void)
     /* Begin User Code Section: Runtime/OnInit Start */
 
     /* End User Code Section: Runtime/OnInit Start */
+    HardwareCompatibilityChecker_Run_OnInit();
     ErrorStorage_Run_OnInit();
     ADC0_Run_OnInit();
     ADC1_Run_OnInit();
@@ -426,6 +427,17 @@ void Runtime_Call_100ms(void)
     /* Begin User Code Section: Runtime/100ms End */
 
     /* End User Code Section: Runtime/100ms End */
+}
+
+void HardwareCompatibilityChecker_Call_OnIncompatibleHardware(void)
+{
+    /* Begin User Code Section: HardwareCompatibilityChecker/OnIncompatibleHardware Start */
+
+    /* End User Code Section: HardwareCompatibilityChecker/OnIncompatibleHardware Start */
+    RestartManager_Run_RebootToBootloader();
+    /* Begin User Code Section: HardwareCompatibilityChecker/OnIncompatibleHardware End */
+
+    /* End User Code Section: HardwareCompatibilityChecker/OnIncompatibleHardware End */
 }
 
 void CommunicationObserver_Call_ErrorLimitReached(void)

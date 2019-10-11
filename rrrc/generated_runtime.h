@@ -140,6 +140,7 @@ typedef enum {
 #define COMPONENT_TYPES_ERROR_STORAGE_H_
 #define COMPONENT_TYPES_ERROR_STORAGE_WRAPPER_H_
 #define COMPONENT_TYPES_GYROSCOPE_OFFSET_COMPENSATOR_H_
+#define COMPONENT_TYPES_HARDWARE_COMPATIBILITY_CHECKER_H_
 #define COMPONENT_TYPES_HIGH_RESOLUTION_TIMER_H_
 #define COMPONENT_TYPES_IMU_H_
 #define COMPONENT_TYPES_IMU_MOVEMENT_DETECTOR_H_
@@ -179,6 +180,7 @@ typedef enum {
 #include "components/ErrorStorage/ErrorStorage.h"
 #include "components/ErrorStorageWrapper/ErrorStorageWrapper.h"
 #include "components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.h"
+#include "components/HardwareCompatibilityChecker/HardwareCompatibilityChecker.h"
 #include "components/HighResolutionTimer/HighResolutionTimer.h"
 #include "components/IMU/IMU.h"
 #include "components/IMUMovementDetector/IMUMovementDetector.h"
