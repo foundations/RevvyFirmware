@@ -64,6 +64,7 @@ void IMUMovementDetector_Run_OnUpdate(void)
 __attribute__((weak))
 void IMUMovementDetector_Write_IsMoving(const bool value)
 {
+    (void) value;
     /* Begin User Code Section: IsMoving Start */
 
     /* End User Code Section: IsMoving Start */

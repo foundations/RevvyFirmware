@@ -142,7 +142,7 @@ void IMUOrientationEstimator_Run_OnInit(void)
     orientation = (Quaternion_t) {1.0f, 0.0f, 0.0f, 0.0f};
 
     Orientation3D_t euler = to_euler_angles(orientation);
-    IMUOrientationEstimator_Write_OrientationEuler(&orientation);
+    IMUOrientationEstimator_Write_OrientationEuler(&euler);
     /* End User Code Section: OnInit Start */
     /* Begin User Code Section: OnInit End */
 
@@ -169,7 +169,7 @@ void IMUOrientationEstimator_Run_OnUpdate(void)
             IMUOrientationEstimator_Write_Orientation(&orientation);
 
             Orientation3D_t euler = to_euler_angles(orientation);
-            IMUOrientationEstimator_Write_OrientationEuler(&orientation);
+            IMUOrientationEstimator_Write_OrientationEuler(&euler);
         }
     }
     /* End User Code Section: OnUpdate Start */

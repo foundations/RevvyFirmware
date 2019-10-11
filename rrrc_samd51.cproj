@@ -1185,9 +1185,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\runtime\connections_error_storage.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\runtime\connections_timers.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\utils\color.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1483,6 +1480,9 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\components\YawAngleTracker\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MasterCommunicationInterface\config.json">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

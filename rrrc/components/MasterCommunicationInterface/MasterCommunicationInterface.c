@@ -125,6 +125,7 @@ void MasterCommunicationInterface_Call_RxTimeout(void)
 __attribute__((weak))
 void MasterCommunicationInterface_Call_OnMessageReceived(MasterMessage_t message)
 {
+    (void) message;
     /* Begin User Code Section: OnMessageReceived Start */
 
     /* End User Code Section: OnMessageReceived Start */
@@ -151,7 +152,7 @@ void MasterCommunicationInterface_Read_Configuration(MasterCommunicationInterfac
     /* Begin User Code Section: Configuration Start */
 
     /* End User Code Section: Configuration Start */
-    *value = (MasterCommunicationInterface_Config_t) { .default_response = (MasterMessage_t) { .payload = NULL, .size = 0u }, .rx_overflow_response = (MasterMessage_t) { .payload = NULL, .size = 0u }, .rx_timeout = 0u };
+    *value = (MasterCommunicationInterface_Config_t) { .default_response = { .payload = NULL, .size = 0u }, .rx_overflow_response = { .payload = NULL, .size = 0u }, .rx_timeout = 0u };
     /* Begin User Code Section: Configuration End */
 
     /* End User Code Section: Configuration End */

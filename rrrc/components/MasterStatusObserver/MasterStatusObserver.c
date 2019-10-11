@@ -1,3 +1,4 @@
+#include "utils_assert.h"
 #include "MasterStatusObserver.h"
 #include "utils.h"
 
@@ -52,6 +53,7 @@ void MasterStatusObserver_Run_OnInit(void)
 __attribute__((weak))
 void MasterStatusObserver_Write_MasterStatus(const MasterStatus_t value)
 {
+    (void) value;
     /* Begin User Code Section: MasterStatus Start */
 
     /* End User Code Section: MasterStatus Start */
