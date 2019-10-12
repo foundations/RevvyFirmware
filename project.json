@@ -208,32 +208,32 @@
     },
     "runtime": {
         "runnables": {
-            "OnInit": [
-                "HardwareCompatibilityChecker/OnInit",
-                "ErrorStorage/OnInit",
-                "ADC0/OnInit",
-                "ADC1/OnInit",
-                "MotorCurrentFilter/OnInit",
-                "BatteryCharger/OnInit",
-                "LEDController/OnInit",
-                "BatteryCalculator/OnInit",
-                "IMU/OnInit",
-                "HighResolutionTimer/OnInit",
-                "MasterStatusObserver/OnInit",
-                "MotorThermalModel/OnInit",
-                "BluetoothStatusObserver/OnInit",
-                "RingLedDisplay/OnInit",
-                "CommunicationObserver/OnInit",
-                "DriveTrain/OnInit",
-                "GyroscopeOffsetCompensator/OnInit",
-                "MasterCommunicationInterface/OnInit",
-                "LedDisplayController/OnInit",
-                "IMUMovementDetector/OnInit",
-                "IMUOrientationEstimator/OnInit",
-                "McuStatusSlots/Reset",
-                "McuStatusCollector/Reset",
-                "MotorDriver_8833/OnInit"
-            ],
+            "OnInit": {
+                "HardwareCompatibilityChecker/OnInit": {},
+                "ErrorStorage/OnInit": {},
+                "ADC0/OnInit": {},
+                "ADC1/OnInit": {},
+                "MotorCurrentFilter/OnInit": {},
+                "BatteryCharger/OnInit": {},
+                "LEDController/OnInit": {},
+                "BatteryCalculator/OnInit": {},
+                "IMU/OnInit": {},
+                "HighResolutionTimer/OnInit": {},
+                "MasterStatusObserver/OnInit": {},
+                "MotorThermalModel/OnInit": {},
+                "BluetoothStatusObserver/OnInit": {},
+                "RingLedDisplay/OnInit": {},
+                "CommunicationObserver/OnInit": {},
+                "DriveTrain/OnInit": {},
+                "GyroscopeOffsetCompensator/OnInit": {},
+                "MasterCommunicationInterface/OnInit": {},
+                "LedDisplayController/OnInit": {},
+                "IMUMovementDetector/OnInit": {},
+                "IMUOrientationEstimator/OnInit": {},
+                "McuStatusSlots/Reset": {},
+                "McuStatusCollector/Reset": {},
+                "MotorDriver_8833/OnInit": {}
+            },
             "1ms": [
                 "ADC0/Update",
                 "ADC1/Update",
@@ -364,8 +364,12 @@
             {
                 "provider": "IMUOrientationEstimator/OrientationEulerDegrees",
                 "consumers": {
-                    "DriveTrain/YawAngle": {"member": "yaw"},
-                    "McuStatusSlots/YawAngle": {"member": "yaw"}
+                    "DriveTrain/YawAngle": {
+                        "member": "yaw"
+                    },
+                    "McuStatusSlots/YawAngle": {
+                        "member": "yaw"
+                    }
                 }
             },
             {

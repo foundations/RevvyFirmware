@@ -61,10 +61,18 @@ def expand_port_connection(port_connection):
 def expand_project_config(owner, project_config):
     """Expand shorthand forms in project configuration"""
     processed_runnables = {}
-    for runnable_group in project_config['runtime'].get('runnables', {}):
+    for runnable_group, runnables in project_config['runtime'].get('runnables', {}).items():
         processed_runnables[runnable_group] = []
-        for runnable in project_config['runtime']['runnables'][runnable_group]:
-            processed_runnables[runnable_group].append(process_runnable_ref_shorthand(runnable))
+
+        if type(runnables) is dict:
+            for runnable, args in runnables.items():
+                processed_runnables[runnable_group].append({
+                    **process_runnable_ref_shorthand(runnable),
+                    'attributes': {'arguments': args}
+                })
+        else:
+            for runnable in runnables:
+                processed_runnables[runnable_group].append(process_runnable_ref_shorthand(runnable))
 
     processed_port_connections = []
     for port_connection in project_config['runtime'].get('port_connections', []):
@@ -109,7 +117,8 @@ def compact_project_config(owner, config):
         else:
             compacted_connection['consumers'] = consumers
 
-        compacted_connection.update({key: connection[key] for key in connection if key not in ['provider', 'consumers']})
+        compacted_connection.update(
+            {key: connection[key] for key in connection if key not in ['provider', 'consumers']})
 
         compacted_runtime['port_connections'].append(compacted_connection)
 

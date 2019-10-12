@@ -4,10 +4,30 @@ from tools.generator_common import TypeCollection
 from tools.runtime import RuntimePlugin, Runtime, SignalType, SignalConnection
 
 
-def are_argument_lists_compatible(consumer_port_data, function):
-    argument_names = set(function.arguments)
+def collect_arguments(attributes, consumer_name, consumer_arguments, function):
+    user_arguments = {}
+    if 'arguments' in attributes:
+        user_arguments = attributes['arguments']
+        for arg in user_arguments:
+            if arg not in consumer_arguments:
+                print("Warning: Runnable {} does not have an argument named '{}'".format(consumer_name, arg))
 
-    return not consumer_port_data['arguments'].keys() - argument_names
+    passed_arguments = {}
+    for arg_name, arg_type in consumer_arguments.items():
+        if arg_name in function.arguments:
+            function.mark_argument_used(arg_name)
+
+        if arg_name in user_arguments:
+            passed_arguments[arg_name] = user_arguments[arg_name]
+        elif arg_name in function.arguments:
+            if arg_type != function.arguments[arg_name]:
+                raise Exception(
+                    'Caller of {} has matching argument {} but types are different'.format(consumer_name, arg_name))
+            passed_arguments[arg_name] = arg_name
+        else:
+            raise Exception('Unable to connect argument {} of {}'.format(arg_name, consumer_name))
+
+    return passed_arguments
 
 
 class EventSignal(SignalType):
@@ -25,20 +45,16 @@ class EventSignal(SignalType):
 
         consumer_port_data = runtime.get_port(consumer_name)
         function = context['functions'][connection.provider]
-        if not are_argument_lists_compatible(consumer_port_data, function):
-            raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
-
-        for arg_name in consumer_port_data['arguments']:
-            function.mark_argument_used(arg_name)
 
         component_name, port_name = consumer_name.split('/')
+        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
 
         ctx = {
             'template': "{{ component }}_Run_{{ runnable }}({{ arguments }});",
             'data':     {
                 'component': component_name,
                 'runnable':  port_name,
-                'arguments': ', '.join(consumer_port_data['arguments'].keys())
+                'arguments': ', '.join([str(v) for k, v in passed_arguments.items()])
             }
         }
 
@@ -65,18 +81,13 @@ class ServerCallSignal(SignalType):
         consumer_port_data = runtime.get_port(consumer_name)
         function = context['functions'][connection.provider]
 
-        if not are_argument_lists_compatible(consumer_port_data, function):
-            raise Exception("{} is incompatible with {}".format(consumer_name, connection.provider))
-
         component_name, port_name = consumer_name.split('/')
-
-        for arg_name in consumer_port_data['arguments']:
-            function.mark_argument_used(arg_name)
+        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
 
         data = {
             'component': component_name,
             'runnable':  port_name,
-            'arguments': ', '.join(consumer_port_data['arguments'].keys()),
+            'arguments': ', '.join([str(v) for k, v in passed_arguments.items()]),
             'data_type': consumer_port_data['return_type']
         }
 
@@ -202,7 +213,7 @@ def expand_runtime_events(owner: Runtime, project_config):
         runtime_component['ports'][event] = event_port
         event_connections.append({
             'provider':  create_port_ref('/'.join(['Runtime', event])),
-            'consumers': [create_port_ref(runnable_ref) for runnable_ref in handlers]
+            'consumers': handlers
         })
 
     owner.add_component('Runtime', runtime_component)
