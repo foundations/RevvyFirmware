@@ -573,8 +573,8 @@ class Runtime:
                     if consumer_port_type_data['consumes'][signal_type_name] == 'single':
                         raise Exception('{} cannot consume multiple signals'.format(consumer_short_name))
 
-                signal_name = '{}_{}_{}' \
-                    .format(provider_short_name, consumer_short_name, signal_type_name) \
+                signal_name = '{}_{}' \
+                    .format(provider_short_name, signal_type_name) \
                     .replace('/', '_')
 
                 consumer_attributes = consumer_ref.get('attributes', {})
