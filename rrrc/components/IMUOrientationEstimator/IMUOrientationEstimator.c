@@ -134,6 +134,11 @@ static Quaternion_t madgwick_imu(const float sampleFreq, const Vector3D_t accele
     return (Quaternion_t) {q0, q1, q2, q3};
 }
 
+static inline float rad_to_deg(float rad)
+{
+    return rad * 180.0f / (float) M_PI;
+}
+
 /* End User Code Section: Declarations */
 
 void IMUOrientationEstimator_Run_OnInit(void)
@@ -168,8 +173,15 @@ void IMUOrientationEstimator_Run_OnUpdate(void)
 
             IMUOrientationEstimator_Write_Orientation(&orientation);
 
-            Orientation3D_t euler = to_euler_angles(orientation);
+            const Orientation3D_t euler = to_euler_angles(orientation);
             IMUOrientationEstimator_Write_OrientationEuler(&euler);
+
+            const Orientation3D_t eulerDegrees = {
+                .pitch = rad_to_deg(euler.pitch),
+                .roll = rad_to_deg(euler.roll),
+                .yaw = rad_to_deg(euler.yaw)
+            };
+            IMUOrientationEstimator_Write_OrientationEulerDegrees(&eulerDegrees);
         }
     }
     /* End User Code Section: OnUpdate Start */
@@ -200,6 +212,18 @@ void IMUOrientationEstimator_Write_OrientationEuler(const Orientation3D_t* value
     /* Begin User Code Section: OrientationEuler End */
 
     /* End User Code Section: OrientationEuler End */
+}
+
+__attribute__((weak))
+void IMUOrientationEstimator_Write_OrientationEulerDegrees(const Orientation3D_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: OrientationEulerDegrees Start */
+
+    /* End User Code Section: OrientationEulerDegrees Start */
+    /* Begin User Code Section: OrientationEulerDegrees End */
+
+    /* End User Code Section: OrientationEulerDegrees End */
 }
 
 __attribute__((weak))

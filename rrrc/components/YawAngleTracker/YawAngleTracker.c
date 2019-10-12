@@ -22,7 +22,7 @@ void YawAngleTracker_Run_Update(void)
     Orientation3D_t orientation;
     YawAngleTracker_Read_Orientation(&orientation);
 
-    YawAngleTracker_Write_YawAngle(orientation.yaw * 180.0f / (float) M_PI);
+    YawAngleTracker_Write_YawAngle(orientation.yaw);
     /* End User Code Section: Update Start */
     /* Begin User Code Section: Update End */
 

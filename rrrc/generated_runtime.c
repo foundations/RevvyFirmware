@@ -1,6 +1,6 @@
 #include "utils.h"
-#include "utils_assert.h"
 #include "generated_runtime.h"
+#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 
@@ -21,7 +21,7 @@ static Vector3D_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_q
 static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count = 0u;
 static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index = 0u;
 static bool IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_overflow = false;
-static Orientation3D_t IMUOrientationEstimator_OrientationEuler_YawAngleTracker_Orientation_variable = { .pitch = 0.0f, .roll = 0.0f, .yaw = 0.0f };
+static Orientation3D_t IMUOrientationEstimator_OrientationEulerDegrees_YawAngleTracker_Orientation_variable = { .pitch = 0.0f, .roll = 0.0f, .yaw = 0.0f };
 static float YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable = 0.0f;
 static uint16_t ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[4] = { 0u, 0u, 0u, 0u };
 static uint16_t ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
@@ -904,16 +904,16 @@ void IMUMovementDetector_Write_IsMoving(const bool value)
     /* End User Code Section: IMUMovementDetector/IsMoving End */
 }
 
-void IMUOrientationEstimator_Write_OrientationEuler(const Orientation3D_t* value)
+void IMUOrientationEstimator_Write_OrientationEulerDegrees(const Orientation3D_t* value)
 {
     ASSERT(value != NULL);
-    /* Begin User Code Section: IMUOrientationEstimator/OrientationEuler Start */
+    /* Begin User Code Section: IMUOrientationEstimator/OrientationEulerDegrees Start */
 
-    /* End User Code Section: IMUOrientationEstimator/OrientationEuler Start */
-    IMUOrientationEstimator_OrientationEuler_YawAngleTracker_Orientation_variable = *value;
-    /* Begin User Code Section: IMUOrientationEstimator/OrientationEuler End */
+    /* End User Code Section: IMUOrientationEstimator/OrientationEulerDegrees Start */
+    IMUOrientationEstimator_OrientationEulerDegrees_YawAngleTracker_Orientation_variable = *value;
+    /* Begin User Code Section: IMUOrientationEstimator/OrientationEulerDegrees End */
 
-    /* End User Code Section: IMUOrientationEstimator/OrientationEuler End */
+    /* End User Code Section: IMUOrientationEstimator/OrientationEulerDegrees End */
 }
 
 void LedDisplayController_Write_Leds(uint32_t index, const rgb_t value)
@@ -1666,7 +1666,7 @@ void YawAngleTracker_Read_Orientation(Orientation3D_t* value)
     /* Begin User Code Section: YawAngleTracker/Orientation Start */
 
     /* End User Code Section: YawAngleTracker/Orientation Start */
-    *value = IMUOrientationEstimator_OrientationEuler_YawAngleTracker_Orientation_variable;
+    *value = IMUOrientationEstimator_OrientationEulerDegrees_YawAngleTracker_Orientation_variable;
     /* Begin User Code Section: YawAngleTracker/Orientation End */
 
     /* End User Code Section: YawAngleTracker/Orientation End */
