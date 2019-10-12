@@ -21,8 +21,7 @@ static Vector3D_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_q
 static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_count = 0u;
 static size_t IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_write_index = 0u;
 static bool IMU_AccelerometerSample_IMUOrientationEstimator_Acceleration_queue_overflow = false;
-static Orientation3D_t IMUOrientationEstimator_OrientationEulerDegrees_YawAngleTracker_Orientation_variable = { .pitch = 0.0f, .roll = 0.0f, .yaw = 0.0f };
-static float YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable = 0.0f;
+static Orientation3D_t IMUOrientationEstimator_OrientationEulerDegrees_DriveTrain_YawAngle_variable = { .pitch = 0.0f, .roll = 0.0f, .yaw = 0.0f };
 static uint16_t ADC0_RawChannelData_ADCDispatcher_ADC0_RawChannelData_array[4] = { 0u, 0u, 0u, 0u };
 static uint16_t ADC1_RawChannelData_ADCDispatcher_ADC1_RawChannelData_array[8] = { 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u };
 static Voltage_t ADC0_ChannelVoltage_ADCDispatcher_ADC0_ChannelVoltage_array[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -74,7 +73,6 @@ void Runtime_Call_OnInit(void)
     CommunicationObserver_Run_OnInit();
     DriveTrain_Run_OnInit();
     GyroscopeOffsetCompensator_Run_OnInit();
-    YawAngleTracker_Run_OnInit();
     MasterCommunicationInterface_Run_OnInit();
     LedDisplayController_Run_OnInit();
     IMUMovementDetector_Run_OnInit();
@@ -117,7 +115,6 @@ void Runtime_Call_10ms_offset0(void)
     MotorDerating_Run_OnUpdate();
     DriveTrain_Run_Update();
     IMUOrientationEstimator_Run_OnUpdate();
-    YawAngleTracker_Run_Update();
     /* Begin User Code Section: Runtime/10ms_offset0 End */
 
     /* End User Code Section: Runtime/10ms_offset0 End */
@@ -910,7 +907,7 @@ void IMUOrientationEstimator_Write_OrientationEulerDegrees(const Orientation3D_t
     /* Begin User Code Section: IMUOrientationEstimator/OrientationEulerDegrees Start */
 
     /* End User Code Section: IMUOrientationEstimator/OrientationEulerDegrees Start */
-    IMUOrientationEstimator_OrientationEulerDegrees_YawAngleTracker_Orientation_variable = *value;
+    IMUOrientationEstimator_OrientationEulerDegrees_DriveTrain_YawAngle_variable = *value;
     /* Begin User Code Section: IMUOrientationEstimator/OrientationEulerDegrees End */
 
     /* End User Code Section: IMUOrientationEstimator/OrientationEulerDegrees End */
@@ -1023,17 +1020,6 @@ void RingLedDisplay_Write_LedColor(uint32_t index, const rgb_t value)
     /* Begin User Code Section: RingLedDisplay/LedColor End */
 
     /* End User Code Section: RingLedDisplay/LedColor End */
-}
-
-void YawAngleTracker_Write_YawAngle(const float value)
-{
-    /* Begin User Code Section: YawAngleTracker/YawAngle Start */
-
-    /* End User Code Section: YawAngleTracker/YawAngle Start */
-    YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable = value;
-    /* Begin User Code Section: YawAngleTracker/YawAngle End */
-
-    /* End User Code Section: YawAngleTracker/YawAngle End */
 }
 
 Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
@@ -1182,7 +1168,7 @@ float DriveTrain_Read_YawAngle(void)
     /* Begin User Code Section: DriveTrain/YawAngle Start */
 
     /* End User Code Section: DriveTrain/YawAngle Start */
-    float return_value = YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable;
+    float return_value = IMUOrientationEstimator_OrientationEulerDegrees_DriveTrain_YawAngle_variable.yaw;
     /* Begin User Code Section: DriveTrain/YawAngle End */
 
     /* End User Code Section: DriveTrain/YawAngle End */
@@ -1539,7 +1525,7 @@ float McuStatusSlots_Read_YawAngle(void)
     /* Begin User Code Section: McuStatusSlots/YawAngle Start */
 
     /* End User Code Section: McuStatusSlots/YawAngle Start */
-    float return_value = YawAngleTracker_YawAngle_DriveTrain_YawAngle_variable;
+    float return_value = IMUOrientationEstimator_OrientationEulerDegrees_DriveTrain_YawAngle_variable.yaw;
     /* Begin User Code Section: McuStatusSlots/YawAngle End */
 
     /* End User Code Section: McuStatusSlots/YawAngle End */
@@ -1658,16 +1644,4 @@ uint8_t SensorPortHandler_Read_AdcData(uint32_t index)
 
     /* End User Code Section: SensorPortHandler/AdcData End */
     return return_value;
-}
-
-void YawAngleTracker_Read_Orientation(Orientation3D_t* value)
-{
-    ASSERT(value != NULL);
-    /* Begin User Code Section: YawAngleTracker/Orientation Start */
-
-    /* End User Code Section: YawAngleTracker/Orientation Start */
-    *value = IMUOrientationEstimator_OrientationEulerDegrees_YawAngleTracker_Orientation_variable;
-    /* Begin User Code Section: YawAngleTracker/Orientation End */
-
-    /* End User Code Section: YawAngleTracker/Orientation End */
 }

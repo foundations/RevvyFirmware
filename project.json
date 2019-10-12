@@ -134,8 +134,7 @@
         "RingLedDisplay",
         "SensorPortHandler",
         "VersionProvider",
-        "WatchdogFeeder",
-        "YawAngleTracker"
+        "WatchdogFeeder"
     ],
     "types": {
         "uint8_t": {
@@ -227,7 +226,6 @@
                 "CommunicationObserver/OnInit",
                 "DriveTrain/OnInit",
                 "GyroscopeOffsetCompensator/OnInit",
-                "YawAngleTracker/OnInit",
                 "MasterCommunicationInterface/OnInit",
                 "LedDisplayController/OnInit",
                 "IMUMovementDetector/OnInit",
@@ -253,8 +251,7 @@
                 "WatchdogFeeder/Feed",
                 "MotorDerating/OnUpdate",
                 "DriveTrain/Update",
-                "IMUOrientationEstimator/OnUpdate",
-                "YawAngleTracker/Update"
+                "IMUOrientationEstimator/OnUpdate"
             ],
             "10ms_offset1": [],
             "10ms_offset2": [],
@@ -361,19 +358,15 @@
                 "queue_length": 10
             },
             {
-                "provider": "IMUOrientationEstimator/OrientationEulerDegrees",
-                "consumer": "YawAngleTracker/Orientation"
-            },
-            {
                 "provider": "IMU/SampleTime",
                 "consumer": "IMUOrientationEstimator/SampleTime"
             },
             {
-                "provider": "YawAngleTracker/YawAngle",
-                "consumers": [
-                    "DriveTrain/YawAngle",
-                    "McuStatusSlots/YawAngle"
-                ]
+                "provider": "IMUOrientationEstimator/OrientationEulerDegrees",
+                "consumers": {
+                    "DriveTrain/YawAngle": {"member": "yaw"},
+                    "McuStatusSlots/YawAngle": {"member": "yaw"}
+                }
             },
             {
                 "provider": "ADC0/RawChannelData",
