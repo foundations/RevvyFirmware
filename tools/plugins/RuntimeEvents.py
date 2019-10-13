@@ -27,6 +27,11 @@ def collect_arguments(attributes, consumer_name, consumer_arguments, function):
         else:
             raise Exception('Unable to connect argument {} of {}'.format(arg_name, consumer_name))
 
+    missing_arguments = set(passed_arguments.keys()) - set(consumer_arguments)
+    if missing_arguments:
+        raise Exception("The following arguments are missing from {}: {}"
+                        .format(consumer_name, ", ".join(missing_arguments)))
+
     return passed_arguments
 
 
