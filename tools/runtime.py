@@ -210,13 +210,13 @@ class SignalConnection:
         self.signal = signal
         self.provider = provider_name
         self.attributes = attributes
-        self.consumers = {}
+        self.consumers = []
         self.context = context
 
         signal.create(context, self)
 
     def add_consumer(self, consumer_name, consumer_attributes):
-        self.consumers[consumer_name] = consumer_attributes
+        self.consumers.append([consumer_name, consumer_attributes])
 
     def generate(self):
         # collect implementations in a list
@@ -225,7 +225,7 @@ class SignalConnection:
         if function_mods:
             function_mods_list.append(function_mods)
 
-        for consumer, attributes in self.consumers.items():
+        for consumer, attributes in self.consumers:
             function_mods = self.signal.generate_consumer(self.context, self, consumer, attributes)
             if function_mods:
                 function_mods_list.append(function_mods)

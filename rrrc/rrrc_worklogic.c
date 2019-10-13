@@ -151,24 +151,18 @@ static void ProcessTasks_10ms(uint8_t offset)
             break;
             
         case 2u:
-            MotorPortHandler_Run_PortUpdate(4u);
-            MotorPortHandler_Run_PortUpdate(5u);
-            MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
             Runtime_Call_10ms_offset2();
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[0]);
             break;
 
         case 3u:
-            MotorPortHandler_Run_PortUpdate(1u);
-            MotorPortHandler_Run_PortUpdate(2u);
-            MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
             Runtime_Call_10ms_offset3();
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[2]);
             break;
 
         case 4u:
-            MotorPortHandler_Run_PortUpdate(0u);
-            MotorPortHandler_Run_PortUpdate(3u);
-            MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
             Runtime_Call_10ms_offset4();
+            MotorDriver_8833_Run_OnUpdate(&motorDrivers[1]);
             break;
             
         case 5u:

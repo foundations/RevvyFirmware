@@ -39,9 +39,11 @@
         }
     },
     "runnables": {
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
+        "Update": {},
+        "PortUpdate": {
+            "arguments": {
+                "port_idx": "uint8_t"
+            }
         }
     },
     "ports": {
