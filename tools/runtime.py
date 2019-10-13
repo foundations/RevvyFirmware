@@ -450,7 +450,7 @@ class Runtime:
             type_includes.update(i)
 
         ctx = {
-            'includes':         list_to_chevron_list(includes, 'header'),
+            'includes':         list_to_chevron_list(sorted(includes), 'header'),
             'component_name':   component_name,
             'guard_def':        to_underscore(component_name).upper(),
             'variables':        context['declarations'],
@@ -644,7 +644,7 @@ class Runtime:
 
         template_data = {
             'output_filename':       output_filename,
-            'includes':              list_to_chevron_list(includes, 'header'),
+            'includes':              list_to_chevron_list(sorted(includes), 'header'),
             'components':            [
                 {
                     'name':      name,
