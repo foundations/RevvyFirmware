@@ -172,22 +172,18 @@ static void ProcessTasks_10ms(uint8_t offset)
             break;
             
         case 5u:
-            SensorPortHandler_Run_PortUpdate(0u);
             Runtime_Call_10ms_offset5();
             break;
             
         case 6u:
-            SensorPortHandler_Run_PortUpdate(1u);
             Runtime_Call_10ms_offset6();
             break;
             
         case 7u:
-            SensorPortHandler_Run_PortUpdate(2u);
             Runtime_Call_10ms_offset7();
             break;
             
         case 8u:
-            SensorPortHandler_Run_PortUpdate(3u);
             Runtime_Call_10ms_offset8();
             break;
             

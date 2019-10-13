@@ -10,9 +10,11 @@
         "SensorPortLibraries/SensorPort_I2C.c"
     ],
     "runnables": {
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
+        "Update": {},
+        "PortUpdate": {
+            "arguments": {
+                "port_idx": "uint8_t"
+            }
         }
     },
     "ports": {

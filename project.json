@@ -272,10 +272,18 @@
             "20ms_offset2": [],
             "20ms_offset3": [],
             "20ms_offset4": [],
-            "20ms_offset5": [],
-            "20ms_offset6": [],
-            "20ms_offset7": [],
-            "20ms_offset8": [],
+            "20ms_offset5": {
+                "SensorPortHandler/PortUpdate": {"port_idx":  0}
+            },
+            "20ms_offset6": {
+                "SensorPortHandler/PortUpdate": {"port_idx":  1}
+            },
+            "20ms_offset7": {
+                "SensorPortHandler/PortUpdate": {"port_idx":  2}
+            },
+            "20ms_offset8": {
+                "SensorPortHandler/PortUpdate": {"port_idx":  3}
+            },
             "20ms_offset9": [],
             "20ms_offset10": [],
             "20ms_offset11": [],

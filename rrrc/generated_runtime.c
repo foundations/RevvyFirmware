@@ -268,6 +268,7 @@ void Runtime_Call_20ms_offset5(void)
     /* Begin User Code Section: Runtime/20ms_offset5 Start */
 
     /* End User Code Section: Runtime/20ms_offset5 Start */
+    SensorPortHandler_Run_PortUpdate(0);
     /* Begin User Code Section: Runtime/20ms_offset5 End */
 
     /* End User Code Section: Runtime/20ms_offset5 End */
@@ -278,6 +279,7 @@ void Runtime_Call_20ms_offset6(void)
     /* Begin User Code Section: Runtime/20ms_offset6 Start */
 
     /* End User Code Section: Runtime/20ms_offset6 Start */
+    SensorPortHandler_Run_PortUpdate(1);
     /* Begin User Code Section: Runtime/20ms_offset6 End */
 
     /* End User Code Section: Runtime/20ms_offset6 End */
@@ -288,6 +290,7 @@ void Runtime_Call_20ms_offset7(void)
     /* Begin User Code Section: Runtime/20ms_offset7 Start */
 
     /* End User Code Section: Runtime/20ms_offset7 Start */
+    SensorPortHandler_Run_PortUpdate(2);
     /* Begin User Code Section: Runtime/20ms_offset7 End */
 
     /* End User Code Section: Runtime/20ms_offset7 End */
@@ -298,6 +301,7 @@ void Runtime_Call_20ms_offset8(void)
     /* Begin User Code Section: Runtime/20ms_offset8 Start */
 
     /* End User Code Section: Runtime/20ms_offset8 Start */
+    SensorPortHandler_Run_PortUpdate(3);
     /* Begin User Code Section: Runtime/20ms_offset8 End */
 
     /* End User Code Section: Runtime/20ms_offset8 End */
