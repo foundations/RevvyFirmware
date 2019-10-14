@@ -3,20 +3,45 @@
     "source_files": [
         "YawAngleTracker.c"
     ],
-    "runnables": {
-        "OnInit": {
-            "return_type": "void",
-            "arguments": {}
+    "types": {
+        "Quaternion_t": {
+            "type": "struct",
+            "fields": {
+                "q0": "float",
+                "q1": "float",
+                "q2": "float",
+                "q3": "float"
+            }
         },
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
+        "Orientation3D_t": {
+            "type": "struct",
+            "fields": {
+                "pitch": "float",
+                "roll": "float",
+                "yaw": "float"
+            }
         }
     },
+    "runnables": {
+        "OnInit": {},
+        "Update": {}
+    },
     "ports": {
-        "SampleTime": {
+        "Orientation": {
             "port_type": "ReadValue",
+            "default_value": null,
+            "data_type": "Quaternion_t"
+        },
+        "YawAngle": {
+            "port_type": "WriteData",
             "data_type": "float"
+        },
+        "ToEulerAngles": {
+            "port_type": "ServerCall",
+            "return_type": "Orientation3D_t",
+            "arguments": {
+                "orientation": "Quaternion_t"
+            }
         }
     }
 }

@@ -113,6 +113,8 @@
         "GyroscopeOffsetCompensator",
         "HighResolutionTimer",
         "IMU",
+        "IMUMovementDetector",
+        "IMUOrientationEstimator",
         "InternalTemperatureSensor",
         "LEDController",
         "LedDisplayController",
@@ -218,14 +220,16 @@
                 "GyroscopeOffsetCompensator/OnInit",
                 "YawAngleTracker/OnInit",
                 "MasterCommunicationInterface/OnInit",
-                "LedDisplayController/OnInit"
+                "LedDisplayController/OnInit",
+                "IMUMovementDetector/OnInit",
+                "IMUOrientationEstimator/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",
                 "ADC1/Update",
                 "IMU/OnUpdate",
+                "IMUMovementDetector/OnUpdate",
                 "GyroscopeOffsetCompensator/Update",
-                "YawAngleTracker/Update",
                 "ADCDispatcher/Update",
                 "MotorCurrentFilter/Update",
                 "MotorThermalModel/OnUpdate"
@@ -234,7 +238,9 @@
                 "BatteryCharger/Update",
                 "WatchdogFeeder/Feed",
                 "MotorDerating/OnUpdate",
-                "DriveTrain/Update"
+                "DriveTrain/Update",
+                "IMUOrientationEstimator/OnUpdate",
+                "YawAngleTracker/Update"
             ],
             "10ms_offset1": [],
             "10ms_offset2": [],
@@ -278,10 +284,6 @@
         },
         "port_connections": [
             {
-                "provider": "IMU/SampleTime",
-                "consumer": "YawAngleTracker/SampleTime"
-            },
-            {
                 "provider": "CommunicationObserver/ErrorLimitReached",
                 "consumer": "RestartManager/Reset"
             },
@@ -321,6 +323,38 @@
                 "queue_length": 1,
                 "provider": "IMU/GyroscopeSample",
                 "consumer": "GyroscopeOffsetCompensator/AngularSpeeds"
+            },
+            {
+                "queue_length": 1,
+                "provider": "IMU/GyroscopeSample",
+                "consumer": "IMUMovementDetector/AngularSpeeds"
+            },
+            {
+                "queue_length": 10,
+                "provider": "GyroscopeOffsetCompensator/CompensatedAngularSpeeds",
+                "consumer": "IMUOrientationEstimator/AngularSpeeds"
+            },
+            {
+                "provider": "IMUMovementDetector/IsMoving",
+                "consumer": "GyroscopeOffsetCompensator/IsMoving",
+                "init_value": "true"
+            },
+            {
+                "queue_length": 10,
+                "provider": "IMU/AccelerometerSample",
+                "consumer": "IMUOrientationEstimator/Acceleration"
+            },
+            {
+                "provider": "IMUOrientationEstimator/Orientation",
+                "consumer": "YawAngleTracker/Orientation"
+            },
+            {
+                "provider": "IMU/SampleTime",
+                "consumer": "IMUOrientationEstimator/SampleTime"
+            },
+            {
+                "provider": "YawAngleTracker/ToEulerAngles",
+                "consumer": "IMUOrientationEstimator/ConvertOrientation"
             },
             {
                 "provider": "ADC0/RawChannelData",

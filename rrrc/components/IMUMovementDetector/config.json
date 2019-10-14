@@ -1,7 +1,7 @@
 {
-    "component_name": "GyroscopeOffsetCompensator",
+    "name": "IMUMovementDetector",
     "source_files": [
-        "GyroscopeOffsetCompensator.c"
+        "IMUMovementDetector.c"
     ],
     "types": {
         "Vector3D_t": {
@@ -15,12 +15,11 @@
     },
     "runnables": {
         "OnInit": {},
-        "Update": {}
+        "OnUpdate": {}
     },
     "ports": {
         "IsMoving": {
-            "port_type": "ReadValue",
-            "default_value": null,
+            "port_type": "WriteData",
             "data_type": "bool"
         },
         "AngularSpeeds": {
@@ -28,8 +27,9 @@
             "default_value": null,
             "data_type": "Vector3D_t"
         },
-        "CompensatedAngularSpeeds": {
-            "port_type": "WriteData",
+        "Acceleration": {
+            "port_type": "ReadQueuedValue",
+            "default_value": null,
             "data_type": "Vector3D_t"
         }
     }

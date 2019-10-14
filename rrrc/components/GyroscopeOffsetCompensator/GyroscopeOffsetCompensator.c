@@ -10,13 +10,18 @@
 static bool offset_calibrated;
 static Vector3D_t averageAngularSpeed;
 static Vector3D_t sumAngularSpeed;
-static Vector3D_t currentMidValue;
 static uint32_t averageAngularSpeedSamples;
-static uint32_t samplesInCurrentBand;
 
-#define IDLE_SENSITIVITY        ((float) 2.0f)
 #define AVERAGE_NUM_SAMPLES     ((uint32_t) 1000u)
-#define IDLE_NUM_SAMPLES        ((uint32_t) 200u)
+
+static void restart_averaging(void)
+{
+    /* start a new calibration immediately */
+    averageAngularSpeedSamples = 0u;
+
+    /* only reset sum, average will be used for compensation */
+    sumAngularSpeed = (Vector3D_t) {0.0f, 0.0f, 0.0f};
+}
 /* End User Code Section: Declarations */
 
 void GyroscopeOffsetCompensator_Run_OnInit(void)
@@ -24,21 +29,9 @@ void GyroscopeOffsetCompensator_Run_OnInit(void)
     /* Begin User Code Section: OnInit Start */
     offset_calibrated = false;
 
-    averageAngularSpeedSamples = 0u;
+    restart_averaging();
 
-    sumAngularSpeed.x = 0.0f;
-    sumAngularSpeed.y = 0.0f;
-    sumAngularSpeed.z = 0.0f;
-
-    averageAngularSpeed.x = 0.0f;
-    averageAngularSpeed.y = 0.0f;
-    averageAngularSpeed.z = 0.0f;
-
-    currentMidValue.x = 0.0f;
-    currentMidValue.y = 0.0f;
-    currentMidValue.z = 0.0f;
-
-    samplesInCurrentBand = 0u;
+    averageAngularSpeed = (Vector3D_t) {0.0f, 0.0f, 0.0f};
     /* End User Code Section: OnInit Start */
     /* Begin User Code Section: OnInit End */
 
@@ -51,59 +44,43 @@ void GyroscopeOffsetCompensator_Run_Update(void)
     Vector3D_t angularSpeed;
     if (GyroscopeOffsetCompensator_Read_AngularSpeeds(&angularSpeed) != QueueStatus_Empty)
     {
-        if (offset_calibrated)
+        if (GyroscopeOffsetCompensator_Read_IsMoving())
         {
-            Vector3D_t output;
-            output.x = angularSpeed.x - averageAngularSpeed.x;
-            output.y = angularSpeed.y - averageAngularSpeed.y;
-            output.z = angularSpeed.z - averageAngularSpeed.z;
-
-            GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(&output);
-        }
-
-        if (fabsf(currentMidValue.x - angularSpeed.x) > IDLE_SENSITIVITY
-            || fabsf(currentMidValue.y - angularSpeed.y) > IDLE_SENSITIVITY
-            || fabsf(currentMidValue.z - angularSpeed.z) > IDLE_SENSITIVITY)
-        {
-            samplesInCurrentBand = 0u;
-            currentMidValue = angularSpeed;
-            averageAngularSpeedSamples = 0u;
+            restart_averaging();
         }
         else
         {
-            if (samplesInCurrentBand == IDLE_NUM_SAMPLES)
+            if (averageAngularSpeedSamples < AVERAGE_NUM_SAMPLES)
             {
-                if (averageAngularSpeedSamples < AVERAGE_NUM_SAMPLES)
+                sumAngularSpeed.x += angularSpeed.x;
+                sumAngularSpeed.y += angularSpeed.y;
+                sumAngularSpeed.z += angularSpeed.z;
+
+                ++averageAngularSpeedSamples;
+
+                if (averageAngularSpeedSamples == AVERAGE_NUM_SAMPLES)
                 {
-                    sumAngularSpeed.x += angularSpeed.x;
-                    sumAngularSpeed.y += angularSpeed.y;
-                    sumAngularSpeed.z += angularSpeed.z;
+                    averageAngularSpeed.x = sumAngularSpeed.x / AVERAGE_NUM_SAMPLES;
+                    averageAngularSpeed.y = sumAngularSpeed.y / AVERAGE_NUM_SAMPLES;
+                    averageAngularSpeed.z = sumAngularSpeed.z / AVERAGE_NUM_SAMPLES;
 
-                    ++averageAngularSpeedSamples;
+                    offset_calibrated = true;
 
-                    if (averageAngularSpeedSamples == AVERAGE_NUM_SAMPLES)
-                    {
-                        averageAngularSpeed.x = sumAngularSpeed.x / AVERAGE_NUM_SAMPLES;
-                        averageAngularSpeed.y = sumAngularSpeed.y / AVERAGE_NUM_SAMPLES;
-                        averageAngularSpeed.z = sumAngularSpeed.z / AVERAGE_NUM_SAMPLES;
-
-                        offset_calibrated = true;
-                    }
+                    restart_averaging();
                 }
             }
-            else
+        }
+
+        if (offset_calibrated)
+        {
+            const Vector3D_t output =
             {
-                samplesInCurrentBand++;
+                .x = angularSpeed.x - averageAngularSpeed.x,
+                .y = angularSpeed.y - averageAngularSpeed.y,
+                .z = angularSpeed.z - averageAngularSpeed.z
+            };
 
-                if (samplesInCurrentBand == IDLE_NUM_SAMPLES)
-                {
-                    sumAngularSpeed.x = 0.0f;
-                    sumAngularSpeed.y = 0.0f;
-                    sumAngularSpeed.z = 0.0f;
-
-                    averageAngularSpeedSamples = 0u;
-                }
-            }
+            GyroscopeOffsetCompensator_Write_CompensatedAngularSpeeds(&output);
         }
     }
     /* End User Code Section: Update Start */
@@ -135,4 +112,16 @@ QueueStatus_t GyroscopeOffsetCompensator_Read_AngularSpeeds(Vector3D_t* value)
 
     /* End User Code Section: AngularSpeeds End */
     return QueueStatus_Empty;
+}
+
+__attribute__((weak))
+bool GyroscopeOffsetCompensator_Read_IsMoving(void)
+{
+    /* Begin User Code Section: IsMoving Start */
+
+    /* End User Code Section: IsMoving Start */
+    /* Begin User Code Section: IsMoving End */
+
+    /* End User Code Section: IsMoving End */
+    return false;
 }
