@@ -113,7 +113,7 @@
 
 // <i> Select the clock source for EIC.
 #ifndef CONF_GCLK_EIC_SRC
-#define CONF_GCLK_EIC_SRC GCLK_PCHCTRL_GEN_GCLK1_Val
+#define CONF_GCLK_EIC_SRC GCLK_PCHCTRL_GEN_GCLK0_Val
 #endif
 
 /**
