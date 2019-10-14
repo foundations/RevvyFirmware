@@ -243,7 +243,6 @@
                 "ADCDispatcher/Update",
                 "MotorCurrentFilter/Update",
                 "MotorThermalModel/OnUpdate",
-                "DriveRequestMultiplexer/OnUpdate",
                 "McuStatusSlots/Update"
             ],
             "10ms_offset0": [
@@ -251,25 +250,12 @@
                 "WatchdogFeeder/Feed",
                 "MotorDerating/OnUpdate",
                 "DriveTrain/Update",
-                "IMUOrientationEstimator/OnUpdate"
+                "IMUOrientationEstimator/OnUpdate",
+                "DriveRequestMultiplexer/OnUpdate"
             ],
-            "10ms_offset1": [],
-            "10ms_offset2": [],
-            "10ms_offset3": [],
-            "10ms_offset4": [],
-            "10ms_offset5": [],
-            "10ms_offset6": [],
-            "10ms_offset7": [],
-            "10ms_offset8": [],
-            "10ms_offset9": [],
-            "20ms_offset0": [
-                "RingLedDisplay/Update"
+            "10ms_offset1": [
             ],
-            "20ms_offset1": [
-                "LedDisplayController/Update",
-                "LEDController/Update"
-            ],
-            "20ms_offset2": [
+            "10ms_offset2": [
                 [
                     "MotorPortHandler/PortUpdate",
                     {
@@ -287,7 +273,7 @@
                     }
                 ]
             ],
-            "20ms_offset3": [
+            "10ms_offset3": [
                 [
                     "MotorPortHandler/PortUpdate",
                     {
@@ -305,7 +291,7 @@
                     }
                 ]
             ],
-            "20ms_offset4": [
+            "10ms_offset4": [
                 [
                     "MotorPortHandler/PortUpdate",
                     {
@@ -322,6 +308,24 @@
                         }
                     }
                 ]
+            ],
+            "10ms_offset5": [],
+            "10ms_offset6": [],
+            "10ms_offset7": [],
+            "10ms_offset8": [],
+            "10ms_offset9": [],
+            "20ms_offset0": [
+                "RingLedDisplay/Update"
+            ],
+            "20ms_offset1": [
+                "LedDisplayController/Update",
+                "LEDController/Update"
+            ],
+            "20ms_offset2": [
+            ],
+            "20ms_offset3": [
+            ],
+            "20ms_offset4": [
             ],
             "20ms_offset5": [
                 [

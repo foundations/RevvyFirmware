@@ -98,7 +98,6 @@ void Runtime_Call_1ms(void)
     ADCDispatcher_Run_Update();
     MotorCurrentFilter_Run_Update();
     MotorThermalModel_Run_OnUpdate();
-    DriveRequestMultiplexer_Run_OnUpdate();
     McuStatusSlots_Run_Update();
     /* Begin User Code Section: Runtime/1ms End */
 
@@ -115,6 +114,7 @@ void Runtime_Call_10ms_offset0(void)
     MotorDerating_Run_OnUpdate();
     DriveTrain_Run_Update();
     IMUOrientationEstimator_Run_OnUpdate();
+    DriveRequestMultiplexer_Run_OnUpdate();
     /* Begin User Code Section: Runtime/10ms_offset0 End */
 
     /* End User Code Section: Runtime/10ms_offset0 End */
@@ -135,6 +135,8 @@ void Runtime_Call_10ms_offset2(void)
     /* Begin User Code Section: Runtime/10ms_offset2 Start */
 
     /* End User Code Section: Runtime/10ms_offset2 Start */
+    MotorPortHandler_Run_PortUpdate(4);
+    MotorPortHandler_Run_PortUpdate(5);
     /* Begin User Code Section: Runtime/10ms_offset2 End */
 
     /* End User Code Section: Runtime/10ms_offset2 End */
@@ -145,6 +147,8 @@ void Runtime_Call_10ms_offset3(void)
     /* Begin User Code Section: Runtime/10ms_offset3 Start */
 
     /* End User Code Section: Runtime/10ms_offset3 Start */
+    MotorPortHandler_Run_PortUpdate(1);
+    MotorPortHandler_Run_PortUpdate(2);
     /* Begin User Code Section: Runtime/10ms_offset3 End */
 
     /* End User Code Section: Runtime/10ms_offset3 End */
@@ -155,6 +159,8 @@ void Runtime_Call_10ms_offset4(void)
     /* Begin User Code Section: Runtime/10ms_offset4 Start */
 
     /* End User Code Section: Runtime/10ms_offset4 Start */
+    MotorPortHandler_Run_PortUpdate(0);
+    MotorPortHandler_Run_PortUpdate(3);
     /* Begin User Code Section: Runtime/10ms_offset4 End */
 
     /* End User Code Section: Runtime/10ms_offset4 End */
@@ -238,8 +244,6 @@ void Runtime_Call_20ms_offset2(void)
     /* Begin User Code Section: Runtime/20ms_offset2 Start */
 
     /* End User Code Section: Runtime/20ms_offset2 Start */
-    MotorPortHandler_Run_PortUpdate(4);
-    MotorPortHandler_Run_PortUpdate(5);
     /* Begin User Code Section: Runtime/20ms_offset2 End */
 
     /* End User Code Section: Runtime/20ms_offset2 End */
@@ -250,8 +254,6 @@ void Runtime_Call_20ms_offset3(void)
     /* Begin User Code Section: Runtime/20ms_offset3 Start */
 
     /* End User Code Section: Runtime/20ms_offset3 Start */
-    MotorPortHandler_Run_PortUpdate(1);
-    MotorPortHandler_Run_PortUpdate(2);
     /* Begin User Code Section: Runtime/20ms_offset3 End */
 
     /* End User Code Section: Runtime/20ms_offset3 End */
@@ -262,8 +264,6 @@ void Runtime_Call_20ms_offset4(void)
     /* Begin User Code Section: Runtime/20ms_offset4 Start */
 
     /* End User Code Section: Runtime/20ms_offset4 Start */
-    MotorPortHandler_Run_PortUpdate(0);
-    MotorPortHandler_Run_PortUpdate(3);
     /* Begin User Code Section: Runtime/20ms_offset4 End */
 
     /* End User Code Section: Runtime/20ms_offset4 End */
