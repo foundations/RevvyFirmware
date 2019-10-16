@@ -161,7 +161,6 @@ static struct _timer_device *_tc6_dev = NULL;
 static struct _timer_device *_tc7_dev = NULL;
 
 static int8_t         get_tc_index(const void *const hw);
-static void           _tc_init_irq_param(const void *const hw, void *dev);
 static inline int8_t _get_hardware_offset(const void *const hw);
 /**
  * \brief Initialize TC
@@ -409,41 +408,6 @@ static int8_t get_tc_index(const void *const hw)
 
 	ASSERT(false);
 	return -1;
-}
-
-/**
- * \brief Init irq param with the given tc hardware instance
- */
-static void _tc_init_irq_param(const void *const hw, void *dev)
-{
-	if (hw == TC0) {
-		_tc0_dev = (struct _timer_device *)dev;
-	}
-	else if (hw == TC1) {
-		_tc1_dev = (struct _timer_device *)dev;
-	}
-	else if (hw == TC2) {
-		_tc2_dev = (struct _timer_device *)dev;
-	}
-	else if (hw == TC3) {
-		_tc3_dev = (struct _timer_device *)dev;
-	}
-	else if (hw == TC4) {
-		_tc4_dev = (struct _timer_device *)dev;
-	}
-	else if (hw == TC5) {
-		_tc5_dev = (struct _timer_device *)dev;
-	}
-	else if (hw == TC6) {
-		_tc6_dev = (struct _timer_device *)dev;
-	}
-	else if (hw == TC7) {
-		_tc7_dev = (struct _timer_device *)dev;
-	}
-    else
-    {
-        ASSERT(0);
-    }
 }
 
 /**

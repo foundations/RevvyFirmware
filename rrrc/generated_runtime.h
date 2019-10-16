@@ -29,6 +29,26 @@ typedef enum {
     BluetoothStatus_Connected
 } BluetoothStatus_t;
 
+typedef enum {
+    DriveRequest_RequestType_Speed,
+    DriveRequest_RequestType_Position,
+    DriveRequest_RequestType_RelativePosition,
+    DriveRequest_RequestType_Power
+} DriveRequest_RequestType_t;
+
+typedef union {
+    float speed;
+    int32_t position;
+    int8_t power;
+} DriveRequest_RequestValue_t;
+
+typedef struct {
+    float power_limit;
+    float speed_limit;
+    DriveRequest_RequestType_t request_type;
+    DriveRequest_RequestValue_t request;
+} DriveRequest_t;
+
 typedef struct {
     float x;
     float y;
@@ -70,6 +90,16 @@ typedef struct {
     MasterMessage_t rx_overflow_response;
     uint32_t rx_timeout;
 } MasterCommunicationInterface_Config_t;
+
+typedef struct {
+    uint8_t* bytes;
+    size_t count;
+} ByteArray_t;
+
+typedef struct {
+    ByteArray_t data;
+    uint8_t version;
+} SlotData_t;
 typedef float Temperature_t;
 
 typedef struct {
@@ -103,13 +133,14 @@ typedef enum {
 #define COMPONENT_TYPES_ADC_DISPATCHER_H_
 #define COMPONENT_TYPES_BATTERY_CALCULATOR_H_
 #define COMPONENT_TYPES_BATTERY_CHARGER_H_
-#define COMPONENT_TYPES_BATTERY_STATUS_PROVIDER_H_
 #define COMPONENT_TYPES_BLUETOOTH_STATUS_OBSERVER_H_
 #define COMPONENT_TYPES_COMMUNICATION_OBSERVER_H_
+#define COMPONENT_TYPES_DRIVE_REQUEST_MULTIPLEXER_H_
 #define COMPONENT_TYPES_DRIVE_TRAIN_H_
 #define COMPONENT_TYPES_ERROR_STORAGE_H_
 #define COMPONENT_TYPES_ERROR_STORAGE_WRAPPER_H_
 #define COMPONENT_TYPES_GYROSCOPE_OFFSET_COMPENSATOR_H_
+#define COMPONENT_TYPES_HARDWARE_COMPATIBILITY_CHECKER_H_
 #define COMPONENT_TYPES_HIGH_RESOLUTION_TIMER_H_
 #define COMPONENT_TYPES_IMU_H_
 #define COMPONENT_TYPES_IMU_MOVEMENT_DETECTOR_H_
@@ -122,6 +153,7 @@ typedef enum {
 #define COMPONENT_TYPES_MASTER_STATUS_OBSERVER_H_
 #define COMPONENT_TYPES_MCU_STATUS_COLLECTOR_H_
 #define COMPONENT_TYPES_MCU_STATUS_COLLECTOR_WRAPPER_H_
+#define COMPONENT_TYPES_MCU_STATUS_SLOTS_H_
 #define COMPONENT_TYPES_MEMORY_ALLOCATOR_H_
 #define COMPONENT_TYPES_MOTOR_CURRENT_FILTER_H_
 #define COMPONENT_TYPES_MOTOR_DERATING_H_
@@ -134,20 +166,20 @@ typedef enum {
 #define COMPONENT_TYPES_SENSOR_PORT_HANDLER_H_
 #define COMPONENT_TYPES_VERSION_PROVIDER_H_
 #define COMPONENT_TYPES_WATCHDOG_FEEDER_H_
-#define COMPONENT_TYPES_YAW_ANGLE_TRACKER_H_
 
 #include "components/ADC0/ADC0.h"
 #include "components/ADC1/ADC1.h"
 #include "components/ADCDispatcher/ADCDispatcher.h"
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryCharger/BatteryCharger.h"
-#include "components/BatteryStatusProvider/BatteryStatusProvider.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
 #include "components/CommunicationObserver/CommunicationObserver.h"
+#include "components/DriveRequestMultiplexer/DriveRequestMultiplexer.h"
 #include "components/DriveTrain/DriveTrain.h"
 #include "components/ErrorStorage/ErrorStorage.h"
 #include "components/ErrorStorageWrapper/ErrorStorageWrapper.h"
 #include "components/GyroscopeOffsetCompensator/GyroscopeOffsetCompensator.h"
+#include "components/HardwareCompatibilityChecker/HardwareCompatibilityChecker.h"
 #include "components/HighResolutionTimer/HighResolutionTimer.h"
 #include "components/IMU/IMU.h"
 #include "components/IMUMovementDetector/IMUMovementDetector.h"
@@ -160,6 +192,7 @@ typedef enum {
 #include "components/MasterStatusObserver/MasterStatusObserver.h"
 #include "components/McuStatusCollector/McuStatusCollector.h"
 #include "components/McuStatusCollectorWrapper/McuStatusCollectorWrapper.h"
+#include "components/McuStatusSlots/McuStatusSlots.h"
 #include "components/MemoryAllocator/MemoryAllocator.h"
 #include "components/MotorCurrentFilter/MotorCurrentFilter.h"
 #include "components/MotorDerating/MotorDerating.h"
@@ -172,7 +205,6 @@ typedef enum {
 #include "components/SensorPortHandler/SensorPortHandler.h"
 #include "components/VersionProvider/VersionProvider.h"
 #include "components/WatchdogFeeder/WatchdogFeeder.h"
-#include "components/YawAngleTracker/YawAngleTracker.h"
 
 void Runtime_Call_OnInit(void);
 void Runtime_Call_1ms(void);

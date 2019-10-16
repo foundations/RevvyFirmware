@@ -41,6 +41,8 @@ void MotorCurrentFilter_Run_Update(void)
 __attribute__((weak))
 void MotorCurrentFilter_Write_FilteredCurrent(uint32_t index, const Current_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 6);
     /* Begin User Code Section: FilteredCurrent Start */
 

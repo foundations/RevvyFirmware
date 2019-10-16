@@ -1,40 +1,49 @@
-/*
- * McuStatusCollector.c
- *
- * Created: 2019. 07. 12. 11:28:23
- *  Author: Dániel Buga
- */
-
+#include "utils_assert.h"
+#include "utils.h"
 #include "McuStatusCollector.h"
 
+/* Begin User Code Section: Declarations */
 #include <string.h>
 #include <stdbool.h>
-#include "utils_assert.h"
 
 static uint32_t slots = 0u;
+static uint8_t versions[32];
 static uint8_t start_at_slot = 0u;
 
-static bool _read_slot(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotSize)
+static bool _read_slot(uint8_t index, uint8_t* pData, uint8_t bufferSize, uint8_t* slotSize)
 {
     static uint8_t buffer[64];
-    uint8_t size = 0u;
-    McuStatusCollector_Read_SlotData(slot, buffer, sizeof(buffer), &size);
+
+    __disable_irq();
+    SlotData_t slot = McuStatusCollector_Read_SlotData(index);
+
+    if (slot.version == versions[index])
+    {
+        // data did not change since last read
+        __enable_irq();
+        return true;
+    }
+
+    // copy bytes in critical section to avoid corruption - TODO do this after the size checks
+    memcpy(buffer, slot.data.bytes, slot.data.count);
+    __enable_irq();
 
     bool slot_fits = true;
     *slotSize = 0u;
 
-    if (size != 0u) /* < does this slot have any new data? */
+    if (slot.data.count != 0u) /* < does this slot have any new data? */
     {
-        if (2u + size <= bufferSize) /* < enough space for slot data? */
+        if (2u + slot.data.count <= bufferSize) /* < enough space for slot data? */
         {
-            McuStatusCollector_Call_ClearSlotData(slot);
+            pData[0u] = index;
+            pData[1u] = slot.data.count;
 
-            pData[0u] = slot;
-            pData[1u] = size;
+            memcpy(&pData[2u], buffer, slot.data.count);
 
-            memcpy(&pData[2u], buffer, size);
+            *slotSize = 2u + slot.data.count;
 
-            *slotSize = 2u + size;
+            // store last successfully read version
+            versions[index] = slot.version;
         }
         else
         {
@@ -45,41 +54,34 @@ static bool _read_slot(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t
     return slot_fits;
 }
 
-void McuStatusCollector_Run_ResetSlots(void)
+/* End User Code Section: Declarations */
+
+void McuStatusCollector_Run_Reset(void)
 {
+    /* Begin User Code Section: Reset Start */
     slots = 0u;
     start_at_slot = 0u;
+    memset(versions, 0, sizeof(versions));
+    /* End User Code Section: Reset Start */
+    /* Begin User Code Section: Reset End */
+
+    /* End User Code Section: Reset End */
 }
 
-void McuStatusCollector_Run_EnableSlot(uint8_t slot)
+uint8_t McuStatusCollector_Run_Read(ByteArray_t destination)
 {
-    ASSERT(slot < 32u);
-    
-    McuStatusCollector_Call_ClearSlotData(slot);
-    slots |= (1u << slot);
-}
-
-void McuStatusCollector_Run_DisableSlot(uint8_t slot)
-{
-    ASSERT(slot < 32u);
-
-    slots &= ~(1u << slot);
-    McuStatusCollector_Call_ClearSlotData(slot);
-}
-
-void McuStatusCollector_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
-{
+    /* Begin User Code Section: Read Start */
     uint8_t idx = 0u;
 
     uint8_t start_at = start_at_slot;
     bool all_read = true;
-    
+
     for (uint32_t i = start_at; i < 32u; i++)
     {
         if ((slots & (1u << i)) != 0u) /* < slot enabled? */
         {
             uint8_t slotSize = 0u;
-            if (_read_slot(i, &pData[idx], bufferSize - idx, &slotSize))
+            if (_read_slot(i, &destination.bytes[idx], destination.count - idx, &slotSize))
             {
                 idx += slotSize;
             }
@@ -99,7 +101,7 @@ void McuStatusCollector_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t
             if ((slots & (1u << i)) != 0u) /* < slot enabled? */
             {
                 uint8_t slotSize = 0u;
-                if (_read_slot(i, &pData[idx], bufferSize - idx, &slotSize))
+                if (_read_slot(i, &destination.bytes[idx], destination.count - idx, &slotSize))
                 {
                     idx += slotSize;
                 }
@@ -112,21 +114,45 @@ void McuStatusCollector_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t
         }
     }
 
-    *dataSize = idx;
+    /* End User Code Section: Read Start */
+    /* Begin User Code Section: Read End */
+    return idx;
+    /* End User Code Section: Read End */
+}
+
+void McuStatusCollector_Run_EnableSlot(uint8_t slot)
+{
+    /* Begin User Code Section: EnableSlot Start */
+    ASSERT(slot < 32u);
+
+    slots |= (1u << slot);
+    /* End User Code Section: EnableSlot Start */
+    /* Begin User Code Section: EnableSlot End */
+
+    /* End User Code Section: EnableSlot End */
+}
+
+void McuStatusCollector_Run_DisableSlot(uint8_t slot)
+{
+    /* Begin User Code Section: DisableSlot Start */
+    ASSERT(slot < 32u);
+
+    slots &= ~(1u << slot);
+    /* End User Code Section: DisableSlot Start */
+    /* Begin User Code Section: DisableSlot End */
+
+    /* End User Code Section: DisableSlot End */
 }
 
 __attribute__((weak))
-void McuStatusCollector_Read_SlotData(uint8_t slot, uint8_t* pData, uint8_t bufferSize, uint8_t* slotDataSize)
+SlotData_t McuStatusCollector_Read_SlotData(uint32_t index)
 {
-    (void) slot;
-    ASSERT(pData);
-    ASSERT(bufferSize);
+    ASSERT(index < 14);
+    /* Begin User Code Section: SlotData Start */
 
-    *slotDataSize = 0u;
-}
+    /* End User Code Section: SlotData Start */
+    /* Begin User Code Section: SlotData End */
 
-__attribute__((weak))
-void McuStatusCollector_Call_ClearSlotData(uint8_t slot)
-{
-    (void) slot;
+    /* End User Code Section: SlotData End */
+    return (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u };
 }

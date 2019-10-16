@@ -1,5 +1,6 @@
-#include "BatteryCharger.h"
 #include "utils.h"
+#include "BatteryCharger.h"
+#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 #include "rrrc_hal.h"
@@ -91,6 +92,7 @@ void BatteryCharger_Run_Update(void)
 __attribute__((weak))
 void BatteryCharger_Write_ChargerState(const ChargerState_t value)
 {
+    (void) value;
     /* Begin User Code Section: ChargerState Start */
 
     /* End User Code Section: ChargerState Start */

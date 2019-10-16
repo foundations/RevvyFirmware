@@ -1,0 +1,15 @@
+{
+    "name": "HardwareCompatibilityChecker",
+    "source_files": [
+        "HardwareCompatibilityChecker.c"
+    ],
+    "types": {},
+    "ports": {
+        "OnIncompatibleHardware": {
+            "port_type": "Event"
+        }
+    },
+    "runnables": {
+        "OnInit": {}
+    }
+}

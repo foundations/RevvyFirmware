@@ -311,7 +311,7 @@ void MotorPortHandler_Call_Free(void** ptr)
 }
 
 __attribute__((weak))
-void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command)
+void MotorPortHandler_Write_DriveRequest(uint32_t port_idx, const DriveRequest_t* command)
 {
     (void) port_idx;
     ASSERT(command);
@@ -319,22 +319,15 @@ void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_Drive
 }
 
 __attribute__((weak))
-void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst)
+void MotorPortHandler_Read_AppliedDriveRequest(uint32_t port_idx, DriveRequest_t* dst)
 {
     (void) port_idx;
     ASSERT(dst);
-    *dst = (MotorPort_DriveRequest_t) {
-        .type = MotorPort_DriveRequest_Power,
-        .v.pwm = 0,
-        .speed_limit = 0.0f,
-        .power_limit = 0.0f
-    };
 }
 
 __attribute__((weak))
-void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
+void MotorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status)
 {
     (void) port_idx;
-    (void) dataSize;
-    ASSERT(pData);
+    (void) status;
 }

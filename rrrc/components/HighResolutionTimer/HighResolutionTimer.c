@@ -1,3 +1,4 @@
+#include "utils_assert.h"
 #include "HighResolutionTimer.h"
 #include "utils.h"
 
@@ -33,6 +34,16 @@ uint16_t HighResolutionTimer_Run_GetTickCount(void)
     /* Begin User Code Section: GetTickCount End */
 
     /* End User Code Section: GetTickCount End */
+}
+
+float HighResolutionTimer_Run_ToMs(uint32_t ticks)
+{
+    /* Begin User Code Section: ToMs Start */
+    return ticks / 24.0f;
+    /* End User Code Section: ToMs Start */
+    /* Begin User Code Section: ToMs End */
+
+    /* End User Code Section: ToMs End */
 }
 
 uint16_t HighResolutionTimer_Constant_TicksInMs(void)

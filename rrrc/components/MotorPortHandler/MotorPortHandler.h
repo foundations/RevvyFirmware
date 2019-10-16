@@ -16,26 +16,36 @@ struct _MotorPort_t;
 
 #include "MotorPortLibraries/MotorPortLibrary.h"
 
-typedef enum 
-{
-    MotorPort_DriveRequest_Speed,
-    MotorPort_DriveRequest_Position,
-    MotorPort_DriveRequest_Position_Relative,
-    MotorPort_DriveRequest_Power,
-} MotorPort_DriveRequestType_t;
+#ifndef COMPONENT_TYPES_MOTOR_PORT_HANDLER_H_
+#define COMPONENT_TYPES_MOTOR_PORT_HANDLER_H_
 
-typedef struct
-{
-    MotorPort_DriveRequestType_t type;
-    union
-    {
-        int8_t pwm;
-        float speed;
-        int32_t position;
-    } v;
-    float speed_limit;
+
+typedef struct {
+    uint8_t* bytes;
+    size_t count;
+} ByteArray_t;
+
+typedef enum {
+    DriveRequest_RequestType_Speed,
+    DriveRequest_RequestType_Position,
+    DriveRequest_RequestType_RelativePosition,
+    DriveRequest_RequestType_Power
+} DriveRequest_RequestType_t;
+
+typedef union {
+    float speed;
+    int32_t position;
+    int8_t power;
+} DriveRequest_RequestValue_t;
+
+typedef struct {
     float power_limit;
-} MotorPort_DriveRequest_t;
+    float speed_limit;
+    DriveRequest_RequestType_t request_type;
+    DriveRequest_RequestValue_t request;
+} DriveRequest_t;
+
+#endif
 
 typedef struct _MotorPort_t
 {
@@ -72,9 +82,9 @@ void MotorPortHandler_Call_Free(void** ptr);
 
 void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value);
 bool MotorPortHandler_Read_DriverFault(uint8_t port_idx);
-void MotorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize);
+void MotorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status);
 
-void MotorPortHandler_Write_DriveRequest(uint8_t port_idx, const MotorPort_DriveRequest_t* command);
-void MotorPortHandler_Read_DriveRequest(uint8_t port_idx, MotorPort_DriveRequest_t* dst);
+void MotorPortHandler_Write_DriveRequest(uint32_t port_idx, const DriveRequest_t* command);
+void MotorPortHandler_Read_AppliedDriveRequest(uint32_t port_idx, DriveRequest_t* dst);
 
 #endif /* MOTOR_PORT_HANDLER_H_ */

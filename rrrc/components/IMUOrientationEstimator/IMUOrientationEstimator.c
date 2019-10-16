@@ -1,6 +1,6 @@
+#include "utils_assert.h"
 #include "IMUOrientationEstimator.h"
 #include "utils.h"
-#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 #include <math.h>
@@ -26,6 +26,34 @@ static float invSqrt(float x)
 static inline float angle_to_radian(float angle)
 {
     return angle * (float) M_PI / 180.0f;
+}
+
+static Orientation3D_t to_euler_angles(const Quaternion_t orientation)
+{
+    Orientation3D_t angles;
+
+    // roll (x-axis rotation)
+    float sinr_cosp = 2.0f * (orientation.q0 * orientation.q1 + orientation.q2 * orientation.q3);
+    float cosr_cosp = 1.0f - 2.0f * (orientation.q1 * orientation.q1 + orientation.q2 * orientation.q2);
+    angles.roll = atan2f(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    float sinp = 2.0f * (orientation.q0 * orientation.q2 - orientation.q3 * orientation.q1);
+    if (fabsf(sinp) >= 1.0f)
+    {
+        angles.pitch = copysignf((float)M_PI / 2.0f, sinp); // use 90 degrees if out of range
+    }
+    else
+    {
+        angles.pitch = asinf(sinp);
+    }
+
+    // yaw (z-axis rotation)
+    float siny_cosp = 2.0f * (orientation.q0 * orientation.q3 + orientation.q1 * orientation.q2);
+    float cosy_cosp = 1.0f - 2.0f * (orientation.q2 * orientation.q2 + orientation.q3 * orientation.q3);
+    angles.yaw = atan2f(siny_cosp, cosy_cosp);
+
+    return angles;
 }
 
 static Quaternion_t madgwick_imu(const float sampleFreq, const Vector3D_t acceleration, const Vector3D_t angularSpeed, const Quaternion_t previous)
@@ -106,12 +134,20 @@ static Quaternion_t madgwick_imu(const float sampleFreq, const Vector3D_t accele
     return (Quaternion_t) {q0, q1, q2, q3};
 }
 
+static inline float rad_to_deg(float rad)
+{
+    return rad * 180.0f / (float) M_PI;
+}
+
 /* End User Code Section: Declarations */
 
 void IMUOrientationEstimator_Run_OnInit(void)
 {
     /* Begin User Code Section: OnInit Start */
     orientation = (Quaternion_t) {1.0f, 0.0f, 0.0f, 0.0f};
+
+    Orientation3D_t euler = to_euler_angles(orientation);
+    IMUOrientationEstimator_Write_OrientationEuler(&euler);
     /* End User Code Section: OnInit Start */
     /* Begin User Code Section: OnInit End */
 
@@ -136,45 +172,22 @@ void IMUOrientationEstimator_Run_OnUpdate(void)
             orientation = madgwick_imu(sampleFreq, acceleration, angularSpeedRad, orientation);
 
             IMUOrientationEstimator_Write_Orientation(&orientation);
+
+            const Orientation3D_t euler = to_euler_angles(orientation);
+            IMUOrientationEstimator_Write_OrientationEuler(&euler);
+
+            const Orientation3D_t eulerDegrees = {
+                .pitch = rad_to_deg(euler.pitch),
+                .roll = rad_to_deg(euler.roll),
+                .yaw = rad_to_deg(euler.yaw)
+            };
+            IMUOrientationEstimator_Write_OrientationEulerDegrees(&eulerDegrees);
         }
     }
     /* End User Code Section: OnUpdate Start */
     /* Begin User Code Section: OnUpdate End */
 
     /* End User Code Section: OnUpdate End */
-}
-
-Orientation3D_t IMUOrientationEstimator_Run_ConvertOrientation(Quaternion_t orientation)
-{
-    /* Begin User Code Section: ConvertOrientation Start */
-    Orientation3D_t angles;
-
-    // roll (x-axis rotation)
-    float sinr_cosp = 2.0f * (orientation.q0 * orientation.q1 + orientation.q2 * orientation.q3);
-    float cosr_cosp = 1.0f - 2.0f * (orientation.q1 * orientation.q1 + orientation.q2 * orientation.q2);
-    angles.roll = atan2f(sinr_cosp, cosr_cosp);
-
-    // pitch (y-axis rotation)
-    float sinp = 2.0f * (orientation.q0 * orientation.q2 - orientation.q3 * orientation.q1);
-    if (fabsf(sinp) >= 1.0f)
-    {
-        angles.pitch = copysignf((float)M_PI / 2.0f, sinp); // use 90 degrees if out of range
-    }
-    else
-    {
-        angles.pitch = asinf(sinp);
-    }
-
-    // yaw (z-axis rotation)
-    float siny_cosp = 2.0f * (orientation.q0 * orientation.q3 + orientation.q1 * orientation.q2);
-    float cosy_cosp = 1.0f - 2.0f * (orientation.q2 * orientation.q2 + orientation.q3 * orientation.q3);
-    angles.yaw = atan2f(siny_cosp, cosy_cosp);
-
-    return angles;
-    /* End User Code Section: ConvertOrientation Start */
-    /* Begin User Code Section: ConvertOrientation End */
-
-    /* End User Code Section: ConvertOrientation End */
 }
 
 __attribute__((weak))
@@ -187,6 +200,30 @@ void IMUOrientationEstimator_Write_Orientation(const Quaternion_t* value)
     /* Begin User Code Section: Orientation End */
 
     /* End User Code Section: Orientation End */
+}
+
+__attribute__((weak))
+void IMUOrientationEstimator_Write_OrientationEuler(const Orientation3D_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: OrientationEuler Start */
+
+    /* End User Code Section: OrientationEuler Start */
+    /* Begin User Code Section: OrientationEuler End */
+
+    /* End User Code Section: OrientationEuler End */
+}
+
+__attribute__((weak))
+void IMUOrientationEstimator_Write_OrientationEulerDegrees(const Orientation3D_t* value)
+{
+    ASSERT(value != NULL);
+    /* Begin User Code Section: OrientationEulerDegrees Start */
+
+    /* End User Code Section: OrientationEulerDegrees Start */
+    /* Begin User Code Section: OrientationEulerDegrees End */
+
+    /* End User Code Section: OrientationEulerDegrees End */
 }
 
 __attribute__((weak))

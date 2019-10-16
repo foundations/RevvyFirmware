@@ -31,6 +31,8 @@ void MotorDerating_Run_OnUpdate(void)
 __attribute__((weak))
 void MotorDerating_Write_DeratedControlValue(uint32_t index, const int8_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 6);
     /* Begin User Code Section: DeratedControlValue Start */
 
@@ -73,6 +75,7 @@ void MotorDerating_Read_Parameters(MotorDeratingParameters_t* value)
     /* Begin User Code Section: Parameters Start */
 
     /* End User Code Section: Parameters Start */
+    *value = (MotorDeratingParameters_t) { .MaxSafeTemperature = 0.0f, .MaxAllowedTemperature = 0.0f };
     /* Begin User Code Section: Parameters End */
 
     /* End User Code Section: Parameters End */

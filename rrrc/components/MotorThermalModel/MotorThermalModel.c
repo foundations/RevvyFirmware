@@ -51,6 +51,8 @@ void MotorThermalModel_Run_OnUpdate(void)
 __attribute__((weak))
 void MotorThermalModel_Write_Temperature(uint32_t index, const Temperature_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 6);
     /* Begin User Code Section: Temperature Start */
 
@@ -92,6 +94,7 @@ void MotorThermalModel_Read_ThermalParameters(MotorThermalParameters_t* value)
     /* Begin User Code Section: ThermalParameters Start */
 
     /* End User Code Section: ThermalParameters Start */
+    *value = (MotorThermalParameters_t) { .resistance = 0.0f, .coeff_cooling = 0.0f, .coeff_heating = 0.0f };
     /* Begin User Code Section: ThermalParameters End */
 
     /* End User Code Section: ThermalParameters End */
