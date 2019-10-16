@@ -10,6 +10,9 @@
             "fields": {
                 "data": "ByteArray_t",
                 "version": "uint8_t"
+            },
+            "default_value": {
+                "version": "0xFFu"
             }
         }
     },

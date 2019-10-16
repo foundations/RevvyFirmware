@@ -184,7 +184,7 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
             size = 10u;
         }
 
-        MotorPort_Call_UpdatePortStatus(motorPort->port_idx, (ByteArray_t){status, sizeof(size)});
+        MotorPortHandler_Call_UpdatePortStatus(motorPort->port_idx, (ByteArray_t){status, sizeof(size)});
     }
 
     return MotorLibraryStatus_Ok;

@@ -1,13 +1,13 @@
-#include "utils_assert.h"
-#include "utils.h"
 #include "McuStatusCollector.h"
+#include "utils.h"
+#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 #include <string.h>
 #include <stdbool.h>
 
 static uint32_t slots = 0u;
-static uint8_t versions[32];
+static uint8_t versions[14];
 static uint8_t start_at_slot = 0u;
 
 static bool _read_slot(uint8_t index, uint8_t* pData, uint8_t bufferSize, uint8_t* slotSize)
@@ -17,7 +17,7 @@ static bool _read_slot(uint8_t index, uint8_t* pData, uint8_t bufferSize, uint8_
     __disable_irq();
     SlotData_t slot = McuStatusCollector_Read_SlotData(index);
 
-    if (slot.version == versions[index])
+    if (slot.version == versions[index] || ((slot.version & 0x80u) != 0u)) // if highest bit is 1, there is no data
     {
         // data did not change since last read
         __enable_irq();
@@ -61,7 +61,7 @@ void McuStatusCollector_Run_Reset(void)
     /* Begin User Code Section: Reset Start */
     slots = 0u;
     start_at_slot = 0u;
-    memset(versions, 0, sizeof(versions));
+    memset(versions, 0xFFu, sizeof(versions));
     /* End User Code Section: Reset Start */
     /* Begin User Code Section: Reset End */
 
@@ -123,9 +123,10 @@ uint8_t McuStatusCollector_Run_Read(ByteArray_t destination)
 void McuStatusCollector_Run_EnableSlot(uint8_t slot)
 {
     /* Begin User Code Section: EnableSlot Start */
-    ASSERT(slot < 32u);
+    ASSERT(slot < 14u);
 
     slots |= (1u << slot);
+    versions[slot] = 0xFFu;
     /* End User Code Section: EnableSlot Start */
     /* Begin User Code Section: EnableSlot End */
 
@@ -135,7 +136,7 @@ void McuStatusCollector_Run_EnableSlot(uint8_t slot)
 void McuStatusCollector_Run_DisableSlot(uint8_t slot)
 {
     /* Begin User Code Section: DisableSlot Start */
-    ASSERT(slot < 32u);
+    ASSERT(slot < 14u);
 
     slots &= ~(1u << slot);
     /* End User Code Section: DisableSlot Start */
@@ -154,5 +155,5 @@ SlotData_t McuStatusCollector_Read_SlotData(uint32_t index)
     /* Begin User Code Section: SlotData End */
 
     /* End User Code Section: SlotData End */
-    return (SlotData_t) { .data = (ByteArray_t) { .bytes = NULL, .count = 0u }, .version = 0u };
+    return (SlotData_t) { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu };
 }

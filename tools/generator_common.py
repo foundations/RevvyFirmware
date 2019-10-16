@@ -100,12 +100,17 @@ class TypeCollection:
                 break
 
         if resolved['type'] == TypeCollection.STRUCT:
-            return {name: self.default_value(field_type) for name, field_type in resolved['fields'].items()}
+            if 'default_value' not in resolved:
+                resolved['default_value'] = {}
+            return {name: resolved['default_value'].get(name, self.default_value(field_type)) for name, field_type in resolved['fields'].items()}
 
         else:
             return resolved['default_value']
 
     def render_value(self, type_name, value, context='assignment'):
+        if value is None:
+            value = self.default_value(type_name)
+
         resolved = self.resolve(type_name)
 
         try:

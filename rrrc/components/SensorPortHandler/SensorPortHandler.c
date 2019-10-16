@@ -283,7 +283,7 @@ void SensorPortHandler_Run_Update(void)
             /* configuredPort set by SetPortType */
             configuredPort->library->DeInit(configuredPort);
             configuredPort->library = requestedLibrary;
-            SensorPort_Call_UpdatePortStatus(configuredPort->port_idx, (ByteArray_t){NULL, 0u});
+            SensorPortHandler_Call_UpdatePortStatus(configuredPort->port_idx, (ByteArray_t){NULL, 0u});
             configuredPort->library->Init(configuredPort);
         }
         else
@@ -327,10 +327,10 @@ void SensorPortHandler_Call_Free(void** ptr)
 }
 
 __attribute__((weak))
-void SensorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status)
+void SensorPortHandler_Call_UpdatePortStatus(uint8_t port, ByteArray_t data)
 {
-    (void) port_idx;
-    (void) status;
+    (void) port;
+    (void) data;
 }
 
 __attribute__((weak))
