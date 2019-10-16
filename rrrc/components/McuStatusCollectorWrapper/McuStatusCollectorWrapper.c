@@ -66,7 +66,7 @@ Comm_Status_t McuStatusCollectorWrapper_ReadStatus_Start(const uint8_t* commandP
         return Comm_Status_Error_PayloadLengthError;
     }
     
-    McuStatusCollectorWrapper_Call_ReadData(response, responseBufferSize, responseCount);
+    *responseCount = McuStatusCollectorWrapper_Call_Read((ByteArray_t) {.bytes = response, .count = responseBufferSize});
 
     return Comm_Status_Ok;
 }
@@ -90,11 +90,9 @@ void McuStatusCollectorWrapper_Call_DisableSlot(uint8_t slot)
 }
 
 __attribute__((weak))
-void McuStatusCollectorWrapper_Call_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
+uint8_t McuStatusCollectorWrapper_Call_Read(ByteArray_t destination)
 {
-    (void) bufferSize;
-    ASSERT(pData);
-    ASSERT(dataSize);
+    (void) destination;
 
-    *dataSize = 0u;
+    return 0u;
 }

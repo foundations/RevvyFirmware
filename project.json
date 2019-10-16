@@ -610,7 +610,10 @@
             },
             {
                 "provider": "McuStatusSlots/SlotData",
-                "consumer": "McuStatusCollector/SlotData"
+                "consumer": "McuStatusCollector/SlotData",
+                "init_value": {
+                    "version": "0xFFu"
+                }
             },
             {
                 "provider": "McuStatusCollectorWrapper/ResetSlots",

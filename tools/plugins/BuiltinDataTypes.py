@@ -646,8 +646,8 @@ def struct_formatter(types: TypeCollection, type_name, type_data, struct_value, 
     if type(struct_value) is str:
         return struct_value
 
-    values = ['.{} = {}'.format(name, types.render_value(type_data['fields'][name], value, 'initialization'))
-              for name, value in struct_value.items()]
+    values = ['.{} = {}'.format(field_name, types.render_value(field_type, struct_value.get(field_name, None), 'initialization'))
+              for field_name, field_type in type_data['fields'].items()]
 
     if context == 'initialization':
         return '{{ {} }}'.format(', '.join(values))

@@ -82,7 +82,7 @@ void MotorPortHandler_Call_Free(void** ptr);
 
 void MotorPortHandler_Write_DriveStrength(uint32_t index, const int8_t value);
 bool MotorPortHandler_Read_DriverFault(uint8_t port_idx);
-void MotorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status);
+void MotorPortHandler_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status);
 
 void MotorPortHandler_Write_DriveRequest(uint32_t port_idx, const DriveRequest_t* command);
 void MotorPortHandler_Read_AppliedDriveRequest(uint32_t port_idx, DriveRequest_t* dst);

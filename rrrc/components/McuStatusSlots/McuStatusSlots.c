@@ -71,7 +71,7 @@ static void update_slot(uint8_t index, const uint8_t* data, uint8_t data_size)
 
     bool slot_changed = true;
     __disable_irq();
-    if (data_size != slot->array.count)
+    if (((slot->version & 0x80u) != 0u) && data_size != slot->array.count)
     {
         memcpy(slot->array.bytes, data, data_size);
         slot->array.count = data_size;
@@ -83,7 +83,7 @@ static void update_slot(uint8_t index, const uint8_t* data, uint8_t data_size)
 
     if (slot_changed)
     {
-        slot->version++;
+        slot->version = (slot->version + 1u) & 0x7Fu;
         McuStatusSlots_Write_SlotData(index, (const SlotData_t) {.data = slot->array, .version = slot->version});
     }
     __enable_irq();
@@ -97,7 +97,7 @@ void McuStatusSlots_Run_Reset(void)
     for (size_t i = 0u; i < ARRAY_SIZE(slots); i++)
     {
         slots[i].array.count = 0u;
-        slots[i].version = 0u;
+        slots[i].version = 0xFFu;
     }
     __enable_irq();
     /* End User Code Section: Reset Start */
