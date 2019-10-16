@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
                 for signal in consumer_connections_list:
                     for consumer in signal.consumers:
-                        yield provider_name, consumer
+                        yield provider_name, consumer[0]
 
     # collect info
     if args.component is not None:

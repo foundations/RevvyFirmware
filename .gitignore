@@ -8,3 +8,7 @@ Makefile
 /**/*.bak*
 /output/
 /venv/
+jlink.*
+*.atsln
+*.elf
+*.componentinfo.xml

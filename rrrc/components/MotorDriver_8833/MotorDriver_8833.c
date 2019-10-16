@@ -2,7 +2,7 @@
  * MotorDriver_8833.c
  *
  * Created: 2019. 07. 22. 22:44:38
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */
 
 #include "MotorDriver_8833.h"
@@ -12,12 +12,20 @@
 #include <tc_lite.h>
 #include <hal_gpio.h>
 #include "atmel_start_pins.h"
+#include "utils/functions.h"
 
 #define MOTOR_SPEED_RESOLUTION (100)
 
-static Tc* timers[6];
+static Tc* const timers[6] = {
+    TC0,
+    TC1,
+    TC2,
+    TC3,
+    TC4,
+    TC5
+};
 
-void MotorDriver_8833_Run_OnGlobalInit(void)
+void MotorDriver_8833_Run_OnInit(void)
 {
     hri_mclk_set_APBAMASK_TC0_bit(MCLK);
     hri_mclk_set_APBAMASK_TC1_bit(MCLK);
@@ -39,110 +47,75 @@ void MotorDriver_8833_Run_OnGlobalInit(void)
     TIMER_3_init();
     TIMER_4_init();
     TIMER_5_init();
-
-    hri_tccount8_write_PER_reg(TC0, MOTOR_SPEED_RESOLUTION - 1u);
-    hri_tccount8_write_PER_reg(TC1, MOTOR_SPEED_RESOLUTION - 1u);
-    hri_tccount8_write_PER_reg(TC2, MOTOR_SPEED_RESOLUTION - 1u);
-    hri_tccount8_write_PER_reg(TC3, MOTOR_SPEED_RESOLUTION - 1u);
-    hri_tccount8_write_PER_reg(TC4, MOTOR_SPEED_RESOLUTION - 1u);
-    hri_tccount8_write_PER_reg(TC5, MOTOR_SPEED_RESOLUTION - 1u);
-    
-    timers[0] = TC0;
-    timers[1] = TC1;
-    timers[2] = TC2;
-    timers[3] = TC3;
-    timers[4] = TC4;
-    timers[5] = TC5;
 }
 
-static void drv8833_set_speed_a(MotorDriver_8833_t* driver, int8_t speed)
+static void drv8833_set_speed(MotorDriver_8833_Channel_t* channel, const int8_t speed)
 {
-    bool reverse = speed < 0;
-    speed = reverse ? -speed : speed;
-    if (speed > MOTOR_SPEED_RESOLUTION)
+    if (speed != channel->prev_speed)
     {
-        speed = MOTOR_SPEED_RESOLUTION;
-    }
-    
-    uint8_t pwm_0 = 0u;
-    uint8_t pwm_1 = 0u;
+        channel->prev_speed = speed;
 
-    if (reverse)
-    {
-        pwm_1 = speed;
-    }
-    else
-    {
-        pwm_0 = speed;
-    }
+        /*
+         * - if speed is negative, pwm_1 holds the absolute value, otherwise pwm_0
+         * - subtraction from max is because we want to drive motors using slow decay
+         */
+        const uint8_t pwm_0 = MOTOR_SPEED_RESOLUTION - constrain_int8(speed, 0, MOTOR_SPEED_RESOLUTION);
+        const uint8_t pwm_1 = MOTOR_SPEED_RESOLUTION + constrain_int8(speed, -MOTOR_SPEED_RESOLUTION, 0); // constrain first to avoid -128 overflowing
 
-    driver->speed_a = speed;
+        hri_tccount8_write_CC_reg(timers[channel->timer], channel->ch1, pwm_0);
+        hri_tccount8_write_CC_reg(timers[channel->timer], channel->ch2, pwm_1);
 
-    /* subtraction is because we want to drive motors using slow decay */
-    hri_tccount8_write_CC_reg(timers[driver->pwm_a1_timer], driver->pwm_a1_ch, MOTOR_SPEED_RESOLUTION - pwm_0);
-    hri_tccount8_write_CC_reg(timers[driver->pwm_a2_timer], driver->pwm_a2_ch, MOTOR_SPEED_RESOLUTION - pwm_1);
+        /* restart counting to avoid unwanted long ON pulses */
+        hri_tc_set_CTRLB_CMD_bf(timers[channel->timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
+    }
 }
 
-static void drv8833_set_speed_b(MotorDriver_8833_t* driver, int8_t speed)
+/**
+ * Set timer period, enable and start counting
+ */
+static void enable_timer(const uint8_t timer)
 {
-    bool reverse = speed < 0;
-    speed = reverse ? -speed : speed;
-    if (speed > MOTOR_SPEED_RESOLUTION)
-    {
-        speed = MOTOR_SPEED_RESOLUTION;
-    }
-    
-    uint8_t pwm_0 = 0u;
-    uint8_t pwm_1 = 0u;
+    hri_tccount8_write_PER_reg(timers[timer], MOTOR_SPEED_RESOLUTION - 1u);
 
-    if (reverse)
-    {
-        pwm_1 = speed;
-    }
-    else
-    {
-        pwm_0 = speed;
-    }
-
-    driver->speed_b = speed;
-
-    /* subtraction is because we want to drive motors using slow decay */
-    hri_tccount8_write_CC_reg(timers[driver->pwm_b1_timer], driver->pwm_b1_ch, MOTOR_SPEED_RESOLUTION - pwm_0);
-    hri_tccount8_write_CC_reg(timers[driver->pwm_b2_timer], driver->pwm_b2_ch, MOTOR_SPEED_RESOLUTION - pwm_1);
+    hri_tc_set_CTRLA_ENABLE_bit(timers[timer]);
+    hri_tc_set_CTRLB_CMD_bf(timers[timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
 }
 
-void MotorDriver_8833_Run_OnInit(MotorDriver_8833_t* driver)
+/**
+ * Configure the given pin as a TC waveform output pin (function E)
+ */
+static void configure_wo_pin(const uint8_t pin)
 {
-    gpio_set_pin_direction(driver->pwm_a1, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(driver->pwm_a1, GPIO_PIN_FUNCTION_E);
-    
-    gpio_set_pin_direction(driver->pwm_a2, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(driver->pwm_a2, GPIO_PIN_FUNCTION_E);
-    
-    gpio_set_pin_direction(driver->pwm_b1, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(driver->pwm_b1, GPIO_PIN_FUNCTION_E);
-    
-    gpio_set_pin_direction(driver->pwm_b2, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(driver->pwm_b2, GPIO_PIN_FUNCTION_E);
+    gpio_set_pin_direction(pin, GPIO_DIRECTION_OFF);
+    gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_E);
+}
 
-    gpio_set_pin_function(driver->fault, GPIO_PIN_FUNCTION_OFF);
+void MotorDriver_8833_Run_OnDriverInit(MotorDriver_8833_t* driver)
+{
+    configure_wo_pin(driver->pwm_a.pin1);
+    configure_wo_pin(driver->pwm_a.pin2);
+    configure_wo_pin(driver->pwm_b.pin1);
+    configure_wo_pin(driver->pwm_b.pin2);
+
     gpio_set_pin_direction(driver->fault, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(driver->fault, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_pull_mode(driver->fault, GPIO_PULL_OFF);
 
-    gpio_set_pin_function(driver->n_sleep, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(driver->n_sleep, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(driver->n_sleep, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_pull_mode(driver->n_sleep, GPIO_PULL_OFF);
+
     gpio_set_pin_level(driver->n_sleep, false);
+
+    enable_timer(driver->pwm_a.timer);
+    enable_timer(driver->pwm_b.timer);
     
-    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_a1_timer]);
-    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_a1_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
-    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_a2_timer]);
-    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_a2_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
+    /* set a random speed to force updating the counters */
+    driver->pwm_a.prev_speed = 1;
+    driver->pwm_b.prev_speed = 1;
     
-    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_b1_timer]);
-    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_b1_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
-    hri_tc_set_CTRLA_ENABLE_bit(timers[driver->pwm_b2_timer]);
-    hri_tc_set_CTRLB_CMD_bf(timers[driver->pwm_b2_timer], TC_CTRLBSET_CMD_RETRIGGER_Val);
+    drv8833_set_speed(&driver->pwm_a, 0);
+    drv8833_set_speed(&driver->pwm_b, 0);
 }
 
 void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver)
@@ -159,20 +132,22 @@ void MotorDriver_8833_Run_OnUpdate(MotorDriver_8833_t* driver)
     
     if (driver->has_fault)
     {
+        /* false = sleep mode active */
         gpio_set_pin_level(driver->n_sleep, false);
 
-        drv8833_set_speed_a(driver, 0);
-        drv8833_set_speed_b(driver, 0);
+        drv8833_set_speed(&driver->pwm_a, 0);
+        drv8833_set_speed(&driver->pwm_b, 0);
     }
     else
     {
-        int8_t speed_a = MotorDriver_8833_Read_DriveRequest_ChannelA(driver);
-        int8_t speed_b = MotorDriver_8833_Read_DriveRequest_ChannelB(driver);
-    
-        gpio_set_pin_level(driver->n_sleep, !(speed_a == 0 && speed_b == 0));
+        const int8_t speed_a = MotorDriver_8833_Read_DriveRequest_ChannelA(driver);
+        const int8_t speed_b = MotorDriver_8833_Read_DriveRequest_ChannelB(driver);
 
-        drv8833_set_speed_a(driver, speed_a);
-        drv8833_set_speed_b(driver, speed_b);
+        /* set sleep mode if not driven (false = sleep mode active) */
+        gpio_set_pin_level(driver->n_sleep, speed_a != 0 || speed_b != 0);
+
+        drv8833_set_speed(&driver->pwm_a, speed_a);
+        drv8833_set_speed(&driver->pwm_b, speed_b);
     }
 }
 

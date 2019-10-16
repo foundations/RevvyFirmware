@@ -1,0 +1,66 @@
+{
+    "name": "DriveRequestMultiplexer",
+    "source_files": [
+        "DriveRequestMultiplexer.c"
+    ],
+    "types": {
+        "DriveRequest_RequestType_t": {
+            "type": "enum",
+            "values": [
+                "DriveRequest_RequestType_Speed",
+                "DriveRequest_RequestType_Position",
+                "DriveRequest_RequestType_RelativePosition",
+                "DriveRequest_RequestType_Power"
+            ],
+            "default_value": "DriveRequest_RequestType_Power"
+        },
+        "DriveRequest_RequestValue_t": {
+            "type": "union",
+            "members": {
+                "speed": "float",
+                "position": "int32_t",
+                "power": "int8_t"
+            },
+            "default_value": {
+                "power": 0
+            }
+        },
+        "DriveRequest_t": {
+            "type": "struct",
+            "fields": {
+                "power_limit": "float",
+                "speed_limit": "float",
+                "request_type": "DriveRequest_RequestType_t",
+                "request": "DriveRequest_RequestValue_t"
+            }
+        }
+    },
+    "runnables": {
+        "OnUpdate": {}
+    },
+    "ports": {
+        "AppliedDriveRequest": {
+            "port_type": "WriteIndexedData",
+            "data_type": "DriveRequest_t",
+            "count": 6
+        },
+        "UserDriveRequest": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "DriveRequest_t",
+            "count": 6
+        },
+        "DrivetrainDriveRequest": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "DriveRequest_t",
+            "count": 6
+        },
+        "IsDrivetrainMotor": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "bool",
+            "count": 6
+        }
+    }
+}

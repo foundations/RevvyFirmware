@@ -1,6 +1,6 @@
+#include "utils_assert.h"
 #include "ADCDispatcher.h"
 #include "utils.h"
-#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 #include <math.h>
@@ -34,12 +34,12 @@ void ADCDispatcher_Run_Update(void)
     ADCDispatcher_Write_MainBatteryVoltage((uint32_t) lroundf(ADCDispatcher_Read_ADC1_ChannelVoltage(ADC_CH_BAT_VOLTAGE) * (340.0f / 240.0f)));
 
     /* remap to 'brain index' */
-    ADCDispatcher_Write_MotorCurrent(3u, ADCDispatcher_Read_ADC1_ChannelVoltage(M0_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(4u, ADCDispatcher_Read_ADC0_ChannelVoltage(M1_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(5u, ADCDispatcher_Read_ADC1_ChannelVoltage(M2_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(2u, ADCDispatcher_Read_ADC0_ChannelVoltage(M3_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(1u, ADCDispatcher_Read_ADC0_ChannelVoltage(M4_ISEN_CH) / 0.120f); //mV / mOhm -> A
-    ADCDispatcher_Write_MotorCurrent(0u, ADCDispatcher_Read_ADC1_ChannelVoltage(M5_ISEN_CH) / 0.120f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(3u, ADCDispatcher_Read_ADC1_ChannelVoltage(M0_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(4u, ADCDispatcher_Read_ADC0_ChannelVoltage(M1_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(5u, ADCDispatcher_Read_ADC1_ChannelVoltage(M2_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(2u, ADCDispatcher_Read_ADC0_ChannelVoltage(M3_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(1u, ADCDispatcher_Read_ADC0_ChannelVoltage(M4_ISEN_CH) / 120.0f); //mV / mOhm -> A
+    ADCDispatcher_Write_MotorCurrent(0u, ADCDispatcher_Read_ADC1_ChannelVoltage(M5_ISEN_CH) / 120.0f); //mV / mOhm -> A
     /* End User Code Section: Update Start */
     /* Begin User Code Section: Update End */
 
@@ -49,6 +49,7 @@ void ADCDispatcher_Run_Update(void)
 __attribute__((weak))
 void ADCDispatcher_Write_MainBatteryVoltage(const Voltage_t value)
 {
+    (void) value;
     /* Begin User Code Section: MainBatteryVoltage Start */
 
     /* End User Code Section: MainBatteryVoltage Start */
@@ -60,6 +61,7 @@ void ADCDispatcher_Write_MainBatteryVoltage(const Voltage_t value)
 __attribute__((weak))
 void ADCDispatcher_Write_MotorBatteryVoltage(const Voltage_t value)
 {
+    (void) value;
     /* Begin User Code Section: MotorBatteryVoltage Start */
 
     /* End User Code Section: MotorBatteryVoltage Start */
@@ -71,6 +73,8 @@ void ADCDispatcher_Write_MotorBatteryVoltage(const Voltage_t value)
 __attribute__((weak))
 void ADCDispatcher_Write_MotorCurrent(uint32_t index, const Current_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 6);
     /* Begin User Code Section: MotorCurrent Start */
 
@@ -83,6 +87,8 @@ void ADCDispatcher_Write_MotorCurrent(uint32_t index, const Current_t value)
 __attribute__((weak))
 void ADCDispatcher_Write_Sensor_ADC(uint32_t index, const uint8_t value)
 {
+    (void) value;
+    (void) index;
     ASSERT(index < 4);
     /* Begin User Code Section: Sensor_ADC Start */
 

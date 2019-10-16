@@ -16,8 +16,6 @@
         "rrrc/rrrc_worklogic.c",
         "rrrc/runtime/comm_handlers.c",
         "rrrc/runtime/connections_error_storage.c",
-        "rrrc/runtime/connections_imu.c",
-        "rrrc/runtime/connections_timers.c",
         "rrrc/utils/color.c",
         "rrrc/utils/converter.c",
         "rrrc/utils/crc.c",
@@ -104,15 +102,18 @@
         "ADCDispatcher",
         "BatteryCalculator",
         "BatteryCharger",
-        "BatteryStatusProvider",
         "BluetoothStatusObserver",
         "CommunicationObserver",
+        "DriveRequestMultiplexer",
         "DriveTrain",
         "ErrorStorage",
         "ErrorStorageWrapper",
         "GyroscopeOffsetCompensator",
+        "HardwareCompatibilityChecker",
         "HighResolutionTimer",
         "IMU",
+        "IMUMovementDetector",
+        "IMUOrientationEstimator",
         "InternalTemperatureSensor",
         "LEDController",
         "LedDisplayController",
@@ -121,6 +122,7 @@
         "MasterStatusObserver",
         "McuStatusCollector",
         "McuStatusCollectorWrapper",
+        "McuStatusSlots",
         "MemoryAllocator",
         "MotorCurrentFilter",
         "MotorDerating",
@@ -132,8 +134,7 @@
         "RingLedDisplay",
         "SensorPortHandler",
         "VersionProvider",
-        "WatchdogFeeder",
-        "YawAngleTracker"
+        "WatchdogFeeder"
     ],
     "types": {
         "uint8_t": {
@@ -186,6 +187,14 @@
             "defined_in": "<float.h>",
             "default_value": "0.0f"
         },
+        "ByteArray_t": {
+            "type": "struct",
+            "pass_semantic": "value",
+            "fields": {
+                "bytes": "uint8_t*",
+                "count": "size_t"
+            }
+        },
         "QueueStatus_t": {
             "type": "enum",
             "pass_semantic": "value",
@@ -200,6 +209,7 @@
     "runtime": {
         "runnables": {
             "OnInit": [
+                "HardwareCompatibilityChecker/OnInit",
                 "ErrorStorage/OnInit",
                 "ADC0/OnInit",
                 "ADC1/OnInit",
@@ -216,30 +226,89 @@
                 "CommunicationObserver/OnInit",
                 "DriveTrain/OnInit",
                 "GyroscopeOffsetCompensator/OnInit",
-                "YawAngleTracker/OnInit",
                 "MasterCommunicationInterface/OnInit",
-                "LedDisplayController/OnInit"
+                "LedDisplayController/OnInit",
+                "IMUMovementDetector/OnInit",
+                "IMUOrientationEstimator/OnInit",
+                "McuStatusSlots/Reset",
+                "McuStatusCollector/Reset",
+                "MotorDriver_8833/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",
                 "ADC1/Update",
                 "IMU/OnUpdate",
+                "IMUMovementDetector/OnUpdate",
                 "GyroscopeOffsetCompensator/Update",
-                "YawAngleTracker/Update",
                 "ADCDispatcher/Update",
                 "MotorCurrentFilter/Update",
-                "MotorThermalModel/OnUpdate"
+                "MotorThermalModel/OnUpdate",
+                "McuStatusSlots/Update"
             ],
             "10ms_offset0": [
                 "BatteryCharger/Update",
                 "WatchdogFeeder/Feed",
                 "MotorDerating/OnUpdate",
-                "DriveTrain/Update"
+                "DriveTrain/Update",
+                "IMUOrientationEstimator/OnUpdate",
+                "DriveRequestMultiplexer/OnUpdate"
             ],
-            "10ms_offset1": [],
-            "10ms_offset2": [],
-            "10ms_offset3": [],
-            "10ms_offset4": [],
+            "10ms_offset1": [
+            ],
+            "10ms_offset2": [
+                [
+                    "MotorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 4
+                        }
+                    }
+                ],
+                [
+                    "MotorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 5
+                        }
+                    }
+                ]
+            ],
+            "10ms_offset3": [
+                [
+                    "MotorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 1
+                        }
+                    }
+                ],
+                [
+                    "MotorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 2
+                        }
+                    }
+                ]
+            ],
+            "10ms_offset4": [
+                [
+                    "MotorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 0
+                        }
+                    }
+                ],
+                [
+                    "MotorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 3
+                        }
+                    }
+                ]
+            ],
             "10ms_offset5": [],
             "10ms_offset6": [],
             "10ms_offset7": [],
@@ -252,13 +321,52 @@
                 "LedDisplayController/Update",
                 "LEDController/Update"
             ],
-            "20ms_offset2": [],
-            "20ms_offset3": [],
-            "20ms_offset4": [],
-            "20ms_offset5": [],
-            "20ms_offset6": [],
-            "20ms_offset7": [],
-            "20ms_offset8": [],
+            "20ms_offset2": [
+            ],
+            "20ms_offset3": [
+            ],
+            "20ms_offset4": [
+            ],
+            "20ms_offset5": [
+                [
+                    "SensorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 0
+                        }
+                    }
+                ]
+            ],
+            "20ms_offset6": [
+                [
+                    "SensorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 1
+                        }
+                    }
+                ]
+            ],
+            "20ms_offset7": [
+                [
+                    "SensorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 2
+                        }
+                    }
+                ]
+            ],
+            "20ms_offset8": [
+                [
+                    "SensorPortHandler/PortUpdate",
+                    {
+                        "arguments": {
+                            "port_idx": 3
+                        }
+                    }
+                ]
+            ],
             "20ms_offset9": [],
             "20ms_offset10": [],
             "20ms_offset11": [],
@@ -278,8 +386,8 @@
         },
         "port_connections": [
             {
-                "provider": "IMU/SampleTime",
-                "consumer": "YawAngleTracker/SampleTime"
+                "provider": "HardwareCompatibilityChecker/OnIncompatibleHardware",
+                "consumer": "RestartManager/RebootToBootloader"
             },
             {
                 "provider": "CommunicationObserver/ErrorLimitReached",
@@ -310,17 +418,56 @@
                 "consumer": "HighResolutionTimer/GetTickCount"
             },
             {
-                "provider": "BatteryCharger/ChargerState",
-                "consumer": "BatteryStatusProvider/IsMainBatteryCharging"
+                "provider": "SensorPortHandler/ConvertTicksToMs",
+                "consumer": "HighResolutionTimer/ToMs"
             },
             {
                 "provider": "CommunicationObserver/Enabled",
                 "consumer": "RingLedDisplay/MasterReady"
             },
             {
-                "queue_length": 1,
                 "provider": "IMU/GyroscopeSample",
-                "consumer": "GyroscopeOffsetCompensator/AngularSpeeds"
+                "consumers": [
+                    "GyroscopeOffsetCompensator/AngularSpeeds",
+                    "IMUMovementDetector/AngularSpeeds"
+                ],
+                "queue_length": 1
+            },
+            {
+                "provider": "GyroscopeOffsetCompensator/CompensatedAngularSpeeds",
+                "consumer": "IMUOrientationEstimator/AngularSpeeds",
+                "queue_length": 10
+            },
+            {
+                "provider": "IMUMovementDetector/IsMoving",
+                "consumer": "GyroscopeOffsetCompensator/IsMoving",
+                "init_value": "true"
+            },
+            {
+                "provider": "IMU/AccelerometerSample",
+                "consumer": "IMUOrientationEstimator/Acceleration",
+                "queue_length": 10
+            },
+            {
+                "provider": "IMU/SampleTime",
+                "consumer": "IMUOrientationEstimator/SampleTime"
+            },
+            {
+                "provider": "IMUOrientationEstimator/OrientationEulerDegrees",
+                "consumers": [
+                    [
+                        "DriveTrain/YawAngle",
+                        {
+                            "member": "yaw"
+                        }
+                    ],
+                    [
+                        "McuStatusSlots/YawAngle",
+                        {
+                            "member": "yaw"
+                        }
+                    ]
+                ]
             },
             {
                 "provider": "ADC0/RawChannelData",
@@ -363,10 +510,6 @@
                 "consumer": "MotorDerating/MotorTemperature"
             },
             {
-                "provider": "MotorDerating/DeratedControlValue",
-                "consumers": []
-            },
-            {
                 "provider": "ProjectConfiguration/MainBatteryParameters",
                 "consumer": "BatteryCalculator/MainBatteryParameters"
             },
@@ -377,6 +520,10 @@
             {
                 "provider": "ProjectConfiguration/MotorThermalParameters",
                 "consumer": "MotorThermalModel/ThermalParameters"
+            },
+            {
+                "provider": "ProjectConfiguration/MotorDeratingParameters",
+                "consumer": "MotorDerating/Parameters"
             },
             {
                 "provider": "BluetoothStatusObserver/ConnectionStatus",
@@ -417,6 +564,77 @@
             {
                 "provider": "MasterStatusObserver/MasterStatus",
                 "consumer": "LedDisplayController/MasterStatus"
+            },
+            {
+                "provider": "MotorPortHandler/DriveStrength",
+                "consumers": [
+                    "MotorDerating/ControlValue",
+                    "LedDisplayController/MotorDriveValues"
+                ]
+            },
+            {
+                "provider": "DriveTrain/MotorUsed",
+                "consumer": "DriveRequestMultiplexer/IsDrivetrainMotor"
+            },
+            {
+                "provider": "DriveTrain/DriveRequest",
+                "consumer": "DriveRequestMultiplexer/DrivetrainDriveRequest"
+            },
+            {
+                "provider": "MotorPortHandler/DriveRequest",
+                "consumer": "DriveRequestMultiplexer/UserDriveRequest"
+            },
+            {
+                "provider": "DriveRequestMultiplexer/AppliedDriveRequest",
+                "consumer": "MotorPortHandler/AppliedDriveRequest"
+            },
+            {
+                "provider": "IMU/RawAccelerometerSample",
+                "consumer": "McuStatusSlots/Acceleration"
+            },
+            {
+                "provider": "IMU/RawGyroscopeSample",
+                "consumer": "McuStatusSlots/AngularSpeeds"
+            },
+            {
+                "provider": "BatteryCalculator/MainBatteryLevel",
+                "consumer": "McuStatusSlots/MainBatteryLevel"
+            },
+            {
+                "provider": "BatteryCalculator/MotorBatteryLevel",
+                "consumer": "McuStatusSlots/MotorBatteryLevel"
+            },
+            {
+                "provider": "BatteryCharger/ChargerState",
+                "consumer": "McuStatusSlots/MainBatteryStatus"
+            },
+            {
+                "provider": "McuStatusSlots/SlotData",
+                "consumer": "McuStatusCollector/SlotData"
+            },
+            {
+                "provider": "McuStatusCollectorWrapper/ResetSlots",
+                "consumer": "McuStatusCollector/Reset"
+            },
+            {
+                "provider": "McuStatusCollectorWrapper/EnableSlot",
+                "consumer": "McuStatusCollector/EnableSlot"
+            },
+            {
+                "provider": "McuStatusCollectorWrapper/DisableSlot",
+                "consumer": "McuStatusCollector/DisableSlot"
+            },
+            {
+                "provider": "McuStatusCollectorWrapper/Read",
+                "consumer": "McuStatusCollector/Read"
+            },
+            {
+                "provider": "MotorPortHandler/UpdatePortStatus",
+                "consumer": "McuStatusSlots/UpdateMotorPort"
+            },
+            {
+                "provider": "SensorPortHandler/UpdatePortStatus",
+                "consumer": "McuStatusSlots/UpdateSensorPort"
             }
         ]
     }

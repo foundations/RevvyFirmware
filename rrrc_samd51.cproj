@@ -924,12 +924,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\BatteryCharger\BatteryCharger.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\BatteryStatusProvider\BatteryStatusProvider.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\BatteryStatusProvider\BatteryStatusProvider.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\components\BluetoothStatusObserver\BluetoothStatusObserver.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1155,12 +1149,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\RingLedDisplay\RingLedDisplay.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rrrc\components\YawAngleTracker\YawAngleTracker.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\components\YawAngleTracker\YawAngleTracker.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="rrrc\controller\pid.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1189,12 +1177,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\runtime\connections_error_storage.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\runtime\connections_imu.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rrrc\runtime\connections_timers.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="rrrc\utils\color.c">
@@ -1449,6 +1431,60 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\MotorPortHandler\config.json">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\IMUOrientationEstimator\IMUOrientationEstimator.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMUOrientationEstimator\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMUOrientationEstimator\IMUOrientationEstimator.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMUMovementDetector\IMUMovementDetector.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMUMovementDetector\IMUMovementDetector.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\IMUMovementDetector\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\DriveTrain\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\DriveRequestMultiplexer\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\DriveRequestMultiplexer\DriveRequestMultiplexer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\DriveRequestMultiplexer\DriveRequestMultiplexer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\McuStatusSlots\McuStatusSlots.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\McuStatusSlots\McuStatusSlots.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\McuStatusSlots\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\McuStatusCollector\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\MasterCommunicationInterface\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\HardwareCompatibilityChecker\HardwareCompatibilityChecker.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\HardwareCompatibilityChecker\HardwareCompatibilityChecker.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\HardwareCompatibilityChecker\config.json">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
@@ -1507,7 +1543,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\MotorDerating" />
     <Folder Include="rrrc\components\GyroscopeOffsetCompensator" />
     <Folder Include="rrrc\components\HighResolutionTimer" />
-    <Folder Include="rrrc\components\YawAngleTracker" />
     <Folder Include="rrrc\components\RestartManager" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
@@ -1516,7 +1551,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\HC_SR04" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\DebugRTC" />
     <Folder Include="rrrc\components\VersionProvider" />
-    <Folder Include="rrrc\components\BatteryStatusProvider" />
     <Folder Include="rrrc\components\RingLedDisplay" />
     <Folder Include="rrrc\components" />
     <Folder Include="rrrc\runtime" />
@@ -1541,6 +1575,11 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\ADCDispatcher" />
     <Folder Include="rrrc\components\MotorCurrentFilter" />
     <Folder Include="rrrc\components\LedDisplayController" />
+    <Folder Include="rrrc\components\IMUOrientationEstimator" />
+    <Folder Include="rrrc\components\IMUMovementDetector" />
+    <Folder Include="rrrc\components\DriveRequestMultiplexer" />
+    <Folder Include="rrrc\components\McuStatusSlots" />
+    <Folder Include="rrrc\components\HardwareCompatibilityChecker" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">

@@ -2,7 +2,7 @@
  * SensorPortHandler.h
  *
  * Created: 09/05/2019 14:03:48
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 #ifndef SENSOR_PORT_HANDLER_H_
@@ -17,6 +17,17 @@ struct _SensorPort_t;
 
 #include "hal_i2c_m_async.h"
 #include "SensorPortLibraries/SensorPortLibrary.h"
+
+#ifndef COMPONENT_TYPES_SENSOR_PORT_HANDLER_H_
+#define COMPONENT_TYPES_SENSOR_PORT_HANDLER_H_
+
+
+typedef struct {
+    uint8_t* bytes;
+    size_t count;
+} ByteArray_t;
+
+#endif
 
 typedef struct _SensorPort_t
 {
@@ -49,10 +60,10 @@ void SensorPortHandler_Run_OnInit(SensorPort_t* ports, size_t portCount);
 void SensorPortHandler_Run_Update(void);
 void SensorPortHandler_Run_PortUpdate(uint8_t port_idx);
 uint8_t SensorPortHandler_Read_AdcData(uint32_t port_idx);
-void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize);
+void SensorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status);
 uint16_t SensorPortHandler_Call_ReadCurrentTicks(void);
 
-float SensorPort_Call_GetMsFromTicks(uint16_t ticks);
+float SensorPort_Call_ConvertTicksToMs(uint32_t ticks);
 void* SensorPortHandler_Call_Allocate(size_t size);
 void SensorPortHandler_Call_Free(void** ptr);
 

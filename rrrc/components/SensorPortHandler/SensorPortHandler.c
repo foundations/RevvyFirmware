@@ -2,7 +2,7 @@
  * SensorPortHandler.c
  *
  * Created: 09/05/2019 14:03:32
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 #include "SensorPortHandlerInternal.h"
@@ -283,7 +283,7 @@ void SensorPortHandler_Run_Update(void)
             /* configuredPort set by SetPortType */
             configuredPort->library->DeInit(configuredPort);
             configuredPort->library = requestedLibrary;
-            SensorPort_Write_PortState(configuredPort->port_idx, NULL, 0u);
+            SensorPort_Call_UpdatePortStatus(configuredPort->port_idx, (ByteArray_t){NULL, 0u});
             configuredPort->library->Init(configuredPort);
         }
         else
@@ -327,11 +327,10 @@ void SensorPortHandler_Call_Free(void** ptr)
 }
 
 __attribute__((weak))
-void SensorPort_Write_PortState(uint8_t port_idx, uint8_t* pData, uint8_t dataSize)
+void SensorPort_Call_UpdatePortStatus(uint8_t port_idx, ByteArray_t status)
 {
     (void) port_idx;
-    (void) pData;
-    (void) dataSize;
+    (void) status;
 }
 
 __attribute__((weak))
@@ -341,7 +340,7 @@ uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
 }
 
 __attribute__((weak))
-float SensorPort_Call_GetMsFromTicks(uint16_t ticks)
+float SensorPort_Call_ConvertTicksToMs(uint32_t ticks)
 {
     return (float) ticks;
 }

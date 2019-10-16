@@ -109,7 +109,7 @@ SensorLibraryStatus_t BumperSwitch_UpdateAnalogData(SensorPort_t* sensorPort, ui
     uint8_t data[] = { rawValue > libdata->threshold ? 1u : 0u, rawValue };
     portEXIT_CRITICAL();
 
-    SensorPort_Write_PortState(sensorPort->port_idx, data, sizeof(data));
+    SensorPort_Call_UpdatePortStatus(sensorPort->port_idx, (ByteArray_t){data, sizeof(data)});
     return SensorLibraryStatus_Ok;
 }
 

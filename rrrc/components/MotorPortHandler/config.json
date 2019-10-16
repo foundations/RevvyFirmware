@@ -6,10 +6,44 @@
         "MotorPortLibraries/DcMotor/DcMotor.c",
         "MotorPortLibraries/Dummy/Dummy.c"
     ],
+    "types": {
+        "DriveRequest_RequestType_t": {
+            "type": "enum",
+            "values": [
+                "DriveRequest_RequestType_Speed",
+                "DriveRequest_RequestType_Position",
+                "DriveRequest_RequestType_RelativePosition",
+                "DriveRequest_RequestType_Power"
+            ],
+            "default_value": "DriveRequest_RequestType_Power"
+        },
+        "DriveRequest_RequestValue_t": {
+            "type": "union",
+            "members": {
+                "speed": "float",
+                "position": "int32_t",
+                "power": "int8_t"
+            },
+            "default_value": {
+                "power": 0
+            }
+        },
+        "DriveRequest_t": {
+            "type": "struct",
+            "fields": {
+                "power_limit": "float",
+                "speed_limit": "float",
+                "request_type": "DriveRequest_RequestType_t",
+                "request": "DriveRequest_RequestValue_t"
+            }
+        }
+    },
     "runnables": {
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
+        "Update": {},
+        "PortUpdate": {
+            "arguments": {
+                "port_idx": "uint8_t"
+            }
         }
     },
     "ports": {
@@ -31,6 +65,24 @@
             "port_type": "WriteIndexedData",
             "data_type": "int8_t",
             "count": 6
+        },
+        "DriveRequest": {
+            "port_type": "WriteIndexedData",
+            "data_type": "DriveRequest_t",
+            "count": 6,
+            "async": true
+        },
+        "AppliedDriveRequest": {
+            "port_type": "ReadIndexedValue",
+            "data_type": "DriveRequest_t",
+            "count": 6
+        },
+        "UpdatePortStatus": {
+            "port_type": "ServerCall",
+            "arguments": {
+                "port": "uint8_t",
+                "data": "ByteArray_t"
+            }
         }
     }
 }

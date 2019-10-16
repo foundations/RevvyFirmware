@@ -28,7 +28,7 @@ def is_signal_async(owner: Runtime, connection: SignalConnection):
     if port['async']:
         return True
 
-    for consumer in connection.consumers:
+    for consumer, _ in connection.consumers:
         consumer_port = owner.get_port(consumer)
         if consumer_port['port_type'] in can_be_async:
             if consumer_port['async']:

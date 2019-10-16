@@ -2,7 +2,7 @@
  * McuStatusCollectorWrapper.c
  *
  * Created: 2019. 07. 15. 10:09:32
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 #include "McuStatusCollectorWrapper.h"
@@ -20,7 +20,7 @@ Comm_Status_t McuStatusCollectorWrapper_Reset_Start(const uint8_t* commandPayloa
         return Comm_Status_Error_PayloadLengthError;
     }
     
-    McuStatusCollectorWrapper_Run_ResetSlots();
+    McuStatusCollectorWrapper_Call_ResetSlots();
 
     return Comm_Status_Ok;
 }
@@ -48,11 +48,11 @@ Comm_Status_t McuStatusCollectorWrapper_ControlSlot_Start(const uint8_t* command
 
     if (state)
     {
-        McuStatusCollectorWrapper_Run_EnableSlot(slot);
+        McuStatusCollectorWrapper_Call_EnableSlot(slot);
     }
     else
     {
-        McuStatusCollectorWrapper_Run_DisableSlot(slot);
+        McuStatusCollectorWrapper_Call_DisableSlot(slot);
     }
 
     return Comm_Status_Ok;
@@ -66,31 +66,31 @@ Comm_Status_t McuStatusCollectorWrapper_ReadStatus_Start(const uint8_t* commandP
         return Comm_Status_Error_PayloadLengthError;
     }
     
-    McuStatusCollectorWrapper_Run_ReadData(response, responseBufferSize, responseCount);
+    McuStatusCollectorWrapper_Call_ReadData(response, responseBufferSize, responseCount);
 
     return Comm_Status_Ok;
 }
 
 __attribute__((weak))
-void McuStatusCollectorWrapper_Run_ResetSlots(void)
+void McuStatusCollectorWrapper_Call_ResetSlots(void)
 {
 
 }
 
 __attribute__((weak))
-void McuStatusCollectorWrapper_Run_EnableSlot(uint8_t slot)
-{
-    (void) slot;
-}
-
-__attribute__((weak))
-void McuStatusCollectorWrapper_Run_DisableSlot(uint8_t slot)
+void McuStatusCollectorWrapper_Call_EnableSlot(uint8_t slot)
 {
     (void) slot;
 }
 
 __attribute__((weak))
-void McuStatusCollectorWrapper_Run_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
+void McuStatusCollectorWrapper_Call_DisableSlot(uint8_t slot)
+{
+    (void) slot;
+}
+
+__attribute__((weak))
+void McuStatusCollectorWrapper_Call_ReadData(uint8_t* pData, uint8_t bufferSize, uint8_t* dataSize)
 {
     (void) bufferSize;
     ASSERT(pData);

@@ -10,9 +10,11 @@
         "SensorPortLibraries/SensorPort_I2C.c"
     ],
     "runnables": {
-        "Update": {
-            "return_type": "void",
-            "arguments": {}
+        "Update": {},
+        "PortUpdate": {
+            "arguments": {
+                "port_idx": "uint8_t"
+            }
         }
     },
     "ports": {
@@ -34,10 +36,24 @@
             "port_type": "ServerCall",
             "return_type": "uint16_t"
         },
+        "ConvertTicksToMs": {
+            "port_type": "ServerCall",
+            "return_type": "float",
+            "arguments": {
+                "ticks": "uint32_t"
+            }
+        },
         "AdcData": {
             "port_type": "ReadIndexedValue",
             "data_type": "uint8_t",
             "count": 4
+        },
+        "UpdatePortStatus": {
+            "port_type": "ServerCall",
+            "arguments": {
+                "port": "uint8_t",
+                "data": "ByteArray_t"
+            }
         }
     }
 }

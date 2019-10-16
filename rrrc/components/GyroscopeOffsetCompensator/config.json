@@ -18,6 +18,11 @@
         "Update": {}
     },
     "ports": {
+        "IsMoving": {
+            "port_type": "ReadValue",
+            "default_value": null,
+            "data_type": "bool"
+        },
         "AngularSpeeds": {
             "port_type": "ReadQueuedValue",
             "default_value": null,

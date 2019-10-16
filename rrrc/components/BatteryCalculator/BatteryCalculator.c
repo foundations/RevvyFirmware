@@ -1,5 +1,5 @@
-#include "BatteryCalculator.h"
 #include "utils.h"
+#include "BatteryCalculator.h"
 #include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
@@ -119,6 +119,7 @@ void BatteryCalculator_Run_Update(void)
 __attribute__((weak))
 void BatteryCalculator_Write_MainBatteryLevel(const uint8_t value)
 {
+    (void) value;
     /* Begin User Code Section: MainBatteryLevel Start */
 
     /* End User Code Section: MainBatteryLevel Start */
@@ -130,6 +131,7 @@ void BatteryCalculator_Write_MainBatteryLevel(const uint8_t value)
 __attribute__((weak))
 void BatteryCalculator_Write_MainBatteryLow(const bool value)
 {
+    (void) value;
     /* Begin User Code Section: MainBatteryLow Start */
 
     /* End User Code Section: MainBatteryLow Start */
@@ -141,6 +143,7 @@ void BatteryCalculator_Write_MainBatteryLow(const bool value)
 __attribute__((weak))
 void BatteryCalculator_Write_MotorBatteryLevel(const uint8_t value)
 {
+    (void) value;
     /* Begin User Code Section: MotorBatteryLevel Start */
 
     /* End User Code Section: MotorBatteryLevel Start */
@@ -152,6 +155,7 @@ void BatteryCalculator_Write_MotorBatteryLevel(const uint8_t value)
 __attribute__((weak))
 void BatteryCalculator_Write_MotorBatteryPresent(const bool value)
 {
+    (void) value;
     /* Begin User Code Section: MotorBatteryPresent Start */
 
     /* End User Code Section: MotorBatteryPresent Start */
@@ -171,18 +175,6 @@ void BatteryCalculator_Read_MainBatteryParameters(BatteryConfiguration_t* value)
     /* Begin User Code Section: MainBatteryParameters End */
 
     /* End User Code Section: MainBatteryParameters End */
-}
-
-__attribute__((weak))
-bool BatteryCalculator_Read_MainBatteryParametersChanged(void)
-{
-    /* Begin User Code Section: MainBatteryParametersChanged Start */
-
-    /* End User Code Section: MainBatteryParametersChanged Start */
-    /* Begin User Code Section: MainBatteryParametersChanged End */
-
-    /* End User Code Section: MainBatteryParametersChanged End */
-    return false;
 }
 
 __attribute__((weak))
@@ -208,18 +200,6 @@ void BatteryCalculator_Read_MotorBatteryParameters(BatteryConfiguration_t* value
     /* Begin User Code Section: MotorBatteryParameters End */
 
     /* End User Code Section: MotorBatteryParameters End */
-}
-
-__attribute__((weak))
-bool BatteryCalculator_Read_MotorBatteryParametersChanged(void)
-{
-    /* Begin User Code Section: MotorBatteryParametersChanged Start */
-
-    /* End User Code Section: MotorBatteryParametersChanged Start */
-    /* Begin User Code Section: MotorBatteryParametersChanged End */
-
-    /* End User Code Section: MotorBatteryParametersChanged End */
-    return false;
 }
 
 __attribute__((weak))
