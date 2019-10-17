@@ -103,6 +103,7 @@
         "BatteryCalculator",
         "BatteryCharger",
         "BluetoothStatusObserver",
+        "CommWrapper_LedDisplay",
         "CommunicationObserver",
         "DriveRequestMultiplexer",
         "DriveTrain",
@@ -211,6 +212,7 @@
         "runnables": {
             "OnInit": [
                 "HardwareCompatibilityChecker/OnInit",
+                "StartupReasonProvider/OnInit",
                 "ErrorStorage/OnInit",
                 "ADC0/OnInit",
                 "ADC1/OnInit",
@@ -233,8 +235,7 @@
                 "IMUOrientationEstimator/OnInit",
                 "McuStatusSlots/Reset",
                 "McuStatusCollector/Reset",
-                "MotorDriver_8833/OnInit",
-                "StartupReasonProvider/OnInit"
+                "MotorDriver_8833/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",
@@ -524,6 +525,10 @@
                 "consumer": "MotorDerating/Parameters"
             },
             {
+                "provider": "ProjectConfiguration/ExpectedStartupTime",
+                "consumer": "RingLedDisplay/ExpectedStartupTime"
+            },
+            {
                 "provider": "BluetoothStatusObserver/ConnectionStatus",
                 "consumer": "LedDisplayController/BluetoothStatus"
             },
@@ -636,6 +641,23 @@
             {
                 "provider": "SensorPortHandler/UpdatePortStatus",
                 "consumer": "McuStatusSlots/UpdateSensorPort"
+            },
+            {
+                "provider": "CommWrapper_LedDisplay/UserFrame",
+                "consumer": "RingLedDisplay/UserColors"
+            },
+            {
+                "provider": "CommWrapper_LedDisplay/Scenario",
+                "consumer": "RingLedDisplay/Scenario",
+                "init_value": "RingLedScenario_BusyIndicator"
+            },
+            {
+                "provider": "CommWrapper_LedDisplay/ReadScenarioName",
+                "consumer": "RingLedDisplay/ReadScenarioName"
+            },
+            {
+                "provider": "StartupReasonProvider/IsColdStart",
+                "consumer": "RingLedDisplay/WaitForMasterStartup"
             }
         ]
     }

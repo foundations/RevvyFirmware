@@ -50,6 +50,9 @@ static DriveRequest_t DriveRequestMultiplexer_AppliedDriveRequest_array[6] = { {
 static IMU_RawSample_t IMU_RawAccelerometerSample_variable = { .x = 0, .y = 0, .z = 0 };
 static IMU_RawSample_t IMU_RawGyroscopeSample_variable = { .x = 0, .y = 0, .z = 0 };
 static SlotData_t McuStatusSlots_SlotData_array[14] = { { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu }, { .data = { .bytes = NULL, .count = 0u }, .version = 0xFFu } };
+static rgb_t CommWrapper_LedDisplay_UserFrame_array[12] = { (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0}, (rgb_t){0, 0, 0} };
+static RingLedScenario_t CommWrapper_LedDisplay_Scenario_variable = RingLedScenario_BusyIndicator;
+static bool StartupReasonProvider_IsColdStart_variable = false;
 
 void Runtime_Call_OnInit(void)
 {
@@ -57,6 +60,7 @@ void Runtime_Call_OnInit(void)
 
     /* End User Code Section: Runtime/OnInit Start */
     HardwareCompatibilityChecker_Run_OnInit();
+    StartupReasonProvider_Run_OnInit();
     ErrorStorage_Run_OnInit();
     ADC0_Run_OnInit();
     ADC1_Run_OnInit();
@@ -80,7 +84,6 @@ void Runtime_Call_OnInit(void)
     McuStatusSlots_Run_Reset();
     McuStatusCollector_Run_Reset();
     MotorDriver_8833_Run_OnInit();
-    StartupReasonProvider_Run_OnInit();
     /* Begin User Code Section: Runtime/OnInit End */
 
     /* End User Code Section: Runtime/OnInit End */
@@ -607,6 +610,18 @@ void SensorPortHandler_Call_UpdatePortStatus(uint8_t port, ByteArray_t data)
     /* End User Code Section: SensorPortHandler/UpdatePortStatus End */
 }
 
+uint8_t CommWrapper_LedDisplay_Call_ReadScenarioName(RingLedScenario_t scenario, ByteArray_t destination)
+{
+    /* Begin User Code Section: CommWrapper_LedDisplay/ReadScenarioName Start */
+
+    /* End User Code Section: CommWrapper_LedDisplay/ReadScenarioName Start */
+    uint8_t return_value = RingLedDisplay_Run_ReadScenarioName(scenario, destination);
+    /* Begin User Code Section: CommWrapper_LedDisplay/ReadScenarioName End */
+
+    /* End User Code Section: CommWrapper_LedDisplay/ReadScenarioName End */
+    return return_value;
+}
+
 void ADC0_Write_ChannelVoltage(uint32_t index, const Voltage_t value)
 {
     ASSERT(index < 4);
@@ -765,6 +780,33 @@ void BluetoothStatusObserver_Write_ConnectionStatus(const BluetoothStatus_t valu
     /* Begin User Code Section: BluetoothStatusObserver/ConnectionStatus End */
 
     /* End User Code Section: BluetoothStatusObserver/ConnectionStatus End */
+}
+
+void CommWrapper_LedDisplay_Write_Scenario(const RingLedScenario_t value)
+{
+    /* Begin User Code Section: CommWrapper_LedDisplay/Scenario Start */
+
+    /* End User Code Section: CommWrapper_LedDisplay/Scenario Start */
+    __disable_irq();
+    CommWrapper_LedDisplay_Scenario_variable = value;
+    __enable_irq();
+    /* Begin User Code Section: CommWrapper_LedDisplay/Scenario End */
+
+    /* End User Code Section: CommWrapper_LedDisplay/Scenario End */
+}
+
+void CommWrapper_LedDisplay_Write_UserFrame(uint32_t index, const rgb_t value)
+{
+    ASSERT(index < 12);
+    /* Begin User Code Section: CommWrapper_LedDisplay/UserFrame Start */
+
+    /* End User Code Section: CommWrapper_LedDisplay/UserFrame Start */
+    __disable_irq();
+    CommWrapper_LedDisplay_UserFrame_array[index] = value;
+    __enable_irq();
+    /* Begin User Code Section: CommWrapper_LedDisplay/UserFrame End */
+
+    /* End User Code Section: CommWrapper_LedDisplay/UserFrame End */
 }
 
 void CommunicationObserver_Write_Enabled(const bool value)
@@ -1031,6 +1073,17 @@ void RingLedDisplay_Write_LedColor(uint32_t index, const rgb_t value)
     /* Begin User Code Section: RingLedDisplay/LedColor End */
 
     /* End User Code Section: RingLedDisplay/LedColor End */
+}
+
+void StartupReasonProvider_Write_IsColdStart(const bool value)
+{
+    /* Begin User Code Section: StartupReasonProvider/IsColdStart Start */
+
+    /* End User Code Section: StartupReasonProvider/IsColdStart Start */
+    StartupReasonProvider_IsColdStart_variable = value;
+    /* Begin User Code Section: StartupReasonProvider/IsColdStart End */
+
+    /* End User Code Section: StartupReasonProvider/IsColdStart End */
 }
 
 Voltage_t ADCDispatcher_Read_ADC0_ChannelVoltage(uint32_t index)
@@ -1632,6 +1685,17 @@ void MotorThermalModel_Read_ThermalParameters(MotorThermalParameters_t* value)
     /* End User Code Section: MotorThermalModel/ThermalParameters End */
 }
 
+uint32_t RingLedDisplay_Read_ExpectedStartupTime(void)
+{
+    /* Begin User Code Section: RingLedDisplay/ExpectedStartupTime Start */
+
+    /* End User Code Section: RingLedDisplay/ExpectedStartupTime Start */
+    /* Begin User Code Section: RingLedDisplay/ExpectedStartupTime End */
+
+    /* End User Code Section: RingLedDisplay/ExpectedStartupTime End */
+    return ProjectConfiguration_Constant_ExpectedStartupTime();
+}
+
 bool RingLedDisplay_Read_MasterReady(void)
 {
     /* Begin User Code Section: RingLedDisplay/MasterReady Start */
@@ -1641,6 +1705,47 @@ bool RingLedDisplay_Read_MasterReady(void)
     /* Begin User Code Section: RingLedDisplay/MasterReady End */
 
     /* End User Code Section: RingLedDisplay/MasterReady End */
+    return return_value;
+}
+
+RingLedScenario_t RingLedDisplay_Read_Scenario(void)
+{
+    /* Begin User Code Section: RingLedDisplay/Scenario Start */
+
+    /* End User Code Section: RingLedDisplay/Scenario Start */
+    __disable_irq();
+    RingLedScenario_t return_value = CommWrapper_LedDisplay_Scenario_variable;
+    __enable_irq();
+    /* Begin User Code Section: RingLedDisplay/Scenario End */
+
+    /* End User Code Section: RingLedDisplay/Scenario End */
+    return return_value;
+}
+
+rgb_t RingLedDisplay_Read_UserColors(uint32_t index)
+{
+    ASSERT(index < 12);
+    /* Begin User Code Section: RingLedDisplay/UserColors Start */
+
+    /* End User Code Section: RingLedDisplay/UserColors Start */
+    __disable_irq();
+    rgb_t return_value = CommWrapper_LedDisplay_UserFrame_array[index];
+    __enable_irq();
+    /* Begin User Code Section: RingLedDisplay/UserColors End */
+
+    /* End User Code Section: RingLedDisplay/UserColors End */
+    return return_value;
+}
+
+bool RingLedDisplay_Read_WaitForMasterStartup(void)
+{
+    /* Begin User Code Section: RingLedDisplay/WaitForMasterStartup Start */
+
+    /* End User Code Section: RingLedDisplay/WaitForMasterStartup Start */
+    bool return_value = StartupReasonProvider_IsColdStart_variable;
+    /* Begin User Code Section: RingLedDisplay/WaitForMasterStartup End */
+
+    /* End User Code Section: RingLedDisplay/WaitForMasterStartup End */
     return return_value;
 }
 

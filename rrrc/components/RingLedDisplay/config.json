@@ -1,7 +1,8 @@
 {
     "component_name": "RingLedDisplay",
     "source_files": [
-        "RingLedDisplay.c"
+        "RingLedDisplay.c",
+        "Scenario/scenario_handlers.c"
     ],
     "types": {
         "rgb_t": {
@@ -23,17 +24,46 @@
     },
     "runnables": {
         "OnInit": {},
-        "Update": {}
+        "Update": {},
+        "ReadScenarioName": {
+            "return_type": "uint8_t",
+            "arguments": {
+                "scenario": "RingLedScenario_t",
+                "destination": "ByteArray_t"
+            }
+        }
     },
     "ports": {
+        "Scenario": {
+            "port_type": "ReadValue",
+            "default_value": null,
+            "data_type": "RingLedScenario_t"
+        },
         "MasterReady": {
             "port_type": "ReadValue",
+            "default_value": null,
+            "data_type": "bool"
+        },
+        "WaitForMasterStartup": {
+            "port_type": "ReadValue",
+            "default_value": null,
             "data_type": "bool"
         },
         "LedColor": {
             "port_type": "WriteIndexedData",
             "data_type": "rgb_t",
             "count": 12
+        },
+        "UserColors": {
+            "port_type": "ReadIndexedValue",
+            "default_value": null,
+            "data_type": "rgb_t",
+            "count": 12
+        },
+        "ExpectedStartupTime": {
+            "port_type": "ReadValue",
+            "default_value": null,
+            "data_type": "uint32_t"
         }
     }
 }

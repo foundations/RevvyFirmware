@@ -33,10 +33,7 @@ void SensorPort_ext1_callback(void* user_data)
 
     if (port != NULL)
     {
-        if (port->library != NULL)
-        {
-            port->library->InterruptHandler(port, SensorPort_Read_Gpio1(port));
-        }
+        port->library->InterruptHandler(port, SensorPort_Read_Gpio1(port));
     }
 }
 
@@ -59,8 +56,10 @@ static void _init_port(SensorPort_t* port)
     gpio_set_pin_direction(port->vccio, GPIO_DIRECTION_OUT);
     gpio_set_pin_level(port->vccio, false);
     
+    SensorPort_ConfigureGpio0_Input(port);
+    SensorPort_ConfigureGpio1_Input(port);
+
     _gpio_set_continuous_sampling(port->gpio0);
-    //_gpio_set_continuous_sampling(port->gpio1);
     
     /* set dummy library */
     port->library = &sensor_library_dummy;
@@ -291,7 +290,7 @@ void SensorPortHandler_Run_Update(void)
             /* configuredPort set by SetPortConfig */
             configuredPort->library->UpdateConfiguration(configuredPort);
         }
-        
+
         configuredPort = NULL;
     }
 }

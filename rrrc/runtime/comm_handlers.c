@@ -2,7 +2,7 @@
  * comm_handlers.c
  *
  * Created: 2019. 05. 30. 14:33:06
- *  Author: Dániel Buga
+ *  Author: Dï¿½niel Buga
  */ 
 
 #include "../rrrc_worklogic.h"
@@ -50,10 +50,10 @@ const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT] =
     [0x24u] = { .Start = &SensorPortHandler_GetSensorData_Start, .GetResult = &SensorPortHandler_GetSensorData_GetResult, .Cancel = NULL },
 
     /* led ring commands */
-    [0x30u] = { .Start = &RingLedDisplay_GetScenarioTypes_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x31u] = { .Start = &RingLedDisplay_SetScenarioType_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x32u] = { .Start = &RingLedDisplay_GetRingLedAmount_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x33u] = { .Start = &RingLedDisplay_SetUserFrame_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x30u] = { .Start = &CommWrapper_LedDisplay_GetScenarioTypes_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x31u] = { .Start = &CommWrapper_LedDisplay_SetScenarioType_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x32u] = { .Start = &CommWrapper_LedDisplay_GetRingLedAmount_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x33u] = { .Start = &CommWrapper_LedDisplay_SetUserFrame_Start, .GetResult = NULL, .Cancel = NULL },
 
     /* MCU status updater commands */
     [0x3Au] = { .Start = &McuStatusCollectorWrapper_Reset_Start, .GetResult = NULL, .Cancel = NULL },
