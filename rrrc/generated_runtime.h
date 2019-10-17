@@ -164,6 +164,7 @@ typedef enum {
 #define COMPONENT_TYPES_RESTART_MANAGER_H_
 #define COMPONENT_TYPES_RING_LED_DISPLAY_H_
 #define COMPONENT_TYPES_SENSOR_PORT_HANDLER_H_
+#define COMPONENT_TYPES_STARTUP_REASON_PROVIDER_H_
 #define COMPONENT_TYPES_VERSION_PROVIDER_H_
 #define COMPONENT_TYPES_WATCHDOG_FEEDER_H_
 
@@ -203,6 +204,7 @@ typedef enum {
 #include "components/RestartManager/RestartManager.h"
 #include "components/RingLedDisplay/RingLedDisplay.h"
 #include "components/SensorPortHandler/SensorPortHandler.h"
+#include "components/StartupReasonProvider/StartupReasonProvider.h"
 #include "components/VersionProvider/VersionProvider.h"
 #include "components/WatchdogFeeder/WatchdogFeeder.h"
 

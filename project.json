@@ -133,6 +133,7 @@
         "RestartManager",
         "RingLedDisplay",
         "SensorPortHandler",
+        "StartupReasonProvider",
         "VersionProvider",
         "WatchdogFeeder"
     ],
@@ -232,7 +233,8 @@
                 "IMUOrientationEstimator/OnInit",
                 "McuStatusSlots/Reset",
                 "McuStatusCollector/Reset",
-                "MotorDriver_8833/OnInit"
+                "MotorDriver_8833/OnInit",
+                "StartupReasonProvider/OnInit"
             ],
             "1ms": [
                 "ADC0/Update",
@@ -253,8 +255,7 @@
                 "IMUOrientationEstimator/OnUpdate",
                 "DriveRequestMultiplexer/OnUpdate"
             ],
-            "10ms_offset1": [
-            ],
+            "10ms_offset1": [],
             "10ms_offset2": [
                 [
                     "MotorPortHandler/PortUpdate",
@@ -321,12 +322,9 @@
                 "LedDisplayController/Update",
                 "LEDController/Update"
             ],
-            "20ms_offset2": [
-            ],
-            "20ms_offset3": [
-            ],
-            "20ms_offset4": [
-            ],
+            "20ms_offset2": [],
+            "20ms_offset3": [],
+            "20ms_offset4": [],
             "20ms_offset5": [
                 [
                     "SensorPortHandler/PortUpdate",

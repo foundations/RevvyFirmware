@@ -1485,6 +1485,15 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\HardwareCompatibilityChecker\config.json">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\StartupReasonProvider\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\StartupReasonProvider\StartupReasonProvider.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\StartupReasonProvider\StartupReasonProvider.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
@@ -1580,6 +1589,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\DriveRequestMultiplexer" />
     <Folder Include="rrrc\components\McuStatusSlots" />
     <Folder Include="rrrc\components\HardwareCompatibilityChecker" />
+    <Folder Include="rrrc\components\StartupReasonProvider" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">
