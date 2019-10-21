@@ -9,8 +9,9 @@
 void StartupReasonProvider_Run_OnInit(void)
 {
     /* Begin User Code Section: OnInit Start */
-    if (hri_rstc_get_RCAUSE_POR_bit(RSTC))
+    if (hri_rstc_get_RCAUSE_POR_bit(RSTC) || hri_rstc_get_RCAUSE_EXT_bit(RSTC))
     {
+        // we currntly don't use the external reset pin, but with some probability it is fired during startup
         StartupReasonProvider_Write_IsColdStart(true);
     }
     else
