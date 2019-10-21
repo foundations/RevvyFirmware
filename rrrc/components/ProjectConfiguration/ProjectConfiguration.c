@@ -6,6 +6,17 @@
 
 /* End User Code Section: Declarations */
 
+uint8_t ProjectConfiguration_Constant_FirmwareOperationMode(void)
+{
+    /* Begin User Code Section: FirmwareOperationMode Start */
+
+    /* End User Code Section: FirmwareOperationMode Start */
+    /* Begin User Code Section: FirmwareOperationMode End */
+
+    /* End User Code Section: FirmwareOperationMode End */
+    return 0xAA;
+}
+
 uint32_t ProjectConfiguration_Constant_ExpectedStartupTime(void)
 {
     /* Begin User Code Section: ExpectedStartupTime Start */

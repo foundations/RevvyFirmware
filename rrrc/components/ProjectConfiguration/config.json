@@ -36,6 +36,11 @@
     },
     "runnables": {},
     "ports": {
+        "FirmwareOperationMode": {
+            "port_type": "Constant",
+            "data_type": "uint8_t",
+            "value": "0xAA"
+        },
         "MainBatteryParameters": {
             "port_type": "Constant",
             "data_type": "BatteryConfiguration_t",

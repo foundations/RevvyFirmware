@@ -29,6 +29,7 @@ typedef struct {
 
 #endif /* COMPONENT_TYPES_PROJECT_CONFIGURATION_H_ */
 
+uint8_t ProjectConfiguration_Constant_FirmwareOperationMode(void);
 uint32_t ProjectConfiguration_Constant_ExpectedStartupTime(void);
 void ProjectConfiguration_Constant_MainBatteryParameters(BatteryConfiguration_t* value);
 void ProjectConfiguration_Constant_MotorBatteryParameters(BatteryConfiguration_t* value);
