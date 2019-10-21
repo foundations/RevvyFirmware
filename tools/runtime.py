@@ -603,7 +603,8 @@ class Runtime:
             'functions': {},
             'declarations': [],
             'exported_function_declarations': [],
-            'signals': {}
+            'runtime_includes':               {'"utils.h"'},
+            'signals':                        {}
         }
 
         if context is None:
@@ -721,10 +722,8 @@ class Runtime:
             type_names += c.get('types', {}).keys()
 
         output_filename = filename[filename.rfind('/') + 1:]
-        includes = {
-            '"{}.h"'.format(output_filename),
-            '"utils.h"'
-        }
+        includes = context['runtime_includes']
+        includes.add('"{}.h"'.format(output_filename))
 
         for f in context['functions'].values():
             if f:
