@@ -30,15 +30,10 @@ def collect_arguments(attributes, consumer_name, consumer_arguments, function):
         else:
             raise Exception('Unable to connect argument {} of {}'.format(arg_name, consumer_name))
 
-    missing_arguments = set(passed_arguments.keys()) - set(consumer_arguments)
-    if missing_arguments:
-        raise Exception("The following arguments are missing from {}: {}"
-                        .format(consumer_name, ", ".join(missing_arguments)))
-
     return passed_arguments
 
 
-class EventSignal(SignalType):
+class FunctionCallSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple')
 
@@ -49,33 +44,12 @@ class EventSignal(SignalType):
         pass
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
-        runtime = context['runtime']
-
-        consumer_port_data = runtime.get_port(consumer_name)
-        function = context['functions'][connection.provider]
-
-        component_name, port_name = consumer_name.split('/')
-        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
-
-        ctx = {
-            'template': "{{ component }}_Run_{{ runnable }}({{ arguments }});",
-            'data':     {
-                'component': component_name,
-                'runnable':  port_name,
-                'arguments': ', '.join([str(v) for v in passed_arguments.values()])
-            }
-        }
-
-        return {
-            connection.provider: {
-                'body': chevron.render(**ctx)
-            }
-        }
+        raise NotImplementedError
 
 
-class ServerCallSignal(SignalType):
+class EventSignal(FunctionCallSignal):
     def __init__(self):
-        super().__init__(consumers='single')
+        super().__init__()
 
     def create(self, context, connection: SignalConnection):
         pass
@@ -89,31 +63,50 @@ class ServerCallSignal(SignalType):
         consumer_port_data = runtime.get_port(consumer_name)
         function = context['functions'][connection.provider]
 
-        component_name, port_name = consumer_name.split('/')
         passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
 
-        data = {
-            'component': component_name,
-            'runnable':  port_name,
-            'arguments': ', '.join([str(v) for v in passed_arguments.values()]),
-            'data_type': consumer_port_data['return_type']
+        fn_to_call = context['functions'][consumer_name]
+        call_code = fn_to_call.function_call(passed_arguments)
+
+        return {
+            connection.provider: {
+                'body': call_code + ';'
+            }
         }
 
-        if function.return_type == 'void':
-            template = "{{ component }}_Run_{{ runnable }}({{ arguments }});"
 
+class ServerCallSignal(FunctionCallSignal):
+    def __init__(self):
+        super().__init__()
+
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
+        runtime = context['runtime']
+
+        consumer_port_data = runtime.get_port(consumer_name)
+        function = context['functions'][connection.provider]
+
+        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
+
+        fn_to_call = context['functions'][consumer_name]
+        call_code = fn_to_call.function_call(passed_arguments)
+
+        if function.return_type == 'void':
             return {
                 connection.provider: {
-                    'body': chevron.render(template, data)
+                    'body': call_code + ';'
                 }
             }
 
         else:
-            if function.return_type != consumer_port_data['return_type']:
+            if function.return_type != fn_to_call.return_type:
                 raise Exception('Callee return type is incompatible ({} instead of {})'
                                 .format(consumer_port_data['return_type'], function.return_type))
 
-            template = "{{ data_type }} return_value = {{ component }}_Run_{{ runnable }}({{ arguments }});"
+            template = "{{ data_type }} return_value = {{ call_code }};"
+            data = {
+                'call_code': call_code,
+                'data_type': consumer_port_data['return_type']
+            }
 
             return {
                 connection.provider: {
