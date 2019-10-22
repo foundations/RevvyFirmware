@@ -116,6 +116,8 @@ class FunctionDescriptor:
         self.includes = set()
 
     def mark_argument_used(self, arg):
+        if arg not in self._arguments:
+            raise Exception('Unknown argument {} given for function {}'.format(arg, self._name))
         self._used_arguments.add(arg)
 
     def add_attribute(self, attribute):
@@ -244,8 +246,11 @@ class FunctionDescriptor:
     def referenced_types(self):
         return [data['data_type'] for data in self._arguments.values()] + [self._return_type]
 
-    def function_call(self, arguments):
-        template = '{{ func_name }}({{ arguments }})'
+    def function_call(self, arguments=None):
+        template = '{{ func_name }}({{{ arguments }}})'
+
+        if arguments is None:
+            arguments = {}
 
         required_args = set(self.arguments.keys())
         missing_args = required_args - arguments.keys()
@@ -623,7 +628,7 @@ class Runtime:
             'runtime':                        self,
             'files':                          {source_file_name: '', header_file_name: ''},
             'functions':                      {},
-            'functions_to_generate':          {},
+            'functions_to_generate':          [],
             'declarations':                   [],
             'exported_function_declarations': [],
             'runtime_includes':               {'"utils.h"'},
@@ -635,6 +640,12 @@ class Runtime:
         else:
             context = {**default_context, **context}
 
+        for port in self._ports:
+            function_data = self._get_function_data(port)
+            component, port_name = port.split('/')
+
+            context['functions'][port] = self.create_function_for_port(component, port_name, function_data)
+
         for connection in self._project_config['runtime']['port_connections']:
             provider_ref = connection['provider']
 
@@ -643,22 +654,15 @@ class Runtime:
             provider_port_type_data = self.get_port_type_data(provider_short_name)
             provided_signal_types = provider_port_type_data['provides']
 
-            def create_fn(port_ref):
-                function_data = self._get_function_data(port_ref['short_name'])
-                return self.create_function_for_port(port_ref['component'], port_ref.get('port', port_ref.get('runnable')), function_data)
-
             def create_signal_connection(attributes, signal_name, signal_type, consumer_attributes):
                 signal = signal_type.create_connection(context, signal_name, provider_short_name, attributes)
                 signal.add_consumer(consumer_short_name, consumer_attributes)
                 return signal
 
-            if provider_short_name not in context['functions']:
-                fn = create_fn(provider_ref)
-                context['functions'][provider_short_name] = fn
-
+            if provider_short_name not in context['functions_to_generate']:
                 function_data = self._get_function_data(provider_ref['short_name'])
                 if 'weak' in function_data.get('attributes', []):
-                    context['functions_to_generate'][provider_short_name] = fn
+                    context['functions_to_generate'].append(provider_short_name)
 
             provider_attributes = {key: connection[key] for key in connection if
                                    key not in ['provider', 'consumer', 'consumers']}
@@ -684,13 +688,10 @@ class Runtime:
                 signal_type_name = inferred_signal_type.pop()
                 signal_type = self._signal_types[signal_type_name]
 
-                if consumer_short_name not in context['functions']:
-                    fn = create_fn(consumer_ref)
-                    context['functions'][consumer_short_name] = fn
-
-                    function_data = self._get_function_data(consumer_ref['short_name'])
+                if consumer_short_name not in context['functions_to_generate']:
+                    function_data = self._get_function_data(consumer_short_name)
                     if 'weak' in function_data.get('attributes', []):
-                        context['functions_to_generate'][consumer_short_name] = fn
+                        context['functions_to_generate'].append(consumer_short_name)
 
                 else:
                     # this port already is the consumer of some signal
@@ -776,7 +777,8 @@ class Runtime:
             'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
             'function_declarations': [context['functions'][func_name].get_header() for func_name in
                                       context['exported_function_declarations']],
-            'functions':             [func.get_function() for name, func in context['functions'].items() if name in context['functions_to_generate']],  # this way preserves function order
+            'functions':             [func.get_function() for name, func in context['functions'].items() if
+                                      name in context['functions_to_generate']],  # this way preserves function order
             'variables':             context['declarations']
         }
 

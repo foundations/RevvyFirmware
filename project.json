@@ -659,5 +659,21 @@
                 "consumer": "RingLedDisplay/WaitForMasterStartup"
             }
         ]
+    },
+    "communication": {
+        "commands": [
+            {},
+            null,
+            null,
+            null,
+            null,
+            null,
+            "ProjectConfiguration/FirmwareOperationMode",
+            null,
+            null,
+            null,
+            null,
+            "RestartManager/RebootToBootloader"
+        ]
     }
 }

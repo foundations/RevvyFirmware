@@ -3,6 +3,7 @@ import os
 
 from tools.generator_common import FileTransaction
 from tools.plugins.BuiltinDataTypes import builtin_data_types
+from tools.plugins.CommunicationWrapper import communication_wrapper
 from tools.plugins.Locks import locks
 from tools.plugins.ProjectConfigCompactor import project_config_compactor
 from tools.plugins.RuntimeEvents import runtime_events
@@ -22,6 +23,7 @@ if __name__ == "__main__":
     rt.add_plugin(builtin_data_types())
     rt.add_plugin(runtime_events())
     rt.add_plugin(locks())
+    rt.add_plugin(communication_wrapper())
     rt.add_plugin(user_code_plugin())
 
     rt.load(True)
