@@ -339,7 +339,7 @@ uint16_t SensorPortHandler_Call_ReadCurrentTicks(void)
 }
 
 __attribute__((weak))
-float SensorPort_Call_ConvertTicksToMs(uint32_t ticks)
+float SensorPortHandler_Call_ConvertTicksToMs(uint32_t ticks)
 {
     return (float) ticks;
 }
