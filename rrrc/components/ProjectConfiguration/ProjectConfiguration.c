@@ -6,6 +6,17 @@
 
 /* End User Code Section: Declarations */
 
+uint32_t ProjectConfiguration_Constant_ExpectedStartupTime(void)
+{
+    /* Begin User Code Section: ExpectedStartupTime Start */
+
+    /* End User Code Section: ExpectedStartupTime Start */
+    /* Begin User Code Section: ExpectedStartupTime End */
+
+    /* End User Code Section: ExpectedStartupTime End */
+    return 32000;
+}
+
 void ProjectConfiguration_Constant_MainBatteryParameters(BatteryConfiguration_t* value)
 {
     ASSERT(value != NULL);

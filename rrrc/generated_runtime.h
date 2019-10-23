@@ -30,6 +30,15 @@ typedef enum {
 } BluetoothStatus_t;
 
 typedef enum {
+    RingLedScenario_Off,
+    RingLedScenario_UserFrame,
+    RingLedScenario_ColorWheel,
+    RingLedScenario_RainbowFade,
+    RingLedScenario_BusyIndicator,
+    RingLedScenario_BreathingGreen
+} RingLedScenario_t;
+
+typedef enum {
     DriveRequest_RequestType_Speed,
     DriveRequest_RequestType_Position,
     DriveRequest_RequestType_RelativePosition,
@@ -114,15 +123,6 @@ typedef struct {
 } MotorThermalParameters_t;
 
 typedef enum {
-    RingLedScenario_Off,
-    RingLedScenario_UserFrame,
-    RingLedScenario_ColorWheel,
-    RingLedScenario_RainbowFade,
-    RingLedScenario_BusyIndicator,
-    RingLedScenario_BreathingGreen
-} RingLedScenario_t;
-
-typedef enum {
     QueueStatus_Empty,
     QueueStatus_Ok,
     QueueStatus_Overflow
@@ -134,6 +134,7 @@ typedef enum {
 #define COMPONENT_TYPES_BATTERY_CALCULATOR_H_
 #define COMPONENT_TYPES_BATTERY_CHARGER_H_
 #define COMPONENT_TYPES_BLUETOOTH_STATUS_OBSERVER_H_
+#define COMPONENT_TYPES_COMM_WRAPPER__LED_DISPLAY_H_
 #define COMPONENT_TYPES_COMMUNICATION_OBSERVER_H_
 #define COMPONENT_TYPES_DRIVE_REQUEST_MULTIPLEXER_H_
 #define COMPONENT_TYPES_DRIVE_TRAIN_H_
@@ -164,6 +165,7 @@ typedef enum {
 #define COMPONENT_TYPES_RESTART_MANAGER_H_
 #define COMPONENT_TYPES_RING_LED_DISPLAY_H_
 #define COMPONENT_TYPES_SENSOR_PORT_HANDLER_H_
+#define COMPONENT_TYPES_STARTUP_REASON_PROVIDER_H_
 #define COMPONENT_TYPES_VERSION_PROVIDER_H_
 #define COMPONENT_TYPES_WATCHDOG_FEEDER_H_
 
@@ -173,6 +175,7 @@ typedef enum {
 #include "components/BatteryCalculator/BatteryCalculator.h"
 #include "components/BatteryCharger/BatteryCharger.h"
 #include "components/BluetoothStatusObserver/BluetoothStatusObserver.h"
+#include "components/CommWrapper_LedDisplay/CommWrapper_LedDisplay.h"
 #include "components/CommunicationObserver/CommunicationObserver.h"
 #include "components/DriveRequestMultiplexer/DriveRequestMultiplexer.h"
 #include "components/DriveTrain/DriveTrain.h"
@@ -203,6 +206,7 @@ typedef enum {
 #include "components/RestartManager/RestartManager.h"
 #include "components/RingLedDisplay/RingLedDisplay.h"
 #include "components/SensorPortHandler/SensorPortHandler.h"
+#include "components/StartupReasonProvider/StartupReasonProvider.h"
 #include "components/VersionProvider/VersionProvider.h"
 #include "components/WatchdogFeeder/WatchdogFeeder.h"
 

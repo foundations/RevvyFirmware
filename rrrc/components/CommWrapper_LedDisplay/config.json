@@ -1,0 +1,46 @@
+{
+    "name": "CommWrapper_LedDisplay",
+    "source_files": [
+        "CommWrapper_LedDisplay.c"
+    ],
+    "types": {
+        "rgb_t": {
+            "defined_in": "\"utils/color.h\"",
+            "default_value": "(rgb_t){0, 0, 0}"
+        },
+        "RingLedScenario_t": {
+            "type": "enum",
+            "values": [
+                "RingLedScenario_Off",
+                "RingLedScenario_UserFrame",
+                "RingLedScenario_ColorWheel",
+                "RingLedScenario_RainbowFade",
+                "RingLedScenario_BusyIndicator",
+                "RingLedScenario_BreathingGreen"
+            ],
+            "default_value": "RingLedScenario_Off"
+        }
+    },
+    "runnables": {},
+    "ports": {
+        "Scenario": {
+            "port_type": "WriteData",
+            "async": true,
+            "data_type": "RingLedScenario_t"
+        },
+        "ReadScenarioName": {
+            "port_type": "ServerCall",
+            "return_type": "uint8_t",
+            "arguments": {
+                "scenario": "RingLedScenario_t",
+                "destination": "ByteArray_t"
+            }
+        },
+        "UserFrame": {
+            "port_type": "WriteIndexedData",
+            "async": true,
+            "data_type": "rgb_t",
+            "count": 12
+        }
+    }
+}

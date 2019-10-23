@@ -272,7 +272,8 @@ void LedDisplayController_Run_Update(void)
             /* apply ring led */
             for (uint32_t i = 0u; i < 12u; i++)
             {
-                LedDisplayController_Write_Leds(i + 4u, LedDisplayController_Read_RingLeds(i));
+                LedDisplayController_Write_Leds(i + 4u, // only write ring leds, not status leds
+                    LedDisplayController_Read_RingLeds((i + 3u) % 12u)); // transform to move first led to 1 o'clock position
             }
             break;
 

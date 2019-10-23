@@ -1,338 +1,199 @@
 #include "RingLedDisplay.h"
-#include "rrrc_indication.h"
 #include "utils.h"
+#include "utils_assert.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include "utils/functions.h"
+/* Begin User Code Section: Declarations */
+#include "RingLedDisplay_private.h"
 
 #include <string.h>
-#include <math.h>
-#include <utils_assert.h>
 
-typedef void (*ledRingFn)(void* data);
+static RingLedScenario_t current_scenario;
+static indication_handler_t* current_scenario_handler;
+static uint32_t time_since_startup;
 
-typedef struct
+static uint8_t copy_ring_led_scenario_name(const char* name, ByteArray_t destination)
 {
-    const char* name;
-    ledRingFn init;
-    ledRingFn handler;
-    ledRingFn DeInit;
-    void* userData;
-} indication_handler_t;
+    size_t length = strlen(name);
 
-typedef struct {
-    const rgb_t color;
-    TickType_t start_time;
-} breathing_data_t;
-
-static breathing_data_t breathing_green_data = {
-    .color = LED_GREEN
-};
-
-typedef struct {
-    const rgb_t color;
-    TickType_t start_time;
-} spinning_color_data_t;
-
-static spinning_color_data_t spinning_color_data = {
-    .color = LED_RED
-};
-
-/* local function declarations */
-
-static void ledRingOffWriter(void* data);
-static void ledRingFrameWriter(void* data);
-static void colorWheelWriter1(void* data);
-static void rainbowFadeWriter(void* data);
-static void spinningColorWriter(void* data);
-static void init_spinningColor(void* data);
-static void init_breathing(void* data);
-static void breathing(void* data);
-
-static rgb565_t user_frame[RING_LEDS_AMOUNT];
-static RingLedScenario_t currentScenario;
-static RingLedScenario_t requestedScenario;
-static bool master_was_ready;
-
-static indication_handler_t scenarioHandlers[] = 
-{
-    [RingLedScenario_Off] = { .name = "RingLedOff", .init = NULL, .handler = &ledRingOffWriter, .DeInit = NULL, .userData = NULL },
-    
-    [RingLedScenario_UserFrame]  = { .name = "UserFrame",  .init = NULL, .handler = &ledRingFrameWriter, .DeInit = NULL, .userData = &user_frame[0] },
-    [RingLedScenario_ColorWheel] = { .name = "ColorWheel", .init = NULL, .handler = &colorWheelWriter1,  .DeInit = NULL, .userData = NULL },
-    [RingLedScenario_RainbowFade] = { .name = "RainbowFade", .init = NULL, .handler = &rainbowFadeWriter,  .DeInit = NULL, .userData = NULL },
-    [RingLedScenario_BusyIndicator] = { .name = "BusyRing", .init = &init_spinningColor, .handler = &spinningColorWriter, .DeInit = NULL, .userData = &spinning_color_data },
-    [RingLedScenario_BreathingGreen] = { .name = "BreathingGreen", .init = &init_breathing, .handler = &breathing, .DeInit = NULL, .userData = &breathing_green_data }
-};
-
-Comm_Status_t RingLedDisplay_GetScenarioTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
-{
-    (void) commandPayload;
-    if (commandSize != 0u)
+    if (length > destination.count)
     {
-        return Comm_Status_Error_PayloadLengthError;
+        return 0u;
     }
 
-    uint8_t len = 0u;
-    for (uint32_t i = 0u; i < ARRAY_SIZE(scenarioHandlers); i++)
-    {
-        const indication_handler_t* lib = &scenarioHandlers[i];
-        size_t name_length = strlen(lib->name);
-        if (len + name_length + 2u > responseBufferSize)
-        {
-            *responseCount = 0u;
-            return Comm_Status_Error_InternalError;
-        }
-
-        response[len] = i;
-        response[len + 1] = name_length;
-        memcpy(&response[len + 2], lib->name, name_length);
-        len = len + 2 + name_length;
-    }
-    *responseCount = len;
-
-    return Comm_Status_Ok;
+    memcpy(destination.bytes, name, length);
+    return length;
 }
 
-Comm_Status_t RingLedDisplay_SetScenarioType_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
-{
-    (void) response;
-    (void) responseCount;
-    (void) responseBufferSize;
-
-    if (commandSize != 1u)
-    {
-        return Comm_Status_Error_PayloadLengthError;
-    }
-
-    uint8_t idx = commandPayload[0];
-    if (idx >= ARRAY_SIZE(scenarioHandlers))
-    {
-        return Comm_Status_Error_CommandError;
-    }
-
-    master_was_ready = true;
-    requestedScenario = (RingLedScenario_t) idx;
-
-    return Comm_Status_Ok;
-}
-
-Comm_Status_t RingLedDisplay_GetRingLedAmount_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
-{
-    (void) commandPayload;
-    if (commandSize != 0u)
-    {
-        return Comm_Status_Error_PayloadLengthError;
-    }
-
-    ASSERT(responseBufferSize >= 1u);
-
-    *response = RING_LEDS_AMOUNT;
-    *responseCount = 1u;
-
-    return Comm_Status_Ok;
-}
-
-Comm_Status_t RingLedDisplay_SetUserFrame_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
-{
-    (void) response;
-    (void) responseCount;
-    (void) responseBufferSize;
-
-    if (commandSize != RING_LEDS_AMOUNT * 2u)
-    {
-        return Comm_Status_Error_PayloadLengthError;
-    }
-
-    RingLedDisplay_Run_SetUserFrame(commandPayload, RING_LEDS_AMOUNT);
-
-    return Comm_Status_Ok;
-}
-
-static void ledRingOffWriter(void* data)
-{
-    (void) data;
-    for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
-    {
-        RingLedDisplay_Write_LedColor(idx, (rgb_t) LED_OFF);
-    }
-}
-
-static void ledRingFrameWriter(void* frameData)
-{
-    rgb565_t* userData = (rgb565_t*) frameData;
-    
-    for (uint32_t idx = 0u; idx < RING_LEDS_AMOUNT; idx++)
-    {
-        RingLedDisplay_Write_LedColor(idx, rgb565_to_rgb(userData[idx]));
-    }
-}
-
-static void colorWheelWriter1(void* data)
-{
-    (void) data;
-    uint32_t phase = (xTaskGetTickCount() * 6) / 20;
-    
-    for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
-    {
-        hsv_t hsv = {
-            .h = phase + i * 360u / RING_LEDS_AMOUNT,
-            .s = 100,
-            .v = 100
-        };
-        rgb_t rgb = hsv_to_rgb(hsv);
-        
-        RingLedDisplay_Write_LedColor(i, rgb);
-    }
-}
-
-static void rainbowFadeWriter(void* data)
-{
-    (void) data;
-    uint32_t phase = xTaskGetTickCount() / 40u;
-    
-    hsv_t hsv = {
-        .h = phase,
-        .s = 100,
-        .v = 100
-    };
-    rgb_t rgb = hsv_to_rgb(hsv);
-
-    for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
-    {
-        RingLedDisplay_Write_LedColor(i, rgb);
-    }
-}
-
-static void init_spinningColor(void* data)
-{
-    spinning_color_data_t* sdata = (spinning_color_data_t*) data;
-    sdata->start_time = xTaskGetTickCount();
-}
-
-static void spinningColorWriter(void* data)
-{
-    spinning_color_data_t* sdata = (spinning_color_data_t*) data;
-    TickType_t elapsed = xTaskGetTickCount() - sdata->start_time;
-
-    const uint32_t tail_length = 6u;
-    uint32_t n_leds = map_constrained(elapsed, 0, tail_length * 100, 0, tail_length);
-    uint32_t start_led = (11u - tail_length) + (tail_length == n_leds ? elapsed / 100u : tail_length);
-    
-    hsv_t hsv = rgb_to_hsv(sdata->color);
-    for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
-    {
-        rgb_t rgb = LED_OFF;
-        if (i < n_leds)
-        {
-            hsv.v = (uint8_t) map(i, 0, tail_length, 0, 100);
-            rgb = hsv_to_rgb(hsv);
-        }
-        
-        RingLedDisplay_Write_LedColor((start_led + i) % RING_LEDS_AMOUNT, rgb);
-    }
-}
-
-static void init_breathing(void* data)
-{
-    breathing_data_t* bdata = (breathing_data_t*) data;
-    bdata->start_time = xTaskGetTickCount();
-}
-
-static void breathing(void* data)
-{
-    breathing_data_t* bdata = (breathing_data_t*) data;
-    hsv_t color = rgb_to_hsv(bdata->color);
-    float c = sinf(2.0f * (float)M_PI * (xTaskGetTickCount() - bdata->start_time) / 10000.0f);
-    color.v = map(c*c, 0, 1, 0, 100);
-    
-    rgb_t rgb = hsv_to_rgb(color);
-    for (uint32_t i = 0u; i < RING_LEDS_AMOUNT; i++)
-    {
-        RingLedDisplay_Write_LedColor(i, rgb);
-    }
-}
+/* End User Code Section: Declarations */
 
 void RingLedDisplay_Run_OnInit(void)
 {
-    master_was_ready = false;
-    currentScenario = RingLedScenario_Off;
-    requestedScenario = RingLedScenario_BusyIndicator;
+    /* Begin User Code Section: OnInit Start */
+    bool display_default_animation = RingLedDisplay_Read_WaitForMasterStartup()
+                                     && !RingLedDisplay_Read_MasterReady();
+
+    time_since_startup = 0u;
+    if (display_default_animation)
+    {
+        /* current_scenario will be set to a "to-be-changed" value if default animation ends */
+        current_scenario_handler = &startup_indicator_scenario;
+    }
+    else
+    {
+        current_scenario = RingLedDisplay_Read_Scenario();
+        current_scenario_handler = &public_scenario_handlers[current_scenario];
+    }
+
+    if (current_scenario_handler->init)
+    {
+        current_scenario_handler->init(current_scenario_handler->userData);
+    }
+    /* End User Code Section: OnInit Start */
+    /* Begin User Code Section: OnInit End */
+
+    /* End User Code Section: OnInit End */
 }
 
 void RingLedDisplay_Run_Update(void)
 {
-    if (!master_was_ready)
+    /* Begin User Code Section: Update Start */
+    RingLedScenario_t requested_scenario = RingLedDisplay_Read_Scenario();
+
+    bool display_default_animation = RingLedDisplay_Read_WaitForMasterStartup()
+                                     && !RingLedDisplay_Read_MasterReady()
+                                     && (time_since_startup < RingLedDisplay_Read_ExpectedStartupTime());
+
+    if (display_default_animation)
     {
-        if (RingLedDisplay_Read_MasterReady())
+        time_since_startup += 20u;
+
+        if (time_since_startup >= RingLedDisplay_Read_ExpectedStartupTime())
         {
-            master_was_ready = true;
-            requestedScenario = RingLedScenario_BreathingGreen;
+            /* force switch to requested scenario */
+            current_scenario = requested_scenario + 1u;
+            display_default_animation = false;
         }
     }
 
-    RingLedScenario_t newScenario = requestedScenario;
-    if (newScenario != currentScenario)
+    if (!display_default_animation)
     {
-        RingLedDisplay_Run_SelectScenario(newScenario);
+        if (current_scenario != requested_scenario)
+        {
+            if (current_scenario_handler->DeInit)
+            {
+                current_scenario_handler->DeInit(current_scenario_handler->userData);
+            }
+
+            current_scenario = requested_scenario;
+            current_scenario_handler = &public_scenario_handlers[current_scenario];
+
+            ASSERT(current_scenario_handler);
+            ASSERT(current_scenario_handler->handler);
+
+            if (current_scenario_handler->init)
+            {
+                current_scenario_handler->init(current_scenario_handler->userData);
+            }
+        }
     }
 
-    if (currentScenario >= ARRAY_SIZE(scenarioHandlers))
-    {
-        currentScenario = RingLedScenario_Off;
-    }
-    
-    scenarioHandlers[currentScenario].handler(scenarioHandlers[currentScenario].userData);
+    current_scenario_handler->handler(current_scenario_handler->userData);
+    /* End User Code Section: Update Start */
+    /* Begin User Code Section: Update End */
+
+    /* End User Code Section: Update End */
 }
 
-static inline rgb565_t read_rgb565(const uint8_t bytes[2])
+uint8_t RingLedDisplay_Run_ReadScenarioName(RingLedScenario_t scenario, ByteArray_t destination)
 {
-    return (rgb565_t) {
-        .R =  ((bytes[1u] & 0xF8u) >> 3u),
-        .G = (((bytes[1u] & 0x07u) << 3u) + ((bytes[0u] & 0xE0u) >> 5u)),
-        .B =  ((bytes[0u] & 0x1Fu) >> 0u),
-    };
-}
+    /* Begin User Code Section: ReadScenarioName Start */
+    switch (scenario)
+    {
+        case RingLedScenario_Off: return copy_ring_led_scenario_name("RingLedOff", destination);
+        case RingLedScenario_UserFrame: return copy_ring_led_scenario_name("UserFrame", destination);
+        case RingLedScenario_ColorWheel: return copy_ring_led_scenario_name("ColorWheel", destination);
+        case RingLedScenario_RainbowFade: return copy_ring_led_scenario_name("RainbowFade", destination);
+        case RingLedScenario_BusyIndicator: return copy_ring_led_scenario_name("BusyRing", destination);
+        case RingLedScenario_BreathingGreen: return copy_ring_led_scenario_name("BreathingGreen", destination);
+        default: return 0u;
+    }
+    /* End User Code Section: ReadScenarioName Start */
+    /* Begin User Code Section: ReadScenarioName End */
 
-bool RingLedDisplay_Run_SetUserFrame(const uint8_t* bytes, size_t ledCount)
-{
-    for (uint32_t i = 0u; i < ledCount && i < RING_LEDS_AMOUNT; i++)
-    {
-        user_frame[i] = read_rgb565(&bytes[2*i]);
-    }
-    for (uint32_t i = ledCount; i < RING_LEDS_AMOUNT; i++)
-    {
-        user_frame[i] = (rgb565_t) LED_OFF;
-    }
-
-    return true;
-}
-
-void RingLedDisplay_Run_SelectScenario(RingLedScenario_t scenario)
-{
-    if (scenarioHandlers[currentScenario].DeInit)
-    {
-        scenarioHandlers[currentScenario].DeInit(scenarioHandlers[currentScenario].userData);
-    }
-    currentScenario = scenario;
-    if (scenarioHandlers[currentScenario].init)
-    {
-        scenarioHandlers[currentScenario].init(scenarioHandlers[currentScenario].userData);
-    }
+    /* End User Code Section: ReadScenarioName End */
 }
 
 __attribute__((weak))
-void RingLedDisplay_Write_LedColor(uint32_t led_idx, rgb_t color)
+void RingLedDisplay_Write_LedColor(uint32_t index, const rgb_t value)
 {
-    (void) led_idx;
-    (void) color;
-    /* nothing to do */
+    (void) value;
+    (void) index;
+    ASSERT(index < 12);
+    /* Begin User Code Section: LedColor Start */
+
+    /* End User Code Section: LedColor Start */
+    /* Begin User Code Section: LedColor End */
+
+    /* End User Code Section: LedColor End */
+}
+
+__attribute__((weak))
+uint32_t RingLedDisplay_Read_ExpectedStartupTime(void)
+{
+    /* Begin User Code Section: ExpectedStartupTime Start */
+
+    /* End User Code Section: ExpectedStartupTime Start */
+    /* Begin User Code Section: ExpectedStartupTime End */
+
+    /* End User Code Section: ExpectedStartupTime End */
+    return 0u;
 }
 
 __attribute__((weak))
 bool RingLedDisplay_Read_MasterReady(void)
 {
+    /* Begin User Code Section: MasterReady Start */
+
+    /* End User Code Section: MasterReady Start */
+    /* Begin User Code Section: MasterReady End */
+
+    /* End User Code Section: MasterReady End */
+    return false;
+}
+
+__attribute__((weak))
+RingLedScenario_t RingLedDisplay_Read_Scenario(void)
+{
+    /* Begin User Code Section: Scenario Start */
+
+    /* End User Code Section: Scenario Start */
+    /* Begin User Code Section: Scenario End */
+
+    /* End User Code Section: Scenario End */
+    return RingLedScenario_Off;
+}
+
+__attribute__((weak))
+rgb_t RingLedDisplay_Read_UserColors(uint32_t index)
+{
+    ASSERT(index < 12);
+    /* Begin User Code Section: UserColors Start */
+
+    /* End User Code Section: UserColors Start */
+    /* Begin User Code Section: UserColors End */
+
+    /* End User Code Section: UserColors End */
+    return (rgb_t){0, 0, 0};
+}
+
+__attribute__((weak))
+bool RingLedDisplay_Read_WaitForMasterStartup(void)
+{
+    /* Begin User Code Section: WaitForMasterStartup Start */
+
+    /* End User Code Section: WaitForMasterStartup Start */
+    /* Begin User Code Section: WaitForMasterStartup End */
+
+    /* End User Code Section: WaitForMasterStartup End */
     return false;
 }

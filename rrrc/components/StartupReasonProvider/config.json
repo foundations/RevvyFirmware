@@ -1,0 +1,16 @@
+{
+    "name": "StartupReasonProvider",
+    "source_files": [
+        "StartupReasonProvider.c"
+    ],
+    "types": {},
+    "runnables": {
+        "OnInit": {}
+    },
+    "ports": {
+        "IsColdStart": {
+            "port_type": "WriteData",
+            "data_type": "bool"
+        }
+    }
+}

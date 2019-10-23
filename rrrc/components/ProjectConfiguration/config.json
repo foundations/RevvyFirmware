@@ -70,6 +70,11 @@
                 "MaxSafeTemperature": "70.0f",
                 "MaxAllowedTemperature": "130.0f"
             }
+        },
+        "ExpectedStartupTime": {
+            "port_type": "Constant",
+            "data_type": "uint32_t",
+            "value": "32000"
         }
     }
 }

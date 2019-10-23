@@ -5,6 +5,7 @@
 #define COMPONENT_TYPES_PROJECT_CONFIGURATION_H_
 
 #include <float.h>
+#include <stdint.h>
 
 typedef float Voltage_t;
 typedef float Temperature_t;
@@ -28,6 +29,7 @@ typedef struct {
 
 #endif /* COMPONENT_TYPES_PROJECT_CONFIGURATION_H_ */
 
+uint32_t ProjectConfiguration_Constant_ExpectedStartupTime(void);
 void ProjectConfiguration_Constant_MainBatteryParameters(BatteryConfiguration_t* value);
 void ProjectConfiguration_Constant_MotorBatteryParameters(BatteryConfiguration_t* value);
 void ProjectConfiguration_Constant_MotorDeratingParameters(MotorDeratingParameters_t* value);

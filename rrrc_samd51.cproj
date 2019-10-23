@@ -1050,6 +1050,15 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\RestartManager\RestartManager.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\RingLedDisplay\RingLedDisplay_private.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\RingLedDisplay\Scenario\scenario_handlers.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\RingLedDisplay\Scenario\scenario_handlers.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="rrrc\components\SensorPortHandler\SensorPortHandlerInternal.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1485,6 +1494,24 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="rrrc\components\HardwareCompatibilityChecker\config.json">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rrrc\components\StartupReasonProvider\config.json">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\StartupReasonProvider\StartupReasonProvider.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\StartupReasonProvider\StartupReasonProvider.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\CommWrapper_LedDisplay\CommWrapper_LedDisplay.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\CommWrapper_LedDisplay\CommWrapper_LedDisplay.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rrrc\components\CommWrapper_LedDisplay\config.json">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Atmel\Device_Startup\" />
@@ -1544,6 +1571,7 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\GyroscopeOffsetCompensator" />
     <Folder Include="rrrc\components\HighResolutionTimer" />
     <Folder Include="rrrc\components\RestartManager" />
+    <Folder Include="rrrc\components\RingLedDisplay\Scenario" />
     <Folder Include="rrrc\components\SensorPortHandler" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries" />
     <Folder Include="rrrc\components\SensorPortHandler\SensorPortLibraries\Dummy\" />
@@ -1580,6 +1608,8 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Folder Include="rrrc\components\DriveRequestMultiplexer" />
     <Folder Include="rrrc\components\McuStatusSlots" />
     <Folder Include="rrrc\components\HardwareCompatibilityChecker" />
+    <Folder Include="rrrc\components\StartupReasonProvider" />
+    <Folder Include="rrrc\components\CommWrapper_LedDisplay" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Atmel\Device_Startup\samd51p19a_flash.ld">
