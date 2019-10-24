@@ -13,9 +13,13 @@ install:
   - python3 -m tools.generate_makefile
 script:
   - make all
-after_success:
-  - if [ "$TRAVIS_BRANCH" = "master" ] && [ ! -z "$TRAVIS_TAG" ]; then ./tools/commit_firmware.sh; fi
-  - if [ "$TRAVIS_BRANCH" = "maintenance-v1" ]; then ./tools/commit_firmware.sh; fi
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash ./tools/commit_firmware.sh
+  on:
+    branch: master
+    tags: true
 notifications:
   slack:
     on_success: change
