@@ -1266,15 +1266,6 @@ cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <Compile Include="third_party\CMSIS\Include\tz_context.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="third_party\FreeRTOSV10.0.0\hal_rtos.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="third_party\FreeRTOSV10.0.0\rtos_port.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="third_party\FreeRTOSV10.0.0\rtos_port.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="third_party\FreeRTOSV10.0.0\Source\croutine.c">
       <SubType>compile</SubType>
     </Compile>
