@@ -24,7 +24,7 @@ static uint8_t ultrasonic_active = 0u;
 
 static uint32_t _get_cm(uint32_t distance_tick)
 {
-    float distance_ms = SensorPort_Call_ConvertTicksToMs(distance_tick);
+    float distance_ms = SensorPortHandler_Call_ConvertTicksToMs(distance_tick);
     uint32_t cm = (uint32_t)lroundf(distance_ms * 17.0f);
 
     return cm;
@@ -248,7 +248,7 @@ SensorLibraryStatus_t HC_SR04_InterruptCallback(SensorPort_t* sensorPort, bool s
             uint16_t finish_time = SensorPortHandler_Call_ReadCurrentTicks();
             uint16_t dist = finish_time - libdata->start_time;
 
-            if (SensorPort_Call_ConvertTicksToMs(dist) < 40.0f) /**< arbitrary limit that is shorter than sensor timeout */
+            if (SensorPortHandler_Call_ConvertTicksToMs(dist) < 40.0f) /**< arbitrary limit that is shorter than sensor timeout */
             {
                 libdata->distance_tick = dist;
             }
