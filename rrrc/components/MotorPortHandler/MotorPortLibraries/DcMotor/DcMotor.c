@@ -184,7 +184,7 @@ MotorLibraryStatus_t DcMotor_Update(MotorPort_t* motorPort)
             size = 10u;
         }
 
-        MotorPortHandler_Call_UpdatePortStatus(motorPort->port_idx, (ByteArray_t){status, sizeof(size)});
+        MotorPortHandler_Call_UpdatePortStatus(motorPort->port_idx, (ByteArray_t){status, size});
     }
 
     return MotorLibraryStatus_Ok;
@@ -411,6 +411,7 @@ MotorLibraryStatus_t DcMotor_SetControlReference(MotorPort_t* motorPort, const u
         }
 
         MotorPortHandler_Write_DriveRequest(motorPort->port_idx, &driveRequest);
+        MotorPortHandler_Call_UpdatePortStatus(motorPort->port_idx, (ByteArray_t){NULL, 0u});
     }
 
     return MotorLibraryStatus_Ok;
