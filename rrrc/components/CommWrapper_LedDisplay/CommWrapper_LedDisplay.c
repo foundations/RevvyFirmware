@@ -83,16 +83,20 @@ Comm_Status_t CommWrapper_LedDisplay_SetUserFrame_Start(const uint8_t* commandPa
     (void) responseCount;
     (void) responseBufferSize;
 
-    if (commandSize != 12u * 2u)
+    if (commandSize != 12u * sizeof(rgb565_t))
     {
         return Comm_Status_Error_PayloadLengthError;
     }
 
-    const rgb565_t* colors = (const rgb565_t*) commandPayload;
-
     for (uint32_t i = 0u; i < 12u; i++)
     {
-        CommWrapper_LedDisplay_Write_UserFrame(i, rgb565_to_rgb(colors[i]));
+        uint16_t c = commandPayload[2 * i] | (commandPayload[2 * i + 1] << 8u);
+        rgb565_t color = {
+            .R = (c & 0xF800u) >> 11u,
+            .G = (c & 0x07E0u) >>  5u,
+            .B = (c & 0x001Fu) >>  0u
+        };
+        CommWrapper_LedDisplay_Write_UserFrame(i, rgb565_to_rgb(color));
     }
 
     return Comm_Status_Ok;

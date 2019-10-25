@@ -13,7 +13,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
-#include "hal_rtos.h"
 
 #define FLASH_AVAILABLE     ((FLASH_SIZE / 2) - NVMCTRL_BLOCK_SIZE)
 #define FLASH_FW_OFFSET     (FLASH_SIZE / 2)

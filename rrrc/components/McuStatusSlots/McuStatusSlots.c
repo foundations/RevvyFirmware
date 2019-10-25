@@ -64,6 +64,11 @@ static bool compare_and_copy(uint8_t* pDst, const uint8_t* pSrc, size_t size)
     return equal;
 }
 
+static bool slot_has_data(const slot_t* slot)
+{
+    return ((slot->version & 0x80u) == 0u);
+}
+
 static void update_slot(uint8_t index, const uint8_t* data, uint8_t data_size)
 {
     slot_t* const slot = &slots[index];
@@ -71,7 +76,7 @@ static void update_slot(uint8_t index, const uint8_t* data, uint8_t data_size)
 
     bool slot_changed = true;
     __disable_irq();
-    if (((slot->version & 0x80u) != 0u) && data_size != slot->array.count)
+    if (!slot_has_data(slot) || data_size != slot->array.count)
     {
         memcpy(slot->array.bytes, data, data_size);
         slot->array.count = data_size;
