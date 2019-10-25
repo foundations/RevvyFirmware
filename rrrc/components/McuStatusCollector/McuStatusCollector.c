@@ -14,6 +14,7 @@ static bool _read_slot(uint8_t index, uint8_t* pData, uint8_t bufferSize, uint8_
 {
     static uint8_t buffer[64];
 
+    *slotSize = 0u;
     __disable_irq();
     SlotData_t slot = McuStatusCollector_Read_SlotData(index);
 
@@ -29,7 +30,6 @@ static bool _read_slot(uint8_t index, uint8_t* pData, uint8_t bufferSize, uint8_
     __enable_irq();
 
     bool slot_fits = true;
-    *slotSize = 0u;
 
     if (slot.data.count != 0u) /* < does this slot have any new data? */
     {
