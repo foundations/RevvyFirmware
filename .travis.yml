@@ -1,6 +1,8 @@
 os: linux
 dist: xenial
 sudo: required
+git:
+  depth: false
 language: c
 before_install:
   - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en603996 -O atmel_toolchain.tar.gz
@@ -10,6 +12,7 @@ install:
   - tar -zxf atmel_toolchain.tar.gz
   - export PATH="$PATH:$TRAVIS_BUILD_DIR/arm-none-eabi/bin"
   - chmod +x ./tools/commit_firmware.sh
+  - python3 -m tools.gen_version
   - python3 -m tools.generate_makefile
 script:
   - make all
