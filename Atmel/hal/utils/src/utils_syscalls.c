@@ -57,6 +57,7 @@ extern int     _getpid(void);
 /**
  * \brief Replacement of C library of _sbrk
  */
+__attribute__((used))
 extern caddr_t _sbrk(int incr)
 {
 	static unsigned char *heap = NULL;
@@ -75,6 +76,7 @@ extern caddr_t _sbrk(int incr)
 /**
  * \brief Replacement of C library of link
  */
+ __attribute__((used))
 extern int link(char *old, char *_new)
 {
 	(void)old, (void)_new;
@@ -84,6 +86,7 @@ extern int link(char *old, char *_new)
 /**
  * \brief Replacement of C library of _close
  */
+ __attribute__((used))
 extern int _close(int file)
 {
 	(void)file;
@@ -93,6 +96,7 @@ extern int _close(int file)
 /**
  * \brief Replacement of C library of _fstat
  */
+ __attribute__((used))
 extern int _fstat(int file, struct stat *st)
 {
 	(void)file;
@@ -104,6 +108,7 @@ extern int _fstat(int file, struct stat *st)
 /**
  * \brief Replacement of C library of _isatty
  */
+ __attribute__((used))
 extern int _isatty(int file)
 {
 	(void)file;
@@ -113,6 +118,7 @@ extern int _isatty(int file)
 /**
  * \brief Replacement of C library of _lseek
  */
+ __attribute__((used))
 extern int _lseek(int file, int ptr, int dir)
 {
 	(void)file, (void)ptr, (void)dir;
@@ -122,10 +128,10 @@ extern int _lseek(int file, int ptr, int dir)
 /**
  * \brief Replacement of C library of _exit
  */
+ __attribute__((used))
 extern void _exit(int status)
 {
-	printf("Exiting with status %d.\n", status);
-
+    (void) status;
 	for (;;)
 		;
 }
@@ -133,6 +139,7 @@ extern void _exit(int status)
 /**
  * \brief Replacement of C library of _kill
  */
+ __attribute__((used))
 extern void _kill(int pid, int sig)
 {
 	(void)pid, (void)sig;
@@ -142,6 +149,7 @@ extern void _kill(int pid, int sig)
 /**
  * \brief Replacement of C library of _getpid
  */
+ __attribute__((used))
 extern int _getpid(void)
 {
 	return -1;

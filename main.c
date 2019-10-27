@@ -6,6 +6,15 @@
 
 static TaskHandle_t xRRRC_Main_xTask;
 
+/**
+ * Put functions here to prevent Link-time optimization to remove them
+ */
+__attribute__((used,optimize("O0")))
+void ltoFunctionKeeper(void)
+{
+    vTaskSwitchContext();
+}
+
 int main(void)
 {
     RRRC_ProcessLogic_Init();
@@ -52,7 +61,8 @@ void assert_failed(const char *file, uint32_t line)
 }
 
 /* Cortex-M4 core handlers */
-void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
+__attribute__((used))
+static void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
 {
     /* These are volatile to try and prevent the compiler/linker optimising them
     away as the variables never actually get used. If the debugger won't show the
