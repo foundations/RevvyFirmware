@@ -8,7 +8,7 @@
 #include <string.h>
 
 static RingLedScenario_t current_scenario;
-static indication_handler_t* current_scenario_handler;
+static const indication_handler_t* current_scenario_handler;
 static uint32_t time_since_startup;
 
 static uint8_t copy_ring_led_scenario_name(const char* name, ByteArray_t destination)
