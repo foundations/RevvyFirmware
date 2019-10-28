@@ -8,21 +8,6 @@
 static Quaternion_t orientation;
 static float beta = 0.1f; // < TODO: tune if necessary
 
-/**
- * Fast inverse square-root
- * See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
- */
-static float invSqrt(float x)
-{
-    float halfx = 0.5f * x;
-    float y = x;
-    long i = *(long*)&y;
-    i = 0x5f3759df - (i>>1);
-    y = *(float*)&i;
-    y = y * (1.5f - (halfx * y * y));
-    return y;
-}
-
 static inline float angle_to_radian(float angle)
 {
     return angle * (float) M_PI / 180.0f;
@@ -78,7 +63,7 @@ static Quaternion_t madgwick_imu(const float sampleFreq, const Vector3D_t accele
     if (!((acceleration.x == 0.0f) && (acceleration.y == 0.0f) && (acceleration.z == 0.0f))) {
 
         // Normalise accelerometer measurement
-        recipNorm = invSqrt(acceleration.x * acceleration.x + acceleration.y * acceleration.y + acceleration.z * acceleration.z);
+        recipNorm = 1.0f / sqrtf(acceleration.x * acceleration.x + acceleration.y * acceleration.y + acceleration.z * acceleration.z);
         float x = acceleration.x * recipNorm;
         float y = acceleration.y * recipNorm;
         float z = acceleration.z * recipNorm;
@@ -105,7 +90,7 @@ static Quaternion_t madgwick_imu(const float sampleFreq, const Vector3D_t accele
         s3 = 4.0f * q1q1 * q3 - _2q1 * x + 4.0f * q2q2 * q3 - _2q2 * y;
 
         // normalise step magnitude
-        recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);
+        recipNorm = 1.0f / sqrtf(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);
         s0 *= recipNorm;
         s1 *= recipNorm;
         s2 *= recipNorm;
@@ -125,7 +110,7 @@ static Quaternion_t madgwick_imu(const float sampleFreq, const Vector3D_t accele
     q3 += qDot4 * (1.0f / sampleFreq);
 
     // Normalise quaternion
-    recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+    recipNorm = 1.0f / sqrtf(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
     q0 *= recipNorm;
     q1 *= recipNorm;
     q2 *= recipNorm;
