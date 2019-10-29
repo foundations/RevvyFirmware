@@ -98,8 +98,8 @@ class FunctionDescriptor:
 
         fd = FunctionDescriptor(name, data.get('return_type', 'void'))
 
-        for name, data_type in data.get('arguments', {}).items():
-            fd.add_argument(name, data_type)
+        for name, arg_data in data.get('arguments', {}).items():
+            fd.add_argument(name, arg_data)
 
         return fd
 
@@ -120,8 +120,14 @@ class FunctionDescriptor:
     def add_attribute(self, attribute):
         self._attributes.add(attribute)
 
-    def add_argument(self, name, data_type):
-        self._arguments[name] = data_type
+    def add_argument(self, name, arg_data):
+        if type(arg_data) is str:
+            arg_data = {
+                'data_type': arg_data,
+                'direction': 'in'
+            }
+
+        self._arguments[name] = arg_data
 
     def add_input_assert(self, statements):
         self.includes.add('"utils_assert.h"')
@@ -151,12 +157,24 @@ class FunctionDescriptor:
             self._return_statement = statement
 
     def get_header(self):
+        def generate_parameter(name, data):
+            if data['direction'] == 'in':
+                return '{} {}'.format(data['data_type'], name)
+            elif data['direction'] == 'out':
+                return '{}* {}'.format(data['data_type'], name)
+            elif data['direction'] == 'inout':
+                return '{}* {}'.format(data['data_type'], name)
+            else:
+                raise Exception('{} is not a valid direction for argument {}'.format(data['direction'], name))
+
+        args = [generate_parameter(name, data) for name, data in self._arguments.items()]
+
         ctx = {
-            'template': '{{ return_type }} {{ function_name }}({{^ arguments }}void{{/ arguments }}{{# arguments }}{{ type }} {{ name }}{{^ last}}, {{/ last }}{{/ arguments }})',
+            'template': '{{ return_type }} {{ function_name }}({{ arguments }})',
             'data':     {
                 'return_type':   self._return_type,
                 'function_name': self._name,
-                'arguments':     dict_to_chevron_list(self._arguments, 'name', 'type', 'last')
+                'arguments':     'void' if not args else ', '.join(args)
             }
         }
         return chevron.render(**ctx)
@@ -201,7 +219,7 @@ class FunctionDescriptor:
         return self._arguments
 
     def referenced_types(self):
-        return list(self._arguments.values()) + [self._return_type]
+        return [data['data_type'] for data in self._arguments.values()] + [self._return_type]
 
 
 class SignalConnection:

@@ -20,7 +20,7 @@ def collect_arguments(attributes, consumer_name, consumer_arguments, function):
         if arg_name in user_arguments:
             passed_arguments[arg_name] = user_arguments[arg_name]
         elif arg_name in function.arguments:
-            if arg_type != function.arguments[arg_name]:
+            if arg_type != function.arguments[arg_name]['data_type']:
                 raise Exception(
                     'Caller of {} has matching argument {} but types are different'.format(consumer_name, arg_name))
             passed_arguments[arg_name] = arg_name
