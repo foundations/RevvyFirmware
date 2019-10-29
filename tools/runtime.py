@@ -129,7 +129,7 @@ class FunctionDescriptor:
             self._asserts.add('ASSERT({});'.format(statements))
         else:
             for statement in statements:
-                self._asserts.add('ASSERT({});'.format(statement))
+                self.add_input_assert(statement)
 
     def add_body(self, body):
         if type(body) is str:
