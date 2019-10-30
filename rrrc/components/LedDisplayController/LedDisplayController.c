@@ -136,7 +136,7 @@ static rgb_t _display_main_battery(void)
         case ChargerState_Fault:
             if (_blink(&_charging_blink_timer, CHARGING_BLINK_LENGTH, CHARGING_BLINK_PERIOD))
             {
-                return (rgb_t) LED_RED;
+                return (rgb_t) LED_OFF;
             }
             break;
     }
@@ -208,7 +208,6 @@ void LedDisplayController_Run_Update(void)
             case LedDisplayMode_LowBattery:
                 _clear_display();
                 LedDisplayController_Write_MaxBrightness(BRIGHTNESS_LOW);
-                LedDisplayController_Write_Leds(MAIN_BATTERY_INDICATOR_LED, (rgb_t) LED_RED);
                 break;
 
             case LedDisplayMode_MotorBatteryMissing:
@@ -289,6 +288,7 @@ void LedDisplayController_Run_Update(void)
             break;
 
         case LedDisplayMode_LowBattery:
+            LedDisplayController_Write_Leds(MAIN_BATTERY_INDICATOR_LED, _display_main_battery());
             break;
     }
 
