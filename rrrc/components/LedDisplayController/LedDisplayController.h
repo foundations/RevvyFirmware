@@ -35,6 +35,8 @@ void LedDisplayController_Run_Update(void);
 void LedDisplayController_Write_Leds(uint32_t index, const rgb_t value);
 void LedDisplayController_Write_MaxBrightness(const uint8_t value);
 BluetoothStatus_t LedDisplayController_Read_BluetoothStatus(void);
+uint8_t LedDisplayController_Read_DefaultBrightness(void);
+uint8_t LedDisplayController_Read_LowBatteryBrightness(void);
 uint8_t LedDisplayController_Read_MainBatteryLevel(void);
 bool LedDisplayController_Read_MainBatteryLow(void);
 ChargerState_t LedDisplayController_Read_MainBatteryStatus(void);

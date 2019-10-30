@@ -97,6 +97,16 @@
             "default_value": 0,
             "data_type": "int8_t",
             "count": 6
+        },
+        "LowBatteryBrightness": {
+            "port_type": "ReadValue",
+            "default_value": 10,
+            "data_type": "uint8_t"
+        },
+        "DefaultBrightness": {
+            "port_type": "ReadValue",
+            "default_value": 24,
+            "data_type": "uint8_t"
         }
     }
 }
