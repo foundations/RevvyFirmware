@@ -3,8 +3,7 @@ import os
 
 import chevron
 
-from tools.generator_common import TypeCollection, copy, dict_to_chevron_list, to_underscore, list_to_chevron_list, \
-    unique
+from tools.generator_common import TypeCollection, copy, to_underscore, list_to_chevron_list
 
 runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
@@ -92,18 +91,20 @@ class RuntimePlugin:
 class FunctionDescriptor:
 
     @staticmethod
-    def create(name, data: dict = None):
+    def create(types: TypeCollection, name, data: dict = None):
         if not data:
             data = {}
 
-        fd = FunctionDescriptor(name, data.get('return_type', 'void'))
+        fd = FunctionDescriptor(types, name, data.get('return_type', 'void'))
 
-        for name, data_type in data.get('arguments', {}).items():
-            fd.add_argument(name, data_type)
+        for name, arg_data in data.get('arguments', {}).items():
+            fd.add_argument(name, arg_data)
 
         return fd
 
-    def __init__(self, func_name, return_type='void'):
+    def __init__(self, types: TypeCollection, func_name, return_type='void'):
+        self._types = types
+
         self._name = func_name
         self._return_type = return_type
         self._arguments = {}
@@ -120,8 +121,14 @@ class FunctionDescriptor:
     def add_attribute(self, attribute):
         self._attributes.add(attribute)
 
-    def add_argument(self, name, data_type):
-        self._arguments[name] = data_type
+    def add_argument(self, name, arg_data):
+        if type(arg_data) is str:
+            arg_data = {
+                'data_type': arg_data,
+                'direction': 'in'
+            }
+
+        self._arguments[name] = arg_data
 
     def add_input_assert(self, statements):
         self.includes.add('"utils_assert.h"')
@@ -129,7 +136,7 @@ class FunctionDescriptor:
             self._asserts.add('ASSERT({});'.format(statements))
         else:
             for statement in statements:
-                self._asserts.add('ASSERT({});'.format(statement))
+                self.add_input_assert(statement)
 
     def add_body(self, body):
         if type(body) is str:
@@ -151,12 +158,42 @@ class FunctionDescriptor:
             self._return_statement = statement
 
     def get_header(self):
+        def generate_parameter(name, data):
+
+            try:
+                pass_by_ptr = self._types.get(data['data_type'])['pass_semantic'] == TypeCollection.PASS_BY_POINTER
+            except KeyError:
+                arg_is_ptr = '*' in data['data_type']
+                pass_by_ptr = not arg_is_ptr  # pointers can be passed by value, otherwise assume pass-by-pointer
+
+            if pass_by_ptr:
+                pass_by = 'pointer'
+            else:
+                pass_by = 'value'
+
+            patterns = {
+                'pointer': {
+                    'in': 'const {}* {}',
+                    'out': '{}* {}',
+                    'inout': '{}* {}'
+                },
+                'value': {
+                    'in': '{} {}',
+                    'out': '{}* {}',
+                    'inout': '{}* {}'
+                }
+            }
+
+            return patterns[pass_by][data['direction']].format(data['data_type'], name)
+
+        args = [generate_parameter(name, data) for name, data in self._arguments.items()]
+
         ctx = {
-            'template': '{{ return_type }} {{ function_name }}({{^ arguments }}void{{/ arguments }}{{# arguments }}{{ type }} {{ name }}{{^ last}}, {{/ last }}{{/ arguments }})',
-            'data':     {
-                'return_type':   self._return_type,
+            'template': '{{ return_type }} {{ function_name }}({{ arguments }})',
+            'data': {
+                'return_type': self._return_type,
                 'function_name': self._name,
-                'arguments':     dict_to_chevron_list(self._arguments, 'name', 'type', 'last')
+                'arguments': 'void' if not args else ', '.join(args)
             }
         }
         return chevron.render(**ctx)
@@ -184,10 +221,10 @@ class FunctionDescriptor:
                         "{{/ body }}\n"
                         "}\n",
 
-            'data':     {
-                'header':     self.get_header(),
+            'data': {
+                'header': self.get_header(),
                 'attributes': list(self._attributes),
-                'body':       [remove_trailing_spaces(line) for line in body]
+                'body': [remove_trailing_spaces(line) for line in body]
             }
         }
         return chevron.render(**ctx)
@@ -201,7 +238,7 @@ class FunctionDescriptor:
         return self._arguments
 
     def referenced_types(self):
-        return list(self._arguments.values()) + [self._return_type]
+        return [data['data_type'] for data in self._arguments.values()] + [self._return_type]
 
 
 class SignalConnection:
@@ -276,6 +313,21 @@ class SignalType:
         return SignalConnection(context, name, self, provider, attributes)
 
 
+def merge_dicts(one, other):
+    """
+    >>> merge_dicts({'a': 'foo'}, {'a':'bar', 'b':'foobar'})
+    {'a': 'foo', 'b': 'foobar'}
+    >>> merge_dicts({}, {'a':'bar', 'b':'foobar'})
+    {'a': 'bar', 'b': 'foobar'}
+    >>> merge_dicts(None, {'a':'bar', 'b':'foobar'})
+    {'a': 'bar', 'b': 'foobar'}
+    """
+    if one is None:
+        return other
+    else:
+        return {**other, **one}
+
+
 class Runtime:
     def __init__(self, project_config_file):
         self._project_config_file = project_config_file
@@ -307,9 +359,9 @@ class Runtime:
 
         if 'settings' not in project_config:
             project_config['settings'] = {
-                'name':              'Project Name',
+                'name': 'Project Name',
                 'components_folder': 'components',
-                'required_plugins':  []
+                'required_plugins': []
             }
 
         print('Loaded configuration for {}'.format(project_config['settings']['name']))
@@ -372,42 +424,90 @@ class Runtime:
             short_name = '{}/{}'.format(component_name, port_name)
             self._ports[short_name] = processed_port
 
-    def _process_type(self, type_name):
-        """Collect header files and typedefs from type_name
+    def _normalize_type_name(self, type_name):
 
-        Generate typedefs for modeled types and includes for referenced ones."""
-        defs = []
-        includes = set()
-        if type(type_name) is str:
-            try:
-                self._types.get(type_name)
-            except KeyError:
-                type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
+        try:
+            self._types.get(type_name)
+        except KeyError:
+            type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
+
+        return type_name
+
+    def _get_type_includes(self, type_name):
+        if type(type_name) is list:
+            includes = []
+            for tn in type_name:
+                inc = self._get_type_includes(tn)
+                if type(inc) is list:
+                    for i in inc:
+                        if i not in includes:
+                            includes.append(i)
+                elif inc:
+                    if inc not in includes:
+                        includes.append(inc)
+            return includes
+
+        else:
+            type_name = self._normalize_type_name(type_name)
 
             resolved_type_data = self._types[type_name]
             if resolved_type_data['type'] == TypeCollection.EXTERNAL_DEF:
-                includes.add(resolved_type_data['defined_in'])
+                return resolved_type_data['defined_in']
+            else:
+                return None
 
-            elif resolved_type_data['type'] == TypeCollection.STRUCT:
-                d, i = self._process_type(resolved_type_data['fields'].values())
-                defs += d
-                includes.update(i)
+    def _collect_type_dependencies(self, type_name):
+        defs = []
 
-            elif resolved_type_data['type'] == TypeCollection.UNION:
-                d, i = self._process_type(resolved_type_data['members'].values())
-                defs += d
-                includes.update(i)
+        type_name = self._normalize_type_name(type_name)
+        type_data = self._types.get(type_name)
 
-            typedef = self._types.generate_typedef(type_name)
-            if typedef:
-                defs.append(typedef)
-        else:
-            for tt in type_name:
-                d, i = self._process_type(tt)
-                defs += d
-                includes.update(i)
+        if type_data['type'] == TypeCollection.ALIAS:
+            defs.append(type_data['aliases'])
+        elif type_data['type'] == TypeCollection.EXTERNAL_DEF:
+            pass
+        elif type_data['type'] == TypeCollection.STRUCT:
+            for field in type_data['fields'].values():
+                for tn in self._collect_type_dependencies(field):
+                    res = self._collect_type_dependencies(tn)
+                    if type(res) is list:
+                        defs += res
+                    else:
+                        defs.append(res)
 
-        return defs, includes
+        elif type_data['type'] == TypeCollection.UNION:
+            for member in type_data['members'].values():
+                for tn in self._collect_type_dependencies(member):
+                    res = self._collect_type_dependencies(tn)
+                    if type(res) is list:
+                        defs += res
+                    else:
+                        defs.append(res)
+
+        return defs
+
+    def _sort_types_by_dependency(self, type_names, visited_types=None):
+        if visited_types is None:
+            visited_types = []
+
+        if type(type_names) is not list:
+            type_names = [type_names]
+
+        types = []
+
+        for t in type_names:
+            if t in visited_types:
+                continue
+            else:
+                visited_types.append(t)
+                deps = self._collect_type_dependencies(t)
+
+                for d in deps:
+                    types += self._sort_types_by_dependency(d, visited_types)
+
+                types.append(t)
+
+        return types
 
     def update_component(self, component_name):
 
@@ -417,16 +517,16 @@ class Runtime:
         config_file = os.path.join(component_folder, 'config.json')
 
         context = {
-            'runtime':          self,
+            'runtime': self,
             'component_folder': component_folder,
-            'functions':        {},
-            'declarations':     [],
-            'files':            {
+            'functions': {},
+            'declarations': [],
+            'files': {
                 config_file: '',
                 source_file: '',
                 header_file: ''
             },
-            'folders':          [component_name]
+            'folders': [component_name]
         }
         self.raise_event('create_component_ports', component_name, self._components[component_name], context)
 
@@ -443,20 +543,21 @@ class Runtime:
         for f in funcs:
             includes.update(f.includes)
 
-        types, type_includes = self._process_type(self._components[component_name].get('types', {}).keys())
-        for f in funcs:
-            t, i = self._process_type(f.referenced_types())
-            types += t
-            type_includes.update(i)
+        defined_type_names = self._components[component_name].get('types', {}).keys()
+
+        sorted_types = self._sort_types_by_dependency(defined_type_names)
+
+        type_includes = self._get_type_includes(sorted_types)
+        typedefs = [self._types.generate_typedef(t) for t in sorted_types]
 
         ctx = {
-            'includes':         list_to_chevron_list(sorted(includes), 'header'),
-            'component_name':   component_name,
-            'guard_def':        to_underscore(component_name).upper(),
-            'variables':        context['declarations'],
-            'types':            unique(types),
-            'type_includes':    list_to_chevron_list(sorted(type_includes), 'header'),
-            'functions':        functions,
+            'includes': list_to_chevron_list(sorted(includes), 'header'),
+            'component_name': component_name,
+            'guard_def': to_underscore(component_name).upper(),
+            'variables': context['declarations'],
+            'types': typedefs,
+            'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
+            'functions': functions,
             'function_headers': function_headers
         }
 
@@ -477,7 +578,7 @@ class Runtime:
             function_data = self._get_function_data(short_name)
 
         fn_name = function_data['func_name_pattern'].format(component_name, port_name)
-        function = FunctionDescriptor.create(fn_name, function_data)
+        function = FunctionDescriptor.create(self._types, fn_name, function_data)
         function.add_input_assert(function_data.get('asserts', []))
 
         return function
@@ -502,20 +603,18 @@ class Runtime:
         header_file_name = filename + '.h'
 
         default_context = {
-            'runtime':                        self,
-            'files':                          {source_file_name: '', header_file_name: ''},
-            'functions':                      {},
-            'declarations':                   [],
+            'runtime': self,
+            'files': {source_file_name: '', header_file_name: ''},
+            'functions': {},
+            'declarations': [],
             'exported_function_declarations': [],
-            'signals':                        {}
+            'signals': {}
         }
 
         if context is None:
             context = default_context
         else:
-            for key in default_context:
-                if key not in context:
-                    context[key] = default_context[key]
+            context = {**default_context, **context}
 
         for connection in self._project_config['runtime']['port_connections']:
             provider_ref = connection['provider']
@@ -541,7 +640,8 @@ class Runtime:
             if provider_short_name not in context['functions']:
                 context['functions'][provider_short_name] = create_if_weak(provider_ref)
 
-            provider_attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumer', 'consumers']}
+            provider_attributes = {key: connection[key] for key in connection if
+                                   key not in ['provider', 'consumer', 'consumers']}
 
             # create a dict to store providers signals
             if provider_short_name not in context['signals']:
@@ -586,7 +686,8 @@ class Runtime:
                             # create new signal in all cases
                             signal_name += str(len(signals_of_current_type))
 
-                            new_signal = create_signal_connection(provider_attributes, signal_name, signal_type, consumer_attributes)
+                            new_signal = create_signal_connection(provider_attributes, signal_name, signal_type,
+                                                                  consumer_attributes)
 
                             signals_of_current_type.append(new_signal)
                         else:
@@ -597,7 +698,8 @@ class Runtime:
                         raise Exception('Multiple consumers not allowed for {} signal (provided by {})'
                                         .format(signal_type_name, provider_short_name))
                 except KeyError:
-                    new_signal = create_signal_connection(provider_attributes, signal_name, signal_type, consumer_attributes)
+                    new_signal = create_signal_connection(provider_attributes, signal_name, signal_type,
+                                                          consumer_attributes)
 
                     if signal_type.consumers == 'multiple_signals':
                         provider_signals[signal_type_name] = [new_signal]
@@ -634,28 +736,25 @@ class Runtime:
                 type_names += f.referenced_types()
                 includes.update(f.includes)
 
-        types = []
-        type_includes = set()
+        sorted_types = self._sort_types_by_dependency(type_names)
 
-        for t in type_names:
-            ty, i = self._process_type(t)
-            types += ty
-            type_includes.update(i)
+        type_includes = self._get_type_includes(sorted_types)
+        typedefs = [self._types.generate_typedef(t) for t in sorted_types]
 
         template_data = {
-            'output_filename':       output_filename,
-            'includes':              list_to_chevron_list(sorted(includes), 'header'),
-            'components':            [
+            'output_filename': output_filename,
+            'includes': list_to_chevron_list(sorted(includes), 'header'),
+            'components': [
                 {
-                    'name':      name,
+                    'name': name,
                     'guard_def': to_underscore(name).upper()
                 } for name in self._components if name != 'Runtime'],  # TODO
-            'types':                 unique(types),
-            'type_includes':         list_to_chevron_list(sorted(type_includes), 'header'),
+            'types': typedefs,
+            'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
             'function_declarations': [context['functions'][func_name].get_header() for func_name in
                                       context['exported_function_declarations']],
-            'functions':             [func.get_function() for func in context['functions'].values() if func],
-            'variables':             context['declarations']
+            'functions': [func.get_function() for func in context['functions'].values() if func],
+            'variables': context['declarations']
         }
 
         context['files'][source_file_name] = chevron.render(source_template, template_data)

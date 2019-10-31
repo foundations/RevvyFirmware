@@ -1,25 +1,22 @@
-#include "utils_assert.h"
-#include "utils.h"
 #include "LedDisplayController.h"
+#include "utils.h"
+#include "utils_assert.h"
 
 /* Begin User Code Section: Declarations */
 #include "rrrc_indication.h"
 #include "utils/functions.h"
 #include <math.h>
 
-#define BRIGHTNESS_LOW      ((uint8_t) 10u)
-#define BRIGHTNESS_NORMAL   ((uint8_t) 24u)
-
 #define MAIN_BATTERY_INDICATOR_LED  0
 #define MOTOR_BATTERY_INDICATOR_LED 1
 #define BLUETOOTH_INDICATOR_LED     2
 #define STATUS_INDICATOR_LED        3
 
-#define BLUETOOTH_BLINK_PERIOD    130
+#define BLUETOOTH_BLINK_PERIOD    121
 #define BLUETOOTH_BLINK_LENGTH     5
 
-#define CHARGING_BLINK_PERIOD    125
-#define CHARGING_BLINK_LENGTH     5
+#define CHARGING_BLINK_PERIOD    120
+#define CHARGING_BLINK_LENGTH     10
 
 #define MOTOR_MISSING_BLINK_PERIOD    50
 #define MOTOR_MISSING_BLINK_LENGTH    15
@@ -136,7 +133,7 @@ static rgb_t _display_main_battery(void)
         case ChargerState_Fault:
             if (_blink(&_charging_blink_timer, CHARGING_BLINK_LENGTH, CHARGING_BLINK_PERIOD))
             {
-                return (rgb_t) LED_RED;
+                return (rgb_t) LED_OFF;
             }
             break;
     }
@@ -174,7 +171,7 @@ void LedDisplayController_Run_OnInit(void)
     /* Begin User Code Section: OnInit Start */
     _motor_battery_feedback = 0u;
     _previous_display_mode = LedDisplayMode_Normal;
-    LedDisplayController_Write_MaxBrightness(BRIGHTNESS_NORMAL);
+    LedDisplayController_Write_MaxBrightness(LedDisplayController_Read_DefaultBrightness());
     /* End User Code Section: OnInit Start */
     /* Begin User Code Section: OnInit End */
 
@@ -195,7 +192,7 @@ void LedDisplayController_Run_Update(void)
                 break;
 
             case LedDisplayMode_LowBattery:
-                LedDisplayController_Write_MaxBrightness(BRIGHTNESS_NORMAL);
+                LedDisplayController_Write_MaxBrightness(LedDisplayController_Read_DefaultBrightness());
                 break;
         }
 
@@ -207,8 +204,7 @@ void LedDisplayController_Run_Update(void)
 
             case LedDisplayMode_LowBattery:
                 _clear_display();
-                LedDisplayController_Write_MaxBrightness(BRIGHTNESS_LOW);
-                LedDisplayController_Write_Leds(MAIN_BATTERY_INDICATOR_LED, (rgb_t) LED_RED);
+                LedDisplayController_Write_MaxBrightness(LedDisplayController_Read_LowBatteryBrightness());
                 break;
 
             case LedDisplayMode_MotorBatteryMissing:
@@ -289,6 +285,7 @@ void LedDisplayController_Run_Update(void)
             break;
 
         case LedDisplayMode_LowBattery:
+            LedDisplayController_Write_Leds(MAIN_BATTERY_INDICATOR_LED, _display_main_battery());
             break;
     }
 
@@ -335,6 +332,30 @@ BluetoothStatus_t LedDisplayController_Read_BluetoothStatus(void)
 
     /* End User Code Section: BluetoothStatus End */
     return BluetoothStatus_Inactive;
+}
+
+__attribute__((weak))
+uint8_t LedDisplayController_Read_DefaultBrightness(void)
+{
+    /* Begin User Code Section: DefaultBrightness Start */
+
+    /* End User Code Section: DefaultBrightness Start */
+    /* Begin User Code Section: DefaultBrightness End */
+
+    /* End User Code Section: DefaultBrightness End */
+    return 24;
+}
+
+__attribute__((weak))
+uint8_t LedDisplayController_Read_LowBatteryBrightness(void)
+{
+    /* Begin User Code Section: LowBatteryBrightness Start */
+
+    /* End User Code Section: LowBatteryBrightness Start */
+    /* Begin User Code Section: LowBatteryBrightness End */
+
+    /* End User Code Section: LowBatteryBrightness End */
+    return 10;
 }
 
 __attribute__((weak))

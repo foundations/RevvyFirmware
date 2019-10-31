@@ -811,7 +811,7 @@ port_type_data = {
             },
             'pointer': lambda types, port_data: {
                 'return_type':    'void',
-                'arguments':      {'value': '{}*'.format(port_data['data_type'])},
+                'arguments':      {'value': {'direction': 'out', 'data_type': port_data['data_type']}},
                 'used_arguments': ['value'],
                 'asserts':        'value != NULL',
                 'body':           '*value = {};'.format(get_default_value_formatted(types, port_data))
@@ -830,13 +830,12 @@ port_type_data = {
             'common':  lambda types, port_data: {
                 'attributes':        ['weak'],
                 'return_type':       'QueueStatus_t',
-                'func_name_pattern': '{}_Read_{}'
+                'func_name_pattern': '{}_Read_{}',
+                'arguments':      {'value': {'direction': 'out', 'data_type': port_data['data_type']}}
             },
             'value':   lambda types, port_data: {
-                'arguments': {'value': '{}*'.format(port_data['data_type'])},
             },
             'pointer': lambda types, port_data: {
-                'arguments':      {'value': '{}*'.format(port_data['data_type'])},
                 'asserts':        'value != NULL',
                 'used_arguments': ['value']
             }
@@ -860,7 +859,7 @@ port_type_data = {
             },
             'value':   lambda types, port_data: {
                 'return_type':    port_data['data_type'],
-                'arguments':      {'index': 'uint32_t'},
+                'arguments':      {'index': {'direction':'in', 'data_type': 'uint32_t'}},
                 'return_value':   get_default_value(types, port_data),
                 'asserts':        'index < {}'.format(port_data['count']),
                 'used_arguments': ['index'],
@@ -868,8 +867,8 @@ port_type_data = {
             'pointer': lambda types, port_data: {
                 'return_type':    'void',
                 'arguments':      {
-                    'index': 'uint32_t',
-                    'value': '{}*'.format(port_data['data_type'])
+                    'index': {'direction':'in', 'data_type': 'uint32_t'},
+                    'value': {'direction': 'out', 'data_type': port_data['data_type']},
                 },
                 'asserts':        [
                     'index < {}'.format(port_data['count']),
@@ -895,10 +894,10 @@ port_type_data = {
                 'return_type':       'void'
             },
             'value':   lambda types, port_data: {
-                'arguments': {'value': 'const {}'.format(port_data['data_type'])}
+                'arguments': {'value': {'direction': 'in', 'data_type': port_data['data_type']}},
             },
             'pointer': lambda types, port_data: {
-                'arguments':      {'value': 'const {}*'.format(port_data['data_type'])},
+                'arguments':      {'value': {'direction': 'in', 'data_type': port_data['data_type']}},
                 'asserts':        'value != NULL',
                 'used_arguments': ['value']
             }
@@ -916,20 +915,16 @@ port_type_data = {
             'common':  lambda types, port_data: {
                 'attributes':        ['weak'],
                 'func_name_pattern': '{}_Write_{}',
-                'return_type':       'void'
+                'return_type':       'void',
+                'arguments': {
+                    'index': {'direction':'in', 'data_type': 'uint32_t'},
+                    'value': {'direction': 'in', 'data_type': port_data['data_type']}
+                }
             },
             'value':   lambda types, port_data: {
-                'arguments': {
-                    'index': 'uint32_t',
-                    'value': 'const {}'.format(port_data['data_type'])
-                },
                 'asserts':   'index < {}'.format(port_data['count']),
             },
             'pointer': lambda types, port_data: {
-                'arguments':      {
-                    'index': 'uint32_t',
-                    'value': 'const {}*'.format(port_data['data_type'])
-                },
                 'used_arguments': ['value'],
                 'asserts':        [
                     'index < {}'.format(port_data['count']),
@@ -957,7 +952,9 @@ port_type_data = {
             },
             'pointer': lambda types, port_data: {
                 'return_type':    'void',
-                'arguments':      {'value': '{}*'.format(port_data['data_type'])},
+                'arguments':      {
+                    'value': {'direction': 'out', 'data_type': port_data['data_type']}
+                },
                 'body':           '*value = {};'.format(types.render_value(port_data['data_type'], port_data['value'])),
                 'asserts':        'value != NULL',
                 'used_arguments': ['value']
@@ -977,7 +974,7 @@ port_type_data = {
             'value':   lambda types, port_data: {
                 'return_type':  port_data['data_type'],
                 'arguments':    {
-                    'index': 'uint32_t'
+                    'index': {'direction': 'in', 'data_type': 'uint32_t'}
                 },
                 'body':         'static const {} data[{}] = {{ {} }};'.format(port_data['data_type'],
                                                                               port_data['count'],
@@ -987,8 +984,8 @@ port_type_data = {
             'pointer': lambda types, port_data: {
                 'return_type':    'void',
                 'arguments':      {
-                    'index': 'uint32_t',
-                    'value': '{}*'.format(port_data['data_type'])
+                    'index': {'direction': 'in', 'data_type': 'uint32_t'},
+                    'value': {'direction': 'out', 'data_type': port_data['data_type']}
                 },
                 'used_arguments': ['value', 'index'],
                 'body':           'static const {} data[{}] = {{ {} }};\n'
