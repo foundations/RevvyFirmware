@@ -537,7 +537,7 @@ class Runtime:
         for f in funcs:
             includes.update(f.includes)
 
-        defined_type_names = self._components[component_name].get('types', {}).keys()
+        defined_type_names = list(self._components[component_name].get('types', {}).keys())
 
         sorted_types = self._sort_types_by_dependency(defined_type_names)
 
