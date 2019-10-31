@@ -95,7 +95,7 @@ class ServerCallSignal(SignalType):
         data = {
             'component': component_name,
             'runnable':  port_name,
-            'arguments': ', '.join([str(v) for k, v in passed_arguments.items()]),
+            'arguments': ', '.join([str(v) for v in passed_arguments.values()]),
             'data_type': consumer_port_data['return_type']
         }
 

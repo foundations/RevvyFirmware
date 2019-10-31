@@ -3,8 +3,7 @@ import os
 
 import chevron
 
-from tools.generator_common import TypeCollection, copy, dict_to_chevron_list, to_underscore, list_to_chevron_list, \
-    unique
+from tools.generator_common import TypeCollection, copy, to_underscore, list_to_chevron_list
 
 runtime_header_template = """#ifndef GENERATED_RUNTIME_H_
 #define GENERATED_RUNTIME_H_
@@ -425,42 +424,90 @@ class Runtime:
             short_name = '{}/{}'.format(component_name, port_name)
             self._ports[short_name] = processed_port
 
-    def _process_type(self, type_name):
-        """Collect header files and typedefs from type_name
+    def _normalize_type_name(self, type_name):
 
-        Generate typedefs for modeled types and includes for referenced ones."""
-        defs = []
-        includes = set()
-        if type(type_name) is str:
-            try:
-                self._types.get(type_name)
-            except KeyError:
-                type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
+        try:
+            self._types.get(type_name)
+        except KeyError:
+            type_name = type_name.replace('const ', '').replace('*', '').replace(' ', '')
+
+        return type_name
+
+    def _get_type_includes(self, type_name):
+        if type(type_name) is list:
+            includes = []
+            for tn in type_name:
+                inc = self._get_type_includes(tn)
+                if type(inc) is list:
+                    for i in inc:
+                        if i not in includes:
+                            includes.append(i)
+                elif inc:
+                    if inc not in includes:
+                        includes.append(inc)
+            return includes
+
+        else:
+            type_name = self._normalize_type_name(type_name)
 
             resolved_type_data = self._types[type_name]
             if resolved_type_data['type'] == TypeCollection.EXTERNAL_DEF:
-                includes.add(resolved_type_data['defined_in'])
+                return resolved_type_data['defined_in']
+            else:
+                return None
 
-            elif resolved_type_data['type'] == TypeCollection.STRUCT:
-                d, i = self._process_type(resolved_type_data['fields'].values())
-                defs += d
-                includes.update(i)
+    def _collect_type_dependencies(self, type_name):
+        defs = []
 
-            elif resolved_type_data['type'] == TypeCollection.UNION:
-                d, i = self._process_type(resolved_type_data['members'].values())
-                defs += d
-                includes.update(i)
+        type_name = self._normalize_type_name(type_name)
+        type_data = self._types.get(type_name)
 
-            typedef = self._types.generate_typedef(type_name)
-            if typedef:
-                defs.append(typedef)
-        else:
-            for tt in type_name:
-                d, i = self._process_type(tt)
-                defs += d
-                includes.update(i)
+        if type_data['type'] == TypeCollection.ALIAS:
+            defs.append(type_data['aliases'])
+        elif type_data['type'] == TypeCollection.EXTERNAL_DEF:
+            pass
+        elif type_data['type'] == TypeCollection.STRUCT:
+            for field in type_data['fields'].values():
+                for tn in self._collect_type_dependencies(field):
+                    res = self._collect_type_dependencies(tn)
+                    if type(res) is list:
+                        defs += res
+                    else:
+                        defs.append(res)
 
-        return defs, includes
+        elif type_data['type'] == TypeCollection.UNION:
+            for member in type_data['members'].values():
+                for tn in self._collect_type_dependencies(member):
+                    res = self._collect_type_dependencies(tn)
+                    if type(res) is list:
+                        defs += res
+                    else:
+                        defs.append(res)
+
+        return defs
+
+    def _sort_types_by_dependency(self, type_names, visited_types=None):
+        if visited_types is None:
+            visited_types = []
+
+        if type(type_names) is not list:
+            type_names = [type_names]
+
+        types = []
+
+        for t in type_names:
+            if t in visited_types:
+                continue
+            else:
+                visited_types.append(t)
+                deps = self._collect_type_dependencies(t)
+
+                for d in deps:
+                    types += self._sort_types_by_dependency(d, visited_types)
+
+                types.append(t)
+
+        return types
 
     def update_component(self, component_name):
 
@@ -496,18 +543,19 @@ class Runtime:
         for f in funcs:
             includes.update(f.includes)
 
-        types, type_includes = self._process_type(self._components[component_name].get('types', {}).keys())
-        for f in funcs:
-            t, i = self._process_type(f.referenced_types())
-            types += t
-            type_includes.update(i)
+        defined_type_names = self._components[component_name].get('types', {}).keys()
+
+        sorted_types = self._sort_types_by_dependency(defined_type_names)
+
+        type_includes = self._get_type_includes(sorted_types)
+        typedefs = [self._types.generate_typedef(t) for t in sorted_types]
 
         ctx = {
             'includes': list_to_chevron_list(sorted(includes), 'header'),
             'component_name': component_name,
             'guard_def': to_underscore(component_name).upper(),
             'variables': context['declarations'],
-            'types': unique(types),
+            'types': typedefs,
             'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
             'functions': functions,
             'function_headers': function_headers
@@ -688,13 +736,10 @@ class Runtime:
                 type_names += f.referenced_types()
                 includes.update(f.includes)
 
-        types = []
-        type_includes = set()
+        sorted_types = self._sort_types_by_dependency(type_names)
 
-        for t in type_names:
-            ty, i = self._process_type(t)
-            types += ty
-            type_includes.update(i)
+        type_includes = self._get_type_includes(sorted_types)
+        typedefs = [self._types.generate_typedef(t) for t in sorted_types]
 
         template_data = {
             'output_filename': output_filename,
@@ -704,7 +749,7 @@ class Runtime:
                     'name': name,
                     'guard_def': to_underscore(name).upper()
                 } for name in self._components if name != 'Runtime'],  # TODO
-            'types': unique(types),
+            'types': typedefs,
             'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
             'function_declarations': [context['functions'][func_name].get_header() for func_name in
                                       context['exported_function_declarations']],
