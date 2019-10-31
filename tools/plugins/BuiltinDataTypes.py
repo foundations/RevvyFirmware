@@ -917,7 +917,7 @@ port_type_data = {
                 'func_name_pattern': '{}_Write_{}',
                 'return_type':       'void',
                 'arguments': {
-                    'index': {'direction':'in', 'data_type': 'uint32_t'},
+                    'index': {'direction': 'in', 'data_type': 'uint32_t'},
                     'value': {'direction': 'in', 'data_type': port_data['data_type']}
                 }
             },

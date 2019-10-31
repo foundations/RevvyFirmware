@@ -4,26 +4,19 @@ from tools.generator_common import TypeCollection
 from tools.runtime import RuntimePlugin, Runtime, SignalType, SignalConnection
 
 
-def collect_arguments(attributes, consumer_name, consumer_arguments, function):
-    user_arguments = {}
-    if 'arguments' in attributes:
-        user_arguments = attributes['arguments']
-        for arg in user_arguments:
-            if arg not in consumer_arguments:
-                print("Warning: Runnable {} does not have an argument named '{}'".format(consumer_name, arg))
+def collect_arguments(attributes, consumer_name, consumer_arguments, caller_args):
+    user_arguments = attributes.get('arguments', {})
+    for arg in user_arguments:
+        if arg not in consumer_arguments:
+            print("Warning: Runnable {} does not have an argument named '{}'".format(consumer_name, arg))
 
     passed_arguments = {}
     for arg_name, arg_type in consumer_arguments.items():
-        if arg_name in function.arguments:
-            function.mark_argument_used(arg_name)
-
         if arg_name in user_arguments:
             passed_arguments[arg_name] = user_arguments[arg_name]
-        elif arg_name in function.arguments:
-            if type(arg_type) is str:
-                arg_type = {'direction': 'in', 'data_type': arg_type}
 
-            if arg_type != function.arguments[arg_name]:
+        elif arg_name in caller_args:
+            if arg_type != caller_args[arg_name]:
                 raise Exception(
                     'Caller of {} has matching argument {} but types are different'.format(consumer_name, arg_name))
             passed_arguments[arg_name] = arg_name
@@ -60,17 +53,17 @@ class EventSignal(FunctionCallSignal):
     def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
 
-        consumer_port_data = runtime.get_port(consumer_name)
-        function = context['functions'][connection.provider]
+        caller_fn = runtime.functions[connection.provider]
+        fn_to_call = runtime.functions[consumer_name]
 
-        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
+        passed_arguments = collect_arguments(attributes, consumer_name, fn_to_call.arguments, caller_fn.arguments)
 
-        fn_to_call = context['functions'][consumer_name]
         call_code = fn_to_call.function_call(passed_arguments)
 
         return {
             connection.provider: {
-                'body': call_code + ';'
+                'body': call_code + ';',
+                'used_arguments': passed_arguments.keys()
             }
         }
 
@@ -83,24 +76,25 @@ class ServerCallSignal(FunctionCallSignal):
         runtime = context['runtime']
 
         consumer_port_data = runtime.get_port(consumer_name)
-        function = context['functions'][connection.provider]
+        caller_fn = runtime.functions[connection.provider]
+        fn_to_call = runtime.functions[consumer_name]
 
-        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
+        passed_arguments = collect_arguments(attributes, consumer_name, fn_to_call.arguments, caller_fn.arguments)
 
-        fn_to_call = context['functions'][consumer_name]
         call_code = fn_to_call.function_call(passed_arguments)
 
-        if function.return_type == 'void':
+        if caller_fn.return_type == 'void':
             return {
                 connection.provider: {
-                    'body': call_code + ';'
+                    'body': call_code + ';',
+                    'used_arguments': passed_arguments.keys()
                 }
             }
 
         else:
-            if function.return_type != fn_to_call.return_type:
+            if caller_fn.return_type != fn_to_call.return_type:
                 raise Exception('Callee return type is incompatible ({} instead of {})'
-                                .format(consumer_port_data['return_type'], function.return_type))
+                                .format(consumer_port_data['return_type'], caller_fn.return_type))
 
             template = "{{ data_type }} return_value = {{ call_code }};"
             data = {
@@ -111,6 +105,7 @@ class ServerCallSignal(FunctionCallSignal):
             return {
                 connection.provider: {
                     'body':             chevron.render(template, data),
+                    'used_arguments': passed_arguments.keys(),
                     'return_statement': 'return_value'
                 }
             }
