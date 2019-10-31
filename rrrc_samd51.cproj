@@ -222,9 +222,7 @@
     <BuildTarget>all --jobs 16 --output-sync --ignore-errors --silent</BuildTarget>
     <CleanTarget>clean</CleanTarget>
     <ExternalMakeFilePath>C:\_RevolutionRobotics\Sw\Firmware\Makefile</ExternalMakeFilePath>
-    <PreBuildEvent>venv\scripts\activate.bat
-python -m tools.generate_makefile
-
+    <PreBuildEvent>python -m tools.generate_makefile
 python -m tools.gen_version</PreBuildEvent>
     <PostBuildEvent>python -m tools.prepare --build-dir=Release --out=output
 cp Release/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
@@ -357,12 +355,9 @@ cp Release/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
 </ArmGcc>
     </ToolchainSettings>
-    <PreBuildEvent>venv\scripts\activate.bat
-python -m tools.generate_makefile
-
+    <PreBuildEvent>python -m tools.generate_makefile
 python -m tools.gen_version</PreBuildEvent>
     <PostBuildEvent>python -m tools.prepare --build-dir=Debug --out=output
-
 cp Debug/rrrc_samd51.elf rrrc_samd51.elf</PostBuildEvent>
     <UsesExternalMakeFile>True</UsesExternalMakeFile>
     <OutputDirectory>C:\_RevolutionRobotics\Sw\Firmware</OutputDirectory>
