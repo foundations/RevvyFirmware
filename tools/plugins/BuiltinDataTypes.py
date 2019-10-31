@@ -52,7 +52,7 @@ class VariableSignal(SignalType):
         else:
             template = '{{ signal_name }} = *{{ value }};'
 
-        function = context['functions'][provider_name]
+        function = runtime.functions[provider_name]
         argument_names = list(function.arguments.keys())
         return {
             provider_name: {
@@ -83,7 +83,7 @@ class VariableSignal(SignalType):
             raise Exception(
                 'Port data types don\'t match (Provider: {} Consumer: {})'.format(source_data_type, data_type))
 
-        function = context['functions'][consumer_name]
+        function = runtime.functions[consumer_name]
         argument_names = list(function.arguments.keys())
         mods = {
             consumer_name: {}
@@ -162,7 +162,7 @@ class ArraySignal(SignalType):
         else:
             template = '{{ signal_name }}[{{ index }}] = *{{ value }};'
 
-        function = context['functions'][provider_name]
+        function = runtime.functions[provider_name]
         argument_names = list(function.arguments.keys())
         return {
             provider_name: {
@@ -193,7 +193,7 @@ class ArraySignal(SignalType):
         if data_type != source_data_type:
             raise Exception('Port data types don\'t match')
 
-        function = context['functions'][consumer_name]
+        function = runtime.functions[consumer_name]
         argument_names = list(function.arguments.keys())
 
         mods = {
@@ -306,7 +306,7 @@ class QueueSignal(SignalType):
                 "{{ signal_name }}_write_index = ({{ signal_name }}_write_index + 1u) % {{ queue_length }}u;\n" \
                 "{{ signal_name }}[idx] = {{ value }};"
 
-        function = context['functions'][provider_name]
+        function = runtime.functions[provider_name]
         argument_names = list(function.arguments.keys())
         passed_by_value = runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE
         return {
@@ -370,7 +370,7 @@ class QueueSignal(SignalType):
                 "    }\n" \
                 "}"
 
-        function = context['functions'][consumer_name]
+        function = runtime.functions[consumer_name]
         argument_names = list(function.arguments.keys())
         passed_by_value = runtime.types.passed_by(source_data_type) == TypeCollection.PASS_BY_VALUE
         data = {
@@ -420,17 +420,16 @@ class ConstantSignal(SignalType):
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
 
-        component_name, port_name = connection.provider.split('/')
-        constant_provider_name = '{}_Constant_{}'.format(component_name, port_name)
+        constant_provider = runtime.functions[connection.provider]
         mods = {
             consumer_name: {}
         }
 
         if runtime.types.passed_by(data_type) == TypeCollection.PASS_BY_VALUE:
             ctx = {
-                'template': '{{ constant_provider }}(){{ member_accessor }}',
+                'template': '{{ constant_provider }}{{ member_accessor }}',
                 'data':     {
-                    'constant_provider': constant_provider_name,
+                    'constant_provider': constant_provider.function_call({}),
                     'member_accessor':   member_accessor
                 }
             }
@@ -439,10 +438,10 @@ class ConstantSignal(SignalType):
             if member_accessor:
                 ctx = {
                     'template': '{{ data_type }} tmp;\n'
-                                '{{ constant_provider }}(&tmp);\n'
+                                '{{ constant_provider }};\n'
                                 '{{ out_name }} = tmp{{ member_accessor }};',
                     'data':     {
-                        'constant_provider': constant_provider_name,
+                        'constant_provider': constant_provider.function_call({'value': '&tmp'}),
                         'out_name':          argument_names[0],
                         'member_accessor':   member_accessor,
                         'data_type':         provider_port_data['data_type']
@@ -450,10 +449,9 @@ class ConstantSignal(SignalType):
                 }
             else:
                 ctx = {
-                    'template': '{{ constant_provider }}({{ out_name }});',
+                    'template': '{{ constant_provider }};',
                     'data':     {
-                        'constant_provider': constant_provider_name,
-                        'out_name':          argument_names[0]
+                        'constant_provider': constant_provider.function_call({'value': argument_names[0]}),
                     }
                 }
 
@@ -494,8 +492,8 @@ class ConstantArraySignal(SignalType):
         function = context['functions'][consumer_name]
         argument_names = list(function.arguments.keys())
 
-        component_name, port_name = provider_port_data['short_name'].split('/')
-        constant_provider_name = '{}_Constant_{}'.format(component_name, port_name)
+        constant_provider = runtime.functions[connection.provider]
+
         mods = {
             consumer_name: {}
         }
@@ -514,11 +512,10 @@ class ConstantArraySignal(SignalType):
                 mods[consumer_name]['used_arguments'] = [argument_names[0]]
 
             ctx = {
-                'template': '{{ data_type}} return_value = {{ constant_provider }}({{ index }}){{ member_accessor }};',
+                'template': '{{ data_type}} return_value = {{ constant_provider }}{{ member_accessor }};',
                 'data':     {
                     'data_type':         data_type,
-                    'constant_provider': constant_provider_name,
-                    'index':             index,
+                    'constant_provider': constant_provider.function_call({'index': index}),
                     'member_accessor':   member_accessor
                 }
             }
@@ -542,11 +539,10 @@ class ConstantArraySignal(SignalType):
             if member_accessor:
                 ctx = {
                     'template': '{{ data_type }} tmp;\n'
-                                '{{ constant_provider }}({{ index }}, &tmp);\n'
+                                '{{ constant_provider }};\n'
                                 '{{ out_name }} = tmp{{ member_accessor }};',
                     'data':     {
-                        'constant_provider': constant_provider_name,
-                        'index':             index,
+                        'constant_provider': constant_provider.function_call({'index': index, 'value': '&tmp'}),
                         'out_name':          out_name,
                         'member_accessor':   member_accessor,
                         'data_type':         provider_port_data['data_type']
@@ -554,11 +550,9 @@ class ConstantArraySignal(SignalType):
                 }
             else:
                 ctx = {
-                    'template': '{{ constant_provider }}({{ index }}, {{ out_name }});',
+                    'template': '{{ constant_provider }};',
                     'data':     {
-                        'constant_provider': constant_provider_name,
-                        'index':             index,
-                        'out_name':          out_name
+                        'constant_provider': constant_provider.function_call({'index': index, 'value': out_name}),
                     }
                 }
             mods[consumer_name]['body'] = chevron.render(**ctx)
@@ -917,7 +911,7 @@ port_type_data = {
                 'func_name_pattern': '{}_Write_{}',
                 'return_type':       'void',
                 'arguments': {
-                    'index': {'direction':'in', 'data_type': 'uint32_t'},
+                    'index': {'direction': 'in', 'data_type': 'uint32_t'},
                     'value': {'direction': 'in', 'data_type': port_data['data_type']}
                 }
             },
@@ -1049,7 +1043,9 @@ def create_component_ports(owner: Runtime, component_name, component_data, conte
         port_type = port_data['port_type']
         if port_type in port_type_data:
             function_data = impl_data_lookup(owner.types, port_data)
-            function = owner.create_function_for_port(component_name, port_name, function_data)
+
+            short_name = '{}/{}'.format(component_name, port_name)
+            function = owner.functions[short_name]
 
             for argument in function_data.get('used_arguments', []):
                 function.mark_argument_used(argument)

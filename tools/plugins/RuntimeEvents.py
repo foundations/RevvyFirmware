@@ -4,41 +4,29 @@ from tools.generator_common import TypeCollection
 from tools.runtime import RuntimePlugin, Runtime, SignalType, SignalConnection
 
 
-def collect_arguments(attributes, consumer_name, consumer_arguments, function):
-    user_arguments = {}
-    if 'arguments' in attributes:
-        user_arguments = attributes['arguments']
-        for arg in user_arguments:
-            if arg not in consumer_arguments:
-                print("Warning: Runnable {} does not have an argument named '{}'".format(consumer_name, arg))
+def collect_arguments(attributes, consumer_name, consumer_arguments, caller_args):
+    user_arguments = attributes.get('arguments', {})
+    for arg in user_arguments:
+        if arg not in consumer_arguments:
+            print("Warning: Runnable {} does not have an argument named '{}'".format(consumer_name, arg))
 
     passed_arguments = {}
     for arg_name, arg_type in consumer_arguments.items():
-        if arg_name in function.arguments:
-            function.mark_argument_used(arg_name)
-
         if arg_name in user_arguments:
             passed_arguments[arg_name] = user_arguments[arg_name]
-        elif arg_name in function.arguments:
-            if type(arg_type) is str:
-                arg_type = {'direction': 'in', 'data_type': arg_type}
 
-            if arg_type != function.arguments[arg_name]:
+        elif arg_name in caller_args:
+            if arg_type != caller_args[arg_name]:
                 raise Exception(
                     'Caller of {} has matching argument {} but types are different'.format(consumer_name, arg_name))
             passed_arguments[arg_name] = arg_name
         else:
             raise Exception('Unable to connect argument {} of {}'.format(arg_name, consumer_name))
 
-    missing_arguments = set(passed_arguments.keys()) - set(consumer_arguments)
-    if missing_arguments:
-        raise Exception("The following arguments are missing from {}: {}"
-                        .format(consumer_name, ", ".join(missing_arguments)))
-
     return passed_arguments
 
 
-class EventSignal(SignalType):
+class FunctionCallSignal(SignalType):
     def __init__(self):
         super().__init__(consumers='multiple')
 
@@ -49,33 +37,12 @@ class EventSignal(SignalType):
         pass
 
     def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
-        runtime = context['runtime']
-
-        consumer_port_data = runtime.get_port(consumer_name)
-        function = context['functions'][connection.provider]
-
-        component_name, port_name = consumer_name.split('/')
-        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
-
-        ctx = {
-            'template': "{{ component }}_Run_{{ runnable }}({{ arguments }});",
-            'data':     {
-                'component': component_name,
-                'runnable':  port_name,
-                'arguments': ', '.join([str(v) for v in passed_arguments.values()])
-            }
-        }
-
-        return {
-            connection.provider: {
-                'body': chevron.render(**ctx)
-            }
-        }
+        raise NotImplementedError
 
 
-class ServerCallSignal(SignalType):
+class EventSignal(FunctionCallSignal):
     def __init__(self):
-        super().__init__(consumers='single')
+        super().__init__()
 
     def create(self, context, connection: SignalConnection):
         pass
@@ -86,38 +53,59 @@ class ServerCallSignal(SignalType):
     def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
         runtime = context['runtime']
 
-        consumer_port_data = runtime.get_port(consumer_name)
-        function = context['functions'][connection.provider]
+        caller_fn = runtime.functions[connection.provider]
+        fn_to_call = runtime.functions[consumer_name]
 
-        component_name, port_name = consumer_name.split('/')
-        passed_arguments = collect_arguments(attributes, consumer_name, consumer_port_data['arguments'], function)
+        passed_arguments = collect_arguments(attributes, consumer_name, fn_to_call.arguments, caller_fn.arguments)
 
-        data = {
-            'component': component_name,
-            'runnable':  port_name,
-            'arguments': ', '.join([str(v) for v in passed_arguments.values()]),
-            'data_type': consumer_port_data['return_type']
+        call_code = fn_to_call.function_call(passed_arguments)
+
+        return {
+            connection.provider: {
+                'body': call_code + ';',
+                'used_arguments': passed_arguments.keys()
+            }
         }
 
-        if function.return_type == 'void':
-            template = "{{ component }}_Run_{{ runnable }}({{ arguments }});"
 
+class ServerCallSignal(FunctionCallSignal):
+    def __init__(self):
+        super().__init__()
+
+    def generate_consumer(self, context, connection: SignalConnection, consumer_name, attributes):
+        runtime = context['runtime']
+
+        consumer_port_data = runtime.get_port(consumer_name)
+        caller_fn = runtime.functions[connection.provider]
+        fn_to_call = runtime.functions[consumer_name]
+
+        passed_arguments = collect_arguments(attributes, consumer_name, fn_to_call.arguments, caller_fn.arguments)
+
+        call_code = fn_to_call.function_call(passed_arguments)
+
+        if caller_fn.return_type == 'void':
             return {
                 connection.provider: {
-                    'body': chevron.render(template, data)
+                    'body': call_code + ';',
+                    'used_arguments': passed_arguments.keys()
                 }
             }
 
         else:
-            if function.return_type != consumer_port_data['return_type']:
+            if caller_fn.return_type != fn_to_call.return_type:
                 raise Exception('Callee return type is incompatible ({} instead of {})'
-                                .format(consumer_port_data['return_type'], function.return_type))
+                                .format(consumer_port_data['return_type'], caller_fn.return_type))
 
-            template = "{{ data_type }} return_value = {{ component }}_Run_{{ runnable }}({{ arguments }});"
+            template = "{{ data_type }} return_value = {{ call_code }};"
+            data = {
+                'call_code': call_code,
+                'data_type': consumer_port_data['return_type']
+            }
 
             return {
                 connection.provider: {
                     'body':             chevron.render(template, data),
+                    'used_arguments': passed_arguments.keys(),
                     'return_statement': 'return_value'
                 }
             }
@@ -263,7 +251,8 @@ def create_component_runnables(owner: Runtime, component_name, component_data, c
         if port_type in port_type_data:
             function_data = impl_data_lookup(owner.types, port_data)
 
-            function = owner.create_function_for_port(component_name, port_name, function_data)
+            short_name = '{}/{}'.format(component_name, port_name)
+            function = owner.functions[short_name]
 
             if 'weak' not in function_data.get('attributes', []):
                 used_arguments = function_data.get('arguments', [])
@@ -284,7 +273,7 @@ def create_component_runnables(owner: Runtime, component_name, component_data, c
             function.add_input_assert(function_data.get('asserts', []))
             function.add_body(function_data.get('body', []))
 
-            context['functions']['{}/{}'.format(component_name, port_name)] = function
+            context['functions'][short_name] = function
 
 
 def add_exported_declarations(owner: Runtime, context):

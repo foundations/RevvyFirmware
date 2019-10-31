@@ -237,8 +237,29 @@ class FunctionDescriptor:
     def arguments(self):
         return self._arguments
 
+    @property
+    def function_name(self):
+        return self._name
+
     def referenced_types(self):
         return [data['data_type'] for data in self._arguments.values()] + [self._return_type]
+
+    def function_call(self, arguments):
+        template = '{{ func_name }}({{ arguments }})'
+
+        required_args = set(self.arguments.keys())
+        missing_args = required_args - arguments.keys()
+        if missing_args:
+            raise Exception('Arguments are missing from call of {}: {}'
+                            .format(self.function_name, ', '.join(missing_args)))
+
+        return chevron.render(template, {
+            'func_name': self.function_name,
+            'arguments': ', '.join([str(arguments[name]) for name in self.arguments])
+        })
+
+    def __str__(self) -> str:
+        return 'FunctionDescriptor of {}'.format(self._name)
 
 
 class SignalConnection:
@@ -423,6 +444,7 @@ class Runtime:
 
             short_name = '{}/{}'.format(component_name, port_name)
             self._ports[short_name] = processed_port
+            self._functions[short_name] = self.create_function_for_port(component_name, port_name)
 
     def _normalize_type_name(self, type_name):
 
@@ -598,12 +620,14 @@ class Runtime:
         header_file_name = filename + '.h'
 
         default_context = {
-            'runtime': self,
-            'files': {source_file_name: '', header_file_name: ''},
-            'functions': {},
-            'declarations': [],
+            'runtime':                        self,
+            'files':                          {source_file_name: '', header_file_name: ''},
+            'functions':                      {},
+            'functions_to_generate':          {},
+            'declarations':                   [],
             'exported_function_declarations': [],
-            'signals': {}
+            'runtime_includes':               {'"utils.h"'},
+            'signals':                        {}
         }
 
         if context is None:
@@ -619,13 +643,9 @@ class Runtime:
             provider_port_type_data = self.get_port_type_data(provider_short_name)
             provided_signal_types = provider_port_type_data['provides']
 
-            def create_if_weak(port_ref):
-                """Generate function for the given port - but only if the default implementation is weak"""
+            def create_fn(port_ref):
                 function_data = self._get_function_data(port_ref['short_name'])
-                if 'weak' in function_data.get('attributes', []):
-                    return self.create_function_for_port(port_ref['component'], port_ref['port'], function_data)
-                else:
-                    return None
+                return self.create_function_for_port(port_ref['component'], port_ref.get('port', port_ref.get('runnable')), function_data)
 
             def create_signal_connection(attributes, signal_name, signal_type, consumer_attributes):
                 signal = signal_type.create_connection(context, signal_name, provider_short_name, attributes)
@@ -633,7 +653,12 @@ class Runtime:
                 return signal
 
             if provider_short_name not in context['functions']:
-                context['functions'][provider_short_name] = create_if_weak(provider_ref)
+                fn = create_fn(provider_ref)
+                context['functions'][provider_short_name] = fn
+
+                function_data = self._get_function_data(provider_ref['short_name'])
+                if 'weak' in function_data.get('attributes', []):
+                    context['functions_to_generate'][provider_short_name] = fn
 
             provider_attributes = {key: connection[key] for key in connection if
                                    key not in ['provider', 'consumer', 'consumers']}
@@ -660,7 +685,13 @@ class Runtime:
                 signal_type = self._signal_types[signal_type_name]
 
                 if consumer_short_name not in context['functions']:
-                    context['functions'][consumer_short_name] = create_if_weak(consumer_ref)
+                    fn = create_fn(consumer_ref)
+                    context['functions'][consumer_short_name] = fn
+
+                    function_data = self._get_function_data(consumer_ref['short_name'])
+                    if 'weak' in function_data.get('attributes', []):
+                        context['functions_to_generate'][consumer_short_name] = fn
+
                 else:
                     # this port already is the consumer of some signal
                     # some ports can consume multiple signals, this is set in the port data
@@ -721,15 +752,12 @@ class Runtime:
             type_names += c.get('types', {}).keys()
 
         output_filename = filename[filename.rfind('/') + 1:]
-        includes = {
-            '"{}.h"'.format(output_filename),
-            '"utils.h"'
-        }
+        includes = context['runtime_includes']
+        includes.add('"{}.h"'.format(output_filename))
 
         for f in context['functions'].values():
-            if f:
-                type_names += f.referenced_types()
-                includes.update(f.includes)
+            type_names += f.referenced_types()
+            includes.update(f.includes)
 
         sorted_types = self._sort_types_by_dependency(type_names)
 
@@ -748,8 +776,8 @@ class Runtime:
             'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
             'function_declarations': [context['functions'][func_name].get_header() for func_name in
                                       context['exported_function_declarations']],
-            'functions': [func.get_function() for func in context['functions'].values() if func],
-            'variables': context['declarations']
+            'functions':             [func.get_function() for name, func in context['functions'].items() if name in context['functions_to_generate']],  # this way preserves function order
+            'variables':             context['declarations']
         }
 
         context['files'][source_file_name] = chevron.render(source_template, template_data)
