@@ -51,14 +51,14 @@
             "port_type": "ServerCall",
             "return_type": "void*",
             "arguments": {
-                "size": "size_t"
+                "size": {"data_type": "size_t", "direction": "in"}
             }
         },
         "Free": {
             "port_type": "ServerCall",
             "return_type": "void",
             "arguments": {
-                "ptr": "void**"
+                "ptr": {"data_type": "void*", "direction": "inout"}
             }
         },
         "DriveStrength": {

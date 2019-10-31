@@ -92,18 +92,20 @@ class RuntimePlugin:
 class FunctionDescriptor:
 
     @staticmethod
-    def create(name, data: dict = None):
+    def create(types: TypeCollection, name, data: dict = None):
         if not data:
             data = {}
 
-        fd = FunctionDescriptor(name, data.get('return_type', 'void'))
+        fd = FunctionDescriptor(types, name, data.get('return_type', 'void'))
 
-        for name, data_type in data.get('arguments', {}).items():
-            fd.add_argument(name, data_type)
+        for name, arg_data in data.get('arguments', {}).items():
+            fd.add_argument(name, arg_data)
 
         return fd
 
-    def __init__(self, func_name, return_type='void'):
+    def __init__(self, types: TypeCollection, func_name, return_type='void'):
+        self._types = types
+
         self._name = func_name
         self._return_type = return_type
         self._arguments = {}
@@ -120,8 +122,14 @@ class FunctionDescriptor:
     def add_attribute(self, attribute):
         self._attributes.add(attribute)
 
-    def add_argument(self, name, data_type):
-        self._arguments[name] = data_type
+    def add_argument(self, name, arg_data):
+        if type(arg_data) is str:
+            arg_data = {
+                'data_type': arg_data,
+                'direction': 'in'
+            }
+
+        self._arguments[name] = arg_data
 
     def add_input_assert(self, statements):
         self.includes.add('"utils_assert.h"')
@@ -129,7 +137,7 @@ class FunctionDescriptor:
             self._asserts.add('ASSERT({});'.format(statements))
         else:
             for statement in statements:
-                self._asserts.add('ASSERT({});'.format(statement))
+                self.add_input_assert(statement)
 
     def add_body(self, body):
         if type(body) is str:
@@ -151,12 +159,42 @@ class FunctionDescriptor:
             self._return_statement = statement
 
     def get_header(self):
+        def generate_parameter(name, data):
+
+            try:
+                pass_by_ptr = self._types.get(data['data_type'])['pass_semantic'] == TypeCollection.PASS_BY_POINTER
+            except KeyError:
+                arg_is_ptr = '*' in data['data_type']
+                pass_by_ptr = not arg_is_ptr  # pointers can be passed by value, otherwise assume pass-by-pointer
+
+            if pass_by_ptr:
+                pass_by = 'pointer'
+            else:
+                pass_by = 'value'
+
+            patterns = {
+                'pointer': {
+                    'in': 'const {}* {}',
+                    'out': '{}* {}',
+                    'inout': '{}* {}'
+                },
+                'value': {
+                    'in': '{} {}',
+                    'out': '{}* {}',
+                    'inout': '{}* {}'
+                }
+            }
+
+            return patterns[pass_by][data['direction']].format(data['data_type'], name)
+
+        args = [generate_parameter(name, data) for name, data in self._arguments.items()]
+
         ctx = {
-            'template': '{{ return_type }} {{ function_name }}({{^ arguments }}void{{/ arguments }}{{# arguments }}{{ type }} {{ name }}{{^ last}}, {{/ last }}{{/ arguments }})',
-            'data':     {
-                'return_type':   self._return_type,
+            'template': '{{ return_type }} {{ function_name }}({{ arguments }})',
+            'data': {
+                'return_type': self._return_type,
                 'function_name': self._name,
-                'arguments':     dict_to_chevron_list(self._arguments, 'name', 'type', 'last')
+                'arguments': 'void' if not args else ', '.join(args)
             }
         }
         return chevron.render(**ctx)
@@ -184,10 +222,10 @@ class FunctionDescriptor:
                         "{{/ body }}\n"
                         "}\n",
 
-            'data':     {
-                'header':     self.get_header(),
+            'data': {
+                'header': self.get_header(),
                 'attributes': list(self._attributes),
-                'body':       [remove_trailing_spaces(line) for line in body]
+                'body': [remove_trailing_spaces(line) for line in body]
             }
         }
         return chevron.render(**ctx)
@@ -201,7 +239,7 @@ class FunctionDescriptor:
         return self._arguments
 
     def referenced_types(self):
-        return list(self._arguments.values()) + [self._return_type]
+        return [data['data_type'] for data in self._arguments.values()] + [self._return_type]
 
 
 class SignalConnection:
@@ -276,6 +314,21 @@ class SignalType:
         return SignalConnection(context, name, self, provider, attributes)
 
 
+def merge_dicts(one, other):
+    """
+    >>> merge_dicts({'a': 'foo'}, {'a':'bar', 'b':'foobar'})
+    {'a': 'foo', 'b': 'foobar'}
+    >>> merge_dicts({}, {'a':'bar', 'b':'foobar'})
+    {'a': 'bar', 'b': 'foobar'}
+    >>> merge_dicts(None, {'a':'bar', 'b':'foobar'})
+    {'a': 'bar', 'b': 'foobar'}
+    """
+    if one is None:
+        return other
+    else:
+        return {**other, **one}
+
+
 class Runtime:
     def __init__(self, project_config_file):
         self._project_config_file = project_config_file
@@ -307,9 +360,9 @@ class Runtime:
 
         if 'settings' not in project_config:
             project_config['settings'] = {
-                'name':              'Project Name',
+                'name': 'Project Name',
                 'components_folder': 'components',
-                'required_plugins':  []
+                'required_plugins': []
             }
 
         print('Loaded configuration for {}'.format(project_config['settings']['name']))
@@ -417,16 +470,16 @@ class Runtime:
         config_file = os.path.join(component_folder, 'config.json')
 
         context = {
-            'runtime':          self,
+            'runtime': self,
             'component_folder': component_folder,
-            'functions':        {},
-            'declarations':     [],
-            'files':            {
+            'functions': {},
+            'declarations': [],
+            'files': {
                 config_file: '',
                 source_file: '',
                 header_file: ''
             },
-            'folders':          [component_name]
+            'folders': [component_name]
         }
         self.raise_event('create_component_ports', component_name, self._components[component_name], context)
 
@@ -450,13 +503,13 @@ class Runtime:
             type_includes.update(i)
 
         ctx = {
-            'includes':         list_to_chevron_list(sorted(includes), 'header'),
-            'component_name':   component_name,
-            'guard_def':        to_underscore(component_name).upper(),
-            'variables':        context['declarations'],
-            'types':            unique(types),
-            'type_includes':    list_to_chevron_list(sorted(type_includes), 'header'),
-            'functions':        functions,
+            'includes': list_to_chevron_list(sorted(includes), 'header'),
+            'component_name': component_name,
+            'guard_def': to_underscore(component_name).upper(),
+            'variables': context['declarations'],
+            'types': unique(types),
+            'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
+            'functions': functions,
             'function_headers': function_headers
         }
 
@@ -477,7 +530,7 @@ class Runtime:
             function_data = self._get_function_data(short_name)
 
         fn_name = function_data['func_name_pattern'].format(component_name, port_name)
-        function = FunctionDescriptor.create(fn_name, function_data)
+        function = FunctionDescriptor.create(self._types, fn_name, function_data)
         function.add_input_assert(function_data.get('asserts', []))
 
         return function
@@ -502,20 +555,18 @@ class Runtime:
         header_file_name = filename + '.h'
 
         default_context = {
-            'runtime':                        self,
-            'files':                          {source_file_name: '', header_file_name: ''},
-            'functions':                      {},
-            'declarations':                   [],
+            'runtime': self,
+            'files': {source_file_name: '', header_file_name: ''},
+            'functions': {},
+            'declarations': [],
             'exported_function_declarations': [],
-            'signals':                        {}
+            'signals': {}
         }
 
         if context is None:
             context = default_context
         else:
-            for key in default_context:
-                if key not in context:
-                    context[key] = default_context[key]
+            context = {**default_context, **context}
 
         for connection in self._project_config['runtime']['port_connections']:
             provider_ref = connection['provider']
@@ -541,7 +592,8 @@ class Runtime:
             if provider_short_name not in context['functions']:
                 context['functions'][provider_short_name] = create_if_weak(provider_ref)
 
-            provider_attributes = {key: connection[key] for key in connection if key not in ['provider', 'consumer', 'consumers']}
+            provider_attributes = {key: connection[key] for key in connection if
+                                   key not in ['provider', 'consumer', 'consumers']}
 
             # create a dict to store providers signals
             if provider_short_name not in context['signals']:
@@ -586,7 +638,8 @@ class Runtime:
                             # create new signal in all cases
                             signal_name += str(len(signals_of_current_type))
 
-                            new_signal = create_signal_connection(provider_attributes, signal_name, signal_type, consumer_attributes)
+                            new_signal = create_signal_connection(provider_attributes, signal_name, signal_type,
+                                                                  consumer_attributes)
 
                             signals_of_current_type.append(new_signal)
                         else:
@@ -597,7 +650,8 @@ class Runtime:
                         raise Exception('Multiple consumers not allowed for {} signal (provided by {})'
                                         .format(signal_type_name, provider_short_name))
                 except KeyError:
-                    new_signal = create_signal_connection(provider_attributes, signal_name, signal_type, consumer_attributes)
+                    new_signal = create_signal_connection(provider_attributes, signal_name, signal_type,
+                                                          consumer_attributes)
 
                     if signal_type.consumers == 'multiple_signals':
                         provider_signals[signal_type_name] = [new_signal]
@@ -643,19 +697,19 @@ class Runtime:
             type_includes.update(i)
 
         template_data = {
-            'output_filename':       output_filename,
-            'includes':              list_to_chevron_list(sorted(includes), 'header'),
-            'components':            [
+            'output_filename': output_filename,
+            'includes': list_to_chevron_list(sorted(includes), 'header'),
+            'components': [
                 {
-                    'name':      name,
+                    'name': name,
                     'guard_def': to_underscore(name).upper()
                 } for name in self._components if name != 'Runtime'],  # TODO
-            'types':                 unique(types),
-            'type_includes':         list_to_chevron_list(sorted(type_includes), 'header'),
+            'types': unique(types),
+            'type_includes': list_to_chevron_list(sorted(type_includes), 'header'),
             'function_declarations': [context['functions'][func_name].get_header() for func_name in
                                       context['exported_function_declarations']],
-            'functions':             [func.get_function() for func in context['functions'].values() if func],
-            'variables':             context['declarations']
+            'functions': [func.get_function() for func in context['functions'].values() if func],
+            'variables': context['declarations']
         }
 
         context['files'][source_file_name] = chevron.render(source_template, template_data)
