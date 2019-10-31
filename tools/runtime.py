@@ -92,18 +92,20 @@ class RuntimePlugin:
 class FunctionDescriptor:
 
     @staticmethod
-    def create(name, data: dict = None):
+    def create(types: TypeCollection, name, data: dict = None):
         if not data:
             data = {}
 
-        fd = FunctionDescriptor(name, data.get('return_type', 'void'))
+        fd = FunctionDescriptor(types, name, data.get('return_type', 'void'))
 
         for name, arg_data in data.get('arguments', {}).items():
             fd.add_argument(name, arg_data)
 
         return fd
 
-    def __init__(self, func_name, return_type='void'):
+    def __init__(self, types: TypeCollection, func_name, return_type='void'):
+        self._types = types
+
         self._name = func_name
         self._return_type = return_type
         self._arguments = {}
@@ -158,8 +160,14 @@ class FunctionDescriptor:
 
     def get_header(self):
         def generate_parameter(name, data):
+            arg_is_ptr = '*' in data['data_type']
+
             if data['direction'] == 'in':
-                return '{} {}'.format(data['data_type'], name)
+                if arg_is_ptr:
+                    return 'const {} {}'.format(data['data_type'], name)
+                else:
+                    return '{} {}'.format(data['data_type'], name)
+
             elif data['direction'] == 'out':
                 return '{}* {}'.format(data['data_type'], name)
             elif data['direction'] == 'inout':
@@ -292,6 +300,21 @@ class SignalType:
             raise Exception('{} attributes are missing from connection provided by {}'
                             .format(", ".join(missing_attributes), provider))
         return SignalConnection(context, name, self, provider, attributes)
+
+
+def merge_dicts(one, other):
+    """
+    >>> merge_dicts({'a': 'foo'}, {'a':'bar', 'b':'foobar'})
+    {'a': 'foo', 'b': 'foobar'}
+    >>> merge_dicts({}, {'a':'bar', 'b':'foobar'})
+    {'a': 'bar', 'b': 'foobar'}
+    >>> merge_dicts(None, {'a':'bar', 'b':'foobar'})
+    {'a': 'bar', 'b': 'foobar'}
+    """
+    if one is None:
+        return other
+    else:
+        return {**other, **one}
 
 
 class Runtime:
@@ -495,7 +518,7 @@ class Runtime:
             function_data = self._get_function_data(short_name)
 
         fn_name = function_data['func_name_pattern'].format(component_name, port_name)
-        function = FunctionDescriptor.create(fn_name, function_data)
+        function = FunctionDescriptor.create(self._types, fn_name, function_data)
         function.add_input_assert(function_data.get('asserts', []))
 
         return function
@@ -531,9 +554,7 @@ class Runtime:
         if context is None:
             context = default_context
         else:
-            for key in default_context:
-                if key not in context:
-                    context[key] = default_context[key]
+            context = {**default_context, **context}
 
         for connection in self._project_config['runtime']['port_connections']:
             provider_ref = connection['provider']
