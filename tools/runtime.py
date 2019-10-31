@@ -463,26 +463,20 @@ class Runtime:
         type_data = self._types.get(type_name)
 
         if type_data['type'] == TypeCollection.ALIAS:
-            defs.append(type_data['aliases'])
+            defs += self._collect_type_dependencies(type_data['aliases'])
+
         elif type_data['type'] == TypeCollection.EXTERNAL_DEF:
             pass
+
         elif type_data['type'] == TypeCollection.STRUCT:
             for field in type_data['fields'].values():
-                for tn in self._collect_type_dependencies(field):
-                    res = self._collect_type_dependencies(tn)
-                    if type(res) is list:
-                        defs += res
-                    else:
-                        defs.append(res)
+                defs += self._collect_type_dependencies(field)
 
         elif type_data['type'] == TypeCollection.UNION:
             for member in type_data['members'].values():
-                for tn in self._collect_type_dependencies(member):
-                    res = self._collect_type_dependencies(tn)
-                    if type(res) is list:
-                        defs += res
-                    else:
-                        defs.append(res)
+                defs += self._collect_type_dependencies(member)
+
+        defs.append(type_name)
 
         return defs
 
