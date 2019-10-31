@@ -441,6 +441,7 @@ class Runtime:
 
             short_name = '{}/{}'.format(component_name, port_name)
             self._ports[short_name] = processed_port
+            self._functions[short_name] = self.create_function_for_port(component_name, port_name)
 
     def _normalize_type_name(self, type_name):
 

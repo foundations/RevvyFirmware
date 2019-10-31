@@ -256,7 +256,8 @@ def create_component_runnables(owner: Runtime, component_name, component_data, c
         if port_type in port_type_data:
             function_data = impl_data_lookup(owner.types, port_data)
 
-            function = owner.create_function_for_port(component_name, port_name, function_data)
+            short_name = '{}/{}'.format(component_name, port_name)
+            function = owner.functions[short_name]
 
             if 'weak' not in function_data.get('attributes', []):
                 used_arguments = function_data.get('arguments', [])
@@ -277,7 +278,7 @@ def create_component_runnables(owner: Runtime, component_name, component_data, c
             function.add_input_assert(function_data.get('asserts', []))
             function.add_body(function_data.get('body', []))
 
-            context['functions']['{}/{}'.format(component_name, port_name)] = function
+            context['functions'][short_name] = function
 
 
 def add_exported_declarations(owner: Runtime, context):

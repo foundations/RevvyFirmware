@@ -1049,7 +1049,9 @@ def create_component_ports(owner: Runtime, component_name, component_data, conte
         port_type = port_data['port_type']
         if port_type in port_type_data:
             function_data = impl_data_lookup(owner.types, port_data)
-            function = owner.create_function_for_port(component_name, port_name, function_data)
+
+            short_name = '{}/{}'.format(component_name, port_name)
+            function = owner.functions[short_name]
 
             for argument in function_data.get('used_arguments', []):
                 function.mark_argument_used(argument)
