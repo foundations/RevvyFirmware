@@ -258,6 +258,9 @@ class FunctionDescriptor:
             'arguments': ', '.join([str(arguments[name]) for name in self.arguments])
         })
 
+    def __str__(self) -> str:
+        return 'FunctionDescriptor of {}'.format(self._name)
+
 
 class SignalConnection:
     def __init__(self, context, name, signal, provider_name, attributes):
