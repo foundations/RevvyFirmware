@@ -160,7 +160,6 @@ class FunctionDescriptor:
 
     def get_header(self):
         def generate_parameter(name, data):
-            arg_type = data['data_type']
 
             try:
                 pass_by_ptr = self._types.get(data['data_type'])['pass_semantic'] == TypeCollection.PASS_BY_POINTER
@@ -180,7 +179,7 @@ class FunctionDescriptor:
                     'inout': '{}* {}'
                 },
                 'value': {
-                    'in': 'const {} {}',
+                    'in': '{} {}',
                     'out': '{}* {}',
                     'inout': '{}* {}'
                 }
