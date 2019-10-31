@@ -529,6 +529,7 @@ class Runtime:
         funcs = context['functions'].values()
         function_headers = [fn.get_header() for fn in funcs]
         functions = [fn.get_function() for fn in funcs]
+        used_types = [t for fn in funcs for t in fn.referenced_types()]
 
         includes = {
             '"{}.h"'.format(component_name),
@@ -541,7 +542,7 @@ class Runtime:
 
         sorted_types = self._sort_types_by_dependency(defined_type_names)
 
-        type_includes = self._get_type_includes(sorted_types)
+        type_includes = self._get_type_includes(sorted_types + used_types)
         typedefs = [self._types.generate_typedef(t) for t in sorted_types]
 
         ctx = {
