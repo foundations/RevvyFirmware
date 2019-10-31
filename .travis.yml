@@ -14,6 +14,7 @@ install:
   - chmod +x ./tools/commit_firmware.sh
   - python3 -m tools.gen_version
   - python3 -m tools.generate_makefile
+  - python3 -m tools.generate_runtime
 script:
   - make all
 deploy:

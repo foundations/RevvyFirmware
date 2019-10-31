@@ -12,3 +12,4 @@ jlink.*
 *.atsln
 *.elf
 *.componentinfo.xml
+/rrrc/generated_*
