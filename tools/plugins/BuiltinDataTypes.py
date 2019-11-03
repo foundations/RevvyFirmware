@@ -742,6 +742,11 @@ def process_type_def(type_name, type_def):
         else:
             raise Exception('Invalid type definition for {}'.format(type_name))
 
+    # default value can be omitted from structures, in this case the field default values will be used
+    if type_category == TypeCollection.STRUCT:
+        if 'default_value' not in type_data:
+            type_data['default_value'] = {}
+
     try:
         attrs = type_info[type_category]['attributes']
         return {
@@ -752,7 +757,7 @@ def process_type_def(type_name, type_def):
         print('Unknown type category {} set for {}'.format(type_category, type_name))
         raise
     except Exception as e:
-        raise Exception('Type {} ({}) has unexpected attribute set: {}'.format(type_name, type_category, e))
+        raise Exception('Type {} ({}) definition is not valid: {}'.format(type_name, type_category, e))
 
 
 def init_constant_array(types: TypeCollection, port_data):

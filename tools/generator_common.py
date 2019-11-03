@@ -69,7 +69,7 @@ class TypeCollection:
             self._renderers[type_name] = renderer
             self._value_formatters[type_name] = value_formatter
 
-    def _resolve(self, type_name, past):
+    def resolve(self, type_name, past=None):
         if type_name not in self._type_data:
             raise Exception('Incomplete type: {}'.format(type_name))
 
@@ -83,29 +83,43 @@ class TypeCollection:
             raise Exception('Circular type definition for {}'.format(type_name))
 
         resolved = type_name
-        if self._type_data[type_name]['type'] != TypeCollection.EXTERNAL_DEF:
-            if self._type_data[type_name]['type'] == TypeCollection.ALIAS:
-                past.append(type_name)
-                resolved = self._resolve(self._type_data[type_name]['aliases'], past)
+        type_data = self._type_data[type_name]
+
+        if type_data['type'] == TypeCollection.ALIAS:
+            past.append(type_name)
+            resolved = self.resolve(type_data['aliases'], past)
 
         self._resolved_names[type_name] = resolved
         return resolved
 
-    def default_value(self, type_name):
-        resolved = self.get(type_name)
-        while 'default_value' not in resolved or not resolved['default_value']:
-            if resolved['type'] == TypeCollection.ALIAS:
-                resolved = self.get(resolved['aliases'])
+    def _find_first_with_field(self, type_name, field):
+        type_data = self.get(type_name)
+
+        # find the concrete type or the first alias in the chain that has the requested field (e.g. default value)
+        while not type_data.get(field):
+            if type_data['type'] == TypeCollection.ALIAS:
+                type_name = type_data['aliases']
+                type_data = self.get(type_name)
             else:
+                # we have something that is not an alias, stop here
                 break
 
-        if resolved['type'] == TypeCollection.STRUCT:
-            if 'default_value' not in resolved:
-                resolved['default_value'] = {}
-            return {name: resolved['default_value'].get(name, self.default_value(field_type)) for name, field_type in resolved['fields'].items()}
+        return type_name, type_data
+
+    def default_value(self, type_name):
+        type_name, type_data = self._find_first_with_field(type_name, 'default_value')
+
+        if type_data['type'] == TypeCollection.STRUCT:
+            # if a struct member does not have default value, look for it recursively
+            default = type_data.get('default_value', {})
+            struct_fields = type_data['fields']
+
+            # use 'or' so we only look up the default for the field if it is not given in the struct data
+            return {name: default.get(name) or self.default_value(struct_fields[name]) for name in struct_fields}
 
         else:
-            return resolved['default_value']
+            # concrete non-struct types must have default values
+            return type_data['default_value']
 
     def render_value(self, type_name, value, context='assignment'):
         if value is None:
@@ -120,17 +134,12 @@ class TypeCollection:
             return str(value)
 
     def passed_by(self, type_name):
-        resolved = self.get(type_name)
-        while not resolved['pass_semantic']:
-            if resolved['type'] == TypeCollection.ALIAS:
-                resolved = self.get(resolved['aliases'])
-            else:
-                raise Exception('Pass semantic not defined for {}'.format(type_name))
+        _, type_data = self._find_first_with_field(type_name, 'pass_semantic')
 
-        return resolved['pass_semantic']
-
-    def resolve(self, type_name):
-        return self._resolve(type_name, [])
+        try:
+            return type_data['pass_semantic']
+        except KeyError:
+            raise Exception('Pass semantic not defined for {}'.format(type_name))
 
     def __getitem__(self, type_name):
         return self.get(self.resolve(type_name))
@@ -210,18 +219,21 @@ def dict_to_chevron_list(data, key_name, value_name, last_key=None):
 def copy(src, required, optional):
     """This function makes sure src contains required and optional keys and nothing else"""
 
-    dst = {**optional}
-    required_keys_found = 0
-    for key, value in src.items():
-        if key in required:
-            required_keys_found += 1
-            dst[key] = value
-        elif key in optional:
-            dst[key] = value
-        else:
-            raise Exception(key)
+    required_keys = set(required)
+    present_keys = set(src.keys())
+    optional_keys = set(optional.keys())
 
-    return dst
+    missing_required = required_keys - present_keys
+    not_required = present_keys - required_keys
+    unexpected_keys = not_required - optional_keys
+
+    if unexpected_keys:
+        raise Exception('Unexpected keys: {}'.format(', '.join(unexpected_keys)))
+
+    if missing_required:
+        raise Exception('Missing keys: {}'.format(', '.join(missing_required)))
+
+    return {**optional, **src}
 
 
 def delete(path):
