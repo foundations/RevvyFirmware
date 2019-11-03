@@ -761,8 +761,10 @@ def process_type_def(type_name, type_def):
 
 
 def init_constant_array(types: TypeCollection, port_data):
-    if port_data['count'] != len(port_data['value']):
-        raise Exception('Not enough values provided for {}'.format(port_data['short_name']))
+    value_count = len(port_data['value'])
+    if port_data['count'] != value_count:
+        raise Exception('{} requires {} values, but has only {}'
+                        .format(port_data['short_name'], port_data['count'], value_count))
 
     return {
         'func_name_pattern': '{}_Constant_{}'
