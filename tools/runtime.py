@@ -166,25 +166,19 @@ class FunctionDescriptor:
                 arg_is_ptr = '*' in data['data_type']
                 pass_by_ptr = not arg_is_ptr  # pointers can be passed by value, otherwise assume pass-by-pointer
 
-            if pass_by_ptr:
-                pass_by = 'pointer'
+            if data['direction'] == 'in':
+                if pass_by_ptr:
+                    pattern = 'const {}* {}'
+                else:
+                    pattern = '{} {}'
+
+            elif data['direction'] in ['out', 'inout']:
+                pattern = '{}* {}'
+
             else:
-                pass_by = 'value'
+                raise Exception('Unknown argument direction {}'.format(data['direction']))
 
-            patterns = {
-                'pointer': {
-                    'in': 'const {}* {}',
-                    'out': '{}* {}',
-                    'inout': '{}* {}'
-                },
-                'value': {
-                    'in': '{} {}',
-                    'out': '{}* {}',
-                    'inout': '{}* {}'
-                }
-            }
-
-            return patterns[pass_by][data['direction']].format(data['data_type'], name)
+            return pattern.format(data['data_type'], name)
 
         args = [generate_parameter(name, data) for name, data in self._arguments.items()]
 
