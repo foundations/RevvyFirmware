@@ -23,9 +23,9 @@ typedef enum {
     Motor_NotAssigned = 0u,
     Motor_Left,
     Motor_Right
-} MotorAssingment_t;
+} MotorAssignment_t;
 
-static MotorAssingment_t motors[6];
+static MotorAssignment_t motors[6];
 static uint8_t driveTrainType;
 
 static bool turnCommandActive;
@@ -38,7 +38,7 @@ static PID_t yawAngleController;
 static float errorFilterValue;
 static const float errorFilterAlpha = 0.95f;
 
-static void assign_motor(uint8_t motor_idx, MotorAssingment_t assignment)
+static void assign_motor(uint8_t motor_idx, MotorAssignment_t assignment)
 {
     if (assignment > Motor_Right)
     {
