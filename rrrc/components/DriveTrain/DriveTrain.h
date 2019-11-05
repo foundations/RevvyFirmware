@@ -9,6 +9,11 @@
 #include <stdint.h>
 #include "../MasterCommunication/CommunicationManager.h"
 
+typedef struct {
+    uint8_t* bytes;
+    size_t count;
+} ByteArray_t;
+
 typedef enum {
     DriveRequest_RequestType_Speed,
     DriveRequest_RequestType_Position,
@@ -31,9 +36,10 @@ typedef struct {
 
 #endif /* COMPONENT_TYPES_DRIVE_TRAIN_H_ */
 
-Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
-Comm_Status_t DriveTrain_SetControlValue_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
-Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+Comm_Status_t DriveTrain_GetTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+Comm_Status_t DriveTrain_Configure_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+Comm_Status_t DriveTrain_Configure_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
+Comm_Status_t DriveTrain_Control_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount);
 
 void DriveTrain_Run_OnInit(void);
 void DriveTrain_Run_Update(void);

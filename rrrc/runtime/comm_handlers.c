@@ -38,9 +38,8 @@ const Comm_CommandHandler_t communicationHandlers[COMM_HANDLER_COUNT] =
     [0x14u] = { .Start = &MotorPortHandler_SetControlValue_Start, .GetResult = NULL, .Cancel = NULL },
     [0x15u] = { .Start = &MotorPortHandler_GetStatus_Start, .GetResult = NULL, .Cancel = NULL },
     
-    [0x1Au] = { .Start = &DriveTrain_Set_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x1Bu] = { .Start = &DriveTrain_SetControlValue_Start, .GetResult = NULL, .Cancel = NULL },
-    [0x1Cu] = { .Start = &DriveTrain_TurnCommand_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x1Au] = { .Start = &DriveTrain_Configure_Start, .GetResult = NULL, .Cancel = NULL },
+    [0x1Bu] = { .Start = &DriveTrain_Control_Start, .GetResult = NULL, .Cancel = NULL },
 
     /* sensor commands */
     [0x20u] = { .Start = &SensorPortHandler_GetPortAmount_Start, .GetResult = NULL, .Cancel = NULL },

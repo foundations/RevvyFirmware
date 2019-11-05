@@ -1,277 +1,158 @@
-/*
- * Drivetrain.c
- *
- * Created: 2019. 05. 30. 15:32:48
- *  Author: D�niel Buga
- */
-
 #include "DriveTrain.h"
 #include "utils.h"
 #include "utils_assert.h"
-#include "utils/converter.h"
-#include "controller/pid.h"
 
-#include <math.h>
+#include "DriveTrainLibraries/Dummy/Dummy.h"
+#include "DriveTrainLibraries/Differential/Differential.h"
 
-#define DRIVETRAIN_CONTROL_GO_POS ((uint8_t) 0u)
-#define DRIVETRAIN_CONTROL_GO_SPD ((uint8_t) 1u)
-#define DRIVETRAIN_CONTROL_STOP   ((uint8_t) 2u)
+#include <string.h>
 
-#define DRIVETRAIN_DIFFERENTIAL ((uint8_t) 0u)
+static const DriveTrainLibrary_t* libraries[] = {
+    &library_dummy,
+    &library_differential
+};
 
-typedef enum {
-    Motor_NotAssigned = 0u,
-    Motor_Left,
-    Motor_Right
-} MotorAssignment_t;
+static bool configuring_eh;
+static const DriveTrainLibrary_t* requested_library;
+static const DriveTrainLibrary_t* active_library;
+static uint8_t command_buffer[6];
+static ByteArray_t command;
+static DriveTrainLibraryStatus_t command_response;
 
-static MotorAssignment_t motors[6];
-static uint8_t driveTrainType;
-
-static bool turnCommandActive;
-static bool turnStartAngleRead;
-
-static int32_t turnAngle;
-static float turnTargetAngle;
-static float turnPowerLimit;
-static PID_t yawAngleController;
-static float errorFilterValue;
-static const float errorFilterAlpha = 0.95f;
-
-static void assign_motor(uint8_t motor_idx, MotorAssignment_t assignment)
+Comm_Status_t DriveTrain_GetTypes_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
-    if (assignment > Motor_Right)
+    (void) commandPayload;
+    if (commandSize != 0u)
     {
-        assignment = Motor_NotAssigned;
+        return Comm_Status_Error_PayloadLengthError;
     }
-    DriveTrain_Write_MotorUsed(motor_idx, assignment != Motor_NotAssigned);
-    motors[motor_idx] = assignment;
+
+    uint8_t len = 0u;
+    for (uint32_t i = 0u; i < ARRAY_SIZE(libraries); i++)
+    {
+        const DriveTrainLibrary_t* lib = libraries[i];
+        size_t name_length = strlen(lib->name);
+        if (len + name_length + 2u > responseBufferSize)
+        {
+            *responseCount = 0u;
+            return Comm_Status_Error_InternalError;
+        }
+        response[len] = i;
+        response[len + 1] = name_length;
+        memcpy(&response[len + 2], lib->name, name_length);
+        len = len + 2 + name_length;
+    }
+    *responseCount = len;
+
+    return Comm_Status_Ok;
 }
 
-static void _apply(const DriveRequest_t* left, const DriveRequest_t* right)
+Comm_Status_t DriveTrain_Configure_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
-    for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
-    {
-        switch (motors[i])
-        {
-            case Motor_Left:
-                DriveTrain_Write_DriveRequest(i, left);
-                break;
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
 
-            case Motor_Right:
-                DriveTrain_Write_DriveRequest(i, right);
-                break;
+    if (commandSize == 0u || commandSize > ARRAY_SIZE(command_buffer) + 1u)
+    {
+        return Comm_Status_Error_PayloadLengthError;
+    }
+
+    if (commandPayload[0] > ARRAY_SIZE(libraries))
+    {
+        return Comm_Status_Error_CommandError;
+    }
+
+    requested_library = libraries[commandPayload[0]];
+    memcpy(command_buffer, &commandPayload[1], commandSize - 1u);
+
+    command.bytes = command_buffer;
+    command.count = commandSize - 1u;
+
+    configuring_eh = true;
+
+    return Comm_Status_Ok;
+}
+
+Comm_Status_t DriveTrain_Configure_GetResult(uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+{
+    (void) response;
+    (void) responseBufferSize;
+    (void) responseCount;
+
+    if (configuring_eh)
+    {
+        return Comm_Status_Pending;
+    }
+    else
+    {
+        switch (command_response)
+        {
+            case DriveTrainLibraryStatus_Ok:
+                return Comm_Status_Ok;
+
+            case DriveTrainLibraryStatus_InputError_Length:
+                return Comm_Status_Error_PayloadLengthError;
+
+            case DriveTrainLibraryStatus_InputError_Value:
+                return Comm_Status_Error_CommandError;
 
             default:
-                break;
+                return Comm_Status_Error_InternalError;
         }
     }
 }
 
-static Comm_Status_t differentialDrivetrain(const uint8_t* commandPayload, uint8_t commandSize)
-{
-    DriveRequest_t leftDriveRequest;
-    DriveRequest_t rightDriveRequest;
-
-    leftDriveRequest.speed_limit  = 0.0f;
-    rightDriveRequest.speed_limit = 0.0f;
-
-    leftDriveRequest.power_limit  = 0.0f;
-    rightDriveRequest.power_limit = 0.0f;
-
-    switch (commandPayload[0])
-    {
-        case DRIVETRAIN_CONTROL_GO_POS:
-            if (commandSize != 18u)
-            {
-                return Comm_Status_Error_PayloadLengthError;
-            }
-            leftDriveRequest.request_type  = DriveRequest_RequestType_Position;
-            rightDriveRequest.request_type = DriveRequest_RequestType_Position;
-
-            leftDriveRequest.request.position  = get_int32(&commandPayload[1]);
-            rightDriveRequest.request.position = get_int32(&commandPayload[5]);
-
-            leftDriveRequest.speed_limit  = get_float(&commandPayload[9]);
-            rightDriveRequest.speed_limit = get_float(&commandPayload[13]);
-
-            leftDriveRequest.power_limit  = (float) commandPayload[17];
-            rightDriveRequest.power_limit = (float) commandPayload[17];
-            break;
-
-        case DRIVETRAIN_CONTROL_GO_SPD:
-            if (commandSize != 10u)
-            {
-                return Comm_Status_Error_PayloadLengthError;
-            }
-            leftDriveRequest.request_type = DriveRequest_RequestType_Speed;
-            rightDriveRequest.request_type = DriveRequest_RequestType_Speed;
-
-            leftDriveRequest.request.speed  = get_float(&commandPayload[1]);
-            rightDriveRequest.request.speed = get_float(&commandPayload[5]);
-
-            leftDriveRequest.power_limit  = (float) commandPayload[9];
-            rightDriveRequest.power_limit = (float) commandPayload[9];
-            break;
-
-        case DRIVETRAIN_CONTROL_STOP:
-            if (commandSize != 1u)
-            {
-                return Comm_Status_Error_PayloadLengthError;
-            }
-            leftDriveRequest.request_type = DriveRequest_RequestType_Power;
-            rightDriveRequest.request_type = DriveRequest_RequestType_Power;
-
-            leftDriveRequest.request.power = 0;
-            rightDriveRequest.request.power = 0;
-            break;
-    }
-
-    turnCommandActive = false;
-    _apply(&leftDriveRequest, &rightDriveRequest);
-
-    return Comm_Status_Ok;
-}
-
-Comm_Status_t DriveTrain_Set_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
+Comm_Status_t DriveTrain_Control_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
 {
     (void) response;
     (void) responseBufferSize;
     (void) responseCount;
 
-    if (commandSize != ARRAY_SIZE(motors) + 1u)
+    const ByteArray_t command = {
+        .bytes = commandPayload,
+        .count = commandSize
+    };
+
+    switch (active_library->Command(command))
     {
-        return Comm_Status_Error_PayloadLengthError;
+        case DriveTrainLibraryStatus_Ok:
+            return Comm_Status_Ok;
+
+        case DriveTrainLibraryStatus_InputError_Length:
+            return Comm_Status_Error_PayloadLengthError;
+
+        case DriveTrainLibraryStatus_InputError_Value:
+            return Comm_Status_Error_CommandError;
+
+        default:
+            return Comm_Status_Error_InternalError;
     }
-
-    driveTrainType = commandPayload[0];
-
-    for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
-    {
-        assign_motor(i, commandPayload[1u + i]);
-    }
-
-    return Comm_Status_Ok;
-}
-
-Comm_Status_t DriveTrain_SetControlValue_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
-{
-    (void) response;
-    (void) responseBufferSize;
-    (void) responseCount;
-
-    if (commandSize < 1u)
-    {
-        return Comm_Status_Error_PayloadLengthError;
-    }
-    else
-    {
-        Comm_Status_t status = Comm_Status_Error_CommandError;
-        switch (driveTrainType)
-        {
-            case DRIVETRAIN_DIFFERENTIAL:
-                status = differentialDrivetrain(commandPayload, commandSize);
-                break;
-
-            default:
-                break;
-        }
-        return status;
-    }
-}
-
-Comm_Status_t DriveTrain_TurnCommand_Start(const uint8_t* commandPayload, uint8_t commandSize, uint8_t* response, uint8_t responseBufferSize, uint8_t* responseCount)
-{
-    (void) response;
-    (void) responseBufferSize;
-    (void) responseCount;
-
-    if (commandSize != 9u)
-    {
-        return Comm_Status_Error_PayloadLengthError;
-    }
-    else
-    {
-        turnCommandActive = true;
-        turnStartAngleRead = false;
-
-        /* +ve number is CCW angle */
-        turnAngle = get_int32(&commandPayload[0]);
-        float wheelSpeed = get_float(&commandPayload[4]);
-        turnPowerLimit = (float) commandPayload[8];
-
-        yawAngleController.config.LowerLimit = -wheelSpeed;
-        yawAngleController.config.UpperLimit = wheelSpeed;
-
-        errorFilterValue = turnAngle;
-    }
-
-    return Comm_Status_Ok;
 }
 
 void DriveTrain_Run_OnInit(void)
 {
-    for (size_t i = 0u; i < ARRAY_SIZE(motors); i++)
-    {
-        assign_motor(i, Motor_NotAssigned);
-    }
+    active_library = &library_dummy;
 
-    pid_initialize(&yawAngleController);
-    yawAngleController.config.P = 10.0f;
-    yawAngleController.config.I = 0.0f;
-    yawAngleController.config.D = 0.0f;
+    command.bytes = NULL;
+    command.count = 0u;
+
+    configuring_eh = true;
 }
 
 void DriveTrain_Run_Update(void)
 {
-    if (turnCommandActive)
+    if (configuring_eh)
     {
-        /* +ve number is CCW angle */
-        float currentAngle = DriveTrain_Read_YawAngle();
-        if (!isnan(currentAngle))
-        {
-            if (!turnStartAngleRead)
-            {
-                turnStartAngleRead = true;
-                turnTargetAngle = currentAngle + turnAngle;
-            }
+        active_library->DeInit();
+        active_library = requested_library;
 
-            errorFilterValue = errorFilterValue * errorFilterAlpha + (turnTargetAngle - currentAngle) * (1.0f - errorFilterAlpha);
-            float u = pid_update(&yawAngleController, turnTargetAngle, currentAngle);
-
-            DriveRequest_t leftDriveRequest;
-            DriveRequest_t rightDriveRequest;
-
-            leftDriveRequest.speed_limit  = 0.0f;
-            rightDriveRequest.speed_limit  = 0.0f;
-
-            leftDriveRequest.power_limit  = 0.0f;
-            rightDriveRequest.power_limit  = 0.0f;
-
-            if (fabsf(u) < 10.0f && fabsf(errorFilterValue) < 1.0f)
-            {
-                turnCommandActive = false;
-                leftDriveRequest.request_type = DriveRequest_RequestType_Power;
-                rightDriveRequest.request_type = DriveRequest_RequestType_Power;
-
-                leftDriveRequest.request.power = 0;
-                rightDriveRequest.request.power = 0;
-            }
-            else
-            {
-                leftDriveRequest.request_type = DriveRequest_RequestType_Speed;
-                rightDriveRequest.request_type = DriveRequest_RequestType_Speed;
-
-                /* +ve u means CCW turning */
-                leftDriveRequest.request.speed = -u;
-                rightDriveRequest.request.speed = u;
-
-                leftDriveRequest.power_limit  = turnPowerLimit;
-                rightDriveRequest.power_limit = turnPowerLimit;
-            }
-
-            _apply(&leftDriveRequest, &rightDriveRequest);
-        }
+        command_response = active_library->Init(command);
+        configuring_eh = false;
+    }
+    else
+    {
+        active_library->Update();
     }
 }
 

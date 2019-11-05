@@ -1,7 +1,9 @@
 {
     "component_name": "DriveTrain",
     "source_files": [
-        "DriveTrain.c"
+        "DriveTrain.c",
+        "DriveTrainLibraries/Differential/Differential.c",
+        "DriveTrainLibraries/Dummy/Dummy.c"
     ],
     "types": {
         "DriveRequest_RequestType_t": {
