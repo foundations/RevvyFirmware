@@ -569,19 +569,6 @@ signal_types = {
 }
 
 
-def render_alias_typedef(type_collection: TypeCollection, type_name):
-    context = {
-        'template': "typedef {{ aliased }} {{ type_name }};",
-
-        'data':     {
-            'type_name': type_name,
-            'aliased':   type_collection.resolve(type_name)
-        }
-    }
-
-    return chevron.render(**context)
-
-
 def render_enum_typedef(type_collection: TypeCollection, type_name):
     context = {
         'template': "\n"
@@ -666,28 +653,6 @@ def union_formatter(types: TypeCollection, type_name, type_data, union_value, co
 
 
 type_info = {
-    TypeCollection.ALIAS:        {
-        'typedef_renderer': render_alias_typedef,
-        'attributes':       {
-            'required': ['aliases'],
-            'optional': {'default_value': None, 'pass_semantic': None},
-            'static':   {
-                'type': TypeCollection.ALIAS
-            }
-        }
-    },
-
-    TypeCollection.EXTERNAL_DEF: {
-        'typedef_renderer': None,
-        'attributes':       {
-            'required': ['defined_in', 'default_value'],
-            'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
-            'static':   {
-                'type': TypeCollection.EXTERNAL_DEF
-            }
-        }
-    },
-
     TypeCollection.ENUM:         {
         'typedef_renderer': render_enum_typedef,
         'attributes':       {
@@ -724,7 +689,7 @@ type_info = {
 }
 
 
-def process_type_def(type_name, type_def):
+def process_type_def(types: TypeCollection, type_name, type_def):
     type_data = type_def.copy()
     # determine type of definition
     if 'type' in type_data:
@@ -748,7 +713,7 @@ def process_type_def(type_name, type_def):
             type_data['default_value'] = {}
 
     try:
-        attrs = type_info[type_category]['attributes']
+        attrs = types.category(type_category)['attributes']
         return {
             **attrs['static'],
             **copy(type_data, required=attrs['required'], optional=attrs['optional'])
@@ -1029,7 +994,7 @@ def init(owner: Runtime):
 
 
 def add_type_def(owner: Runtime, type_name, type_data):
-    type_type_data = process_type_def(type_name, type_data)
+    type_type_data = process_type_def(owner.types, type_name, type_data)
     owner.types.add(type_name, type_type_data)
 
 

@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import chevron
 
 
 class TypeCollection:
@@ -32,6 +33,28 @@ class TypeCollection:
             TypeCollection.BUILTIN: {
                 'typedef_renderer': None,
                 'attributes': {}
+            },
+
+            TypeCollection.ALIAS: {
+                'typedef_renderer': render_alias_typedef,
+                'attributes': {
+                    'required': ['aliases'],
+                    'optional': {'default_value': None, 'pass_semantic': None},
+                    'static': {
+                        'type': TypeCollection.ALIAS
+                    }
+                }
+            },
+
+            TypeCollection.EXTERNAL_DEF: {
+                'typedef_renderer': None,
+                'attributes': {
+                    'required': ['defined_in', 'default_value'],
+                    'optional': {'pass_semantic': TypeCollection.PASS_BY_VALUE},
+                    'static': {
+                        'type': TypeCollection.EXTERNAL_DEF
+                    }
+                }
             }
         }
 
@@ -154,14 +177,14 @@ class TypeCollection:
         return iter(self._type_data.keys())
 
     def export(self):
-        def stripped(type_name):
-            data = self._type_data[type_name].copy()
-            if data['type'] not in [TypeCollection.ENUM, TypeCollection.STRUCT]:
+        def strip(data):
+            data = data.copy()
+            if data['type'] in [TypeCollection.ALIAS, TypeCollection.EXTERNAL_DEF]:
                 del data['type']
 
             return data
 
-        return {name: stripped(name) for name in self._type_data if name not in ['void', 'void*']}
+        return {name: strip(data) for name, data in self._type_data.items() if data['type'] != TypeCollection.BUILTIN}
 
     def generate_typedef(self, type_name):
         type_data = self.get(type_name)
@@ -172,6 +195,22 @@ class TypeCollection:
             return renderer(self, type_name)
         except TypeError:
             return None
+
+    def category(self, type_category):
+        return self._type_categories[type_category]
+
+
+def render_alias_typedef(type_collection: TypeCollection, type_name):
+    context = {
+        'template': "typedef {{ aliased }} {{ type_name }};",
+
+        'data':     {
+            'type_name': type_name,
+            'aliased':   type_collection.resolve(type_name)
+        }
+    }
+
+    return chevron.render(**context)
 
 
 def to_underscore(name):
