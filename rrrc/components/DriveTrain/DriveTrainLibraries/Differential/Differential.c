@@ -6,6 +6,8 @@
 #include "utils/converter.h"
 #include <math.h>
 
+#define MAX_INPUT_DV    (10.0f)
+
 typedef enum {
     Motor_NotAssigned = 0u,
     Motor_Left,
@@ -24,6 +26,11 @@ static PID_t yawAngleController;
 static float errorFilterValue;
 static const float errorFilterAlpha = 0.95f;
 
+static uint8_t last_command;
+
+static float last_left_speed;
+static float last_right_speed;
+
 static DriveTrainLibraryStatus_t command_go_to_pos(const ByteArray_t params);
 static DriveTrainLibraryStatus_t command_go_speed(const ByteArray_t params);
 static DriveTrainLibraryStatus_t command_stop(const ByteArray_t params);
@@ -41,6 +48,32 @@ static const differential_drivetrain_command commands[] = {
     &command_stop,
     &command_turn
 };
+
+static float _ramp(float requested, float last, float increment)
+{
+    if (requested < last)
+    {
+        if (requested < last - increment)
+        {
+            return last - increment;
+        }
+        else
+        {
+            return requested;
+        }
+    }
+    else
+    {
+        if (requested > last + increment)
+        {
+            return last + increment;
+        }
+        else
+        {
+            return requested;
+        }
+    }
+}
 
 static void _apply(const DriveRequest_t* left, const DriveRequest_t* right)
 {
@@ -109,8 +142,8 @@ static DriveTrainLibraryStatus_t command_go_speed(const ByteArray_t params)
     leftDriveRequest.request_type  = DriveRequest_RequestType_Speed;
     rightDriveRequest.request_type = DriveRequest_RequestType_Speed;
 
-    leftDriveRequest.request.speed  = get_int32(&params.bytes[0]);
-    rightDriveRequest.request.speed = get_int32(&params.bytes[4]);
+    float requested_left_speed = get_int32(&params.bytes[0]);
+    float requested_right_speed = get_int32(&params.bytes[4]);
 
     leftDriveRequest.speed_limit  = 0.0f;
     rightDriveRequest.speed_limit = 0.0f;
@@ -119,6 +152,16 @@ static DriveTrainLibraryStatus_t command_go_speed(const ByteArray_t params)
     rightDriveRequest.power_limit = (float) params.bytes[8];
 
     update_function = NULL;
+    
+    if (last_command != 1u)
+    {
+        last_left_speed = 0.0f;
+        last_right_speed = 0.0f;
+    }    
+    
+    leftDriveRequest.request.speed = _ramp(requested_left_speed, last_left_speed, MAX_INPUT_DV);
+    rightDriveRequest.request.speed = _ramp(requested_right_speed, last_right_speed, MAX_INPUT_DV);
+    
     _apply(&leftDriveRequest, &rightDriveRequest);
 
     return DriveTrainLibraryStatus_Ok;
@@ -237,6 +280,8 @@ static DriveTrainLibraryStatus_t Differential_Init(const ByteArray_t config)
         return DriveTrainLibraryStatus_InputError_Length;
     }
 
+    last_command = 0xFFu;
+
     bool error = false;
     for (uint8_t i = 0u; i < 6u; i++)
     {
@@ -278,6 +323,8 @@ static DriveTrainLibraryStatus_t Differential_DeInit(void)
     {
         assign_motor(i, Motor_NotAssigned);
     }
+    
+    last_command = 0xFFu;
 
     return DriveTrainLibraryStatus_Ok;
 }
@@ -310,7 +357,11 @@ static DriveTrainLibraryStatus_t Differential_Command(const ByteArray_t config)
         .count = config.count - 1u
     };
 
-    return commands[commandIdx](commandParams);
+    DriveTrainLibraryStatus_t result = commands[commandIdx](commandParams);
+    
+    last_command = commandIdx;
+    
+    return result;
 }
 
 const DriveTrainLibrary_t library_differential = {
