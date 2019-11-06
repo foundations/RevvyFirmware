@@ -28,13 +28,17 @@ class TypeCollection:
             }
         }
         self._resolved_names = {'void': 'void'}
-        self._renderers = {
-            'void':  None,
-            'void*': None
+        self._type_categories = {
+            TypeCollection.BUILTIN: {
+                'typedef_renderer': None,
+                'attributes': {}
+            }
         }
-        self._value_formatters = {}
 
-    def add(self, type_name, info, renderer, value_formatter):
+    def add_category(self, name, info):
+        self._type_categories[name] = info
+
+    def add(self, type_name, info):
         if type_name in self._type_data:
             # type already exists, check if they are the same
             resolved_known = self.resolve(type_name)
@@ -66,8 +70,6 @@ class TypeCollection:
 
         else:
             self._type_data[type_name] = info
-            self._renderers[type_name] = renderer
-            self._value_formatters[type_name] = value_formatter
 
     def resolve(self, type_name, past=None):
         if type_name not in self._type_data:
@@ -125,10 +127,11 @@ class TypeCollection:
         if value is None:
             value = self.default_value(type_name)
 
-        resolved = self.resolve(type_name)
-
         try:
-            return self._value_formatters[resolved](self, type_name, self[resolved], value, context)
+            resolved_type_data = self[type_name]
+            type_category = resolved_type_data['type']
+            value_formatter = self._type_categories[type_category]['value_formatter']
+            return value_formatter(self, type_name, resolved_type_data, value, context)
         except (KeyError, TypeError):
             # by default treat the value as string
             return str(value)
@@ -161,8 +164,14 @@ class TypeCollection:
         return {name: stripped(name) for name in self._type_data if name not in ['void', 'void*']}
 
     def generate_typedef(self, type_name):
-        renderer = self._renderers[type_name]
-        return renderer(self, type_name) if callable(renderer) else None
+        type_data = self.get(type_name)
+        type_category = type_data['type']
+        renderer = self._type_categories[type_category]['typedef_renderer']
+
+        try:
+            return renderer(self, type_name)
+        except TypeError:
+            return None
 
 
 def to_underscore(name):

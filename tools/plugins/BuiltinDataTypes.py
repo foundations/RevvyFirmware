@@ -1024,12 +1024,13 @@ def init(owner: Runtime):
     for signal_name, signal in signal_types.items():
         owner.add_signal_type(signal_name, signal)
 
+    for type_category_name, data in type_info.items():
+        owner.types.add_category(type_category_name, data)
+
 
 def add_type_def(owner: Runtime, type_name, type_data):
     type_type_data = process_type_def(type_name, type_data)
-    type_type_info = type_info[type_type_data['type']]
-    value_formatter = type_type_info.get('value_formatter')
-    owner.types.add(type_name, type_type_data, type_type_info['typedef_renderer'], value_formatter)
+    owner.types.add(type_name, type_type_data)
 
 
 def process_project_types(owner: Runtime, project_config):
