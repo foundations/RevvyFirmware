@@ -1049,24 +1049,9 @@ def create_component_ports(owner: Runtime, component_name, component_data, conte
     for port_name, port_data in component_data['ports'].items():
         port_type = port_data['port_type']
         if port_type in port_type_data:
-            function_data = impl_data_lookup(owner.types, port_data)
-
             short_name = '{}/{}'.format(component_name, port_name)
-            function = owner.functions[short_name]
 
-            for argument in function_data.get('used_arguments', []):
-                function.mark_argument_used(argument)
-
-            for attribute in function_data.get('attributes', []):
-                function.add_attribute(attribute)
-
-            function.add_body(function_data.get('body', []))
-            if function.return_type != 'void':
-                return_value = function_data.get('return_value', owner.types.default_value(function.return_type))
-                return_value = owner.types.render_value(port_data['data_type'], return_value)
-                function.set_return_statement(return_value)
-
-            context['functions']['{}/{}'.format(component_name, port_name)] = function
+            context['functions'][short_name] = owner.generate_component_function(short_name)
 
 
 def sort_functions(owner: Runtime, context):

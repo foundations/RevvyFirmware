@@ -637,17 +637,13 @@ class Runtime:
             provider_port_type_data = self.get_port_type_data(provider_short_name)
             provided_signal_types = provider_port_type_data['provides']
 
-            def create_fn(port_ref):
-                function_data = self._get_function_data(port_ref['short_name'])
-                return self.create_function_for_port(port_ref['component'], port_ref.get('port', port_ref.get('runnable')), function_data)
-
             def create_signal_connection(attributes, signal_name, signal_type, consumer_attributes):
                 signal = signal_type.create_connection(context, signal_name, provider_short_name, attributes)
                 signal.add_consumer(consumer_short_name, consumer_attributes)
                 return signal
 
             if provider_short_name not in context['functions']:
-                fn = create_fn(provider_ref)
+                fn = self._functions[provider_short_name]
                 context['functions'][provider_short_name] = fn
 
                 function_data = self._get_function_data(provider_ref['short_name'])
@@ -679,7 +675,7 @@ class Runtime:
                 signal_type = self._signal_types[signal_type_name]
 
                 if consumer_short_name not in context['functions']:
-                    fn = create_fn(consumer_ref)
+                    fn = self._functions[consumer_short_name]
                     context['functions'][consumer_short_name] = fn
 
                     function_data = self._get_function_data(consumer_ref['short_name'])
@@ -788,6 +784,32 @@ class Runtime:
             except Exception:
                 print('Error while processing {}/{}'.format(plugin, event_name))
                 raise
+
+    def generate_component_function(self, short_name):
+        function_data = self._get_function_data(short_name)
+
+        function = self.functions[short_name]
+
+        if 'weak' not in function_data.get('attributes', []):
+            used_arguments = function_data.get('arguments', [])
+        else:
+            used_arguments = function_data.get('used_arguments', [])
+
+        if function_data['return_type'] != 'void':
+            return_value = function_data.get('return_value', self.types.default_value(function.return_type))
+            return_value = self.types.render_value(function_data['return_type'], return_value)
+            function.set_return_statement(return_value)
+
+        for argument in used_arguments:
+            function.mark_argument_used(argument)
+
+        for attribute in function_data.get('attributes', []):
+            function.add_attribute(attribute)
+
+        function.add_input_assert(function_data.get('asserts', []))
+        function.add_body(function_data.get('body', []))
+
+        return function
 
     @property
     def functions(self):

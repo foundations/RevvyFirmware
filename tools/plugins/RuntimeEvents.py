@@ -245,35 +245,13 @@ def create_runnable_ports(owner: Runtime, component_name, component_data):
         }
 
 
-def create_component_runnables(owner: Runtime, component_name, component_data, context):
+def create_component_functions(owner: Runtime, component_name, component_data, context):
     for port_name, port_data in component_data['ports'].items():
         port_type = port_data['port_type']
         if port_type in port_type_data:
-            function_data = impl_data_lookup(owner.types, port_data)
-
             short_name = '{}/{}'.format(component_name, port_name)
-            function = owner.functions[short_name]
 
-            if 'weak' not in function_data.get('attributes', []):
-                used_arguments = function_data.get('arguments', [])
-            else:
-                used_arguments = function_data.get('used_arguments', [])
-
-                if function_data['return_type'] != 'void':
-                    return_value = function_data.get('return_value', owner.types.default_value(function.return_type))
-                    return_value = owner.types.render_value(port_data['return_type'], return_value)
-                    function.set_return_statement(return_value)
-
-            for argument in used_arguments:
-                function.mark_argument_used(argument)
-
-            for attribute in function_data.get('attributes', []):
-                function.add_attribute(attribute)
-
-            function.add_input_assert(function_data.get('asserts', []))
-            function.add_body(function_data.get('body', []))
-
-            context['functions'][short_name] = function
+            context['functions'][short_name] = owner.generate_component_function(short_name)
 
 
 def add_exported_declarations(owner: Runtime, context):
@@ -341,7 +319,7 @@ def runtime_events():
         'init':                        init,
         'load_component_config':       create_runnable_ports,
         'project_config_loaded':       expand_runtime_events,
-        'create_component_ports':      create_component_runnables,
+        'create_component_ports':      create_component_functions,
         'before_generating_component': cleanup_component,
         'before_generating_runtime':   add_exported_declarations,
         'save_project_config':         remove_runtime_component
